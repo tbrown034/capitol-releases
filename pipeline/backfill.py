@@ -387,7 +387,7 @@ def find_next_page(soup, current_url):
     return None
 
 
-async def scrape_senator(client, semaphore, senator, run_id, max_pages, conn):
+async def scrape_senator(client, semaphore, senator, run_id, max_pages, _conn_unused):
     """Scrape all press releases for one senator."""
     async with semaphore:
         sid = senator["id"]
@@ -396,8 +396,12 @@ async def scrape_senator(client, semaphore, senator, run_id, max_pages, conn):
         config = senator.get("scrape_config", {}) or {}
         selectors = config.get("selectors", {})
 
+        # Each senator gets its own DB connection to avoid timeout on long runs
+        conn = psycopg2.connect(DB_URL)
+
         if not pr_url:
             print(f"  [!] {name}: no press_release_url, skipping")
+            conn.close()
             return 0, 0
 
         inserted = 0
@@ -486,6 +490,7 @@ async def scrape_senator(client, semaphore, senator, run_id, max_pages, conn):
             # Find next page
             current_url = find_next_page(soup, str(resp.url))
 
+        conn.close()
         print(f"  [{'+' if inserted else '-'}] {name}: {inserted} inserted, {skipped} skipped, {page} pages")
         return inserted, skipped
 
