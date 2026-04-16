@@ -4,6 +4,35 @@ A chronological record of development sessions and significant changes.
 
 ---
 
+## 2026-04-16 - Data quality war: pagination, dates, verification
+
+**The problem:** After the initial backfill, 44 senators had suspicious round numbers (10, 20, 100, 200) revealing pagination caps. 50% of records had null dates. Only 35/100 senators had data reaching January 2025.
+
+**What was fixed:**
+- Rewrote `find_next_page()` to handle all Senate pagination patterns: `?pagenum_rs=`, numbered page lists, "Next >" with non-breaking spaces, WordPress `/page/N/`
+- Added ColdFusion `tbody tr` selector (plain HTML tables)
+- Built `repair_dates.py` to extract dates from URL paths (/YYYY/MM/) and detail page meta tags
+- Cleaned 291 bad records (nav links, social media URLs, listing pages, YouTube/Instagram/LinkedIn)
+- Built 14-test data quality suite (all passing)
+
+**House recon completed:** 437/437 House members discovered (100%). Drupal 254, Generic 161, WordPress 22. 15 need Playwright (Fireside/Next.js).
+
+**Current state:**
+- 23,855 press releases from 98 senators
+- 55% dated (up from 49%), date repair still running
+- 44 senators reaching Jan-Feb 2025 (up from 35)
+- 14/14 data quality tests passing
+- 12 senators flagged as round-number warnings (AJAX pagination)
+
+**Remaining gaps:**
+- 5 senators need Playwright (AJAX pagination: Schmitt, Whitehouse, Young, Merkley, Booker)
+- ~10K records still null-dated (date repair running)
+- ColdFusion senators have low counts vs their actual archives (406 pages for Klobuchar, only 30 scraped)
+
+**About page rewritten** with full transparency: live data quality stats, per-senator coverage table, CMS discovery narratives, challenges and failures section.
+
+---
+
 ## 2026-04-15 - Project inception and full Senate recon
 
 **Session Summary:**
