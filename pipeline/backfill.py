@@ -98,8 +98,33 @@ def extract_listing_items(soup, selectors):
     if len(items) >= 2:
         return items
 
-    # Senate legacy CMS: div.element (Rick Scott, Grassley, etc.)
+    # Wicker: media-list-body (check BEFORE div.element, both exist on Wicker's site)
+    items = soup.select("div.media-list-body")
+    if len(items) >= 2:
+        return items
+
+    # Senate legacy CMS: div.element (Rick Scott, etc.)
     items = soup.select("div.element")
+    if len(items) >= 2:
+        return items
+
+    # Grassley: PressBlock
+    items = soup.select(".PressBlock")
+    if len(items) >= 2:
+        return items
+
+    # JetEngine listing (Whitehouse, etc.)
+    items = soup.select(".jet-listing-grid__item")
+    if len(items) >= 2:
+        return items
+
+    # WordPress Divi blog posts (Bennet)
+    items = soup.select("article.et_pb_post")
+    if len(items) >= 2:
+        return items
+
+    # WordPress postItem (Welch)
+    items = soup.select("article.postItem")
     if len(items) >= 2:
         return items
 
@@ -140,6 +165,81 @@ def extract_item_data(item, base_url, selectors):
     title = ""
     date_text = ""
     detail_url = ""
+
+    item_classes = " ".join(item.get("class", []))
+
+    # Grassley: PressBlock
+    if "PressBlock" in item_classes:
+        link = item.select_one(".PressBlock__content a, a")
+        if link and len(link.get_text(strip=True)) > 10:
+            title = link.get_text(strip=True)
+            detail_url = urljoin(base_url, link.get("href", ""))
+        date_el = item.select_one(".PressBlock__date, .date")
+        if date_el:
+            date_text = date_el.get_text(strip=True)
+        else:
+            block = item.get_text(" ", strip=True)
+            for pat, _ in DATE_PATTERNS:
+                m = pat.search(block)
+                if m:
+                    date_text = m.group(0)
+                    break
+        return title, date_text, detail_url
+
+    # Wicker: media-list-body
+    if "media-list-body" in item_classes:
+        title_el = item.select_one(".post-media-list-title, a.media-list-body-link")
+        if title_el:
+            title = title_el.get_text(strip=True)
+        link = item.select_one("a.media-list-body-link") or item.select_one("div.media-list-content a[href]")
+        if link:
+            detail_url = urljoin(base_url, link.get("href", ""))
+        date_el = item.select_one(".post-media-list-date")
+        if date_el:
+            date_text = date_el.get_text(strip=True)
+        return title, date_text, detail_url
+
+    # WordPress Divi (Bennet): article.et_pb_post
+    if "et_pb_post" in item_classes:
+        link = item.select_one("h3.entry-title a, h2.entry-title a, .entry-title a")
+        if link:
+            title = link.get_text(strip=True)
+            detail_url = urljoin(base_url, link.get("href", ""))
+        date_el = item.select_one("span.published, .post-meta span")
+        if date_el:
+            date_text = date_el.get_text(strip=True)
+        return title, date_text, detail_url
+
+    # WordPress postItem (Welch)
+    if "postItem" in item_classes:
+        # Title is in the main link
+        for a in item.select("a[href]"):
+            text = a.get_text(strip=True)
+            href = a.get("href", "")
+            if len(text) > 15 and href and "senate.gov" in href and "category" not in href:
+                title = text
+                detail_url = urljoin(base_url, href)
+                break
+        date_el = item.select_one(".postDate span, .postDate")
+        if date_el:
+            date_text = date_el.get_text(strip=True)
+        return title, date_text, detail_url
+
+    # JetEngine listing (Whitehouse)
+    if "jet-listing-grid__item" in item_classes:
+        link = item.select_one(".jet-listing-dynamic-link a, a[href*='/news/release/']")
+        if link:
+            title = link.get_text(strip=True)
+            detail_url = urljoin(base_url, link.get("href", ""))
+        # Date is often in the first heading
+        headings = item.select("h3")
+        for h in headings:
+            text = h.get_text(strip=True)
+            parsed = parse_date(text)
+            if parsed:
+                date_text = text
+                break
+        return title, date_text, detail_url
 
     # Senate custom CMS: ArticleBlock pattern
     article_link = item.select_one(".ArticleTitle a, .ArticleTitle__link, a.ArticleTitle__link")
