@@ -1,0 +1,2355 @@
+{
+  "members": [
+    {
+      "senator_id": "alsobrooks-angela",
+      "full_name": "Angela D. Alsobrooks",
+      "party": "D",
+      "state": "MD",
+      "official_url": "https://www.alsobrooks.senate.gov",
+      "press_release_url": "https://www.alsobrooks.senate.gov/newsroom/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.35,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "armstrong-alan",
+      "full_name": "Alan Armstrong",
+      "party": "R",
+      "state": "OK",
+      "official_url": "https://www.armstrong.senate.gov",
+      "press_release_url": "https://www.armstrong.senate.gov/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.3,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "baldwin-tammy",
+      "full_name": "Tammy Baldwin",
+      "party": "D",
+      "state": "WI",
+      "official_url": "https://www.baldwin.senate.gov",
+      "press_release_url": "https://www.baldwin.senate.gov/news/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item.mb-5",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.8,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "banks-jim",
+      "full_name": "Jim Banks",
+      "party": "R",
+      "state": "IN",
+      "official_url": "https://www.banks.senate.gov",
+      "press_release_url": "https://www.banks.senate.gov/news/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.6,
+      "notes": "Found 4 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "barrasso-john",
+      "full_name": "John Barrasso",
+      "party": "R",
+      "state": "WY",
+      "official_url": "https://www.barrasso.senate.gov",
+      "press_release_url": "https://www.barrasso.senate.gov/newsroom/news-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "article.post",
+        "title": "h3 a",
+        "date": ".elementor-post__meta-data",
+        "detail_link": "h3 a[href]"
+      },
+      "confidence": 1.0,
+      "notes": "Found 10 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "bennet-michael",
+      "full_name": "Michael F. Bennet",
+      "party": "D",
+      "state": "CO",
+      "official_url": "https://www.bennet.senate.gov",
+      "press_release_url": "https://www.bennet.senate.gov/2014/11/21/press-releases-id-00079d57-4929-7011-85ae-df2641f4ad4e/",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.3,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "blackburn-marsha",
+      "full_name": "Marsha Blackburn",
+      "party": "R",
+      "state": "TN",
+      "official_url": "https://www.blackburn.senate.gov",
+      "press_release_url": "https://www.blackburn.senate.gov/news/cc8c80c1-d564-4bbb-93a4-f1d772346ae0",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 1
+      },
+      "selectors": {
+        "list_item": "li.page-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.65,
+      "notes": "Found 13 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "blumenthal-richard",
+      "full_name": "Richard Blumenthal",
+      "party": "D",
+      "state": "CT",
+      "official_url": "https://www.blumenthal.senate.gov",
+      "press_release_url": "https://www.blumenthal.senate.gov/newsroom/press",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item.mb-5",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.85,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "rochester-lisa",
+      "full_name": "Lisa Blunt Rochester",
+      "party": "D",
+      "state": "DE",
+      "official_url": "https://www.bluntrochester.senate.gov",
+      "press_release_url": "https://www.bluntrochester.senate.gov/news/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.6,
+      "notes": "Found 4 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "booker-cory",
+      "full_name": "Cory A. Booker",
+      "party": "D",
+      "state": "NJ",
+      "official_url": "https://www.booker.senate.gov",
+      "press_release_url": "https://www.booker.senate.gov/news",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.SiteNav__dropdownItem",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.85,
+      "notes": "Found 21 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "boozman-john",
+      "full_name": "John Boozman",
+      "party": "R",
+      "state": "AR",
+      "official_url": "https://www.boozman.senate.gov",
+      "press_release_url": "https://www.boozman.senate.gov/press-releases",
+      "parser_family": "senate-coldfusion",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 306 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "britt-katie",
+      "full_name": "Katie Boyd Britt",
+      "party": "R",
+      "state": "AL",
+      "official_url": "https://www.britt.senate.gov",
+      "press_release_url": "https://www.britt.senate.gov/media/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 8 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "budd-ted",
+      "full_name": "Ted Budd",
+      "party": "R",
+      "state": "NC",
+      "official_url": "https://www.budd.senate.gov",
+      "press_release_url": "https://www.budd.senate.gov/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.35,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "cantwell-maria",
+      "full_name": "Maria Cantwell",
+      "party": "D",
+      "state": "WA",
+      "official_url": "https://www.cantwell.senate.gov",
+      "press_release_url": "https://www.cantwell.senate.gov/news/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "li",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.9,
+      "notes": "Found 90 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "capito-shelley",
+      "full_name": "Shelley Moore Capito",
+      "party": "R",
+      "state": "WV",
+      "official_url": "https://www.capito.senate.gov",
+      "press_release_url": "https://www.capito.senate.gov/news/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.35,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "cassidy-bill",
+      "full_name": "Bill Cassidy",
+      "party": "R",
+      "state": "LA",
+      "official_url": "https://www.cassidy.senate.gov",
+      "press_release_url": "https://www.cassidy.senate.gov/newsroom/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 8 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "collins-susan",
+      "full_name": "Susan M. Collins",
+      "party": "R",
+      "state": "ME",
+      "official_url": "https://www.collins.senate.gov",
+      "press_release_url": "https://www.collins.senate.gov/newsroom/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item.mb-5",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.85,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "coons-christopher",
+      "full_name": "Christopher A. Coons",
+      "party": "D",
+      "state": "DE",
+      "official_url": "https://www.coons.senate.gov",
+      "press_release_url": "https://www.coons.senate.gov/news/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.95,
+      "notes": "Found 5 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "cornyn-john",
+      "full_name": "John Cornyn",
+      "party": "R",
+      "state": "TX",
+      "official_url": "https://www.cornyn.senate.gov",
+      "press_release_url": "https://www.cornyn.senate.gov/news/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.menu-item.menu-item-type-post_type.menu-item-object-page.hfe-creative-menu",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.85,
+      "notes": "Found 32 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "masto-catherine",
+      "full_name": "Catherine Cortez Masto",
+      "party": "D",
+      "state": "NV",
+      "official_url": "https://www.cortezmasto.senate.gov",
+      "press_release_url": "https://www.cortezmasto.senate.gov/news/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 5 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "cotton-tom",
+      "full_name": "Tom Cotton",
+      "party": "R",
+      "state": "AR",
+      "official_url": "https://www.cotton.senate.gov",
+      "press_release_url": "https://www.cotton.senate.gov/news/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.35,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "cramer-kevin",
+      "full_name": "Kevin Cramer",
+      "party": "R",
+      "state": "ND",
+      "official_url": "https://www.cramer.senate.gov",
+      "press_release_url": "https://www.cramer.senate.gov/news/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item",
+        "title": "h3 a",
+        "date": null,
+        "detail_link": "h3 a[href]"
+      },
+      "confidence": 0.85,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "crapo-mike",
+      "full_name": "Mike Crapo",
+      "party": "R",
+      "state": "ID",
+      "official_url": "https://www.crapo.senate.gov",
+      "press_release_url": "https://www.crapo.senate.gov/media",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.SiteNav__dropdownItem",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.85,
+      "notes": "Found 24 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "cruz-ted",
+      "full_name": "Ted Cruz",
+      "party": "R",
+      "state": "TX",
+      "official_url": "https://www.cruz.senate.gov",
+      "press_release_url": "https://www.cruz.senate.gov/newsroom/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item.mb-5",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.8,
+      "notes": "Found 19 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "curtis-john",
+      "full_name": "John R. Curtis",
+      "party": "R",
+      "state": "UT",
+      "official_url": "https://www.curtis.senate.gov",
+      "press_release_url": "https://www.curtis.senate.gov/media/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.4,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "daines-steve",
+      "full_name": "Steve Daines",
+      "party": "R",
+      "state": "MT",
+      "official_url": "https://www.daines.senate.gov",
+      "press_release_url": "https://www.daines.senate.gov/news/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "article.post",
+        "title": "h3 a",
+        "date": ".elementor-post__meta-data",
+        "detail_link": "h3 a[href]"
+      },
+      "confidence": 1.0,
+      "notes": "Found 9 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "duckworth-tammy",
+      "full_name": "Tammy Duckworth",
+      "party": "D",
+      "state": "IL",
+      "official_url": "https://www.duckworth.senate.gov",
+      "press_release_url": "https://www.duckworth.senate.gov/news/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "h2.title",
+        "title": "h2 a",
+        "date": null,
+        "detail_link": "h2 a[href]"
+      },
+      "confidence": 0.95,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "durbin-richard",
+      "full_name": "Richard J. Durbin",
+      "party": "D",
+      "state": "IL",
+      "official_url": "https://www.durbin.senate.gov",
+      "press_release_url": "https://www.durbin.senate.gov/newsroom/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "h2.title",
+        "title": "h2 a",
+        "date": null,
+        "detail_link": "h2 a[href]"
+      },
+      "confidence": 0.95,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "ernst-joni",
+      "full_name": "Joni Ernst",
+      "party": "R",
+      "state": "IA",
+      "official_url": "https://www.ernst.senate.gov",
+      "press_release_url": "https://www.ernst.senate.gov/news/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item.mb-5",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.85,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "fetterman-john",
+      "full_name": "John Fetterman",
+      "party": "D",
+      "state": "PA",
+      "official_url": "https://www.fetterman.senate.gov",
+      "press_release_url": "https://www.fetterman.senate.gov/press-release/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "path_segment",
+        "pattern": "/page/{n}",
+        "starts_at": 1
+      },
+      "selectors": {
+        "list_item": "article.post",
+        "title": "h3 a",
+        "date": ".elementor-post__meta-data",
+        "detail_link": "h3 a[href]"
+      },
+      "confidence": 1.0,
+      "notes": "Found 10 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "fischer-deb",
+      "full_name": "Deb Fischer",
+      "party": "R",
+      "state": "NE",
+      "official_url": "https://www.fischer.senate.gov",
+      "press_release_url": "https://www.fischer.senate.gov/public/index.cfm/press-releases",
+      "parser_family": "senate-coldfusion",
+      "requires_js": false,
+      "pagination": {
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 1
+      },
+      "selectors": {
+        "list_item": "tr",
+        "title": "a",
+        "date": ".recordListDate",
+        "detail_link": "a[href]"
+      },
+      "confidence": 1.0,
+      "notes": "Found 12 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "gallego-ruben",
+      "full_name": "Ruben Gallego",
+      "party": "D",
+      "state": "AZ",
+      "official_url": "https://www.gallego.senate.gov",
+      "press_release_url": "https://www.gallego.senate.gov/news/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.45,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "gillibrand-kirsten",
+      "full_name": "Kirsten E. Gillibrand",
+      "party": "D",
+      "state": "NY",
+      "official_url": "https://www.gillibrand.senate.gov",
+      "press_release_url": "https://www.gillibrand.senate.gov/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "article.post",
+        "title": "h2 a",
+        "date": ".post-meta",
+        "detail_link": "h2 a[href]"
+      },
+      "confidence": 0.95,
+      "notes": "Found 10 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "graham-lindsey",
+      "full_name": "Lindsey Graham",
+      "party": "R",
+      "state": "SC",
+      "official_url": "https://www.lgraham.senate.gov",
+      "press_release_url": "https://www.lgraham.senate.gov/public/index.cfm/press-releases",
+      "parser_family": "senate-coldfusion",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 361 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "grassley-chuck",
+      "full_name": "Chuck Grassley",
+      "party": "R",
+      "state": "IA",
+      "official_url": "https://www.grassley.senate.gov",
+      "press_release_url": "https://www.grassley.senate.gov/404?notfound=/newsroom/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "blockquote.twitter-tweet",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.85,
+      "notes": "Found 33 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "hagerty-bill",
+      "full_name": "Bill Hagerty",
+      "party": "R",
+      "state": "TN",
+      "official_url": "https://www.hagerty.senate.gov",
+      "press_release_url": "https://www.hagerty.senate.gov/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "path_segment",
+        "pattern": "/page/{n}",
+        "starts_at": 1
+      },
+      "selectors": {
+        "list_item": "li",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.7,
+      "notes": "Found 45 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "hassan-margaret",
+      "full_name": "Margaret Wood Hassan",
+      "party": "D",
+      "state": "NH",
+      "official_url": "https://www.hassan.senate.gov",
+      "press_release_url": "https://www.hassan.senate.gov/news/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item.mb-5",
+        "title": "a",
+        "date": "time",
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.9,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "hawley-josh",
+      "full_name": "Josh Hawley",
+      "party": "R",
+      "state": "MO",
+      "official_url": "https://www.hawley.senate.gov",
+      "press_release_url": "https://www.hawley.senate.gov/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "path_segment",
+        "pattern": "/page/{n}",
+        "starts_at": 1
+      },
+      "selectors": {
+        "list_item": "article.post",
+        "title": "h2 a",
+        "date": ".post-meta",
+        "detail_link": "h2 a[href]"
+      },
+      "confidence": 1.0,
+      "notes": "Found 10 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "heinrich-martin",
+      "full_name": "Martin Heinrich",
+      "party": "D",
+      "state": "NM",
+      "official_url": "https://www.heinrich.senate.gov",
+      "press_release_url": "https://www.heinrich.senate.gov/newsroom/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item.mb-5",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.8,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "hickenlooper-john",
+      "full_name": "John W. Hickenlooper",
+      "party": "D",
+      "state": "CO",
+      "official_url": "https://www.hickenlooper.senate.gov",
+      "press_release_url": "https://www.hickenlooper.senate.gov/press/",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.35,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "hirono-mazie",
+      "full_name": "Mazie K. Hirono",
+      "party": "D",
+      "state": "HI",
+      "official_url": "https://www.hirono.senate.gov",
+      "press_release_url": "https://www.hirono.senate.gov/news/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item.mb-5",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.85,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "hoeven-john",
+      "full_name": "John Hoeven",
+      "party": "R",
+      "state": "ND",
+      "official_url": "https://www.hoeven.senate.gov",
+      "press_release_url": "https://www.hoeven.senate.gov/news",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.8,
+      "notes": "Found 105 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "husted-jon",
+      "full_name": "Jon Husted",
+      "party": "R",
+      "state": "OH",
+      "official_url": "https://www.husted.senate.gov",
+      "press_release_url": "https://www.husted.senate.gov/media/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 8 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "hydesmith-cindy",
+      "full_name": "Cindy Hyde-Smith",
+      "party": "R",
+      "state": "MS",
+      "official_url": "https://www.hydesmith.senate.gov",
+      "press_release_url": "https://www.hydesmith.senate.gov/newsroom",
+      "parser_family": "senate-drupal",
+      "requires_js": false,
+      "pagination": {
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
+      },
+      "selectors": {
+        "list_item": ".views-row",
+        "title": "h2 a",
+        "date": "time",
+        "detail_link": "h2 a[href]"
+      },
+      "confidence": 1.0,
+      "notes": "Found 15 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "johnson-ron",
+      "full_name": "Ron Johnson",
+      "party": "R",
+      "state": "WI",
+      "official_url": "https://www.ronjohnson.senate.gov",
+      "press_release_url": "https://www.ronjohnson.senate.gov/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 1
+      },
+      "selectors": {
+        "list_item": "li.page-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.65,
+      "notes": "Found 13 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "justice-james",
+      "full_name": "James C. Justice",
+      "party": "R",
+      "state": "WV",
+      "official_url": "https://www.justice.senate.gov",
+      "press_release_url": "https://www.justice.senate.gov/media/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.4,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "kaine-tim",
+      "full_name": "Tim Kaine",
+      "party": "D",
+      "state": "VA",
+      "official_url": "https://www.kaine.senate.gov",
+      "press_release_url": "https://www.kaine.senate.gov/news",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item.mb-5",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.85,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "kelly-mark",
+      "full_name": "Mark Kelly",
+      "party": "D",
+      "state": "AZ",
+      "official_url": "https://www.kelly.senate.gov",
+      "press_release_url": "https://www.kelly.senate.gov/newsroom/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.6,
+      "notes": "Found 5 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "kennedy-john",
+      "full_name": "John Kennedy",
+      "party": "R",
+      "state": "LA",
+      "official_url": "https://www.kennedy.senate.gov",
+      "press_release_url": "https://www.kennedy.senate.gov/public/index.cfm/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 266 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "kim-andy",
+      "full_name": "Andy Kim",
+      "party": "D",
+      "state": "NJ",
+      "official_url": "https://www.kim.senate.gov",
+      "press_release_url": "https://www.kim.senate.gov/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.35,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "king-angus",
+      "full_name": "Angus S. King, Jr.",
+      "party": "I",
+      "state": "ME",
+      "official_url": "https://www.king.senate.gov",
+      "press_release_url": "https://www.king.senate.gov/newsroom/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "h2.data-browser__title",
+        "title": "h2 a",
+        "date": null,
+        "detail_link": "h2 a[href]"
+      },
+      "confidence": 0.85,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "klobuchar-amy",
+      "full_name": "Amy Klobuchar",
+      "party": "D",
+      "state": "MN",
+      "official_url": "https://www.klobuchar.senate.gov",
+      "press_release_url": "https://www.klobuchar.senate.gov/public/index.cfm/news-releases",
+      "parser_family": "senate-coldfusion",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 452 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "lankford-james",
+      "full_name": "James Lankford",
+      "party": "R",
+      "state": "OK",
+      "official_url": "https://www.lankford.senate.gov",
+      "press_release_url": "https://www.lankford.senate.gov/news/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 6 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "lee-mike",
+      "full_name": "Mike Lee",
+      "party": "R",
+      "state": "UT",
+      "official_url": "https://www.lee.senate.gov",
+      "press_release_url": "https://www.lee.senate.gov/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 1
+      },
+      "selectors": {
+        "list_item": "li.page-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.65,
+      "notes": "Found 13 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "lujan-ben",
+      "full_name": "Ben Ray Lujan",
+      "party": "D",
+      "state": "NM",
+      "official_url": "https://www.lujan.senate.gov",
+      "press_release_url": "https://www.lujan.senate.gov/newsroom/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 12 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "lummis-cynthia",
+      "full_name": "Cynthia M. Lummis",
+      "party": "R",
+      "state": "WY",
+      "official_url": "https://www.lummis.senate.gov",
+      "press_release_url": "https://www.lummis.senate.gov/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "path_segment",
+        "pattern": "/page/{n}",
+        "starts_at": 1
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.45,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "markey-edward",
+      "full_name": "Edward J. Markey",
+      "party": "D",
+      "state": "MA",
+      "official_url": "https://www.markey.senate.gov",
+      "press_release_url": "https://www.markey.senate.gov/news/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.35,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "marshall-roger",
+      "full_name": "Roger Marshall",
+      "party": "R",
+      "state": "KS",
+      "official_url": "https://www.marshall.senate.gov",
+      "press_release_url": "https://www.marshall.senate.gov/newsroom/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.6,
+      "notes": "Found 13 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "mcconnell-mitch",
+      "full_name": "Mitch McConnell",
+      "party": "R",
+      "state": "KY",
+      "official_url": "https://www.mcconnell.senate.gov",
+      "press_release_url": "https://www.mcconnell.senate.gov/public/index.cfm/pressreleases",
+      "parser_family": "senate-coldfusion",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 278 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "mccormick-david",
+      "full_name": "David McCormick",
+      "party": "R",
+      "state": "PA",
+      "official_url": "https://www.mccormick.senate.gov",
+      "press_release_url": "https://www.mccormick.senate.gov/news/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.7,
+      "notes": "Found 4 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "merkley-jeff",
+      "full_name": "Jeff Merkley",
+      "party": "D",
+      "state": "OR",
+      "official_url": "https://www.merkley.senate.gov",
+      "press_release_url": "https://www.merkley.senate.gov/news/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "article.post",
+        "title": "h2 a",
+        "date": ".elementor-post__meta-data",
+        "detail_link": "h2 a[href]"
+      },
+      "confidence": 1.0,
+      "notes": "Found 9 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "moody-ashley",
+      "full_name": "Ashley Moody",
+      "party": "R",
+      "state": "FL",
+      "official_url": "https://www.moody.senate.gov",
+      "press_release_url": "https://www.moody.senate.gov/press-releases/",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.35,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "moran-jerry",
+      "full_name": "Jerry Moran",
+      "party": "R",
+      "state": "KS",
+      "official_url": "https://www.moran.senate.gov",
+      "press_release_url": "https://www.moran.senate.gov/public/index.cfm/news-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 323 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "moreno-bernie",
+      "full_name": "Bernie Moreno",
+      "party": "R",
+      "state": "OH",
+      "official_url": "https://www.moreno.senate.gov",
+      "press_release_url": "https://www.moreno.senate.gov/media/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.4,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "murkowski-lisa",
+      "full_name": "Lisa Murkowski",
+      "party": "R",
+      "state": "AK",
+      "official_url": "https://www.murkowski.senate.gov",
+      "press_release_url": "https://www.murkowski.senate.gov/press/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "h2.title",
+        "title": "h2 a",
+        "date": null,
+        "detail_link": "h2 a[href]"
+      },
+      "confidence": 0.9,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "murphy-christopher",
+      "full_name": "Christopher Murphy",
+      "party": "D",
+      "state": "CT",
+      "official_url": "https://www.murphy.senate.gov",
+      "press_release_url": "https://www.murphy.senate.gov/newsroom/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item",
+        "title": "a",
+        "date": ".ArticleBlock__meta",
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.95,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "murray-patty",
+      "full_name": "Patty Murray",
+      "party": "D",
+      "state": "WA",
+      "official_url": "https://www.murray.senate.gov",
+      "press_release_url": "https://www.murray.senate.gov/press-kit/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 11 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "ossoff-jon",
+      "full_name": "Jon Ossoff",
+      "party": "D",
+      "state": "GA",
+      "official_url": "https://www.ossoff.senate.gov",
+      "press_release_url": "https://www.ossoff.senate.gov/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.35,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "padilla-alex",
+      "full_name": "Alex Padilla",
+      "party": "D",
+      "state": "CA",
+      "official_url": "https://www.padilla.senate.gov",
+      "press_release_url": "https://www.padilla.senate.gov/newsroom/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.6,
+      "notes": "Found 9 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "paul-rand",
+      "full_name": "Rand Paul",
+      "party": "R",
+      "state": "KY",
+      "official_url": "https://www.paul.senate.gov",
+      "press_release_url": "https://www.paul.senate.gov/news/",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "path_segment",
+        "pattern": "/page/{n}",
+        "starts_at": 1
+      },
+      "selectors": {
+        "list_item": "article.post",
+        "title": "h2 a",
+        "date": ".published",
+        "detail_link": "h2 a[href]"
+      },
+      "confidence": 1.0,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "peters-gary",
+      "full_name": "Gary C. Peters",
+      "party": "D",
+      "state": "MI",
+      "official_url": "https://www.peters.senate.gov",
+      "press_release_url": "https://www.peters.senate.gov/newsroom/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item.mb-5",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.8,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "reed-jack",
+      "full_name": "Jack Reed",
+      "party": "D",
+      "state": "RI",
+      "official_url": "https://www.reed.senate.gov",
+      "press_release_url": "https://www.reed.senate.gov/news/releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.3,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "ricketts-pete",
+      "full_name": "Pete Ricketts",
+      "party": "R",
+      "state": "NE",
+      "official_url": "https://www.ricketts.senate.gov",
+      "press_release_url": "https://www.ricketts.senate.gov/newsroom/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 8 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "risch-james",
+      "full_name": "James E. Risch",
+      "party": "R",
+      "state": "ID",
+      "official_url": "https://www.risch.senate.gov",
+      "press_release_url": "https://www.risch.senate.gov/newsroom/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.7,
+      "notes": "Found 8 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "rosen-jacky",
+      "full_name": "Jacky Rosen",
+      "party": "D",
+      "state": "NV",
+      "official_url": "https://www.rosen.senate.gov",
+      "press_release_url": "https://www.rosen.senate.gov/category/press_release/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "path_segment",
+        "pattern": "/page/{n}",
+        "starts_at": 1
+      },
+      "selectors": {
+        "list_item": "article.post",
+        "title": "h2 a",
+        "date": ".elementor-post__meta-data",
+        "detail_link": "h2 a[href]"
+      },
+      "confidence": 1.0,
+      "notes": "Found 10 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "rounds-mike",
+      "full_name": "Mike Rounds",
+      "party": "R",
+      "state": "SD",
+      "official_url": "https://www.rounds.senate.gov",
+      "press_release_url": "https://www.rounds.senate.gov/newsroom/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item.mb-5",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.8,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "sanders-bernard",
+      "full_name": "Bernard Sanders",
+      "party": "I",
+      "state": "VT",
+      "official_url": "https://www.sanders.senate.gov",
+      "press_release_url": "https://www.sanders.senate.gov/media/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": ".entry",
+        "title": "h2 a",
+        "date": ".elementor-post__meta-data",
+        "detail_link": "h2 a[href]"
+      },
+      "confidence": 1.0,
+      "notes": "Found 7 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "schatz-brian",
+      "full_name": "Brian Schatz",
+      "party": "D",
+      "state": "HI",
+      "official_url": "https://www.schatz.senate.gov",
+      "press_release_url": "https://www.schatz.senate.gov/news/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item.mb-5",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.8,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "schiff-adam",
+      "full_name": "Adam B. Schiff",
+      "party": "D",
+      "state": "CA",
+      "official_url": "https://www.schiff.senate.gov",
+      "press_release_url": "https://www.schiff.senate.gov/newsroom/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.7,
+      "notes": "Found 5 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "schmitt-eric",
+      "full_name": "Eric Schmitt",
+      "party": "R",
+      "state": "MO",
+      "official_url": "https://www.schmitt.senate.gov",
+      "press_release_url": "https://www.schmitt.senate.gov/media/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.6,
+      "notes": "Found 4 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "schumer-charles",
+      "full_name": "Charles E. Schumer",
+      "party": "D",
+      "state": "NY",
+      "official_url": "https://www.schumer.senate.gov",
+      "press_release_url": "https://www.schumer.senate.gov/newsroom/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.85,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "scott-rick",
+      "full_name": "Rick Scott",
+      "party": "R",
+      "state": "FL",
+      "official_url": "https://www.rickscott.senate.gov",
+      "press_release_url": "https://www.rickscott.senate.gov/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 1
+      },
+      "selectors": {
+        "list_item": "li.page-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.65,
+      "notes": "Found 13 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "scott-tim",
+      "full_name": "Tim Scott",
+      "party": "R",
+      "state": "SC",
+      "official_url": "https://www.scott.senate.gov",
+      "press_release_url": "https://www.scott.senate.gov/media-center/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.6,
+      "notes": "Found 5 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "shaheen-jeanne",
+      "full_name": "Jeanne Shaheen",
+      "party": "D",
+      "state": "NH",
+      "official_url": "https://www.shaheen.senate.gov",
+      "press_release_url": "https://www.shaheen.senate.gov/news",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "div.NewsroomPress__item",
+        "title": "a",
+        "date": "time",
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.9,
+      "notes": "Found 6 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "sheehy-tim",
+      "full_name": "Tim Sheehy",
+      "party": "R",
+      "state": "MT",
+      "official_url": "https://www.sheehy.senate.gov",
+      "press_release_url": "https://www.sheehy.senate.gov/newsroom/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.6,
+      "notes": "Found 8 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "slotkin-elissa",
+      "full_name": "Elissa Slotkin",
+      "party": "D",
+      "state": "MI",
+      "official_url": "https://www.slotkin.senate.gov",
+      "press_release_url": "https://www.slotkin.senate.gov/newsroom/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "path_segment",
+        "pattern": "/page/{n}",
+        "starts_at": 1
+      },
+      "selectors": {
+        "list_item": "article.post",
+        "title": "h3 a",
+        "date": ".post-meta",
+        "detail_link": "h3 a[href]"
+      },
+      "confidence": 1.0,
+      "notes": "Found 10 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "smith-tina",
+      "full_name": "Tina Smith",
+      "party": "D",
+      "state": "MN",
+      "official_url": "https://www.smith.senate.gov",
+      "press_release_url": "https://www.smith.senate.gov/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "article.post",
+        "title": "h3 a",
+        "date": ".elementor-post__meta-data",
+        "detail_link": "h3 a[href]"
+      },
+      "confidence": 1.0,
+      "notes": "Found 6 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "sullivan-dan",
+      "full_name": "Dan Sullivan",
+      "party": "R",
+      "state": "AK",
+      "official_url": "https://www.sullivan.senate.gov",
+      "press_release_url": "https://www.sullivan.senate.gov/newsroom/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "h2.title",
+        "title": "h2 a",
+        "date": null,
+        "detail_link": "h2 a[href]"
+      },
+      "confidence": 0.9,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "thune-john",
+      "full_name": "John Thune",
+      "party": "R",
+      "state": "SD",
+      "official_url": "https://www.thune.senate.gov",
+      "press_release_url": "https://www.thune.senate.gov/public/index.cfm/press-releases",
+      "parser_family": "senate-coldfusion",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 154 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "tillis-thom",
+      "full_name": "Thom Tillis",
+      "party": "R",
+      "state": "NC",
+      "official_url": "https://www.tillis.senate.gov",
+      "press_release_url": "https://www.tillis.senate.gov/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 1
+      },
+      "selectors": {
+        "list_item": "div.menu-item",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.9,
+      "notes": "Found 33 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "tuberville-tommy",
+      "full_name": "Tommy Tuberville",
+      "party": "R",
+      "state": "AL",
+      "official_url": "https://www.tuberville.senate.gov",
+      "press_release_url": "https://www.tuberville.senate.gov/newsroom/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.6,
+      "notes": "Found 10 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "hollen-chris",
+      "full_name": "Chris Van Hollen",
+      "party": "D",
+      "state": "MD",
+      "official_url": "https://www.vanhollen.senate.gov",
+      "press_release_url": "https://www.vanhollen.senate.gov/news/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "li.PageList__item.mb-2",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 0.8,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "warner-mark",
+      "full_name": "Mark R. Warner",
+      "party": "D",
+      "state": "VA",
+      "official_url": "https://www.warner.senate.gov",
+      "press_release_url": "https://www.warner.senate.gov/news/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.55,
+      "notes": "Found 8 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "warnock-raphael",
+      "full_name": "Raphael G. Warnock",
+      "party": "D",
+      "state": "GA",
+      "official_url": "https://www.warnock.senate.gov",
+      "press_release_url": "https://www.warnock.senate.gov/newsroom/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.6,
+      "notes": "Found 15 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "warren-elizabeth",
+      "full_name": "Elizabeth Warren",
+      "party": "D",
+      "state": "MA",
+      "official_url": "https://www.warren.senate.gov",
+      "press_release_url": "https://www.warren.senate.gov/newsroom/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "h2.title",
+        "title": "h2 a",
+        "date": null,
+        "detail_link": "h2 a[href]"
+      },
+      "confidence": 0.95,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "welch-peter",
+      "full_name": "Peter Welch",
+      "party": "D",
+      "state": "VT",
+      "official_url": "https://www.welch.senate.gov",
+      "press_release_url": "https://www.welch.senate.gov/press-kit/",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": null,
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.3,
+      "notes": "",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "whitehouse-sheldon",
+      "full_name": "Sheldon Whitehouse",
+      "party": "D",
+      "state": "RI",
+      "official_url": "https://www.whitehouse.senate.gov",
+      "press_release_url": "https://www.whitehouse.senate.gov/news/press-releases-test-sorting/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.6,
+      "notes": "Found 12 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "wicker-roger",
+      "full_name": "Roger F. Wicker",
+      "party": "R",
+      "state": "MS",
+      "official_url": "https://www.wicker.senate.gov",
+      "press_release_url": "https://www.wicker.senate.gov/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 1
+      },
+      "selectors": {
+        "list_item": "li.page-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.65,
+      "notes": "Found 13 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "wyden-ron",
+      "full_name": "Ron Wyden",
+      "party": "D",
+      "state": "OR",
+      "official_url": "https://www.wyden.senate.gov",
+      "press_release_url": "https://www.wyden.senate.gov/news/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": false,
+      "pagination": {
+        "type": "link_follow",
+        "next_selector": "a.next"
+      },
+      "selectors": {
+        "list_item": "h2.title",
+        "title": "h2 a",
+        "date": null,
+        "detail_link": "h2 a[href]"
+      },
+      "confidence": 0.95,
+      "notes": "Found 20 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    },
+    {
+      "senator_id": "young-todd",
+      "full_name": "Todd Young",
+      "party": "R",
+      "state": "IN",
+      "official_url": "https://www.young.senate.gov",
+      "press_release_url": "https://www.young.senate.gov/newsroom/press-releases/",
+      "parser_family": "senate-wordpress",
+      "requires_js": false,
+      "pagination": {
+        "type": "unknown"
+      },
+      "selectors": {
+        "list_item": "span.elementor-grid-item",
+        "title": null,
+        "date": null,
+        "detail_link": null
+      },
+      "confidence": 0.6,
+      "notes": "Found 5 items on listing page. ",
+      "last_verified": "2026-04-15",
+      "recon_status": "discovered"
+    }
+  ],
+  "generated_at": "2026-04-15T22:20:28.817086+00:00"
+}
