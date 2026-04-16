@@ -32,8 +32,8 @@ USER_AGENT = (
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
 )
 
-# Concurrency: polite but not glacial
-MAX_CONCURRENT = 12
+# Concurrency: 3 for house.gov (WAF sensitive), 12 for senate.gov
+MAX_CONCURRENT = 3
 REQUEST_TIMEOUT = 20.0
 
 # URL patterns to probe for press-release index pages, ordered by likelihood.
@@ -340,7 +340,7 @@ async def probe_member(
             url = base + path
             try:
                 resp = await client.get(url, follow_redirects=True)
-                await asyncio.sleep(0.3)  # politeness delay
+                await asyncio.sleep(1.5)  # politeness delay (house.gov WAF sensitive)
             except (httpx.TimeoutException, httpx.ConnectError, httpx.HTTPError) as e:
                 result["notes"] += f"Timeout/error on {path}. "
                 continue
