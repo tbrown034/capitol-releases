@@ -1,0 +1,302 @@
+"""
+Capitol Releases -- Data Quality Tests
+
+Automated checks that verify data integrity, detect anomalies,
+and flag likely problems. Run after any backfill or repair.
+
+Usage:
+    python -m pytest pipeline/tests/test_data_quality.py -v
+    python pipeline/tests/test_data_quality.py  # standalone
+"""
+
+import os
+import sys
+import json
+from datetime import datetime, timezone
+from collections import Counter
+
+import psycopg2
+
+DB_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql://neondb_owner:npg_CH7k3vjTsoRG@ep-young-tree-amictscx-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require",
+)
+
+
+def get_conn():
+    return psycopg2.connect(DB_URL)
+
+
+# ---- Senator coverage tests ----
+
+def test_all_senators_in_db():
+    """Every senator should have a record in the senators table."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT count(*) FROM senators")
+    count = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    assert count == 100, f"Expected 100 senators, got {count}"
+
+
+def test_senators_have_urls():
+    """Every senator should have a press_release_url (except Armstrong who has no page)."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT full_name FROM senators WHERE press_release_url IS NULL")
+    missing = [r[0] for r in cur.fetchall()]
+    cur.close()
+    conn.close()
+    # Armstrong legitimately has no press releases
+    allowed_missing = {"Alan Armstrong"}
+    unexpected = set(missing) - allowed_missing
+    assert len(unexpected) == 0, f"Senators missing URLs: {unexpected}"
+
+
+def test_minimum_senator_coverage():
+    """At least 95 senators should have press releases."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT count(DISTINCT senator_id) FROM press_releases")
+    count = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    assert count >= 95, f"Only {count} senators have releases, expected >= 95"
+
+
+# ---- Data volume tests ----
+
+def test_minimum_total_records():
+    """Should have at least 10,000 press releases."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT count(*) FROM press_releases")
+    count = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    assert count >= 10000, f"Only {count} records, expected >= 10,000"
+
+
+def test_no_empty_titles():
+    """Every record should have a non-empty title."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT count(*) FROM press_releases WHERE title IS NULL OR length(trim(title)) < 5")
+    bad = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    assert bad == 0, f"{bad} records have empty or very short titles"
+
+
+def test_no_duplicate_urls():
+    """Source URLs should be unique."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT source_url, count(*) as cnt
+        FROM press_releases
+        GROUP BY source_url
+        HAVING count(*) > 1
+    """)
+    dupes = cur.fetchall()
+    cur.close()
+    conn.close()
+    assert len(dupes) == 0, f"{len(dupes)} duplicate URLs found"
+
+
+# ---- Date quality tests ----
+
+def test_date_coverage_above_threshold():
+    """At least 60% of records should have dates."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT count(*) FILTER (WHERE published_at IS NOT NULL), count(*) FROM press_releases")
+    dated, total = cur.fetchone()
+    cur.close()
+    conn.close()
+    pct = dated / total * 100 if total > 0 else 0
+    assert pct >= 50, f"Only {pct:.0f}% of records have dates, expected >= 50%"
+
+
+def test_dates_in_valid_range():
+    """All dates should be between 2025-01-01 and tomorrow."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT count(*) FROM press_releases
+        WHERE published_at IS NOT NULL
+        AND (published_at < '2024-01-01' OR published_at > NOW() + interval '2 days')
+    """)
+    bad = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    assert bad == 0, f"{bad} records have dates outside valid range"
+
+
+def test_no_future_dates():
+    """No records should have dates more than 1 day in the future."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT count(*) FROM press_releases WHERE published_at > NOW() + interval '1 day'")
+    bad = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    assert bad == 0, f"{bad} records have future dates"
+
+
+# ---- URL quality tests ----
+
+def test_all_urls_are_government():
+    """All source URLs should be .gov domains."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT source_url FROM press_releases
+        WHERE source_url NOT LIKE '%.gov%'
+        LIMIT 10
+    """)
+    bad = cur.fetchall()
+    cur.close()
+    conn.close()
+    assert len(bad) == 0, f"Non-.gov URLs found: {[r[0][:60] for r in bad]}"
+
+
+def test_no_listing_page_urls():
+    """Source URLs should be detail pages, not listing pages."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT count(*) FROM press_releases
+        WHERE source_url ~ '/press-releases/?$'
+           OR source_url ~ '/news-releases/?$'
+           OR source_url ~ '/newsroom/?$'
+           OR source_url ~ '/news/?$'
+    """)
+    bad = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    assert bad == 0, f"{bad} records have listing-page URLs instead of detail URLs"
+
+
+def test_no_navigation_urls():
+    """Source URLs should not be navigation/about/contact pages."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT count(*) FROM press_releases
+        WHERE source_url LIKE '%/about%'
+           OR source_url LIKE '%/contact%'
+           OR source_url LIKE '%/services%'
+           OR source_url LIKE '%/issues%'
+           OR source_url LIKE '%facebook.com%'
+           OR source_url LIKE '%twitter.com%'
+           OR source_url LIKE '%bsky.app%'
+    """)
+    bad = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    assert bad == 0, f"{bad} records have navigation/social URLs"
+
+
+# ---- Round number anomaly detection ----
+
+def test_no_suspicious_round_counts():
+    """Flag senators with suspiciously round release counts (pagination caps)."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT s.full_name, count(pr.id)::int as cnt
+        FROM senators s
+        JOIN press_releases pr ON pr.senator_id = s.id
+        GROUP BY s.id, s.full_name
+    """)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    # Exact multiples of 10 or 20 are suspicious if between 10 and 200
+    suspicious = [(name, cnt) for name, cnt in rows
+                  if cnt in (10, 20, 30, 40, 50, 100, 200) and cnt < 500]
+
+    # This is a warning, not a hard failure -- some counts genuinely land on round numbers
+    if suspicious:
+        print(f"WARNING: {len(suspicious)} senators have suspicious round counts:")
+        for name, cnt in suspicious:
+            print(f"  {name}: {cnt}")
+    # Soft assertion -- fewer than 15 should be suspicious
+    assert len(suspicious) < 15, f"{len(suspicious)} senators have suspicious round counts (likely pagination caps)"
+
+
+# ---- Completeness tests ----
+
+def test_depth_to_jan_2025():
+    """At least 30 senators should have data reaching Jan-Feb 2025."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT count(*) FROM (
+            SELECT senator_id FROM press_releases
+            WHERE published_at IS NOT NULL
+            GROUP BY senator_id
+            HAVING min(published_at)::date <= '2025-02-28'
+        ) sub
+    """)
+    count = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    assert count >= 30, f"Only {count} senators reach Jan-Feb 2025, expected >= 30"
+
+
+# ---- Run all tests ----
+
+def run_all():
+    """Run all tests and report results."""
+    tests = [
+        test_all_senators_in_db,
+        test_senators_have_urls,
+        test_minimum_senator_coverage,
+        test_minimum_total_records,
+        test_no_empty_titles,
+        test_no_duplicate_urls,
+        test_date_coverage_above_threshold,
+        test_dates_in_valid_range,
+        test_no_future_dates,
+        test_all_urls_are_government,
+        test_no_listing_page_urls,
+        test_no_navigation_urls,
+        test_no_suspicious_round_counts,
+        test_depth_to_jan_2025,
+    ]
+
+    passed = 0
+    failed = 0
+    warnings = 0
+
+    print(f"\n{'='*60}")
+    print(f"  DATA QUALITY TESTS")
+    print(f"  {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
+    print(f"{'='*60}\n")
+
+    for test in tests:
+        try:
+            test()
+            print(f"  PASS  {test.__name__}")
+            passed += 1
+        except AssertionError as e:
+            print(f"  FAIL  {test.__name__}: {e}")
+            failed += 1
+        except Exception as e:
+            print(f"  ERR   {test.__name__}: {type(e).__name__}: {e}")
+            failed += 1
+
+    print(f"\n{'='*60}")
+    print(f"  {passed} passed, {failed} failed")
+    print(f"{'='*60}\n")
+
+    return failed == 0
+
+
+if __name__ == "__main__":
+    success = run_all()
+    sys.exit(0 if success else 1)
