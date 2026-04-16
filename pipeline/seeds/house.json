@@ -584,17 +584,17 @@
       "party": "I",
       "state": "CA",
       "official_url": "https://kiley.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://kiley.house.gov/press",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mb-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\ndiv.mt-6.mb-3.last:mb-0\n                  ^",
       "last_verified": "2026-04-16",
-      "recon_status": "error"
+      "recon_status": "discovered"
     },
     {
       "member_id": "thompson-mike",
@@ -836,18 +836,19 @@
       "party": "D",
       "state": "CA",
       "official_url": "https://adamgray.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
+      "press_release_url": "https://gray.house.gov/media/press-releases",
+      "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
-      "district": 13
+      "recon_status": "discovered",
+      "district": 13,
+      "website_url": "https://gray.house.gov"
     },
     {
       "member_id": "mullin-kevin",
@@ -1442,17 +1443,17 @@
       "party": "D",
       "state": "CA",
       "official_url": "https://snchez.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
+      "press_release_url": "https://lindasanchez.house.gov/media-center/press-releases",
+      "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 38
     },
     {
@@ -1588,17 +1589,17 @@
       "party": "D",
       "state": "CA",
       "official_url": "https://barragn.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
+      "press_release_url": "https://barragan.house.gov/category/press-releases/",
+      "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 44
     },
     {
@@ -2746,17 +2747,17 @@
       "party": "D",
       "state": "FL",
       "official_url": "https://moskowitz.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://moskowitz.house.gov/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mr-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\narticle.flex-1.last-card.last:mr-0.mr-4.xl:max-w-[50%].xl:box-content.utility-font.w-full.min-h-[48px].min-w-[48px]\n                             ^",
       "last_verified": "2026-04-16",
-      "recon_status": "error"
+      "recon_status": "discovered"
     },
     {
       "member_id": "wilson-frederica",
@@ -2966,17 +2967,17 @@
       "party": "D",
       "state": "GA",
       "official_url": "https://johnson.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
+      "press_release_url": "https://hankjohnson.house.gov/media-center/press-releases",
+      "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 4
     },
     {
@@ -2985,17 +2986,17 @@
       "party": "D",
       "state": "GA",
       "official_url": "https://nikemawilliams.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://nikemawilliams.house.gov/press",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 5
     },
     {
@@ -3102,18 +3103,19 @@
       "party": "R",
       "state": "GA",
       "official_url": "https://mikecollins.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
+      "press_release_url": "https://collins.house.gov/media/press-releases",
+      "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
-      "district": 10
+      "recon_status": "discovered",
+      "district": 10,
+      "website_url": "https://collins.house.gov"
     },
     {
       "member_id": "loudermilk-barry",
@@ -3751,17 +3753,17 @@
       "party": "D",
       "state": "IL",
       "official_url": "https://budzinski.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://budzinski.house.gov/press",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 13
     },
     {
@@ -3898,17 +3900,17 @@
       "party": "R",
       "state": "IN",
       "official_url": "https://yakym.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://yakym.house.gov/press",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 2
     },
     {
@@ -5121,17 +5123,17 @@
       "party": "R",
       "state": "MI",
       "official_url": "https://tombarrett.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
+      "press_release_url": "https://barrett.house.gov/media/press-releases",
+      "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 7
     },
     {
@@ -5190,18 +5192,19 @@
       "party": "R",
       "state": "MI",
       "official_url": "https://johnjames.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
+      "press_release_url": "https://james.house.gov/news/documentquery.aspx?DocumentTypeID=27",
+      "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
-      "district": 10
+      "recon_status": "discovered",
+      "district": 10,
+      "website_url": "https://james.house.gov"
     },
     {
       "member_id": "stevens-haley",
@@ -5235,17 +5238,17 @@
       "party": "D",
       "state": "MI",
       "official_url": "https://tlaib.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://tlaib.house.gov/press",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 12
     },
     {
@@ -5865,18 +5868,19 @@
       "party": "D",
       "state": "NC",
       "official_url": "https://donalddavis.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
+      "press_release_url": "https://dondavis.house.gov/media/press-releases",
+      "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
-      "district": 1
+      "recon_status": "discovered",
+      "district": 1,
+      "website_url": "https://dondavis.house.gov"
     },
     {
       "member_id": "ross-deborah",
@@ -6467,17 +6471,17 @@
       "party": "D",
       "state": "NJ",
       "official_url": "https://gottheimer.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://gottheimer.house.gov/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mr-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\narticle.flex-1.last-card.last:mr-0.mr-4.xl:max-w-[50%].xl:box-content.utility-font.w-full.min-h-[48px].min-w-[48px]\n                             ^",
       "last_verified": "2026-04-16",
-      "recon_status": "error"
+      "recon_status": "discovered"
     },
     {
       "member_id": "pallone-frank",
@@ -6690,17 +6694,17 @@
       "party": "D",
       "state": "NM",
       "official_url": "https://legerfernandez.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
+      "press_release_url": "https://fernandez.house.gov/news/documentquery.aspx?DocumentTypeID=27",
+      "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 3
     },
     {
@@ -6967,17 +6971,17 @@
       "party": "D",
       "state": "NY",
       "official_url": "https://velzquez.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
+      "press_release_url": "https://velazquez.house.gov/media-center/press-releases",
+      "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 7
     },
     {
@@ -7164,17 +7168,17 @@
       "party": "D",
       "state": "NY",
       "official_url": "https://ritchietorres.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://ritchietorres.house.gov/press",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 15
     },
     {
@@ -7461,17 +7465,17 @@
       "party": "D",
       "state": "OH",
       "official_url": "https://landsman.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://landsman.house.gov/press",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 1
     },
     {
@@ -7606,17 +7610,17 @@
       "party": "R",
       "state": "OH",
       "official_url": "https://maxmiller.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://maxmiller.house.gov/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mr-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\narticle.flex-1.last-card.last:mr-0.mr-4.xl:max-w-[50%].xl:box-content.utility-font.w-full.min-h-[48px].min-w-[48px]\n                             ^",
       "last_verified": "2026-04-16",
-      "recon_status": "error"
+      "recon_status": "discovered"
     },
     {
       "member_id": "davidson-warren",
@@ -7773,17 +7777,17 @@
       "party": "R",
       "state": "OH",
       "official_url": "https://joyce.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://joyce.house.gov/press",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 14
     },
     {
@@ -7864,17 +7868,17 @@
       "party": "R",
       "state": "OK",
       "official_url": "https://lucas.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://lucas.house.gov/press",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 3
     },
     {
@@ -8521,17 +8525,17 @@
       "party": "D",
       "state": "PR",
       "official_url": "https://hernndez.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
+      "press_release_url": "https://hernandez.house.gov/media/press-releases",
+      "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": "At-Large"
     },
     {
@@ -9643,17 +9647,17 @@
       "party": "R",
       "state": "TX",
       "official_url": "https://cloud.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://cloud.house.gov/press-releases",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mr-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\narticle.flex-1.last-card.last:mr-0.mr-4.xl:max-w-[50%].xl:box-content.utility-font.w-full.min-h-[48px].min-w-[48px]\n                             ^",
       "last_verified": "2026-04-16",
-      "recon_status": "error"
+      "recon_status": "discovered"
     },
     {
       "member_id": "cuellar-henry",
@@ -10064,17 +10068,17 @@
       "party": "R",
       "state": "VA",
       "official_url": "https://kiggans.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://kiggans.house.gov/press",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 2
     },
     {
@@ -10405,17 +10409,17 @@
       "party": "D",
       "state": "WA",
       "official_url": "https://gluesenkampperez.house.gov",
-      "press_release_url": null,
-      "parser_family": null,
-      "requires_js": false,
+      "press_release_url": "https://gluesenkampperez.house.gov/press",
+      "parser_family": "senate-generic",
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {},
-      "confidence": 0.0,
+      "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
       "last_verified": "2026-04-16",
-      "recon_status": "not_found",
+      "recon_status": "discovered",
       "district": 3
     },
     {
