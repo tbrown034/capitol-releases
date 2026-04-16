@@ -366,23 +366,71 @@ def extract_body_text(soup):
 
 def find_next_page(soup, current_url):
     """Find the next page URL from pagination."""
-    # Next link
-    for sel in ["a.next", "a[rel='next']", ".pagination a.next", "li.next a",
-                 "a.pager-next", ".pager__item--next a"]:
+    # 1. Explicit next link (most reliable)
+    for sel in ["a[rel='next']", "a.next", ".pagination a.next", "li.next a",
+                 "a.pager-next", ".pager__item--next a",
+                 ".wp-pagenavi a.nextpostslink", ".nav-links a.next"]:
         el = soup.select_one(sel)
         if el and el.get("href"):
             return urljoin(current_url, el["href"])
 
-    # Page number links - find current and get next
-    pager = soup.select_one(".pagination") or soup.select_one(".pager") or soup.select_one("nav[aria-label*='pagination' i]")
+    # 2. Senate-style "Next" text link (Collins, Ernst, etc. use ?pagenum_rs=)
+    for a in soup.select("a[href]"):
+        text = a.get_text(strip=True).lower()
+        if text in ("next", "next page", "next >>", ">>"):
+            href = a.get("href", "")
+            if href and href != "#":
+                return urljoin(current_url, href)
+
+    # 3. Page number links - find current page and get the next one
+    pager = (
+        soup.select_one(".pagination")
+        or soup.select_one(".pager")
+        or soup.select_one("nav[aria-label*='pagination' i]")
+        or soup.select_one(".wp-pagenavi")
+        or soup.select_one(".page-numbers")
+    )
     if pager:
-        active = pager.select_one(".active, .current, [aria-current]")
+        # Try to find active/current page marker
+        active = pager.select_one(".active, .current, [aria-current], .PageNum_rs_current, strong")
         if active:
+            # Walk siblings to find next page link
             nxt = active.find_next_sibling()
-            if nxt:
-                link = nxt if nxt.name == "a" else nxt.select_one("a")
+            while nxt:
+                link = nxt if nxt.name == "a" else nxt.select_one("a") if hasattr(nxt, "select_one") else None
                 if link and link.get("href"):
                     return urljoin(current_url, link["href"])
+                nxt = nxt.find_next_sibling()
+
+        # Fallback: find all numbered links and determine next page from current URL
+        page_links = []
+        for link in pager.select("a[href]"):
+            t = link.get_text(strip=True)
+            if t.isdigit():
+                page_links.append((int(t), link.get("href")))
+        if page_links:
+            # Determine current page from URL
+            import re as _re
+            current_page = 1
+            m = _re.search(r"[?&](?:page|pagenum_rs|paged|Page)=(\d+)", current_url)
+            if m:
+                current_page = int(m.group(1))
+            m = _re.search(r"/page/(\d+)", current_url)
+            if m:
+                current_page = int(m.group(1))
+            # Find the link for current_page + 1
+            for num, href in sorted(page_links):
+                if num == current_page + 1:
+                    return urljoin(current_url, href)
+
+    # 4. WordPress /page/N/ pattern (look in entire page, not just pager)
+    import re as _re
+    for a in soup.select("a[href*='/page/']"):
+        m = _re.search(r"/page/(\d+)", a.get("href", ""))
+        if m and int(m.group(1)) == 2:
+            # Only use this for page 1 -> 2 transition; for later pages the pager logic above handles it
+            if "page=" not in current_url and "/page/" not in current_url:
+                return urljoin(current_url, a["href"])
 
     return None
 
