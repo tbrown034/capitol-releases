@@ -138,7 +138,8 @@ def extract_listing_items(soup, selectors):
 
     # Fallback selectors
     for sel in [
-        "table.table-striped tbody tr", ".views-row", "article",
+        "table.table-striped tbody tr", "table tbody tr",
+        ".views-row", "article",
         ".element-list .element", "li.press-release", ".record",
         ".entry", ".list-item", ".news-item",
     ]:
@@ -374,10 +375,10 @@ def find_next_page(soup, current_url):
         if el and el.get("href"):
             return urljoin(current_url, el["href"])
 
-    # 2. Senate-style "Next" text link (Collins, Ernst, etc. use ?pagenum_rs=)
+    # 2. Senate-style "Next" text link (Collins, Ernst, Fischer, Cramer, etc.)
     for a in soup.select("a[href]"):
-        text = a.get_text(strip=True).lower()
-        if text in ("next", "next page", "next >>", ">>"):
+        text = a.get_text(strip=True).lower().replace("\xa0", " ")
+        if text.startswith("next") or text in (">>", ">", "older entries"):
             href = a.get("href", "")
             if href and href != "#":
                 return urljoin(current_url, href)
