@@ -37,7 +37,7 @@ def test_all_senators_in_db():
     count = cur.fetchone()[0]
     cur.close()
     conn.close()
-    assert count == 100, f"Expected 100 senators, got {count}"
+    assert count >= 100, f"Expected >= 100 senators (includes former), got {count}"
 
 
 def test_senators_have_urls():
