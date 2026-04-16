@@ -87,9 +87,26 @@ def parse_date(text: str):
 
 def extract_listing_items(soup, selectors):
     """Extract press release items from a listing page."""
-    # Try discovered selectors first
+    # Senate custom CMS: ArticleBlock (covers ~30+ senators)
+    # Check this FIRST -- many sites have bad recon selectors that match nav items
+    items = soup.select(".ArticleBlock")
+    if len(items) >= 2:
+        return items
+
+    # Elementor loop items (Banks, McCormick, etc.)
+    items = soup.select("div.e-loop-item")
+    if len(items) >= 2:
+        return items
+
+    # Senate legacy CMS: div.element (Rick Scott, Grassley, etc.)
+    items = soup.select("div.element")
+    if len(items) >= 2:
+        return items
+
+    # Try discovered selectors (but skip known-bad ones)
     list_sel = selectors.get("list_item")
-    if list_sel:
+    bad_selectors = {"span.elementor-grid-item", "li.page-item"}
+    if list_sel and list_sel not in bad_selectors:
         items = soup.select(list_sel)
         if items:
             return items
@@ -104,6 +121,17 @@ def extract_listing_items(soup, selectors):
         if len(items) >= 2:
             return items
 
+    # Last resort: find all links to press-release detail pages
+    base = soup.select_one("link[rel='canonical']")
+    base_href = base["href"] if base else ""
+    if base_href:
+        pr_links = soup.select(f"a[href*='{base_href.split('/newsroom')[0]}']")
+        pr_links = [a for a in pr_links if len(a.get_text(strip=True)) > 20
+                    and a.parent.name not in ("nav", "header", "footer")
+                    and "menu-item" not in " ".join(a.parent.get("class", []))]
+        if len(pr_links) >= 3:
+            return pr_links
+
     return []
 
 
@@ -113,7 +141,55 @@ def extract_item_data(item, base_url, selectors):
     date_text = ""
     detail_url = ""
 
-    # Title + link
+    # Senate custom CMS: ArticleBlock pattern
+    article_link = item.select_one(".ArticleTitle a, .ArticleTitle__link, a.ArticleTitle__link")
+    if article_link:
+        title = article_link.get_text(strip=True)
+        href = article_link.get("href", "")
+        if href:
+            detail_url = urljoin(base_url, href)
+        date_el = item.select_one(".ArticleBlock__date")
+        if date_el:
+            date_text = date_el.get_text(strip=True)
+        return title, date_text, detail_url
+
+    # Elementor loop item pattern (e.g., Banks)
+    if "e-loop-item" in " ".join(item.get("class", [])):
+        # Title is in an anchor with heading inside, or the first substantial link
+        for el in item.select("a"):
+            text = el.get_text(strip=True)
+            href = el.get("href", "")
+            if len(text) > 15 and href and "senate.gov" in href and not any(s in text.lower() for s in ["home", "about", "contact", "menu"]):
+                title = text
+                detail_url = urljoin(base_url, href)
+                break
+        # Date from post-info widget
+        info = item.select_one(".elementor-widget-post-info")
+        if info:
+            date_text = info.get_text(strip=True)
+        if not date_text:
+            block = item.get_text(" ", strip=True)
+            for pat, _ in DATE_PATTERNS:
+                m = pat.search(block)
+                if m:
+                    date_text = m.group(0)
+                    break
+        return title, date_text, detail_url
+
+    # Senate legacy CMS: div.element (Rick Scott, Grassley, etc.)
+    if "element" in item.get("class", []) and item.select_one(".element-title"):
+        title_el = item.select_one(".element-title")
+        if title_el:
+            title = title_el.get_text(strip=True)
+        link_el = item.select_one("a[href]")
+        if link_el:
+            detail_url = urljoin(base_url, link_el.get("href", ""))
+        date_el = item.select_one(".element-date")
+        if date_el:
+            date_text = date_el.get_text(strip=True)
+        return title, date_text, detail_url
+
+    # Title + link (generic)
     if item.name == "a":
         title = item.get_text(strip=True)
         href = item.get("href", "")
@@ -142,7 +218,7 @@ def extract_item_data(item, base_url, selectors):
     if time_el:
         date_text = time_el.get("datetime", "") or time_el.get_text(strip=True)
     else:
-        for cls in ["date", "datetime", "timestamp"]:
+        for cls in ["date", "datetime", "timestamp", "ArticleBlock__date"]:
             el = item.select_one(f".{cls}")
             if el:
                 date_text = el.get_text(strip=True)
