@@ -1,8 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { getStats, getTopSenators, getPartyBreakdown, getFeed } from "./lib/queries";
-import { getDailyVolume, getSenatorActivity, getTopicTrends } from "./lib/analytics";
-import { PartyDot } from "./components/party-badge";
+import { getDailyVolume, getSenatorActivity } from "./lib/analytics";
 import { ReleaseCard } from "./components/release-card";
 import { SearchBox } from "./components/search-box";
 import { ActivityChart } from "./components/activity-chart";
@@ -12,18 +11,16 @@ import type { FeedItem } from "./lib/db";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [stats, topSenators, partyBreakdown, { items: latest }, dailyVolume, senatorActivity, topics] =
+  const [stats, topSenators, partyBreakdown, { items: latest }, dailyVolume, senatorActivity] =
     await Promise.all([
       getStats(),
-      getTopSenators(15),
+      getTopSenators(10),
       getPartyBreakdown(),
-      getFeed({ perPage: 5 }),
+      getFeed({ perPage: 8 }),
       getDailyVolume(90),
       getSenatorActivity(),
-      getTopicTrends(),
     ]);
 
-  // Transform senator activity into swim lane data (top 20 by volume)
   const senatorMap = new Map<
     string,
     {
@@ -37,234 +34,169 @@ export default async function Home() {
   >();
   for (const row of senatorActivity as { id: string; full_name: string; party: "D" | "R" | "I"; state: string; week: string; count: number }[]) {
     if (!senatorMap.has(row.id)) {
-      senatorMap.set(row.id, {
-        id: row.id,
-        full_name: row.full_name,
-        party: row.party,
-        state: row.state,
-        weeks: [],
-        total: 0,
-      });
+      senatorMap.set(row.id, { id: row.id, full_name: row.full_name, party: row.party, state: row.state, weeks: [], total: 0 });
     }
     const s = senatorMap.get(row.id)!;
     s.weeks.push({ week: row.week, count: row.count });
     s.total += row.count;
   }
-  const swimLaneData = Array.from(senatorMap.values())
-    .sort((a, b) => b.total - a.total)
-    .slice(0, 20);
+  const swimLaneData = Array.from(senatorMap.values()).sort((a, b) => b.total - a.total).slice(0, 15);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
+    <div className="mx-auto max-w-5xl px-4">
       {/* Hero */}
-      <section className="mb-8">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Capitol Releases
-            </h1>
-            <p className="mt-2 max-w-xl text-stone-500">
-              A searchable archive of official press releases from all 100 U.S.
-              senators. Normalized, indexed, updated daily.
-            </p>
-          </div>
-        </div>
-        <div className="mt-5 max-w-lg">
+      <section className="py-16">
+        <h1 className="font-[family-name:var(--font-source-serif)] text-4xl md:text-5xl leading-tight text-neutral-900 mb-4">
+          Capitol Releases
+        </h1>
+        <p className="text-sm text-neutral-500 max-w-lg leading-relaxed mb-6">
+          A searchable archive of official press releases from all 100 U.S.
+          senators. Normalized from {(stats.senators_with_releases ?? 0)} individual
+          government websites into one feed. Updated daily.
+        </p>
+        <div className="max-w-md">
           <Suspense>
             <SearchBox />
           </Suspense>
         </div>
       </section>
 
-      {/* Stats bar */}
-      <section className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard
-          label="Press Releases"
-          value={stats.total_releases ?? 0}
-        />
-        <StatCard
-          label="Senators"
-          value={stats.senators_with_releases ?? 0}
-          suffix={`/ ${stats.total_senators ?? 100}`}
-        />
-        <StatCard label="Earliest" value={formatShortDate(stats.earliest)} />
-        <StatCard label="Latest" value={formatShortDate(stats.latest)} />
-      </section>
+      {/* Stat row */}
+      <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm text-neutral-500 border-b border-neutral-200 pb-6 mb-12">
+        <div>
+          <span className="text-2xl font-semibold text-neutral-900 font-[family-name:var(--font-dm-mono)] tabular-nums mr-1.5">
+            {(stats.total_releases ?? 0).toLocaleString()}
+          </span>
+          press releases
+        </div>
+        <div>
+          <span className="text-2xl font-semibold text-neutral-900 font-[family-name:var(--font-dm-mono)] tabular-nums mr-1.5">
+            {stats.senators_with_releases ?? 0}
+          </span>
+          senators tracked
+        </div>
+        <div>
+          <span className="text-2xl font-semibold text-neutral-900 font-[family-name:var(--font-dm-mono)] tabular-nums mr-1.5">
+            {formatShortDate(stats.earliest)}
+          </span>
+          to
+          <span className="text-2xl font-semibold text-neutral-900 font-[family-name:var(--font-dm-mono)] tabular-nums ml-1.5">
+            {formatShortDate(stats.latest)}
+          </span>
+        </div>
+        {(partyBreakdown as { party: string; count: number }[]).map((row) => (
+          <div key={row.party}>
+            <span className={`text-lg font-semibold font-[family-name:var(--font-dm-mono)] tabular-nums mr-1 ${
+              row.party === "D" ? "text-blue-600" : row.party === "R" ? "text-red-600" : "text-amber-600"
+            }`}>
+              {row.count.toLocaleString()}
+            </span>
+            {row.party === "D" ? "Democratic" : row.party === "R" ? "Republican" : "Independent"}
+          </div>
+        ))}
+      </div>
+
+      {/* CTA cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-16">
+        <CTACard href="/feed" title="Live Feed" desc="Reverse-chronological stream of all press releases." />
+        <CTACard href="/senators" title="Senator Directory" desc="All 100 senators with release counts and archives." />
+        <CTACard href="/about" title="Methodology" desc="How the data is collected, CMS patterns, known gaps." />
+      </div>
 
       {/* Activity chart */}
-      <section className="mb-8 rounded-lg border border-stone-200 bg-white p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-400">
-          Daily Release Volume (90 days)
+      <section className="mb-16">
+        <h2 className="font-[family-name:var(--font-source-serif)] text-2xl text-neutral-900 mb-1">
+          Release Volume
         </h2>
-        <div className="mt-3">
-          <ActivityChart
-            data={(dailyVolume as { day: string; count: number }[])}
-          />
-        </div>
+        <p className="text-xs text-neutral-400 mb-4">Daily press releases over the past 90 days</p>
+        <ActivityChart data={dailyVolume as { day: string; count: number }[]} />
       </section>
 
       {/* Swim lane */}
-      <section className="mb-8 rounded-lg border border-stone-200 bg-white p-5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-400">
-            Release Activity by Senator (Top 20)
-          </h2>
-          <div className="flex items-center gap-3 text-xs text-stone-400">
-            <span className="flex items-center gap-1">
-              <span className="inline-block h-2 w-2 rounded-full bg-blue-500" /> Democrat
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="inline-block h-2 w-2 rounded-full bg-red-500" /> Republican
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="inline-block h-2 w-2 rounded-full bg-amber-500" /> Independent
-            </span>
-          </div>
-        </div>
-        <div className="mt-3">
-          <SwimLane data={swimLaneData} />
-        </div>
+      <section className="mb-16">
+        <h2 className="font-[family-name:var(--font-source-serif)] text-2xl text-neutral-900 mb-1">
+          Senator Activity
+        </h2>
+        <p className="text-xs text-neutral-400 mb-4">
+          Weekly release volume for the 15 most active senators.
+          <span className="ml-3 inline-flex items-center gap-3">
+            <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full bg-blue-500" /> D</span>
+            <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full bg-red-500" /> R</span>
+            <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full bg-amber-500" /> I</span>
+          </span>
+        </p>
+        <SwimLane data={swimLaneData} />
       </section>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        {/* Latest releases */}
+      {/* Most active + latest releases side by side */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-16">
         <section className="lg:col-span-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-400">
-              Latest Releases
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-[family-name:var(--font-source-serif)] text-2xl text-neutral-900">
+              Latest
             </h2>
-            <Link
-              href="/feed"
-              className="text-sm text-stone-500 hover:text-stone-900"
-            >
-              View all
+            <Link href="/feed" className="text-sm text-neutral-400 hover:text-neutral-600 transition-colors">
+              View all →
             </Link>
           </div>
-          <div className="mt-3 rounded-lg border border-stone-200 bg-white px-4">
-            {latest.map((item: FeedItem) => (
-              <ReleaseCard key={item.id} item={item} />
-            ))}
-          </div>
+          {latest.map((item: FeedItem) => (
+            <ReleaseCard key={item.id} item={item} />
+          ))}
         </section>
 
-        {/* Sidebar */}
-        <aside className="space-y-6">
-          {/* Party breakdown */}
-          <div className="rounded-lg border border-stone-200 bg-white p-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-400">
-              By Party
-            </h2>
-            <div className="mt-3 space-y-2">
-              {(partyBreakdown as { party: string; count: number }[]).map((row) => (
-                <div
-                  key={row.party}
-                  className="flex items-center justify-between"
+        <aside>
+          <h2 className="font-[family-name:var(--font-source-serif)] text-2xl text-neutral-900 mb-4">
+            Most Active
+          </h2>
+          <div className="space-y-1">
+            {(topSenators as { id: string; full_name: string; party: string; state: string; count: number }[]).map(
+              (row, i) => (
+                <Link
+                  key={row.id}
+                  href={`/senators/${row.id}`}
+                  className="flex items-center justify-between py-1.5 text-sm hover:bg-neutral-50 transition-colors -mx-2 px-2"
                 >
-                  <div className="flex items-center gap-2">
-                    <PartyDot party={row.party as "D" | "R" | "I"} />
-                    <span className="text-sm">
-                      {row.party === "D"
-                        ? "Democrat"
-                        : row.party === "R"
-                          ? "Republican"
-                          : "Independent"}
+                  <span className="flex items-center gap-2">
+                    <span className="font-[family-name:var(--font-dm-mono)] text-xs text-neutral-300 w-4 text-right tabular-nums">
+                      {i + 1}
                     </span>
-                  </div>
-                  <span className="text-sm font-semibold tabular-nums">
-                    {row.count.toLocaleString()}
+                    <span className={`inline-block h-1.5 w-1.5 rounded-full ${
+                      row.party === "D" ? "bg-blue-500" : row.party === "R" ? "bg-red-500" : "bg-amber-500"
+                    }`} />
+                    <span className="text-neutral-900">{row.full_name}</span>
+                    <span className="text-neutral-400">({row.party}-{row.state})</span>
                   </span>
-                </div>
-              ))}
-            </div>
+                  <span className="font-[family-name:var(--font-dm-mono)] text-neutral-500 tabular-nums">
+                    {row.count}
+                  </span>
+                </Link>
+              )
+            )}
           </div>
-
-          {/* Most active */}
-          <div className="rounded-lg border border-stone-200 bg-white p-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-400">
-              Most Active
-            </h2>
-            <div className="mt-3 space-y-1.5">
-              {(topSenators as { id: string; full_name: string; party: string; state: string; count: number }[]).map(
-                (row, i) => (
-                  <Link
-                    key={row.id}
-                    href={`/senators/${row.id}`}
-                    className="flex items-center justify-between rounded px-1.5 py-1 -mx-1.5 text-sm hover:bg-stone-50"
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="w-5 text-right text-xs text-stone-300 tabular-nums">
-                        {i + 1}
-                      </span>
-                      <PartyDot party={row.party as "D" | "R" | "I"} />
-                      <span className="truncate">
-                        {row.full_name}
-                      </span>
-                    </span>
-                    <span className="ml-2 font-semibold tabular-nums">
-                      {row.count}
-                    </span>
-                  </Link>
-                )
-              )}
-            </div>
-          </div>
-
-          {/* Trending topics */}
-          {(topics as { word: string; count: number }[]).length > 0 && (
-            <div className="rounded-lg border border-stone-200 bg-white p-4">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-400">
-                Trending Topics (30d)
-              </h2>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {(topics as { word: string; count: number }[])
-                  .slice(0, 20)
-                  .map((t) => (
-                    <Link
-                      key={t.word}
-                      href={`/search?q=${encodeURIComponent(t.word)}`}
-                      className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-xs text-stone-600 hover:border-stone-300 hover:bg-stone-100"
-                    >
-                      {t.word}{" "}
-                      <span className="text-stone-400">{t.count}</span>
-                    </Link>
-                  ))}
-              </div>
-            </div>
-          )}
         </aside>
       </div>
     </div>
   );
 }
 
-function StatCard({
-  label,
-  value,
-  suffix,
-}: {
-  label: string;
-  value: number | string;
-  suffix?: string;
-}) {
+function CTACard({ href, title, desc }: { href: string; title: string; desc: string }) {
   return (
-    <div className="rounded-lg border border-stone-200 bg-white p-4">
-      <p className="text-xs text-stone-400">{label}</p>
-      <p className="mt-1 text-2xl font-bold tabular-nums">
-        {typeof value === "number" ? value.toLocaleString() : value}
-        {suffix && (
-          <span className="ml-1 text-sm font-normal text-stone-400">
-            {suffix}
-          </span>
-        )}
-      </p>
-    </div>
+    <Link
+      href={href}
+      className="border border-neutral-200 bg-white px-5 py-4 hover:border-neutral-900 hover:bg-neutral-50 transition-colors group flex justify-between items-start"
+    >
+      <div>
+        <div className="text-sm font-medium text-neutral-900 group-hover:underline">{title}</div>
+        <p className="text-xs text-neutral-500 mt-1">{desc}</p>
+      </div>
+      <span className="text-neutral-300 group-hover:text-neutral-900 transition-colors text-lg mt-0.5 ml-3 shrink-0">
+        →
+      </span>
+    </Link>
   );
 }
 
 function formatShortDate(d: string | null): string {
   if (!d) return "--";
-  return new Date(d).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }

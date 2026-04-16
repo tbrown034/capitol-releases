@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@fontsource/dm-mono": "^5.2.7",
+    "@fontsource/dm-sans": "^5.2.8",
+    "@fontsource/source-serif-4": "^5.2.9",
     "@neondatabase/serverless": "^1.0.2",
     "@types/d3": "^7.4.3",
     "d3": "^7.9.0",

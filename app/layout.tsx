@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Sans, DM_Mono, Source_Serif_4 } from "next/font/google";
 import { Nav } from "./components/nav";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const dmMono = DM_Mono({
+  variable: "--font-dm-mono",
+  weight: ["400", "500"],
+  subsets: ["latin"],
+});
+
+const sourceSerif = Source_Serif_4({
+  variable: "--font-source-serif",
   subsets: ["latin"],
 });
 
@@ -27,53 +33,47 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${dmMono.variable} ${sourceSerif.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#fafaf9] text-stone-900">
+      <body className="bg-white text-neutral-900 font-[family-name:var(--font-dm-sans)]">
+        <div className="h-[3px] bg-neutral-800 w-full" />
         <Nav />
-        <main className="flex-1">{children}</main>
-        <footer className="border-t border-stone-200 bg-white">
-          <div className="mx-auto max-w-5xl px-4 py-8">
+        <main>{children}</main>
+        <footer className="border-t border-neutral-200 bg-stone-50">
+          <div className="mx-auto max-w-5xl px-4 py-10">
             <div className="flex items-start justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded bg-stone-900 text-[10px] font-bold text-white">
-                    CR
-                  </span>
-                  <span className="text-sm font-bold text-stone-900">
-                    Capitol Releases
-                  </span>
-                </div>
-                <p className="mt-2 max-w-sm text-xs text-stone-400 leading-relaxed">
+              <div className="max-w-sm">
+                <p className="text-sm font-medium text-neutral-900">
+                  Capitol Releases
+                </p>
+                <p className="mt-2 text-[11px] text-neutral-400 leading-relaxed">
                   A journalism and public-records project. All data sourced from
                   official senate.gov websites. Not affiliated with the U.S.
-                  Senate or any government agency.
+                  government. Built by Trevor Brown.
                 </p>
               </div>
-              <div className="flex gap-8 text-xs text-stone-400">
+              <div className="flex gap-8 text-[11px] text-neutral-400">
                 <div className="space-y-1.5">
-                  <p className="font-medium text-stone-600">Navigate</p>
-                  <a href="/feed" className="block hover:text-stone-600">Feed</a>
-                  <a href="/senators" className="block hover:text-stone-600">Senators</a>
-                  <a href="/search" className="block hover:text-stone-600">Search</a>
+                  <a href="/feed" className="block hover:text-neutral-600 transition-colors">Feed</a>
+                  <a href="/senators" className="block hover:text-neutral-600 transition-colors">Directory</a>
+                  <a href="/search" className="block hover:text-neutral-600 transition-colors">Search</a>
                 </div>
                 <div className="space-y-1.5">
-                  <p className="font-medium text-stone-600">Project</p>
-                  <a href="/about" className="block hover:text-stone-600">Methodology</a>
+                  <a href="/about" className="block hover:text-neutral-600 transition-colors">Methodology</a>
                   <a
                     href="https://github.com/tbrown034/capitol-releases"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block hover:text-stone-600"
+                    className="block hover:text-neutral-600 transition-colors"
                   >
-                    GitHub
+                    Source Code
                   </a>
                 </div>
               </div>
             </div>
-            <p className="mt-6 text-[10px] text-stone-300">
-              Built by Trevor Brown. Data collected from public records under
-              the First Amendment.
+            <p className="mt-8 text-[11px] text-neutral-400">
+              Data collected from public records under the First Amendment.
+              Photos from the Congressional Bioguide (public domain).
             </p>
           </div>
         </footer>
