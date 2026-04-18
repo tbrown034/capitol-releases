@@ -38,6 +38,10 @@ def main():
         )
         sys.exit(result.returncode)
 
+    elif command == "verify-visual":
+        from pipeline.commands.visual_verify import main as visual_main
+        visual_main()
+
     elif command == "repair":
         from pipeline.commands.repair import main as repair_main
         repair_main()
