@@ -55,6 +55,36 @@ export default async function AboutPage() {
         format, using their own content management system.
       </p>
 
+      {/* About the developer */}
+      <section className="mt-10">
+        <h2 className="font-serif text-2xl">About the developer</h2>
+        <div className="mt-4 flex items-start gap-5">
+          <img
+            src="https://trevorthewebdeveloper.com/headshot.jpg"
+            alt="Trevor Brown"
+            width={80}
+            height={80}
+            className="rounded-full shrink-0"
+          />
+          <p className="text-stone-600 leading-relaxed">
+            Built by{" "}
+            <a href="https://trevorthewebdeveloper.com" className="underline text-stone-900 hover:text-stone-600 transition-colors">
+              Trevor Brown
+            </a>
+            , investigative data journalist turned web developer. 15 years
+            of political reporting, most recently six years covering elections,
+            dark money, financial disclosures and government accountability at{" "}
+            <a href="https://oklahomawatch.org" className="underline text-stone-900 hover:text-stone-600 transition-colors">
+              Oklahoma Watch
+            </a>
+            . This project bridges both worlds -- journalism instinct driving
+            a developer tool.
+          </p>
+        </div>
+      </section>
+
+      <hr className="my-8 border-stone-200" />
+
       {/* Data quality - upfront honesty */}
       <section className="mt-10 rounded-lg border border-amber-200 bg-amber-50 p-5">
         <h2 className="text-xl font-semibold text-amber-900">
@@ -267,11 +297,13 @@ export default async function AboutPage() {
           />
           <Stage
             number={3}
-            title="Daily Updater (planned)"
-            description="A scheduled script will check page 1 of each senator's press
-              release index, compare against URLs already in the database, and
-              insert only new records. This keeps the archive current without
-              re-crawling historical pages."
+            title="Daily Updater"
+            description="A collector-based updater checks each senator via their
+              assigned collection method (RSS feeds for 24 senators, HTTP
+              scraping for 68, Playwright for 8). It fetches page 1, deduplicates
+              against known URLs, and inserts only new records. Runs in under
+              2 minutes for all 100 senators. Includes post-run anomaly detection
+              and email alerts for failures."
           />
         </div>
       </section>
@@ -521,7 +553,7 @@ export default async function AboutPage() {
       </section>
 
       {/* Data sourcing */}
-      <section className="mt-10 mb-8">
+      <section className="mt-10">
         <h2 className="text-xl font-semibold">Data Sourcing</h2>
         <p className="mt-2 text-stone-600 leading-relaxed">
           All data is sourced from official senator websites on senate.gov.
@@ -544,6 +576,60 @@ export default async function AboutPage() {
           identify themselves with standard browser headers.
         </p>
       </section>
+
+      <hr className="my-8 border-stone-200" />
+
+      {/* Related resources */}
+      <section className="mt-10">
+        <h2 className="font-serif text-2xl">Related resources</h2>
+        <div className="mt-4 space-y-3 text-stone-600">
+          <ResourceLink
+            href="https://www.senate.gov/senators/"
+            title="U.S. Senate Member Directory"
+            description="Official list of all current senators."
+          />
+          <ResourceLink
+            href="https://www.congress.gov/"
+            title="Congress.gov"
+            description="Official source for legislation, floor activity, and committee records."
+          />
+          <ResourceLink
+            href="https://www.propublica.org/datastore/api/propublica-congress-api"
+            title="ProPublica Congress API"
+            description="Structured data on bills, votes, and member information."
+          />
+          <ResourceLink
+            href="https://github.com/unitedstates/congress-legislators"
+            title="unitedstates/congress-legislators"
+            description="Open data on every member of Congress, past and present."
+          />
+        </div>
+      </section>
+
+      <hr className="my-8 border-stone-200" />
+
+      {/* Open source */}
+      <section className="mt-10">
+        <h2 className="font-serif text-2xl">Open source</h2>
+        <p className="mt-3 text-stone-600 leading-relaxed">
+          Capitol Releases is open source. The code, data pipeline, and
+          documentation are available on{" "}
+          <a href="https://github.com/tbrown034/capitol-releases" className="underline text-stone-900 hover:text-stone-600 transition-colors">
+            GitHub
+          </a>
+          . Found a bug or data error?{" "}
+          <a href="https://github.com/tbrown034/capitol-releases/issues" className="underline text-stone-900 hover:text-stone-600 transition-colors">
+            Open an issue
+          </a>{" "}
+          or email{" "}
+          <a href="mailto:trevorbrown.web@gmail.com" className="underline text-stone-900 hover:text-stone-600 transition-colors">
+            trevorbrown.web@gmail.com
+          </a>
+          .
+        </p>
+      </section>
+
+      <div className="h-12" />
     </div>
   );
 }
@@ -663,6 +749,18 @@ function Challenge({ title, body }: { title: string; body: string }) {
     <div>
       <h4 className="font-medium text-stone-900">{title}</h4>
       <p className="mt-1 text-sm">{body}</p>
+    </div>
+  );
+}
+
+function ResourceLink({ href, title, description }: { href: string; title: string; description: string }) {
+  return (
+    <div>
+      <a href={href} className="underline font-medium text-stone-900 hover:text-stone-600 transition-colors" target="_blank" rel="noopener noreferrer">
+        {title}
+      </a>
+      <span className="text-stone-400"> -- </span>
+      <span>{description}</span>
     </div>
   );
 }
