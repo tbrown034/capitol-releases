@@ -43,7 +43,7 @@
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.0,
+      "confidence": 0,
       "notes": "Page exists but div.page-content is empty. New senator, no releases published yet. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
@@ -118,7 +118,7 @@
         "date": ".elementor-post__meta-data",
         "detail_link": "h3 a[href]"
       },
-      "confidence": 1.0,
+      "confidence": 1,
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
@@ -230,23 +230,23 @@
       "party": "D",
       "state": "NJ",
       "official_url": "https://www.booker.senate.gov",
-      "press_release_url": "https://www.booker.senate.gov/news",
+      "press_release_url": "https://www.booker.senate.gov/news/press",
       "parser_family": "senate-generic",
-      "requires_js": true,
+      "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "li.SiteNav__dropdownItem",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "date": "strong",
+        "title": "h3 a",
+        "list_item": null,
+        "detail_link": "h3 a[href]"
       },
       "confidence": 0.85,
-      "notes": "Found 21 items on listing page. ",
+      "notes": "Fixed 2026-04-18: URL was /news (landing page), changed to /news/press (press list). Selectors were matching nav items. Uses ?pagenum_rs=N pagination.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "playwright"
+      "collection_method": "httpx"
     },
     {
       "senator_id": "boozman-john",
@@ -261,13 +261,13 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "date": "td:first-child",
+        "title": "td a",
+        "list_item": "table tr",
+        "detail_link": "td a[href]"
       },
       "confidence": 0.55,
-      "notes": "Found 306 items on listing page. ",
+      "notes": "Fixed 2026-04-18: ColdFusion under hood. 253 pages.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "rss",
@@ -311,17 +311,17 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": null,
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "date": ".post-meta",
+        "title": "h2.entry-title a",
+        "list_item": "article.et_pb_post",
+        "detail_link": "h2.entry-title a[href]"
       },
       "confidence": 0.9,
-      "notes": "WordPress Divi (article). 18/page. Dates \"Jun 17, 2025\". Older Entries pagination /page/N/. Verified 2026-04-17.",
+      "notes": "Fixed 2026-04-18: Wrong RSS URL (/press-releases/feed/ -> /category/news/press-releases/feed/). Switched to httpx with Divi selectors. 18/page.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "rss",
-      "rss_feed_url": "https://www.budd.senate.gov/press-releases/feed/"
+      "collection_method": "httpx",
+      "rss_feed_url": "https://www.budd.senate.gov/category/news/press-releases/feed/"
     },
     {
       "senator_id": "cantwell-maria",
@@ -330,23 +330,23 @@
       "state": "WA",
       "official_url": "https://www.cantwell.senate.gov",
       "press_release_url": "https://www.cantwell.senate.gov/news/press-releases",
-      "parser_family": "senate-generic",
-      "requires_js": true,
+      "parser_family": "senate-coldfusion",
+      "requires_js": false,
       "pagination": {
         "type": "link_follow",
         "next_selector": "a.next"
       },
       "selectors": {
-        "list_item": "li",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "date": "td:first-child",
+        "title": "td a",
+        "list_item": "table tr",
+        "detail_link": "td a[href]"
       },
       "confidence": 0.9,
-      "notes": "Found 90 items on listing page.  JS pagination (Next href=None). Needs Playwright.",
+      "notes": "Fixed 2026-04-18: Actually ColdFusion + AJAX. Table loads dynamically. Needs Playwright. Was misclassified as senate-generic.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "playwright"
+      "collection_method": "httpx"
     },
     {
       "senator_id": "capito-shelley",
@@ -635,7 +635,7 @@
         "date": ".elementor-post__meta-data",
         "detail_link": "h3 a[href]"
       },
-      "confidence": 1.0,
+      "confidence": 1,
       "notes": "Found 9 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
@@ -735,7 +735,7 @@
         "date": ".elementor-post__meta-data",
         "detail_link": "h3 a[href]"
       },
-      "confidence": 1.0,
+      "confidence": 1,
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
@@ -757,13 +757,13 @@
         "starts_at": 1
       },
       "selectors": {
-        "list_item": "tr",
+        "date": "td:first-child",
         "title": "a",
-        "date": ".recordListDate",
+        "list_item": "tr",
         "detail_link": "a[href]"
       },
-      "confidence": 1.0,
-      "notes": "Found 12 items on listing page. ",
+      "confidence": 1,
+      "notes": "Fixed 2026-04-18: Changed date from .recordListDate to td:first-child. ColdFusion table. 210 pages.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "httpx"
@@ -806,13 +806,13 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "article.post",
-        "title": "h2 a",
         "date": ".post-meta",
-        "detail_link": "h2 a[href]"
+        "title": "h2.entry-title a",
+        "list_item": "article.et_pb_post",
+        "detail_link": "h2.entry-title a[href]"
       },
       "confidence": 0.95,
-      "notes": "Found 10 items on listing page. ",
+      "notes": "Fixed 2026-04-18: RSS empty (last built 2023). Switched to httpx with Divi selectors. 8/page. Older Entries pagination.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "httpx",
@@ -937,7 +937,7 @@
         "date": ".post-meta",
         "detail_link": "h2 a[href]"
       },
-      "confidence": 1.0,
+      "confidence": 1,
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
@@ -981,13 +981,13 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": null,
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "date": ".post-meta",
+        "title": "h2.entry-title a",
+        "list_item": "article.et_pb_post",
+        "detail_link": "h2.entry-title a[href]"
       },
       "confidence": 0.9,
-      "notes": "WordPress Divi (et_pb_post). 5/page. Older Entries pagination. Verified 2026-04-17.",
+      "notes": "Fixed 2026-04-18: Divi blog. RSS empty. Older Entries pagination. Set Divi selectors. May need Playwright if httpx cannot render.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "httpx",
@@ -1030,13 +1030,13 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "li",
-        "title": "a",
         "date": null,
-        "detail_link": "a[href]"
+        "title": "h2 a",
+        "list_item": null,
+        "detail_link": "h2 a[href]"
       },
       "confidence": 0.8,
-      "notes": "Found 105 items on listing page. ",
+      "notes": "Fixed 2026-04-18: Unique layout - divs with h2/date text. Uses ?PageNum_rs=N pagination (299 pages). Date format MM.DD.YY in plain text div.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "httpx"
@@ -1085,7 +1085,7 @@
         "date": "time",
         "detail_link": "h2 a[href]"
       },
-      "confidence": 1.0,
+      "confidence": 1,
       "notes": "Found 15 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
@@ -1180,13 +1180,13 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "date": "strong",
+        "title": "h3 a",
+        "list_item": "article.sen-listing-item-archive-page",
+        "detail_link": "h3 a[href]"
       },
       "confidence": 0.6,
-      "notes": "Found 5 items on listing page. ",
+      "notes": "Fixed 2026-04-18: Was span.elementor-grid-item (pagination dots). Changed to article.sen-listing-item-archive-page (JetEngine listing). 6/page.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "playwright"
@@ -1204,13 +1204,13 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "date": "td:first-child",
+        "title": "td a",
+        "list_item": "table tr",
+        "detail_link": "td a[href]"
       },
       "confidence": 0.55,
-      "notes": "Found 266 items on listing page. ",
+      "notes": "Fixed 2026-04-18: ColdFusion table. 223 pages.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "rss",
@@ -1229,13 +1229,13 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": null,
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "date": ".post-meta",
+        "title": "h2.entry-title a",
+        "list_item": "article.et_pb_post",
+        "detail_link": "h2.entry-title a[href]"
       },
       "confidence": 0.9,
-      "notes": "WordPress Divi (et_pb_post). 10/page. Older Entries pagination. Detail links use /press_release/slug/. Verified 2026-04-17.",
+      "notes": "Fixed 2026-04-18: Divi blog. RSS empty. Detail links use /press_release/slug/. 10/page. Set Divi selectors. May need Playwright if httpx cannot render.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "httpx",
@@ -1278,13 +1278,13 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "date": "td:first-child",
+        "title": "td a",
+        "list_item": "table tr",
+        "detail_link": "td a[href]"
       },
       "confidence": 0.55,
-      "notes": "Found 452 items on listing page. ",
+      "notes": "Fixed 2026-04-18: ColdFusion table. 406 pages. Date M/D/YY.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "httpx"
@@ -1453,13 +1453,13 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "date": "td:first-child",
+        "title": "td a",
+        "list_item": "table tr",
+        "detail_link": "td a[href]"
       },
       "confidence": 0.55,
-      "notes": "Found 278 items on listing page. ",
+      "notes": "Fixed 2026-04-18: ColdFusion table. 1967 pages. Detail links use /pressreleases?ID=.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "httpx"
@@ -1509,7 +1509,7 @@
         "date": ".elementor-post__meta-data",
         "detail_link": "h2 a[href]"
       },
-      "confidence": 1.0,
+      "confidence": 1,
       "notes": "Found 9 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
@@ -1523,22 +1523,22 @@
       "state": "FL",
       "official_url": "https://www.moody.senate.gov",
       "press_release_url": "https://www.moody.senate.gov/press-releases/",
-      "parser_family": "senate-wordpress",
+      "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {
-        "list_item": null,
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "date": ".post-meta",
+        "title": "h2.entry-title a",
+        "list_item": "article.et_pb_post",
+        "detail_link": "h2.entry-title a[href]"
       },
       "confidence": 0.9,
-      "notes": "WordPress Divi (et_pb_post). 5/page. Older Entries pagination. Verified 2026-04-17.",
+      "notes": "Fixed 2026-04-18: Divi blog. RSS gives only 10 items. Older Entries pagination. Set Divi selectors. May need Playwright if httpx cannot render.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "rss",
+      "collection_method": "httpx",
       "rss_feed_url": "https://www.moody.senate.gov/press-releases/feed/"
     },
     {
@@ -1736,7 +1736,7 @@
         "date": ".published",
         "detail_link": "h2 a[href]"
       },
-      "confidence": 1.0,
+      "confidence": 1,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
@@ -1860,7 +1860,7 @@
         "date": ".elementor-post__meta-data",
         "detail_link": "h2 a[href]"
       },
-      "confidence": 1.0,
+      "confidence": 1,
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
@@ -1910,7 +1910,7 @@
         "date": ".elementor-post__meta-data",
         "detail_link": "h2 a[href]"
       },
-      "confidence": 1.0,
+      "confidence": 1,
       "notes": "Found 7 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
@@ -2131,7 +2131,7 @@
         "date": ".post-meta",
         "detail_link": "h3 a[href]"
       },
-      "confidence": 1.0,
+      "confidence": 1,
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
@@ -2157,7 +2157,7 @@
         "date": ".elementor-post__meta-data",
         "detail_link": "h3 a[href]"
       },
-      "confidence": 1.0,
+      "confidence": 1,
       "notes": "Found 6 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
@@ -2202,13 +2202,13 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "date": "td:first-child",
+        "title": "td a",
+        "list_item": "table tr",
+        "detail_link": "td a[href]"
       },
       "confidence": 0.55,
-      "notes": "Found 154 items on listing page. ",
+      "notes": "Fixed 2026-04-18: ColdFusion table. 147 pages. Senate Majority Leader.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "httpx"
@@ -2369,22 +2369,22 @@
       "state": "VT",
       "official_url": "https://www.welch.senate.gov",
       "press_release_url": "https://www.welch.senate.gov/category/press-release/",
-      "parser_family": "senate-wordpress",
+      "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {
-        "list_item": null,
+        "date": ".postDate span",
         "title": null,
-        "date": null,
-        "detail_link": null
+        "list_item": "article.postItem",
+        "detail_link": "a[href]"
       },
       "confidence": 0.9,
-      "notes": "WordPress (article.postItem). 6/page, 6+ pages. /page/N/ pagination. Old URL was /press-kit/ (wrong). Verified 2026-04-17.",
+      "notes": "Fixed 2026-04-18: Switched from RSS (10-item limit) to httpx. article.postItem pattern already in backfill.py.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "rss",
+      "collection_method": "httpx",
       "rss_feed_url": "https://www.welch.senate.gov/category/press-release/feed/"
     },
     {
