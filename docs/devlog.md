@@ -45,6 +45,17 @@ A chronological record of development sessions and significant changes.
 - Content types: press_release, statement, op_ed, letter, photo_release, floor_statement, other
 - Senate start date: keep Jan 1, 2025. House start date: Jan 1, 2026 (when we get there).
 
+**Phase 3-6 completed in same session:**
+- Anomaly detection (stale senators, null-date spikes, activity gaps)
+- Alert system with Resend SMTP email delivery
+- Deletion detection (GET verification, tombstones, alerts on 404)
+- Content versioning table
+- AI validation layer (Claude Haiku, advisory only)
+- Review surface CLI (alerts, health, stale, quality, runs)
+- Unified CLI: `python -m pipeline {update,health,test,stats,review,deletions}`
+- Pipeline README with architecture docs
+- Updated CLAUDE.md and master schema.sql
+
 **Architecture principles established:**
 1. Determinism first. AI assists but doesn't drive.
 2. Per-senator, not aggregate. One broken senator must not hide in 99 healthy ones.
