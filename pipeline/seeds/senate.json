@@ -304,7 +304,7 @@
       "party": "R",
       "state": "NC",
       "official_url": "https://www.budd.senate.gov",
-      "press_release_url": "https://www.budd.senate.gov/press-releases/",
+      "press_release_url": "https://www.budd.senate.gov/category/news/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -548,7 +548,7 @@
       "party": "R",
       "state": "ID",
       "official_url": "https://www.crapo.senate.gov",
-      "press_release_url": "https://www.crapo.senate.gov/media",
+      "press_release_url": "https://www.crapo.senate.gov/media/newsreleases",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
@@ -1023,7 +1023,7 @@
       "party": "R",
       "state": "ND",
       "official_url": "https://www.hoeven.senate.gov",
-      "press_release_url": "https://www.hoeven.senate.gov/news",
+      "press_release_url": "https://www.hoeven.senate.gov/news/news-releases",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
@@ -1175,7 +1175,7 @@
       "official_url": "https://www.kelly.senate.gov",
       "press_release_url": "https://www.kelly.senate.gov/newsroom/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -1189,7 +1189,7 @@
       "notes": "Found 5 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "playwright"
     },
     {
       "senator_id": "kennedy-john",
@@ -1446,7 +1446,7 @@
       "party": "R",
       "state": "KY",
       "official_url": "https://www.mcconnell.senate.gov",
-      "press_release_url": "https://www.mcconnell.senate.gov/public/index.cfm/pressreleases",
+      "press_release_url": "https://www.mcconnell.senate.gov/public/index.cfm/news",
       "parser_family": "senate-coldfusion",
       "requires_js": false,
       "pagination": {
@@ -1647,7 +1647,7 @@
       "party": "D",
       "state": "WA",
       "official_url": "https://www.murray.senate.gov",
-      "press_release_url": "https://www.murray.senate.gov/press-kit/",
+      "press_release_url": "https://www.murray.senate.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -2069,7 +2069,7 @@
       "party": "D",
       "state": "NH",
       "official_url": "https://www.shaheen.senate.gov",
-      "press_release_url": "https://www.shaheen.senate.gov/news",
+      "press_release_url": "https://www.shaheen.senate.gov/news/press",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
@@ -2247,7 +2247,7 @@
       "official_url": "https://www.tuberville.senate.gov",
       "press_release_url": "https://www.tuberville.senate.gov/newsroom/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -2261,7 +2261,7 @@
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "playwright"
     },
     {
       "senator_id": "hollen-chris",
@@ -2319,7 +2319,7 @@
       "official_url": "https://www.warnock.senate.gov",
       "press_release_url": "https://www.warnock.senate.gov/newsroom/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -2333,7 +2333,7 @@
       "notes": "Found 15 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "rss",
+      "collection_method": "playwright",
       "rss_feed_url": "https://www.warnock.senate.gov/feed/"
     },
     {
