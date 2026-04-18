@@ -38,6 +38,10 @@ def main():
         )
         sys.exit(result.returncode)
 
+    elif command == "deletions":
+        from pipeline.commands.detect_deletions import main as deletions_main
+        deletions_main()
+
     elif command == "stats":
         _show_stats()
 

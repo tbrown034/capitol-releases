@@ -169,13 +169,23 @@ def send_email_alerts(alerts: list[Alert]):
 
     try:
         smtp_port = int(os.environ.get("SMTP_PORT", "587"))
-        with smtplib.SMTP(smtp_host, smtp_port) as server:
-            server.starttls()
-            smtp_user = os.environ.get("SMTP_USER", "")
-            smtp_pass = os.environ.get("SMTP_PASS", "")
-            if smtp_user and smtp_pass:
-                server.login(smtp_user, smtp_pass)
-            server.sendmail(msg["From"], [alert_email], msg.as_string())
+        smtp_user = os.environ.get("SMTP_USER", "")
+        smtp_pass = os.environ.get("SMTP_PASS", "")
+
+        if smtp_port == 465:
+            # SSL connection (Resend, etc.)
+            with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
+                if smtp_user and smtp_pass:
+                    server.login(smtp_user, smtp_pass)
+                server.sendmail(msg["From"], [alert_email], msg.as_string())
+        else:
+            # STARTTLS connection
+            with smtplib.SMTP(smtp_host, smtp_port) as server:
+                server.starttls()
+                if smtp_user and smtp_pass:
+                    server.login(smtp_user, smtp_pass)
+                server.sendmail(msg["From"], [alert_email], msg.as_string())
+
         log.info("Sent %d alert emails to %s", len(critical), alert_email)
     except Exception as e:
         log.error("Failed to send alert email: %s", e)

@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS press_releases (
   date_source     TEXT,                    -- feed, meta_tag, json_ld, url_path, page_text, unknown
   date_confidence REAL,                    -- 0.0-1.0 extraction confidence
   content_hash    TEXT,                    -- SHA-256 of body_text for change detection
+  deleted_at      TIMESTAMPTZ,            -- tombstone: when we detected deletion at source
+  last_seen_live  TIMESTAMPTZ,            -- last time source URL returned 200
   scrape_run      TEXT,                    -- identifies which crawl produced this
   scraped_at      TIMESTAMPTZ DEFAULT NOW(),
   created_at      TIMESTAMPTZ DEFAULT NOW(),
@@ -90,3 +92,13 @@ CREATE TABLE IF NOT EXISTS alerts (
   acknowledged_at TIMESTAMPTZ
 );
 CREATE INDEX IF NOT EXISTS idx_alerts_type ON alerts(alert_type, created_at DESC);
+
+-- Content versions (track body text changes over time)
+CREATE TABLE IF NOT EXISTS content_versions (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  press_release_id  UUID NOT NULL REFERENCES press_releases(id),
+  body_text         TEXT,
+  content_hash      TEXT,
+  captured_at       TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_cv_release ON content_versions(press_release_id, captured_at DESC);
