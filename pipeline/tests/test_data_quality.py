@@ -270,6 +270,44 @@ def test_body_coverage_above_threshold():
     assert pct >= 70, f"Only {pct:.0f}% of records have body text > 100 chars, expected >= 70%"
 
 
+def test_no_anomalously_low_counts():
+    """No active senator should have less than 10% of the median release count.
+
+    If a longstanding senator has single-digit releases while peers have hundreds,
+    that indicates a collection failure, not inactivity.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY cnt) as median
+        FROM (
+            SELECT COUNT(*) as cnt FROM press_releases WHERE deleted_at IS NULL
+            GROUP BY senator_id HAVING COUNT(*) > 0
+        ) sub
+    """)
+    median = cur.fetchone()[0] or 1
+    threshold = max(median * 0.1, 10)  # at least 10
+
+    cur.execute("""
+        SELECT s.id, s.full_name, COUNT(pr.id) FILTER (WHERE pr.deleted_at IS NULL) as cnt
+        FROM senators s
+        LEFT JOIN press_releases pr ON s.id = pr.senator_id
+        WHERE s.collection_method IS NOT NULL
+        GROUP BY s.id, s.full_name
+        HAVING COUNT(pr.id) FILTER (WHERE pr.deleted_at IS NULL) < %s
+    """, (threshold,))
+    flagged = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    if flagged:
+        print(f"WARNING: {len(flagged)} senators below {threshold:.0f} releases (median={median:.0f}):")
+        for sid, name, cnt in flagged:
+            print(f"  {name}: {cnt}")
+    # Soft threshold -- allow some while we close gaps
+    assert len(flagged) < 25, f"{len(flagged)} senators are anomalously low (< {threshold:.0f} releases, median={median:.0f})"
+
+
 def test_no_stale_senators():
     """Every active senator should have a release in the last 60 days."""
     conn = get_conn()
@@ -313,6 +351,7 @@ def run_all():
         test_no_suspicious_round_counts,
         test_depth_to_jan_2025,
         test_body_coverage_above_threshold,
+        test_no_anomalously_low_counts,
         test_no_stale_senators,
     ]
 
