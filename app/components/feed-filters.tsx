@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { getStates } from "../lib/queries";
+import { getStates } from "../lib/states";
 
 export function FeedFilters({ basePath = "/feed" }: { basePath?: string }) {
   const router = useRouter();

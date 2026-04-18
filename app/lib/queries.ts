@@ -147,6 +147,7 @@ export async function getTopSenators(limit = 10) {
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
     WHERE pr.deleted_at IS NULL
+      AND (s.status IS NULL OR s.status = 'current')
     GROUP BY s.id, s.full_name, s.party, s.state
     ORDER BY count DESC
     LIMIT ${limit}
@@ -161,18 +162,12 @@ export async function getLeastActiveSenators(limit = 10) {
     FROM senators s
     LEFT JOIN press_releases pr ON s.id = pr.senator_id AND pr.deleted_at IS NULL
     WHERE s.collection_method IS NOT NULL
+      AND (s.status IS NULL OR s.status = 'current')
     GROUP BY s.id, s.full_name, s.party, s.state
     ORDER BY count ASC
     LIMIT ${limit}
   `;
 }
 
-export function getStates(): string[] {
-  return [
-    "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
-    "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
-    "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
-    "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
-    "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY",
-  ];
-}
+// getStates moved to ./states.ts to avoid client-side neon() evaluation
+export { getStates } from "./states";

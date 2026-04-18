@@ -57,6 +57,14 @@ export function ActivityChart({ data }: { data: DataPoint[] }) {
           .attr("font-size", 10)
       );
 
+    // Color scale: low volume -> muted blue, high volume -> vivid coral
+    const maxCount = d3.max(parsed, (d) => d.count) ?? 1;
+    const colorScale = d3
+      .scaleLinear<string>()
+      .domain([0, maxCount * 0.5, maxCount])
+      .range(["#93c5fd", "#6366f1", "#f43f5e"])
+      .clamp(true);
+
     // Bars
     const barWidth = Math.max(2, (innerW / parsed.length) * 0.55);
 
@@ -67,7 +75,8 @@ export function ActivityChart({ data }: { data: DataPoint[] }) {
       .attr("width", barWidth)
       .attr("y", (d) => y(d.count))
       .attr("height", (d) => innerH - y(d.count))
-      .attr("fill", "#292524");
+      .attr("fill", (d) => colorScale(d.count))
+      .attr("rx", 1);
 
     // X axis
     g.append("g")

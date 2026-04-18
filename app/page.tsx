@@ -1,17 +1,18 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { getStats, getTopSenators, getLeastActiveSenators, getFeed } from "./lib/queries";
-import { getDailyVolume, getSenatorActivity } from "./lib/analytics";
+import { getDailyVolume, getSenatorActivity, getTopicTrends } from "./lib/analytics";
 import { ReleaseCard } from "./components/release-card";
 import { SearchBox } from "./components/search-box";
 import { ActivityChart } from "./components/activity-chart";
 import { SenatorBars } from "./components/senator-bars";
+import { SenatorActivity } from "./components/senator-activity";
 import type { FeedItem } from "./lib/db";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [stats, topSenators, leastActive, { items: latest }, dailyVolume, senatorActivity] =
+  const [stats, topSenators, leastActive, { items: latest }, dailyVolume, senatorActivity, topicTrends] =
     await Promise.all([
       getStats(),
       getTopSenators(10),
@@ -19,6 +20,7 @@ export default async function Home() {
       getFeed({ perPage: 8 }),
       getDailyVolume(90),
       getSenatorActivity(),
+      getTopicTrends(),
     ]);
 
   const senatorMap = new Map<
@@ -130,50 +132,10 @@ export default async function Home() {
           ))}
         </section>
 
-        <aside>
-          <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4">
-            Most Active
-          </h2>
-          <div className="space-y-0.5">
-            {(
-              topSenators as {
-                id: string;
-                full_name: string;
-                party: string;
-                state: string;
-                count: number;
-              }[]
-            ).map((row, i) => (
-              <Link
-                key={row.id}
-                href={`/senators/${row.id}`}
-                className="flex items-center justify-between py-1.5 text-sm hover:bg-neutral-50 transition-colors -mx-2 px-2"
-              >
-                <span className="flex items-center gap-2">
-                  <span className="font-mono text-xs text-neutral-300 w-4 text-right tabular-nums">
-                    {i + 1}
-                  </span>
-                  <span
-                    className={`inline-block h-1.5 w-1.5 rounded-full ${
-                      row.party === "D"
-                        ? "bg-blue-500"
-                        : row.party === "R"
-                          ? "bg-red-500"
-                          : "bg-amber-500"
-                    }`}
-                  />
-                  <span className="text-neutral-900">{row.full_name}</span>
-                  <span className="text-neutral-400 hidden sm:inline">
-                    ({row.party}-{row.state})
-                  </span>
-                </span>
-                <span className="font-mono text-neutral-500 tabular-nums">
-                  {row.count}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </aside>
+        <SenatorActivity
+          initialTop={topSenators as { id: string; full_name: string; party: string; state: string; count: number }[]}
+          initialBottom={leastActive as { id: string; full_name: string; party: string; state: string; count: number }[]}
+        />
       </div>
 
       {/* Release Volume */}
@@ -188,6 +150,32 @@ export default async function Home() {
           <ActivityChart
             data={dailyVolume as { day: string; count: number }[]}
           />
+        </div>
+      </section>
+
+      {/* Trending Topics */}
+      <section className="mb-10 md:mb-16">
+        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
+          Trending Topics
+        </h2>
+        <p className="text-xs text-neutral-400 mb-4">
+          Most mentioned terms in press releases over the past 30 days
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {(topicTrends as { word: string; count: number }[])
+            .slice(0, 24)
+            .map((topic) => (
+              <Link
+                key={topic.word}
+                href={`/search?q=${encodeURIComponent(topic.word)}`}
+                className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-700 hover:border-neutral-400 hover:text-neutral-900 transition-colors"
+              >
+                {topic.word}
+                <span className="text-xs text-neutral-400 font-mono tabular-nums">
+                  {topic.count}
+                </span>
+              </Link>
+            ))}
         </div>
       </section>
 
@@ -216,7 +204,6 @@ export default async function Home() {
         <SenatorBars data={swimLaneData} />
       </section>
 
-      {/* Least Active -- hidden until backfill gaps are closed */}
     </div>
   );
 }
