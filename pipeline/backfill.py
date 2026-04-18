@@ -25,10 +25,15 @@ import httpx
 import psycopg2
 from bs4 import BeautifulSoup
 
-DB_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://neondb_owner:npg_CH7k3vjTsoRG@ep-young-tree-amictscx-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require",
-)
+# Load .env file if present (no dependency required)
+_env_path = Path(__file__).parent / ".env"
+if _env_path.exists():
+    for line in _env_path.read_text().splitlines():
+        if line.strip() and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip())
+
+DB_URL = os.environ["DATABASE_URL"]
 
 MAX_CONCURRENT = 6
 REQUEST_TIMEOUT = 20.0
