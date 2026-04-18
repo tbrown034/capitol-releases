@@ -1446,7 +1446,7 @@
       "party": "R",
       "state": "KY",
       "official_url": "https://www.mcconnell.senate.gov",
-      "press_release_url": "https://www.mcconnell.senate.gov/public/index.cfm/news",
+      "press_release_url": "https://www.mcconnell.senate.gov/public/index.cfm/pressreleases",
       "parser_family": "senate-coldfusion",
       "requires_js": false,
       "pagination": {
@@ -1459,7 +1459,7 @@
         "detail_link": "td a[href]"
       },
       "confidence": 0.55,
-      "notes": "Fixed 2026-04-18: ColdFusion table. 1967 pages. Detail links use /pressreleases?ID=.",
+      "notes": "Fixed 2026-04-18: URL was /news (landing page with 3 featured articles). Changed to /pressreleases (full listing). ColdFusion table pattern.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "httpx"
