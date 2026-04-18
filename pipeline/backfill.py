@@ -21,9 +21,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urljoin
 
+import logging
+
 import httpx
 import psycopg2
 from bs4 import BeautifulSoup
+
+log = logging.getLogger("capitol.backfill")
 
 # Load .env file if present (no dependency required)
 _env_path = Path(__file__).parent / ".env"
@@ -516,8 +520,8 @@ async def scrape_senator(client, semaphore, senator, run_id, max_pages, _conn_un
                     if detail_resp.status_code == 200:
                         detail_soup = BeautifulSoup(detail_resp.text, "lxml")
                         body_text = extract_body_text(detail_soup)
-                except Exception:
-                    pass
+                except Exception as e:
+                    log.warning("Detail page fetch failed for %s: %s: %s", detail_url, type(e).__name__, e)
 
                 # Insert
                 cur = conn.cursor()

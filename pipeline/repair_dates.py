@@ -13,6 +13,7 @@ Usage:
 """
 
 import asyncio
+import logging
 import re
 import os
 import sys
@@ -24,6 +25,8 @@ from urllib.parse import urlparse
 import httpx
 import psycopg2
 from bs4 import BeautifulSoup
+
+log = logging.getLogger("capitol.repair")
 
 # Load .env file if present
 _env_path = Path(__file__).parent / ".env"
@@ -233,8 +236,8 @@ async def repair_batch(client, records, dry_run=False):
                         conn.commit()
                         cur.close()
                     continue
-        except Exception:
-            pass
+        except Exception as e:
+            log.warning("Date repair failed for record %s (%s): %s: %s", record_id, url, type(e).__name__, e)
 
         stats["unfixable"] += 1
 

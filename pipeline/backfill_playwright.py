@@ -12,6 +12,7 @@ Usage:
 """
 
 import json
+import logging
 import os
 import re
 import sys
@@ -22,6 +23,8 @@ from urllib.parse import urljoin
 
 import psycopg2
 from playwright.sync_api import sync_playwright
+
+log = logging.getLogger("capitol.playwright")
 
 # Load .env file if present
 _env_path = Path(__file__).parent / ".env"
@@ -193,11 +196,12 @@ def scrape_senator_with_browser(page, senator_id, url, max_pages, run_id):
                     if main:
                         body_text = main.inner_text().strip()[:5000]
                 detail_page.close()
-            except Exception:
+            except Exception as e:
+                log.warning("Detail page failed for %s: %s: %s", detail_url, type(e).__name__, e)
                 try:
                     detail_page.close()
                 except Exception:
-                    pass
+                    pass  # page may already be closed
 
             # Insert
             cur = conn.cursor()
