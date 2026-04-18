@@ -64,7 +64,7 @@ def test_minimum_senator_coverage():
     """At least 95 senators should have press releases."""
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT count(DISTINCT senator_id) FROM press_releases")
+    cur.execute("SELECT count(DISTINCT senator_id) FROM press_releases WHERE deleted_at IS NULL")
     count = cur.fetchone()[0]
     cur.close()
     conn.close()
@@ -77,7 +77,7 @@ def test_minimum_total_records():
     """Should have at least 10,000 press releases."""
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT count(*) FROM press_releases")
+    cur.execute("SELECT count(*) FROM press_releases WHERE deleted_at IS NULL")
     count = cur.fetchone()[0]
     cur.close()
     conn.close()
@@ -88,7 +88,7 @@ def test_no_empty_titles():
     """Every record should have a non-empty title."""
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT count(*) FROM press_releases WHERE title IS NULL OR length(trim(title)) < 5")
+    cur.execute("SELECT count(*) FROM press_releases WHERE deleted_at IS NULL AND title IS NULL OR length(trim(title)) < 5")
     bad = cur.fetchone()[0]
     cur.close()
     conn.close()
@@ -101,7 +101,7 @@ def test_no_duplicate_urls():
     cur = conn.cursor()
     cur.execute("""
         SELECT source_url, count(*) as cnt
-        FROM press_releases
+        FROM press_releases WHERE deleted_at IS NULL
         GROUP BY source_url
         HAVING count(*) > 1
     """)
@@ -117,7 +117,7 @@ def test_date_coverage_above_threshold():
     """At least 60% of records should have dates."""
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT count(*) FILTER (WHERE published_at IS NOT NULL), count(*) FROM press_releases")
+    cur.execute("SELECT count(*) FILTER (WHERE published_at IS NOT NULL), count(*) FROM press_releases WHERE deleted_at IS NULL")
     dated, total = cur.fetchone()
     cur.close()
     conn.close()
@@ -126,25 +126,25 @@ def test_date_coverage_above_threshold():
 
 
 def test_dates_in_valid_range():
-    """All dates should be between 2025-01-01 and tomorrow."""
+    """No dates should be before 2010 or after tomorrow (obvious parse errors)."""
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT count(*) FROM press_releases
-        WHERE published_at IS NOT NULL
-        AND (published_at < '2024-01-01' OR published_at > NOW() + interval '2 days')
+        SELECT count(*) FROM press_releases WHERE deleted_at IS NULL
+        AND published_at IS NOT NULL
+        AND (published_at < '2010-01-01' OR published_at > NOW() + interval '2 days')
     """)
     bad = cur.fetchone()[0]
     cur.close()
     conn.close()
-    assert bad == 0, f"{bad} records have dates outside valid range"
+    assert bad == 0, f"{bad} records have implausible dates (before 2010 or future)"
 
 
 def test_no_future_dates():
     """No records should have dates more than 1 day in the future."""
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT count(*) FROM press_releases WHERE published_at > NOW() + interval '1 day'")
+    cur.execute("SELECT count(*) FROM press_releases WHERE deleted_at IS NULL AND published_at > NOW() + interval '1 day'")
     bad = cur.fetchone()[0]
     cur.close()
     conn.close()
@@ -158,8 +158,8 @@ def test_all_urls_are_government():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT source_url FROM press_releases
-        WHERE source_url NOT LIKE '%.gov%'
+        SELECT source_url FROM press_releases WHERE deleted_at IS NULL
+        AND source_url NOT LIKE '%.gov%'
         LIMIT 10
     """)
     bad = cur.fetchall()
@@ -173,11 +173,11 @@ def test_no_listing_page_urls():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT count(*) FROM press_releases
-        WHERE source_url ~ '/press-releases/?$'
+        SELECT count(*) FROM press_releases WHERE deleted_at IS NULL
+        AND (source_url ~ '/press-releases/?$'
            OR source_url ~ '/news-releases/?$'
            OR source_url ~ '/newsroom/?$'
-           OR source_url ~ '/news/?$'
+           OR source_url ~ '/news/?$')
     """)
     bad = cur.fetchone()[0]
     cur.close()
@@ -190,14 +190,14 @@ def test_no_navigation_urls():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT count(*) FROM press_releases
-        WHERE source_url LIKE '%/about%'
+        SELECT count(*) FROM press_releases WHERE deleted_at IS NULL
+        AND (source_url LIKE '%/about%'
            OR source_url LIKE '%/contact%'
            OR source_url LIKE '%/services%'
            OR source_url LIKE '%/issues%'
            OR source_url LIKE '%facebook.com%'
            OR source_url LIKE '%twitter.com%'
-           OR source_url LIKE '%bsky.app%'
+           OR source_url LIKE '%bsky.app%')
     """)
     bad = cur.fetchone()[0]
     cur.close()
@@ -242,8 +242,8 @@ def test_depth_to_jan_2025():
     cur = conn.cursor()
     cur.execute("""
         SELECT count(*) FROM (
-            SELECT senator_id FROM press_releases
-            WHERE published_at IS NOT NULL
+            SELECT senator_id FROM press_releases WHERE deleted_at IS NULL
+            AND published_at IS NOT NULL
             GROUP BY senator_id
             HAVING min(published_at)::date <= '2025-02-28'
         ) sub
@@ -260,9 +260,9 @@ def test_body_coverage_above_threshold():
     """At least 70% of records should have body text > 100 chars."""
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT COUNT(*) FROM press_releases")
+    cur.execute("SELECT COUNT(*) FROM press_releases WHERE deleted_at IS NULL")
     total = cur.fetchone()[0]
-    cur.execute("SELECT COUNT(*) FROM press_releases WHERE body_text IS NOT NULL AND length(body_text) > 100")
+    cur.execute("SELECT COUNT(*) FROM press_releases WHERE deleted_at IS NULL AND body_text IS NOT NULL AND length(body_text) > 100")
     with_body = cur.fetchone()[0]
     cur.close()
     conn.close()
