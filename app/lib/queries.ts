@@ -146,8 +146,23 @@ export async function getTopSenators(limit = 10) {
            count(pr.id)::int as count
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
+    WHERE pr.deleted_at IS NULL
     GROUP BY s.id, s.full_name, s.party, s.state
     ORDER BY count DESC
+    LIMIT ${limit}
+  `;
+}
+
+export async function getLeastActiveSenators(limit = 10) {
+  return sql`
+    SELECT s.full_name, s.party, s.state, s.id,
+           count(pr.id)::int as count,
+           max(pr.published_at) as last_release
+    FROM senators s
+    LEFT JOIN press_releases pr ON s.id = pr.senator_id AND pr.deleted_at IS NULL
+    WHERE s.collection_method IS NOT NULL
+    GROUP BY s.id, s.full_name, s.party, s.state
+    ORDER BY count ASC
     LIMIT ${limit}
   `;
 }

@@ -1,20 +1,21 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { getStats, getTopSenators, getFeed } from "./lib/queries";
+import { getStats, getTopSenators, getLeastActiveSenators, getFeed } from "./lib/queries";
 import { getDailyVolume, getSenatorActivity } from "./lib/analytics";
 import { ReleaseCard } from "./components/release-card";
 import { SearchBox } from "./components/search-box";
 import { ActivityChart } from "./components/activity-chart";
-import { SwimLane } from "./components/swim-lane";
+import { SenatorBars } from "./components/senator-bars";
 import type { FeedItem } from "./lib/db";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [stats, topSenators, { items: latest }, dailyVolume, senatorActivity] =
+  const [stats, topSenators, leastActive, { items: latest }, dailyVolume, senatorActivity] =
     await Promise.all([
       getStats(),
       getTopSenators(10),
+      getLeastActiveSenators(10),
       getFeed({ perPage: 8 }),
       getDailyVolume(90),
       getSenatorActivity(),
@@ -190,13 +191,13 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Senator Activity */}
+      {/* Senator Rankings */}
       <section className="mb-10 md:mb-16">
         <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
-          Senator Activity
+          Senator Rankings
         </h2>
-        <p className="text-xs text-neutral-400 mb-4">
-          Weekly release volume for the 15 most active senators
+        <p className="text-xs text-neutral-400 mb-6">
+          Total releases by senator
           <span className="ml-3 inline-flex items-center gap-3">
             <span className="inline-flex items-center gap-1">
               <span className="inline-block h-2 w-2 rounded-full bg-blue-500" />{" "}
@@ -212,64 +213,138 @@ export default async function Home() {
             </span>
           </span>
         </p>
-        <SwimLane data={swimLaneData} />
+        <SenatorBars data={swimLaneData} />
+      </section>
+
+      {/* Least Active */}
+      <section className="mb-10 md:mb-16">
+        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
+          Least Active
+        </h2>
+        <p className="text-xs text-neutral-400 mb-4">
+          Senators with the fewest releases in the archive
+        </p>
+        <div className="space-y-0.5">
+          {(
+            leastActive as {
+              id: string;
+              full_name: string;
+              party: string;
+              state: string;
+              count: number;
+              last_release: string | null;
+            }[]
+          ).map((row, i) => (
+            <Link
+              key={row.id}
+              href={`/senators/${row.id}`}
+              className="flex items-center justify-between py-2 text-sm hover:bg-neutral-50 transition-colors -mx-2 px-2 border-b border-neutral-100 last:border-0"
+            >
+              <span className="flex items-center gap-2">
+                <span className="font-mono text-xs text-neutral-300 w-4 text-right tabular-nums">
+                  {i + 1}
+                </span>
+                <span
+                  className={`inline-block h-1.5 w-1.5 rounded-full ${
+                    row.party === "D"
+                      ? "bg-blue-500"
+                      : row.party === "R"
+                        ? "bg-red-500"
+                        : "bg-amber-500"
+                  }`}
+                />
+                <span className="text-neutral-900">{row.full_name}</span>
+                <span className="text-neutral-400 hidden sm:inline">
+                  ({row.party}-{row.state})
+                </span>
+              </span>
+              <span className="flex items-center gap-4">
+                <span className="font-mono text-neutral-500 tabular-nums">
+                  {row.count}
+                </span>
+                {row.last_release && (
+                  <span className="text-xs text-neutral-400 hidden md:inline">
+                    Last: {new Date(row.last_release).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                )}
+              </span>
+            </Link>
+          ))}
+        </div>
       </section>
     </div>
   );
 }
 
 function HeroGraphic() {
+  // Stylized stack of press releases / official documents
+  const docs = [
+    { y: 0, w: 120, fill: "#e5e5e5", lines: 4 },
+    { y: -6, w: 126, fill: "#d4d4d4", lines: 5 },
+    { y: -12, w: 132, fill: "#a3a3a3", lines: 3 },
+    { y: -18, w: 138, fill: "#737373", lines: 6 },
+    { y: -24, w: 144, fill: "#292524", lines: 4 },
+  ];
+
   return (
     <svg
-      width={192}
-      height={192}
-      viewBox="0 0 192 192"
+      width={200}
+      height={200}
+      viewBox="0 0 200 200"
       fill="none"
       aria-hidden="true"
       className="hidden md:block shrink-0"
     >
-      {[32, 56, 80, 104, 128, 152].map((y) => (
-        <line
-          key={y}
-          x1="0"
-          y1={y}
-          x2="192"
-          y2={y}
-          stroke="#e5e5e5"
-          strokeWidth="0.5"
-        />
-      ))}
-      <circle cx="20" cy="32" r="3" fill="#3b82f6" opacity="0.7" />
-      <circle cx="48" cy="32" r="5" fill="#3b82f6" opacity="0.7" />
-      <circle cx="72" cy="56" r="4" fill="#3b82f6" opacity="0.7" />
-      <circle cx="96" cy="32" r="6" fill="#3b82f6" opacity="0.7" />
-      <circle cx="120" cy="80" r="3" fill="#3b82f6" opacity="0.7" />
-      <circle cx="148" cy="56" r="5" fill="#3b82f6" opacity="0.7" />
-      <circle cx="172" cy="32" r="4" fill="#3b82f6" opacity="0.7" />
-      <circle cx="52" cy="104" r="3" fill="#3b82f6" opacity="0.7" />
-      <circle cx="88" cy="128" r="5" fill="#3b82f6" opacity="0.7" />
-      <circle cx="132" cy="104" r="4" fill="#3b82f6" opacity="0.7" />
-      <circle cx="32" cy="56" r="4" fill="#ef4444" opacity="0.7" />
-      <circle cx="56" cy="80" r="3" fill="#ef4444" opacity="0.7" />
-      <circle cx="80" cy="104" r="5" fill="#ef4444" opacity="0.7" />
-      <circle cx="108" cy="56" r="4" fill="#ef4444" opacity="0.7" />
-      <circle cx="136" cy="128" r="3" fill="#ef4444" opacity="0.7" />
-      <circle cx="164" cy="80" r="5" fill="#ef4444" opacity="0.7" />
-      <circle cx="40" cy="128" r="4" fill="#ef4444" opacity="0.7" />
-      <circle cx="112" cy="152" r="3" fill="#ef4444" opacity="0.7" />
-      <circle cx="168" cy="152" r="4" fill="#ef4444" opacity="0.7" />
-      <circle cx="60" cy="152" r="3" fill="#f59e0b" opacity="0.7" />
-      <circle cx="152" cy="128" r="2" fill="#f59e0b" opacity="0.7" />
-      <line
-        x1="100"
-        y1="20"
-        x2="100"
-        y2="165"
-        stroke="#a3a3a3"
-        strokeWidth="0.5"
-        strokeDasharray="3,3"
-        opacity="0.5"
-      />
+      {/* Document stack */}
+      <g transform="translate(30, 80)">
+        {docs.map((doc, i) => (
+          <g key={i} transform={`translate(${(144 - doc.w) / 2}, ${doc.y})`}>
+            <rect
+              width={doc.w}
+              height={80}
+              rx="2"
+              fill="white"
+              stroke={doc.fill}
+              strokeWidth="1.5"
+            />
+            {/* Header bar (senate seal area) */}
+            <rect width={doc.w} height={12} rx="2" fill={doc.fill} opacity="0.15" />
+            <circle cx={doc.w / 2} cy={6} r={3} fill={doc.fill} opacity="0.4" />
+            {/* Text lines */}
+            {Array.from({ length: doc.lines }, (_, j) => (
+              <rect
+                key={j}
+                x={10}
+                y={20 + j * 12}
+                width={doc.w - 20 - (j === doc.lines - 1 ? 30 : 0)}
+                height={2}
+                rx="1"
+                fill={doc.fill}
+                opacity="0.3"
+              />
+            ))}
+          </g>
+        ))}
+      </g>
+      {/* Party indicators */}
+      <circle cx="45" cy="50" r="4" fill="#3b82f6" opacity="0.8" />
+      <circle cx="100" cy="40" r="5" fill="#ef4444" opacity="0.8" />
+      <circle cx="155" cy="50" r="3" fill="#f59e0b" opacity="0.8" />
+      {/* Count badge */}
+      <g transform="translate(150, 145)">
+        <rect x="-16" y="-10" width="38" height="20" rx="10" fill="#292524" />
+        <text
+          x="3"
+          y="4"
+          textAnchor="middle"
+          fill="white"
+          fontSize="10"
+          fontFamily="monospace"
+          fontWeight="600"
+        >
+          100
+        </text>
+      </g>
     </svg>
   );
 }
