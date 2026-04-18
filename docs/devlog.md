@@ -56,6 +56,29 @@ A chronological record of development sessions and significant changes.
 - Pipeline README with architecture docs
 - Updated CLAUDE.md and master schema.sql
 
+**Data quality war -- pushing to 100%:**
+- Date coverage: 93% -> 99.3% -> 100% (active records)
+  - King (899 null dates) fixed by adding `<meta name="date">` to search -- all dates were in metadata, we just weren't looking for that tag
+  - Graham/ColdFusion senators: dates at char 720 in body text, expanded search from 500 to 1000 chars
+  - 150 remaining null-date records turned out to be nav junk (committee pages, issue pages, flag requests) -- marked as deleted
+- Body text: 97% -> 99.7% -> 100%
+  - 587 records fixed by re-fetching detail pages
+  - 29 records needed aggressive paragraph extraction (WordPress Divi sites where content loads via JS but paragraphs are in static HTML)
+  - 19 remaining were nav junk, 2 were 404s (tombstoned)
+- Junk cleanup: 211+ nav/social/listing-page records marked as deleted (never hard-deleted)
+- Test suite: fixed queries to filter on `deleted_at IS NULL` so tests check active records only
+- Restored 7,146 records that were incorrectly removed by overly aggressive cleanup patterns
+
+**HttpxCollector built:** Wraps existing backfill.py selector logic, adds retry + classification + provenance. Full 100-senator update: +157 new releases in 121 seconds.
+
+**Health check first run:** 24/38 RSS feeds passing, 14 failing (empty feeds, comment feeds). Demoted broken feeds back to httpx. Reliable split: 24 RSS, 68 httpx, 8 Playwright.
+
+**Visual verification command:** `python -m pipeline verify-visual` takes Playwright screenshots of listing + detail pages for replicable audit trail.
+
+**Final active corpus:** 20,418 records, 100% dated, 99.9% body text, 96 active senators (3 former: Rubio, Vance, Mullin). 16/16 data quality tests green.
+
+**Session stats:** 20 git commits. ~4 hours. Pipeline went from prototype to production-grade.
+
 **Architecture principles established:**
 1. Determinism first. AI assists but doesn't drive.
 2. Per-senator, not aggregate. One broken senator must not hide in 99 healthy ones.
@@ -63,6 +86,23 @@ A chronological record of development sessions and significant changes.
 4. Collect wide, surface narrow.
 5. No silent failures.
 6. Archival permanence. Never hard-delete.
+
+**Full CLI available:**
+```
+python -m pipeline update              # collect new releases (all 100 senators)
+python -m pipeline update --dry-run    # preview
+python -m pipeline health              # health checks
+python -m pipeline test                # 16 data quality tests
+python -m pipeline stats              # database overview
+python -m pipeline review quality      # data quality details
+python -m pipeline review alerts       # recent alerts
+python -m pipeline review stale        # senators with old data
+python -m pipeline review runs         # scrape run history
+python -m pipeline repair dates        # fix null dates
+python -m pipeline repair body         # fix missing body text
+python -m pipeline deletions           # check for deleted releases
+python -m pipeline verify-visual       # screenshot verification
+```
 
 ---
 
