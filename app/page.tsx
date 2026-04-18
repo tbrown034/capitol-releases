@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { getStats, getTopSenators, getPartyBreakdown, getFeed } from "./lib/queries";
+import { getStats, getTopSenators, getFeed } from "./lib/queries";
 import { getDailyVolume, getSenatorActivity } from "./lib/analytics";
 import { ReleaseCard } from "./components/release-card";
 import { SearchBox } from "./components/search-box";
@@ -11,11 +11,10 @@ import type { FeedItem } from "./lib/db";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [stats, topSenators, partyBreakdown, { items: latest }, dailyVolume, senatorActivity] =
+  const [stats, topSenators, { items: latest }, dailyVolume, senatorActivity] =
     await Promise.all([
       getStats(),
       getTopSenators(10),
-      getPartyBreakdown(),
       getFeed({ perPage: 8 }),
       getDailyVolume(90),
       getSenatorActivity(),
@@ -32,111 +31,97 @@ export default async function Home() {
       total: number;
     }
   >();
-  for (const row of senatorActivity as { id: string; full_name: string; party: "D" | "R" | "I"; state: string; week: string; count: number }[]) {
+  for (const row of senatorActivity as {
+    id: string;
+    full_name: string;
+    party: "D" | "R" | "I";
+    state: string;
+    week: string;
+    count: number;
+  }[]) {
     if (!senatorMap.has(row.id)) {
-      senatorMap.set(row.id, { id: row.id, full_name: row.full_name, party: row.party, state: row.state, weeks: [], total: 0 });
+      senatorMap.set(row.id, {
+        id: row.id,
+        full_name: row.full_name,
+        party: row.party,
+        state: row.state,
+        weeks: [],
+        total: 0,
+      });
     }
     const s = senatorMap.get(row.id)!;
     s.weeks.push({ week: row.week, count: row.count });
     s.total += row.count;
   }
-  const swimLaneData = Array.from(senatorMap.values()).sort((a, b) => b.total - a.total).slice(0, 15);
+  const swimLaneData = Array.from(senatorMap.values())
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 15);
 
   return (
     <div className="mx-auto max-w-5xl px-4">
       {/* Hero */}
-      <section className="py-16">
-        <h1 className="font-[family-name:var(--font-source-serif)] text-4xl md:text-5xl leading-tight text-neutral-900 mb-4">
-          Capitol Releases
-        </h1>
-        <p className="text-sm text-neutral-500 max-w-lg leading-relaxed mb-6">
-          A searchable archive of official press releases from all 100 U.S.
-          senators. Normalized from {(stats.senators_with_releases ?? 0)} individual
-          government websites into one feed. Updated daily.
-        </p>
-        <div className="max-w-md">
-          <Suspense>
-            <SearchBox />
-          </Suspense>
+      <section className="pt-10 pb-8 md:pt-16 md:pb-12">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 md:gap-8">
+          <div>
+            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl leading-tight text-neutral-900 mb-3 md:mb-4">
+              What are your senators
+              <br className="hidden sm:block" />
+              {" "}saying?
+            </h1>
+            <p className="text-sm md:text-base text-neutral-500 max-w-xl leading-relaxed">
+              Every official press release from all 100 U.S. senators, scraped
+              from {stats.senators_with_releases ?? 0} individual senate.gov
+              websites into one normalized, searchable archive.
+            </p>
+            <p className="text-xs text-neutral-400 mt-3">
+              Updated daily · Collecting since January 2025
+            </p>
+          </div>
+          <HeroGraphic />
         </div>
       </section>
 
-      {/* Stat row */}
-      <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm text-neutral-500 border-b border-neutral-200 pb-6 mb-12">
+      {/* Stats */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-8 sm:gap-y-2 text-sm text-neutral-500 border-b border-neutral-200 pb-4 mb-8 md:mb-12">
         <div>
-          <span className="text-2xl font-semibold text-neutral-900 font-[family-name:var(--font-dm-mono)] tabular-nums mr-1.5">
+          <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
             {(stats.total_releases ?? 0).toLocaleString()}
           </span>
           press releases
         </div>
         <div>
-          <span className="text-2xl font-semibold text-neutral-900 font-[family-name:var(--font-dm-mono)] tabular-nums mr-1.5">
+          <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
             {stats.senators_with_releases ?? 0}
           </span>
           senators tracked
         </div>
         <div>
-          <span className="text-2xl font-semibold text-neutral-900 font-[family-name:var(--font-dm-mono)] tabular-nums mr-1.5">
-            {formatShortDate(stats.earliest)}
+          <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
+            2025
           </span>
-          to
-          <span className="text-2xl font-semibold text-neutral-900 font-[family-name:var(--font-dm-mono)] tabular-nums ml-1.5">
-            {formatShortDate(stats.latest)}
-          </span>
+          to present
         </div>
-        {(partyBreakdown as { party: string; count: number }[]).map((row) => (
-          <div key={row.party}>
-            <span className={`text-lg font-semibold font-[family-name:var(--font-dm-mono)] tabular-nums mr-1 ${
-              row.party === "D" ? "text-blue-600" : row.party === "R" ? "text-red-600" : "text-amber-600"
-            }`}>
-              {row.count.toLocaleString()}
-            </span>
-            {row.party === "D" ? "Democratic" : row.party === "R" ? "Republican" : "Independent"}
-          </div>
-        ))}
       </div>
 
-      {/* CTA cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-16">
-        <CTACard href="/feed" title="Live Feed" desc="Reverse-chronological stream of all press releases." />
-        <CTACard href="/senators" title="Senator Directory" desc="All 100 senators with release counts and archives." />
-        <CTACard href="/about" title="Methodology" desc="How the data is collected, CMS patterns, known gaps." />
+      {/* Search */}
+      <div className="mb-10 md:mb-16 md:max-w-lg">
+        <Suspense>
+          <SearchBox />
+        </Suspense>
       </div>
 
-      {/* Activity chart */}
-      <section className="mb-16">
-        <h2 className="font-[family-name:var(--font-source-serif)] text-2xl text-neutral-900 mb-1">
-          Release Volume
-        </h2>
-        <p className="text-xs text-neutral-400 mb-4">Daily press releases over the past 90 days</p>
-        <ActivityChart data={dailyVolume as { day: string; count: number }[]} />
-      </section>
-
-      {/* Swim lane */}
-      <section className="mb-16">
-        <h2 className="font-[family-name:var(--font-source-serif)] text-2xl text-neutral-900 mb-1">
-          Senator Activity
-        </h2>
-        <p className="text-xs text-neutral-400 mb-4">
-          Weekly release volume for the 15 most active senators.
-          <span className="ml-3 inline-flex items-center gap-3">
-            <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full bg-blue-500" /> D</span>
-            <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full bg-red-500" /> R</span>
-            <span className="inline-flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full bg-amber-500" /> I</span>
-          </span>
-        </p>
-        <SwimLane data={swimLaneData} />
-      </section>
-
-      {/* Most active + latest releases side by side */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-16">
+      {/* Latest + Most active */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 mb-10 md:mb-16">
         <section className="lg:col-span-2">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-[family-name:var(--font-source-serif)] text-2xl text-neutral-900">
+          <div className="flex items-center justify-between border-b border-neutral-900 pb-2 mb-4">
+            <h2 className="text-xs uppercase tracking-wider text-neutral-500">
               Latest
             </h2>
-            <Link href="/feed" className="text-sm text-neutral-400 hover:text-neutral-600 transition-colors">
-              View all →
+            <Link
+              href="/feed"
+              className="text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
+            >
+              View all
             </Link>
           </div>
           {latest.map((item: FeedItem) => (
@@ -145,58 +130,146 @@ export default async function Home() {
         </section>
 
         <aside>
-          <h2 className="font-[family-name:var(--font-source-serif)] text-2xl text-neutral-900 mb-4">
+          <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4">
             Most Active
           </h2>
-          <div className="space-y-1">
-            {(topSenators as { id: string; full_name: string; party: string; state: string; count: number }[]).map(
-              (row, i) => (
-                <Link
-                  key={row.id}
-                  href={`/senators/${row.id}`}
-                  className="flex items-center justify-between py-1.5 text-sm hover:bg-neutral-50 transition-colors -mx-2 px-2"
-                >
-                  <span className="flex items-center gap-2">
-                    <span className="font-[family-name:var(--font-dm-mono)] text-xs text-neutral-300 w-4 text-right tabular-nums">
-                      {i + 1}
-                    </span>
-                    <span className={`inline-block h-1.5 w-1.5 rounded-full ${
-                      row.party === "D" ? "bg-blue-500" : row.party === "R" ? "bg-red-500" : "bg-amber-500"
-                    }`} />
-                    <span className="text-neutral-900">{row.full_name}</span>
-                    <span className="text-neutral-400">({row.party}-{row.state})</span>
+          <div className="space-y-0.5">
+            {(
+              topSenators as {
+                id: string;
+                full_name: string;
+                party: string;
+                state: string;
+                count: number;
+              }[]
+            ).map((row, i) => (
+              <Link
+                key={row.id}
+                href={`/senators/${row.id}`}
+                className="flex items-center justify-between py-1.5 text-sm hover:bg-neutral-50 transition-colors -mx-2 px-2"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="font-mono text-xs text-neutral-300 w-4 text-right tabular-nums">
+                    {i + 1}
                   </span>
-                  <span className="font-[family-name:var(--font-dm-mono)] text-neutral-500 tabular-nums">
-                    {row.count}
+                  <span
+                    className={`inline-block h-1.5 w-1.5 rounded-full ${
+                      row.party === "D"
+                        ? "bg-blue-500"
+                        : row.party === "R"
+                          ? "bg-red-500"
+                          : "bg-amber-500"
+                    }`}
+                  />
+                  <span className="text-neutral-900">{row.full_name}</span>
+                  <span className="text-neutral-400 hidden sm:inline">
+                    ({row.party}-{row.state})
                   </span>
-                </Link>
-              )
-            )}
+                </span>
+                <span className="font-mono text-neutral-500 tabular-nums">
+                  {row.count}
+                </span>
+              </Link>
+            ))}
           </div>
         </aside>
       </div>
+
+      {/* Release Volume */}
+      <section className="mb-10 md:mb-16">
+        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
+          Release Volume
+        </h2>
+        <p className="text-xs text-neutral-400 mb-4">
+          Daily press releases over the past 90 days
+        </p>
+        <div className="overflow-x-auto -mx-4 px-4">
+          <ActivityChart
+            data={dailyVolume as { day: string; count: number }[]}
+          />
+        </div>
+      </section>
+
+      {/* Senator Activity */}
+      <section className="mb-10 md:mb-16">
+        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
+          Senator Activity
+        </h2>
+        <p className="text-xs text-neutral-400 mb-4">
+          Weekly release volume for the 15 most active senators
+          <span className="ml-3 inline-flex items-center gap-3">
+            <span className="inline-flex items-center gap-1">
+              <span className="inline-block h-2 w-2 rounded-full bg-blue-500" />{" "}
+              D
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="inline-block h-2 w-2 rounded-full bg-red-500" />{" "}
+              R
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />{" "}
+              I
+            </span>
+          </span>
+        </p>
+        <SwimLane data={swimLaneData} />
+      </section>
     </div>
   );
 }
 
-function CTACard({ href, title, desc }: { href: string; title: string; desc: string }) {
+function HeroGraphic() {
   return (
-    <Link
-      href={href}
-      className="border border-neutral-200 bg-white px-5 py-4 hover:border-neutral-900 hover:bg-neutral-50 transition-colors group flex justify-between items-start"
+    <svg
+      width={192}
+      height={192}
+      viewBox="0 0 192 192"
+      fill="none"
+      aria-hidden="true"
+      className="hidden md:block shrink-0"
     >
-      <div>
-        <div className="text-sm font-medium text-neutral-900 group-hover:underline">{title}</div>
-        <p className="text-xs text-neutral-500 mt-1">{desc}</p>
-      </div>
-      <span className="text-neutral-300 group-hover:text-neutral-900 transition-colors text-lg mt-0.5 ml-3 shrink-0">
-        →
-      </span>
-    </Link>
+      {[32, 56, 80, 104, 128, 152].map((y) => (
+        <line
+          key={y}
+          x1="0"
+          y1={y}
+          x2="192"
+          y2={y}
+          stroke="#e5e5e5"
+          strokeWidth="0.5"
+        />
+      ))}
+      <circle cx="20" cy="32" r="3" fill="#3b82f6" opacity="0.7" />
+      <circle cx="48" cy="32" r="5" fill="#3b82f6" opacity="0.7" />
+      <circle cx="72" cy="56" r="4" fill="#3b82f6" opacity="0.7" />
+      <circle cx="96" cy="32" r="6" fill="#3b82f6" opacity="0.7" />
+      <circle cx="120" cy="80" r="3" fill="#3b82f6" opacity="0.7" />
+      <circle cx="148" cy="56" r="5" fill="#3b82f6" opacity="0.7" />
+      <circle cx="172" cy="32" r="4" fill="#3b82f6" opacity="0.7" />
+      <circle cx="52" cy="104" r="3" fill="#3b82f6" opacity="0.7" />
+      <circle cx="88" cy="128" r="5" fill="#3b82f6" opacity="0.7" />
+      <circle cx="132" cy="104" r="4" fill="#3b82f6" opacity="0.7" />
+      <circle cx="32" cy="56" r="4" fill="#ef4444" opacity="0.7" />
+      <circle cx="56" cy="80" r="3" fill="#ef4444" opacity="0.7" />
+      <circle cx="80" cy="104" r="5" fill="#ef4444" opacity="0.7" />
+      <circle cx="108" cy="56" r="4" fill="#ef4444" opacity="0.7" />
+      <circle cx="136" cy="128" r="3" fill="#ef4444" opacity="0.7" />
+      <circle cx="164" cy="80" r="5" fill="#ef4444" opacity="0.7" />
+      <circle cx="40" cy="128" r="4" fill="#ef4444" opacity="0.7" />
+      <circle cx="112" cy="152" r="3" fill="#ef4444" opacity="0.7" />
+      <circle cx="168" cy="152" r="4" fill="#ef4444" opacity="0.7" />
+      <circle cx="60" cy="152" r="3" fill="#f59e0b" opacity="0.7" />
+      <circle cx="152" cy="128" r="2" fill="#f59e0b" opacity="0.7" />
+      <line
+        x1="100"
+        y1="20"
+        x2="100"
+        y2="165"
+        stroke="#a3a3a3"
+        strokeWidth="0.5"
+        strokeDasharray="3,3"
+        opacity="0.5"
+      />
+    </svg>
   );
-}
-
-function formatShortDate(d: string | null): string {
-  if (!d) return "--";
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }

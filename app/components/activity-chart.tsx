@@ -12,7 +12,7 @@ export function ActivityChart({ data }: { data: DataPoint[] }) {
     if (!svgRef.current || data.length === 0) return;
 
     const margin = { top: 8, right: 12, bottom: 28, left: 32 };
-    const width = svgRef.current.clientWidth;
+    const width = 800;
     const height = 180;
     const innerW = width - margin.left - margin.right;
     const innerH = height - margin.top - margin.bottom;
@@ -40,32 +40,34 @@ export function ActivityChart({ data }: { data: DataPoint[] }) {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Area
-    const area = d3
-      .area<{ date: Date; count: number }>()
-      .x((d) => x(d.date))
-      .y0(innerH)
-      .y1((d) => y(d.count))
-      .curve(d3.curveMonotoneX);
+    // Y grid lines
+    g.append("g")
+      .call(d3.axisLeft(y).ticks(4).tickSize(-innerW))
+      .call((sel) => sel.select(".domain").remove())
+      .call((sel) =>
+        sel
+          .selectAll(".tick line")
+          .attr("stroke", "#e5e5e5")
+          .attr("stroke-dasharray", "2,2")
+      )
+      .call((sel) =>
+        sel
+          .selectAll(".tick text")
+          .attr("fill", "#a3a3a3")
+          .attr("font-size", 10)
+      );
 
-    g.append("path")
-      .datum(parsed)
-      .attr("fill", "#e5e7eb")
-      .attr("d", area);
+    // Bars
+    const barWidth = Math.max(2, (innerW / parsed.length) * 0.55);
 
-    // Line
-    const line = d3
-      .line<{ date: Date; count: number }>()
-      .x((d) => x(d.date))
-      .y((d) => y(d.count))
-      .curve(d3.curveMonotoneX);
-
-    g.append("path")
-      .datum(parsed)
-      .attr("fill", "none")
-      .attr("stroke", "#374151")
-      .attr("stroke-width", 1.5)
-      .attr("d", line);
+    g.selectAll("rect")
+      .data(parsed)
+      .join("rect")
+      .attr("x", (d) => x(d.date) - barWidth / 2)
+      .attr("width", barWidth)
+      .attr("y", (d) => y(d.count))
+      .attr("height", (d) => innerH - y(d.count))
+      .attr("fill", "#292524");
 
     // X axis
     g.append("g")
@@ -76,24 +78,13 @@ export function ActivityChart({ data }: { data: DataPoint[] }) {
           .ticks(6)
           .tickFormat((d) => d3.timeFormat("%b %d")(d as Date))
       )
-      .call((g) => g.select(".domain").remove())
-      .call((g) => g.selectAll(".tick line").attr("stroke", "#e5e7eb"))
-      .call((g) =>
-        g.selectAll(".tick text").attr("fill", "#9ca3af").attr("font-size", 10)
-      );
-
-    // Y axis
-    g.append("g")
-      .call(d3.axisLeft(y).ticks(4).tickSize(-innerW))
-      .call((g) => g.select(".domain").remove())
-      .call((g) =>
-        g
-          .selectAll(".tick line")
-          .attr("stroke", "#f3f4f6")
-          .attr("stroke-dasharray", "2,2")
-      )
-      .call((g) =>
-        g.selectAll(".tick text").attr("fill", "#9ca3af").attr("font-size", 10)
+      .call((sel) => sel.select(".domain").remove())
+      .call((sel) => sel.selectAll(".tick line").remove())
+      .call((sel) =>
+        sel
+          .selectAll(".tick text")
+          .attr("fill", "#a3a3a3")
+          .attr("font-size", 10)
       );
   }, [data]);
 
@@ -102,7 +93,7 @@ export function ActivityChart({ data }: { data: DataPoint[] }) {
       ref={svgRef}
       width="100%"
       height={180}
-      viewBox="0 0 600 180"
+      viewBox="0 0 800 180"
       preserveAspectRatio="xMidYMid meet"
     />
   );

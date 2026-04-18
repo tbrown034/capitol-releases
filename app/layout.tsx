@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, DM_Mono, Source_Serif_4 } from "next/font/google";
 import { Nav } from "./components/nav";
+import { DomeIcon } from "./components/dome-icon";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -40,12 +41,20 @@ export default function RootLayout({
         <Nav />
         <main>{children}</main>
         <footer className="border-t border-neutral-200 bg-stone-50">
-          <div className="mx-auto max-w-5xl px-4 py-10">
-            <div className="flex items-start justify-between">
+          <div className="mx-auto max-w-5xl px-4 py-8 md:py-10">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
               <div className="max-w-sm">
-                <p className="text-sm font-medium text-neutral-900">
-                  Capitol Releases
-                </p>
+                <div className="flex items-center gap-2 text-neutral-900">
+                  <DomeIcon size={16} />
+                  <div className="leading-none">
+                    <span className="block text-[9px] font-serif tracking-[0.2em] text-neutral-400">
+                      CAPITOL
+                    </span>
+                    <span className="block text-[11px] font-serif font-bold tracking-[0.05em]">
+                      RELEASES
+                    </span>
+                  </div>
+                </div>
                 <p className="mt-2 text-[11px] text-neutral-400 leading-relaxed">
                   A journalism and public-records project. All data sourced from
                   official senate.gov websites. Not affiliated with the U.S.
@@ -71,7 +80,7 @@ export default function RootLayout({
                 </div>
               </div>
             </div>
-            <p className="mt-8 text-[11px] text-neutral-400">
+            <p className="mt-6 md:mt-8 text-[11px] text-neutral-400">
               Data collected from public records under the First Amendment.
               Photos from the Congressional Bioguide (public domain).
             </p>

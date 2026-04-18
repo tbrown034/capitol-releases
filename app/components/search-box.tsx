@@ -18,17 +18,17 @@ export function SearchBox({ basePath = "/search" }: { basePath?: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
+    <form onSubmit={handleSubmit} className="flex gap-3 items-end">
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search press releases..."
-        className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        className="flex-1 border-b border-neutral-300 bg-transparent px-1 py-2 text-sm text-neutral-900 focus:border-neutral-900 focus:outline-none transition-colors placeholder:text-neutral-400"
       />
       <button
         type="submit"
-        className="rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+        className="border border-neutral-900 bg-neutral-900 px-4 py-1.5 text-sm text-white hover:bg-white hover:text-neutral-900 transition-colors"
       >
         Search
       </button>
