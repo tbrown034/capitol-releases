@@ -42,6 +42,10 @@ def main():
         from pipeline.commands.detect_deletions import main as deletions_main
         deletions_main()
 
+    elif command == "review":
+        from pipeline.commands.review import main as review_main
+        review_main()
+
     elif command == "stats":
         _show_stats()
 
