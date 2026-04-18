@@ -18,10 +18,11 @@
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.35,
-      "notes": "",
+      "confidence": 0.85,
+      "notes": "Elementor WordPress. 10/page, 23 pages. Pagination: ?e-page-f7b8172=N. Dates in text. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "armstrong-alan",
@@ -41,10 +42,11 @@
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.3,
-      "notes": "",
+      "confidence": 0.0,
+      "notes": "Page exists but div.page-content is empty. New senator, no releases published yet. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "baldwin-tammy",
@@ -67,7 +69,8 @@
       "confidence": 0.8,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "banks-jim",
@@ -90,7 +93,8 @@
       "confidence": 0.6,
       "notes": "Found 4 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "barrasso-john",
@@ -114,7 +118,8 @@
       "confidence": 1.0,
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "bennet-michael",
@@ -122,8 +127,8 @@
       "party": "D",
       "state": "CO",
       "official_url": "https://www.bennet.senate.gov",
-      "press_release_url": "https://www.bennet.senate.gov/2014/11/21/press-releases-id-00079d57-4929-7011-85ae-df2641f4ad4e/",
-      "parser_family": "senate-generic",
+      "press_release_url": "https://www.bennet.senate.gov/news/",
+      "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
@@ -134,10 +139,11 @@
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.3,
-      "notes": "",
+      "confidence": 0.9,
+      "notes": "WordPress Divi (et_pb_post). Old URL was wrong UUID path. Dates \"Apr 16, 2026\". Verified 2026-04-17.",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "blackburn-marsha",
@@ -162,7 +168,8 @@
       "confidence": 0.65,
       "notes": "Found 13 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "blumenthal-richard",
@@ -185,7 +192,8 @@
       "confidence": 0.85,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "rochester-lisa",
@@ -208,7 +216,8 @@
       "confidence": 0.6,
       "notes": "Found 4 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "booker-cory",
@@ -218,7 +227,7 @@
       "official_url": "https://www.booker.senate.gov",
       "press_release_url": "https://www.booker.senate.gov/news",
       "parser_family": "senate-generic",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -231,7 +240,8 @@
       "confidence": 0.85,
       "notes": "Found 21 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "playwright"
     },
     {
       "senator_id": "boozman-john",
@@ -254,7 +264,8 @@
       "confidence": 0.55,
       "notes": "Found 306 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "britt-katie",
@@ -277,7 +288,8 @@
       "confidence": 0.55,
       "notes": "Found 8 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "budd-ted",
@@ -297,10 +309,11 @@
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.35,
-      "notes": "",
+      "confidence": 0.9,
+      "notes": "WordPress Divi (article). 18/page. Dates \"Jun 17, 2025\". Older Entries pagination /page/N/. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "cantwell-maria",
@@ -324,7 +337,8 @@
       "confidence": 0.9,
       "notes": "Found 90 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "capito-shelley",
@@ -334,7 +348,7 @@
       "official_url": "https://www.capito.senate.gov",
       "press_release_url": "https://www.capito.senate.gov/news/press-releases",
       "parser_family": "senate-generic",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -344,10 +358,11 @@
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.35,
-      "notes": "",
+      "confidence": 0.6,
+      "notes": "JS-rendered. div.js-content empty. Same pattern as Reed/Cotton. Needs Playwright. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "playwright"
     },
     {
       "senator_id": "cassidy-bill",
@@ -370,7 +385,8 @@
       "confidence": 0.55,
       "notes": "Found 8 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "collins-susan",
@@ -393,7 +409,8 @@
       "confidence": 0.85,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "coons-christopher",
@@ -417,7 +434,8 @@
       "confidence": 0.95,
       "notes": "Found 5 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "cornyn-john",
@@ -440,7 +458,8 @@
       "confidence": 0.85,
       "notes": "Found 32 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "masto-catherine",
@@ -463,7 +482,8 @@
       "confidence": 0.55,
       "notes": "Found 5 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "cotton-tom",
@@ -473,7 +493,7 @@
       "official_url": "https://www.cotton.senate.gov",
       "press_release_url": "https://www.cotton.senate.gov/news/press-releases",
       "parser_family": "senate-generic",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -483,10 +503,11 @@
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.35,
-      "notes": "",
+      "confidence": 0.6,
+      "notes": "JS-rendered. div.js-content empty. Same pattern as Reed. Needs Playwright. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "playwright"
     },
     {
       "senator_id": "cramer-kevin",
@@ -509,7 +530,8 @@
       "confidence": 0.85,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "crapo-mike",
@@ -532,7 +554,8 @@
       "confidence": 0.85,
       "notes": "Found 24 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "cruz-ted",
@@ -555,7 +578,8 @@
       "confidence": 0.8,
       "notes": "Found 19 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "curtis-john",
@@ -579,7 +603,8 @@
       "confidence": 0.4,
       "notes": "",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "daines-steve",
@@ -603,7 +628,8 @@
       "confidence": 1.0,
       "notes": "Found 9 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "duckworth-tammy",
@@ -627,7 +653,8 @@
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "durbin-richard",
@@ -651,7 +678,8 @@
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "ernst-joni",
@@ -674,7 +702,8 @@
       "confidence": 0.85,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "fetterman-john",
@@ -699,7 +728,8 @@
       "confidence": 1.0,
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "fischer-deb",
@@ -724,7 +754,8 @@
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "gallego-ruben",
@@ -748,7 +779,8 @@
       "confidence": 0.45,
       "notes": "",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "gillibrand-kirsten",
@@ -771,7 +803,8 @@
       "confidence": 0.95,
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "graham-lindsey",
@@ -794,7 +827,8 @@
       "confidence": 0.55,
       "notes": "Found 361 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "grassley-chuck",
@@ -817,7 +851,8 @@
       "confidence": 0.85,
       "notes": "Found 33 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "hagerty-bill",
@@ -842,7 +877,8 @@
       "confidence": 0.7,
       "notes": "Found 45 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "hassan-margaret",
@@ -865,7 +901,8 @@
       "confidence": 0.9,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "hawley-josh",
@@ -890,7 +927,8 @@
       "confidence": 1.0,
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "heinrich-martin",
@@ -913,7 +951,8 @@
       "confidence": 0.8,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "hickenlooper-john",
@@ -933,10 +972,11 @@
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.35,
-      "notes": "",
+      "confidence": 0.9,
+      "notes": "WordPress Divi (et_pb_post). 5/page. Older Entries pagination. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "hirono-mazie",
@@ -959,7 +999,8 @@
       "confidence": 0.85,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "hoeven-john",
@@ -982,7 +1023,8 @@
       "confidence": 0.8,
       "notes": "Found 105 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "husted-jon",
@@ -1005,7 +1047,8 @@
       "confidence": 0.55,
       "notes": "Found 8 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "hydesmith-cindy",
@@ -1030,7 +1073,8 @@
       "confidence": 1.0,
       "notes": "Found 15 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "johnson-ron",
@@ -1055,7 +1099,8 @@
       "confidence": 0.65,
       "notes": "Found 13 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "justice-james",
@@ -1079,7 +1124,8 @@
       "confidence": 0.4,
       "notes": "",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "kaine-tim",
@@ -1102,7 +1148,8 @@
       "confidence": 0.85,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "kelly-mark",
@@ -1125,7 +1172,8 @@
       "confidence": 0.6,
       "notes": "Found 5 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "kennedy-john",
@@ -1148,7 +1196,8 @@
       "confidence": 0.55,
       "notes": "Found 266 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "kim-andy",
@@ -1168,10 +1217,11 @@
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.35,
-      "notes": "",
+      "confidence": 0.9,
+      "notes": "WordPress Divi (et_pb_post). 10/page. Older Entries pagination. Detail links use /press_release/slug/. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "king-angus",
@@ -1194,7 +1244,8 @@
       "confidence": 0.85,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "klobuchar-amy",
@@ -1217,7 +1268,8 @@
       "confidence": 0.55,
       "notes": "Found 452 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "lankford-james",
@@ -1240,7 +1292,8 @@
       "confidence": 0.55,
       "notes": "Found 6 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "lee-mike",
@@ -1265,7 +1318,8 @@
       "confidence": 0.65,
       "notes": "Found 13 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "lujan-ben",
@@ -1288,7 +1342,8 @@
       "confidence": 0.55,
       "notes": "Found 12 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "lummis-cynthia",
@@ -1313,7 +1368,8 @@
       "confidence": 0.45,
       "notes": "",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "markey-edward",
@@ -1323,7 +1379,7 @@
       "official_url": "https://www.markey.senate.gov",
       "press_release_url": "https://www.markey.senate.gov/news/press-releases",
       "parser_family": "senate-generic",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -1333,10 +1389,11 @@
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.35,
-      "notes": "",
+      "confidence": 0.6,
+      "notes": "JS-rendered. div.js-content empty. Needs Playwright. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "playwright"
     },
     {
       "senator_id": "marshall-roger",
@@ -1359,7 +1416,8 @@
       "confidence": 0.6,
       "notes": "Found 13 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "mcconnell-mitch",
@@ -1382,7 +1440,8 @@
       "confidence": 0.55,
       "notes": "Found 278 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "mccormick-david",
@@ -1406,7 +1465,8 @@
       "confidence": 0.7,
       "notes": "Found 4 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "merkley-jeff",
@@ -1416,7 +1476,7 @@
       "official_url": "https://www.merkley.senate.gov",
       "press_release_url": "https://www.merkley.senate.gov/news/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "link_follow",
         "next_selector": "a.next"
@@ -1430,7 +1490,8 @@
       "confidence": 1.0,
       "notes": "Found 9 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "playwright"
     },
     {
       "senator_id": "moody-ashley",
@@ -1439,7 +1500,7 @@
       "state": "FL",
       "official_url": "https://www.moody.senate.gov",
       "press_release_url": "https://www.moody.senate.gov/press-releases/",
-      "parser_family": "senate-generic",
+      "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
@@ -1450,10 +1511,11 @@
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.35,
-      "notes": "",
+      "confidence": 0.9,
+      "notes": "WordPress Divi (et_pb_post). 5/page. Older Entries pagination. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "moran-jerry",
@@ -1476,7 +1538,8 @@
       "confidence": 0.55,
       "notes": "Found 323 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "moreno-bernie",
@@ -1500,7 +1563,8 @@
       "confidence": 0.4,
       "notes": "",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "murkowski-lisa",
@@ -1524,7 +1588,8 @@
       "confidence": 0.9,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "murphy-christopher",
@@ -1547,7 +1612,8 @@
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "murray-patty",
@@ -1570,7 +1636,8 @@
       "confidence": 0.55,
       "notes": "Found 11 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "ossoff-jon",
@@ -1580,7 +1647,7 @@
       "official_url": "https://www.ossoff.senate.gov",
       "press_release_url": "https://www.ossoff.senate.gov/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -1590,10 +1657,11 @@
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.35,
-      "notes": "",
+      "confidence": 0.85,
+      "notes": "Elementor WordPress (.elementor-post). Dates via span.elementor-post-date. AJAX pagination (data-i attrs). Needs Playwright for pagination. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "playwright"
     },
     {
       "senator_id": "padilla-alex",
@@ -1616,7 +1684,8 @@
       "confidence": 0.6,
       "notes": "Found 9 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "paul-rand",
@@ -1641,7 +1710,8 @@
       "confidence": 1.0,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "peters-gary",
@@ -1664,7 +1734,8 @@
       "confidence": 0.8,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "reed-jack",
@@ -1674,7 +1745,7 @@
       "official_url": "https://www.reed.senate.gov",
       "press_release_url": "https://www.reed.senate.gov/news/releases",
       "parser_family": "senate-generic",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -1684,10 +1755,11 @@
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.3,
-      "notes": "",
+      "confidence": 0.6,
+      "notes": "JS-rendered. div.js-content is empty in static HTML. Pagination exists (select dropdown). Needs Playwright. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "playwright"
     },
     {
       "senator_id": "ricketts-pete",
@@ -1710,7 +1782,8 @@
       "confidence": 0.55,
       "notes": "Found 8 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "risch-james",
@@ -1734,7 +1807,8 @@
       "confidence": 0.7,
       "notes": "Found 8 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "rosen-jacky",
@@ -1759,7 +1833,8 @@
       "confidence": 1.0,
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "rounds-mike",
@@ -1782,7 +1857,8 @@
       "confidence": 0.8,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "sanders-bernard",
@@ -1806,7 +1882,8 @@
       "confidence": 1.0,
       "notes": "Found 7 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "schatz-brian",
@@ -1829,7 +1906,8 @@
       "confidence": 0.8,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "schiff-adam",
@@ -1853,7 +1931,8 @@
       "confidence": 0.7,
       "notes": "Found 5 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "schmitt-eric",
@@ -1863,7 +1942,7 @@
       "official_url": "https://www.schmitt.senate.gov",
       "press_release_url": "https://www.schmitt.senate.gov/media/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -1876,7 +1955,8 @@
       "confidence": 0.6,
       "notes": "Found 4 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "playwright"
     },
     {
       "senator_id": "schumer-charles",
@@ -1899,7 +1979,8 @@
       "confidence": 0.85,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "scott-rick",
@@ -1924,7 +2005,8 @@
       "confidence": 0.65,
       "notes": "Found 13 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "scott-tim",
@@ -1947,7 +2029,8 @@
       "confidence": 0.6,
       "notes": "Found 5 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "shaheen-jeanne",
@@ -1970,7 +2053,8 @@
       "confidence": 0.9,
       "notes": "Found 6 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "sheehy-tim",
@@ -1993,7 +2077,8 @@
       "confidence": 0.6,
       "notes": "Found 8 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "slotkin-elissa",
@@ -2018,7 +2103,8 @@
       "confidence": 1.0,
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "smith-tina",
@@ -2042,7 +2128,8 @@
       "confidence": 1.0,
       "notes": "Found 6 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "sullivan-dan",
@@ -2066,7 +2153,8 @@
       "confidence": 0.9,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "thune-john",
@@ -2089,7 +2177,8 @@
       "confidence": 0.55,
       "notes": "Found 154 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "tillis-thom",
@@ -2114,7 +2203,8 @@
       "confidence": 0.9,
       "notes": "Found 33 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "tuberville-tommy",
@@ -2137,7 +2227,8 @@
       "confidence": 0.6,
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "hollen-chris",
@@ -2160,7 +2251,8 @@
       "confidence": 0.8,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "warner-mark",
@@ -2183,7 +2275,8 @@
       "confidence": 0.55,
       "notes": "Found 8 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "warnock-raphael",
@@ -2206,7 +2299,8 @@
       "confidence": 0.6,
       "notes": "Found 15 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "warren-elizabeth",
@@ -2230,7 +2324,8 @@
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "welch-peter",
@@ -2238,8 +2333,8 @@
       "party": "D",
       "state": "VT",
       "official_url": "https://www.welch.senate.gov",
-      "press_release_url": "https://www.welch.senate.gov/press-kit/",
-      "parser_family": "senate-generic",
+      "press_release_url": "https://www.welch.senate.gov/category/press-release/",
+      "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
@@ -2250,10 +2345,11 @@
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.3,
-      "notes": "",
+      "confidence": 0.9,
+      "notes": "WordPress (article.postItem). 6/page, 6+ pages. /page/N/ pagination. Old URL was /press-kit/ (wrong). Verified 2026-04-17.",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "whitehouse-sheldon",
@@ -2263,7 +2359,7 @@
       "official_url": "https://www.whitehouse.senate.gov",
       "press_release_url": "https://www.whitehouse.senate.gov/news/press-releases-test-sorting/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -2276,7 +2372,8 @@
       "confidence": 0.6,
       "notes": "Found 12 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "playwright"
     },
     {
       "senator_id": "wicker-roger",
@@ -2301,7 +2398,8 @@
       "confidence": 0.65,
       "notes": "Found 13 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "wyden-ron",
@@ -2325,7 +2423,8 @@
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "httpx"
     },
     {
       "senator_id": "young-todd",
@@ -2335,7 +2434,7 @@
       "official_url": "https://www.young.senate.gov",
       "press_release_url": "https://www.young.senate.gov/newsroom/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -2348,7 +2447,8 @@
       "confidence": 0.6,
       "notes": "Found 5 items on listing page. ",
       "last_verified": "2026-04-15",
-      "recon_status": "discovered"
+      "recon_status": "discovered",
+      "collection_method": "playwright"
     }
   ],
   "generated_at": "2026-04-15T22:20:28.817086+00:00"
