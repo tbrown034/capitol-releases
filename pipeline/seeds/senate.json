@@ -281,7 +281,7 @@
       "official_url": "https://www.britt.senate.gov",
       "press_release_url": "https://www.britt.senate.gov/media/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -292,10 +292,10 @@
         "detail_link": null
       },
       "confidence": 0.55,
-      "notes": "Found 8 items on listing page. ",
+      "notes": "Found 8 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx",
+      "collection_method": "playwright",
       "rss_feed_url": "https://www.britt.senate.gov/media/press-releases/feed/"
     },
     {
@@ -380,7 +380,7 @@
       "official_url": "https://www.cassidy.senate.gov",
       "press_release_url": "https://www.cassidy.senate.gov/newsroom/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -391,10 +391,10 @@
         "detail_link": null
       },
       "confidence": 0.55,
-      "notes": "Found 8 items on listing page. ",
+      "notes": "Found 8 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "playwright"
     },
     {
       "senator_id": "collins-susan",
@@ -453,7 +453,7 @@
       "official_url": "https://www.cornyn.senate.gov",
       "press_release_url": "https://www.cornyn.senate.gov/news/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -464,10 +464,10 @@
         "detail_link": "a[href]"
       },
       "confidence": 0.85,
-      "notes": "Found 32 items on listing page. ",
+      "notes": "Found 32 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "rss",
+      "collection_method": "playwright",
       "rss_feed_url": "https://www.cornyn.senate.gov/news/feed/"
     },
     {
@@ -478,7 +478,7 @@
       "official_url": "https://www.cortezmasto.senate.gov",
       "press_release_url": "https://www.cortezmasto.senate.gov/news/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -489,10 +489,10 @@
         "detail_link": null
       },
       "confidence": 0.55,
-      "notes": "Found 5 items on listing page. ",
+      "notes": "Found 5 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "playwright"
     },
     {
       "senator_id": "cotton-tom",
@@ -1297,7 +1297,7 @@
       "official_url": "https://www.lankford.senate.gov",
       "press_release_url": "https://www.lankford.senate.gov/news/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -1308,10 +1308,10 @@
         "detail_link": null
       },
       "confidence": 0.55,
-      "notes": "Found 6 items on listing page. ",
+      "notes": "Found 6 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "playwright"
     },
     {
       "senator_id": "lee-mike",
@@ -1347,7 +1347,7 @@
       "official_url": "https://www.lujan.senate.gov",
       "press_release_url": "https://www.lujan.senate.gov/newsroom/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -1358,10 +1358,10 @@
         "detail_link": null
       },
       "confidence": 0.55,
-      "notes": "Found 12 items on listing page. ",
+      "notes": "Found 12 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "rss",
+      "collection_method": "playwright",
       "rss_feed_url": "https://www.lujan.senate.gov/feed/"
     },
     {
@@ -1423,7 +1423,7 @@
       "official_url": "https://www.marshall.senate.gov",
       "press_release_url": "https://www.marshall.senate.gov/newsroom/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -1434,10 +1434,10 @@
         "detail_link": null
       },
       "confidence": 0.6,
-      "notes": "Found 13 items on listing page. ",
+      "notes": "Found 13 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "rss",
+      "collection_method": "playwright",
       "rss_feed_url": "https://www.marshall.senate.gov/feed/"
     },
     {
@@ -1699,7 +1699,7 @@
       "official_url": "https://www.padilla.senate.gov",
       "press_release_url": "https://www.padilla.senate.gov/newsroom/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -1710,10 +1710,10 @@
         "detail_link": null
       },
       "confidence": 0.6,
-      "notes": "Found 9 items on listing page. ",
+      "notes": "Found 9 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "rss",
+      "collection_method": "playwright",
       "rss_feed_url": "https://www.padilla.senate.gov/feed/"
     },
     {
@@ -1798,7 +1798,7 @@
       "official_url": "https://www.ricketts.senate.gov",
       "press_release_url": "https://www.ricketts.senate.gov/newsroom/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "unknown"
       },
@@ -1809,10 +1809,10 @@
         "detail_link": null
       },
       "confidence": 0.55,
-      "notes": "Found 8 items on listing page. ",
+      "notes": "Found 8 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx",
+      "collection_method": "playwright",
       "rss_feed_url": "https://www.ricketts.senate.gov/newsroom/press-releases/feed/"
     },
     {
