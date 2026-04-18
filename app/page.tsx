@@ -216,62 +216,7 @@ export default async function Home() {
         <SenatorBars data={swimLaneData} />
       </section>
 
-      {/* Least Active */}
-      <section className="mb-10 md:mb-16">
-        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
-          Least Active
-        </h2>
-        <p className="text-xs text-neutral-400 mb-4">
-          Senators with the fewest releases in the archive
-        </p>
-        <div className="space-y-0.5">
-          {(
-            leastActive as {
-              id: string;
-              full_name: string;
-              party: string;
-              state: string;
-              count: number;
-              last_release: string | null;
-            }[]
-          ).map((row, i) => (
-            <Link
-              key={row.id}
-              href={`/senators/${row.id}`}
-              className="flex items-center justify-between py-2 text-sm hover:bg-neutral-50 transition-colors -mx-2 px-2 border-b border-neutral-100 last:border-0"
-            >
-              <span className="flex items-center gap-2">
-                <span className="font-mono text-xs text-neutral-300 w-4 text-right tabular-nums">
-                  {i + 1}
-                </span>
-                <span
-                  className={`inline-block h-1.5 w-1.5 rounded-full ${
-                    row.party === "D"
-                      ? "bg-blue-500"
-                      : row.party === "R"
-                        ? "bg-red-500"
-                        : "bg-amber-500"
-                  }`}
-                />
-                <span className="text-neutral-900">{row.full_name}</span>
-                <span className="text-neutral-400 hidden sm:inline">
-                  ({row.party}-{row.state})
-                </span>
-              </span>
-              <span className="flex items-center gap-4">
-                <span className="font-mono text-neutral-500 tabular-nums">
-                  {row.count}
-                </span>
-                {row.last_release && (
-                  <span className="text-xs text-neutral-400 hidden md:inline">
-                    Last: {new Date(row.last_release).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                  </span>
-                )}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
+      {/* Least Active -- hidden until backfill gaps are closed */}
     </div>
   );
 }
