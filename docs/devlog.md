@@ -100,9 +100,22 @@ A chronological record of development sessions and significant changes.
 - 3 need URL/selector investigation
 - 1 (Armstrong) is expected -- new senator, no releases yet
 
-**Final corpus:** 21,590 records, 99% dated, 100% body text, 99 senators. 17/17 data quality tests green.
+**Overnight Playwright crawl (12:30 AM - 3 AM):**
+- Expanded backfill_playwright.py to load all 20 Playwright senators from senate.json (removed hardcoded 5-senator list)
+- Diagnosed 9 more JetEngine/Elementor senators (Britt, Cassidy, Cornyn, Lankford, Marshall, Lujan, Padilla, Masto, Ricketts) and Cantwell (JS pagination with href=None)
+- Background Playwright backfill: +666 records across 20 senators
+- Foreground batches: Tuberville +58, Warnock +21, Lankford +30, Kelly +4, Murray +150, Shaheen +348, Crapo +311, Budd +40
+- Date repair: 478 fixed from HTML meta. Body repair: 951 fixed from detail pages.
+- Added `table tr` selector (without tbody) for Cantwell-style sites
+- Final collection split: 60 httpx, 21 playwright, 19 RSS
 
-**Session stats:** 27 git commits. ~5 hours (7:30 PM - 12:30 AM). Pipeline went from prototype to production-grade.
+**Final corpus:** 22,762 records, 99% dated, 100% body text, 99 senators. 17/17 data quality tests green.
+
+**Session stats:** 30 git commits. ~7.5 hours (7:30 PM - 3:00 AM). Pipeline went from prototype to production-grade.
+
+**Future ideas captured:**
+- Email-based collection: subscribe to all 100 senators' press lists as real-time primary source, scraping as backup. Two-prong approach accounts for risk of being dropped from lists.
+- Vercel DATABASE_URL needs updating with rotated password (user task).
 
 **Architecture principles established:**
 1. Determinism first. AI assists but doesn't drive.
