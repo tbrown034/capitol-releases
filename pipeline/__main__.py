@@ -38,6 +38,10 @@ def main():
         )
         sys.exit(result.returncode)
 
+    elif command == "repair":
+        from pipeline.commands.repair import main as repair_main
+        repair_main()
+
     elif command == "deletions":
         from pipeline.commands.detect_deletions import main as deletions_main
         deletions_main()

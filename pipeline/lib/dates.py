@@ -153,7 +153,7 @@ def extract_date_from_html(soup) -> DateResult | None:
     """
     # 1. OpenGraph / meta tags (highest confidence)
     for attr in ["article:published_time", "og:article:published_time",
-                 "datePublished"]:
+                 "datePublished", "date", "DC.date.issued", "pubdate"]:
         meta = (soup.find("meta", property=attr)
                 or soup.find("meta", attrs={"name": attr}))
         if meta and meta.get("content"):
@@ -191,7 +191,7 @@ def extract_date_from_html(soup) -> DateResult | None:
         ".date", ".post-date", ".entry-date", ".published",
         ".ArticleBlock__date", ".press-release-date",
         ".field-name-field-date", ".post-media-list-date",
-        "span.datetime",
+        "span.datetime", ".recordListDate", ".pressDate",
     ]
     for sel in date_selectors:
         el = soup.select_one(sel)
@@ -202,10 +202,11 @@ def extract_date_from_html(soup) -> DateResult | None:
                 result.confidence = 0.80
                 return result
 
-    # 6. Fallback: date in first 500 chars of body text
+    # 6. Fallback: date in first 1000 chars of body text
+    # (ColdFusion sites like Graham have ~700 chars of nav before the date)
     body = soup.select_one("main") or soup.select_one("article") or soup.body
     if body:
-        text = body.get_text(" ", strip=True)[:500]
+        text = body.get_text(" ", strip=True)[:1000]
         result = parse_date_text(text)
         if result:
             result.confidence = 0.50  # low confidence for body text extraction
