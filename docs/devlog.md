@@ -75,9 +75,34 @@ A chronological record of development sessions and significant changes.
 
 **Visual verification command:** `python -m pipeline verify-visual` takes Playwright screenshots of listing + detail pages for replicable audit trail.
 
-**Final active corpus:** 20,418 records, 100% dated, 99.9% body text, 96 active senators (3 former: Rubio, Vance, Mullin). 16/16 data quality tests green.
+**Late-night data completeness push (11 PM - midnight):**
+- User reviewed live site and caught senators with 0 releases who clearly have hundreds (Klobuchar, Thune, Cantwell, Murray, Hoeven). "Half measures are not acceptable" -- every gap is a credibility failure.
+- Root cause: senate.json URLs were updated but never synced to DB. Backfill reads from DB, not JSON. Fixed with full sync.
+- Fixed 8 wrong senator URLs found via manual browser verification:
+  - Murray: /press-kit/ -> /category/press-releases/
+  - Budd: /press-releases/ -> /category/news/press-releases/
+  - Crapo: /media -> /media/newsreleases
+  - Shaheen: /news -> /news/press
+  - Hoeven: /news -> /news/news-releases
+  - McConnell: /public/index.cfm/pressreleases -> /public/index.cfm/news
+- Discovered 3 more JetEngine AJAX senators: Kelly, Warnock, Tuberville (need Playwright)
+- Deep backfill: +851 records (Murray +150, Shaheen +348, Crapo +311, Budd +40)
+- Added `test_no_anomalously_low_counts` -- flags senators below 10% of median count
+- Per-senator intelligence report generated: 1,579 lines covering all 100 senators
+- About page updated with developer bio, related resources, open source section
+- Hid "Least Active" section (was showing collection failures as senator inactivity)
+- Replaced SwimLane chart with SenatorBars horizontal bar chart
 
-**Session stats:** 20 git commits. ~4 hours. Pipeline went from prototype to production-grade.
+**Remaining gaps (22 senators needing deeper backfill):**
+- 11 need Playwright (JetEngine AJAX pagination)
+- 4 have JS-rendered listing pages
+- 4 are RSS-only with incomplete archives
+- 3 need URL/selector investigation
+- 1 (Armstrong) is expected -- new senator, no releases yet
+
+**Final corpus:** 21,590 records, 99% dated, 100% body text, 99 senators. 17/17 data quality tests green.
+
+**Session stats:** 27 git commits. ~5 hours (7:30 PM - 12:30 AM). Pipeline went from prototype to production-grade.
 
 **Architecture principles established:**
 1. Determinism first. AI assists but doesn't drive.
