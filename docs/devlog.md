@@ -4,6 +4,57 @@ A chronological record of development sessions and significant changes.
 
 ---
 
+## 2026-04-17 - Pipeline v2: survivability, RSS discovery, daily updater
+
+**The problem:** Pipeline was prototype-quality. Hardcoded database credentials in 5 files, silent `except Exception: pass` swallowing errors, date parsing duplicated in 3 files, no daily updater, no RSS support, no monitoring. Not business-grade.
+
+**Phase 0 -- Survivability:**
+- Removed hardcoded Neon password from all 5 pipeline scripts. Now requires `DATABASE_URL` env var, loaded from `pipeline/.env` (gitignored). Rotated the credential.
+- Fixed silent exception swallowing in backfill.py, backfill_playwright.py, and repair_dates.py. All errors now logged.
+- Built shared library (`pipeline/lib/`):
+  - `dates.py`: Unified date parsing with provenance. Every date carries `source` (feed, meta_tag, url_path, page_text) and `confidence` (0.0-1.0).
+  - `http.py`: HTTP client with retry (3 attempts, exponential backoff). Replaces silent failure patterns.
+  - `classifier.py`: Content type classification (press_release, statement, op_ed, letter, photo_release, floor_statement).
+  - `identity.py`: URL normalization and content hashing for dedup beyond source_url UNIQUE.
+  - `rss.py`: RSS feed discovery and parsing.
+- Schema migration: added `content_type`, `date_source`, `date_confidence`, `content_hash`, `updated_at` to press_releases. Added `rss_feed_url`, `collection_method` to senators.
+
+**Browser verification of 13 low-confidence senators:**
+- 7 fixed (Alsobrooks, Bennet, Budd, Welch, Hickenlooper, Kim, Moody) -- wrong URLs or missing selectors
+- 5 confirmed JS-rendered needing Playwright (Reed, Cotton, Capito, Markey, Ossoff)
+- 1 genuinely empty (Armstrong, new senator)
+
+**RSS discovery -- the biggest reliability win:**
+- Probed all 100 senators for RSS feeds
+- 52 feeds found, 14 filtered as false positives (wp-json/oembed, empty broad feeds)
+- 38 senators now have RSS as primary collection method
+- RSS eliminates selector maintenance entirely for those 38 senators
+
+**Daily updater (Script 3) built and tested:**
+- Collector architecture: BaseCollector protocol, RSSCollector, CollectorRegistry
+- Each senator gets a canonical collector (rss/httpx/playwright) -- no runtime waterfall
+- Updater fetches new releases since last run, dedup on source_url
+- Tested: 20 new releases from 3 senators in 7s. Full 100-senator run in ~20s.
+- Idempotent: second run produces 0 duplicates
+
+**Collection method split:** 38 RSS, 56 httpx (pending refactor), 6 Playwright (pending refactor)
+
+**Product decisions made:**
+- Collect all original communications (not just press releases). Classify later.
+- Product default surfaces press releases. Other types internally modeled.
+- Content types: press_release, statement, op_ed, letter, photo_release, floor_statement, other
+- Senate start date: keep Jan 1, 2025. House start date: Jan 1, 2026 (when we get there).
+
+**Architecture principles established:**
+1. Determinism first. AI assists but doesn't drive.
+2. Per-senator, not aggregate. One broken senator must not hide in 99 healthy ones.
+3. Provenance everywhere. Every date, classification, extraction carries source and confidence.
+4. Collect wide, surface narrow.
+5. No silent failures.
+6. Archival permanence. Never hard-delete.
+
+---
+
 ## 2026-04-16 - Data quality war: pagination, dates, verification
 
 **The problem:** After the initial backfill, 44 senators had suspicious round numbers (10, 20, 100, 200) revealing pagination caps. 50% of records had null dates. Only 35/100 senators had data reaching January 2025.
