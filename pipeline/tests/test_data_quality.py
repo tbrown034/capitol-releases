@@ -254,6 +254,45 @@ def test_depth_to_jan_2025():
     assert count >= 30, f"Only {count} senators reach Jan-Feb 2025, expected >= 30"
 
 
+# ---- Body text and provenance tests ----
+
+def test_body_coverage_above_threshold():
+    """At least 70% of records should have body text > 100 chars."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT COUNT(*) FROM press_releases")
+    total = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM press_releases WHERE body_text IS NOT NULL AND length(body_text) > 100")
+    with_body = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    pct = with_body / total * 100 if total > 0 else 0
+    assert pct >= 70, f"Only {pct:.0f}% of records have body text > 100 chars, expected >= 70%"
+
+
+def test_no_stale_senators():
+    """Every active senator should have a release in the last 60 days."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT s.id, s.full_name, MAX(pr.published_at) as last_release
+        FROM senators s
+        JOIN press_releases pr ON s.id = pr.senator_id
+        WHERE s.collection_method IS NOT NULL
+        GROUP BY s.id, s.full_name
+        HAVING MAX(pr.published_at) < NOW() - INTERVAL '60 days'
+    """)
+    stale = cur.fetchall()
+    cur.close()
+    conn.close()
+    if stale:
+        print(f"WARNING: {len(stale)} senators have no releases in 60 days:")
+        for sid, name, last in stale:
+            print(f"  {name}: last release {last.date() if last else 'never'}")
+    # Soft assertion -- allow some stale senators
+    assert len(stale) < 10, f"{len(stale)} senators are stale (no releases in 60 days)"
+
+
 # ---- Run all tests ----
 
 def run_all():
@@ -273,6 +312,8 @@ def run_all():
         test_no_navigation_urls,
         test_no_suspicious_round_counts,
         test_depth_to_jan_2025,
+        test_body_coverage_above_threshold,
+        test_no_stale_senators,
     ]
 
     passed = 0

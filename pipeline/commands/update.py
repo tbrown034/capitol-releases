@@ -216,6 +216,21 @@ async def run_update(
 
     if conn and not dry_run:
         record_run(conn, run_id, stats, started_at)
+
+        # Run anomaly detection after update
+        try:
+            from pipeline.lib.alerts import check_anomalies, store_alert, send_email_alerts
+            anomalies = check_anomalies(conn)
+            if anomalies:
+                log.info("Anomaly detection found %d issue(s)", len(anomalies))
+                for alert in anomalies:
+                    store_alert(conn, alert)
+                    log.warning("ALERT [%s] %s: %s", alert.severity, alert.alert_type, alert.message)
+                send_email_alerts(anomalies)
+            stats["anomalies"] = len(anomalies)
+        except Exception as e:
+            log.error("Anomaly detection failed: %s", e)
+
         conn.close()
 
     elapsed = (datetime.now(timezone.utc) - started_at).total_seconds()
