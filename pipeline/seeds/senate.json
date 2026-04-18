@@ -22,7 +22,8 @@
       "notes": "Elementor WordPress. 10/page, 23 pages. Pagination: ?e-page-f7b8172=N. Dates in text. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.alsobrooks.senate.gov/feed/"
     },
     {
       "senator_id": "armstrong-alan",
@@ -46,7 +47,8 @@
       "notes": "Page exists but div.page-content is empty. New senator, no releases published yet. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.armstrong.senate.gov/press-releases/feed/"
     },
     {
       "senator_id": "baldwin-tammy",
@@ -94,7 +96,8 @@
       "notes": "Found 4 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.banks.senate.gov/feed/"
     },
     {
       "senator_id": "barrasso-john",
@@ -143,7 +146,8 @@
       "notes": "WordPress Divi (et_pb_post). Old URL was wrong UUID path. Dates \"Apr 16, 2026\". Verified 2026-04-17.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.bennet.senate.gov/news/feed/"
     },
     {
       "senator_id": "blackburn-marsha",
@@ -217,7 +221,8 @@
       "notes": "Found 4 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.bluntrochester.senate.gov/feed/"
     },
     {
       "senator_id": "booker-cory",
@@ -265,7 +270,8 @@
       "notes": "Found 306 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.boozman.senate.gov/public/?a=RSS.Feed"
     },
     {
       "senator_id": "britt-katie",
@@ -289,7 +295,8 @@
       "notes": "Found 8 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.britt.senate.gov/media/press-releases/feed/"
     },
     {
       "senator_id": "budd-ted",
@@ -313,7 +320,8 @@
       "notes": "WordPress Divi (article). 18/page. Dates \"Jun 17, 2025\". Older Entries pagination /page/N/. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.budd.senate.gov/press-releases/feed/"
     },
     {
       "senator_id": "cantwell-maria",
@@ -459,7 +467,8 @@
       "notes": "Found 32 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.cornyn.senate.gov/news/feed/"
     },
     {
       "senator_id": "masto-catherine",
@@ -604,7 +613,8 @@
       "notes": "",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.curtis.senate.gov/media/press-releases/feed/"
     },
     {
       "senator_id": "daines-steve",
@@ -729,7 +739,8 @@
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.fetterman.senate.gov/press-release/feed/"
     },
     {
       "senator_id": "fischer-deb",
@@ -804,7 +815,8 @@
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.gillibrand.senate.gov/press-releases/feed/"
     },
     {
       "senator_id": "graham-lindsey",
@@ -878,7 +890,8 @@
       "notes": "Found 45 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.hagerty.senate.gov/press-releases/feed/"
     },
     {
       "senator_id": "hassan-margaret",
@@ -928,7 +941,8 @@
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.hawley.senate.gov/press-releases/feed/"
     },
     {
       "senator_id": "heinrich-martin",
@@ -976,7 +990,8 @@
       "notes": "WordPress Divi (et_pb_post). 5/page. Older Entries pagination. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.hickenlooper.senate.gov/press/feed/"
     },
     {
       "senator_id": "hirono-mazie",
@@ -1125,7 +1140,8 @@
       "notes": "",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.justice.senate.gov/media/press-releases/feed/"
     },
     {
       "senator_id": "kaine-tim",
@@ -1197,7 +1213,8 @@
       "notes": "Found 266 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.kennedy.senate.gov/public/?a=RSS.Feed"
     },
     {
       "senator_id": "kim-andy",
@@ -1221,7 +1238,8 @@
       "notes": "WordPress Divi (et_pb_post). 10/page. Older Entries pagination. Detail links use /press_release/slug/. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.kim.senate.gov/press-releases/feed/"
     },
     {
       "senator_id": "king-angus",
@@ -1343,7 +1361,8 @@
       "notes": "Found 12 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.lujan.senate.gov/feed/"
     },
     {
       "senator_id": "lummis-cynthia",
@@ -1369,7 +1388,8 @@
       "notes": "",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.lummis.senate.gov/press-releases/feed/"
     },
     {
       "senator_id": "markey-edward",
@@ -1417,7 +1437,8 @@
       "notes": "Found 13 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.marshall.senate.gov/feed/"
     },
     {
       "senator_id": "mcconnell-mitch",
@@ -1466,7 +1487,8 @@
       "notes": "Found 4 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.mccormick.senate.gov/feed/"
     },
     {
       "senator_id": "merkley-jeff",
@@ -1491,7 +1513,8 @@
       "notes": "Found 9 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "playwright"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.merkley.senate.gov/news/press-releases/feed/"
     },
     {
       "senator_id": "moody-ashley",
@@ -1515,7 +1538,8 @@
       "notes": "WordPress Divi (et_pb_post). 5/page. Older Entries pagination. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.moody.senate.gov/press-releases/feed/"
     },
     {
       "senator_id": "moran-jerry",
@@ -1539,7 +1563,8 @@
       "notes": "Found 323 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.moran.senate.gov/public/?a=RSS.Feed"
     },
     {
       "senator_id": "moreno-bernie",
@@ -1564,7 +1589,8 @@
       "notes": "",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.moreno.senate.gov/media/press-releases/feed/"
     },
     {
       "senator_id": "murkowski-lisa",
@@ -1637,7 +1663,8 @@
       "notes": "Found 11 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.murray.senate.gov/press-kit/feed/"
     },
     {
       "senator_id": "ossoff-jon",
@@ -1661,7 +1688,8 @@
       "notes": "Elementor WordPress (.elementor-post). Dates via span.elementor-post-date. AJAX pagination (data-i attrs). Needs Playwright for pagination. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "playwright"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.ossoff.senate.gov/press-releases/feed/"
     },
     {
       "senator_id": "padilla-alex",
@@ -1685,7 +1713,8 @@
       "notes": "Found 9 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.padilla.senate.gov/feed/"
     },
     {
       "senator_id": "paul-rand",
@@ -1783,7 +1812,8 @@
       "notes": "Found 8 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.ricketts.senate.gov/newsroom/press-releases/feed/"
     },
     {
       "senator_id": "risch-james",
@@ -1834,7 +1864,8 @@
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.rosen.senate.gov/category/press_release/feed/"
     },
     {
       "senator_id": "rounds-mike",
@@ -2104,7 +2135,8 @@
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.slotkin.senate.gov/newsroom/feed/"
     },
     {
       "senator_id": "smith-tina",
@@ -2129,7 +2161,8 @@
       "notes": "Found 6 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.smith.senate.gov/press-releases/feed/"
     },
     {
       "senator_id": "sullivan-dan",
@@ -2300,7 +2333,8 @@
       "notes": "Found 15 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.warnock.senate.gov/feed/"
     },
     {
       "senator_id": "warren-elizabeth",
@@ -2325,7 +2359,8 @@
       "notes": "Found 20 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.warren.senate.gov/rss/"
     },
     {
       "senator_id": "welch-peter",
@@ -2349,7 +2384,8 @@
       "notes": "WordPress (article.postItem). 6/page, 6+ pages. /page/N/ pagination. Old URL was /press-kit/ (wrong). Verified 2026-04-17.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.welch.senate.gov/category/press-release/feed/"
     },
     {
       "senator_id": "whitehouse-sheldon",
@@ -2373,7 +2409,8 @@
       "notes": "Found 12 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "playwright"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.whitehouse.senate.gov/news/press-releases-test-sorting/feed/"
     },
     {
       "senator_id": "wicker-roger",
@@ -2448,7 +2485,8 @@
       "notes": "Found 5 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "playwright"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.young.senate.gov/feed/"
     }
   ],
   "generated_at": "2026-04-15T22:20:28.817086+00:00"
