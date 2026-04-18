@@ -331,7 +331,7 @@
       "official_url": "https://www.cantwell.senate.gov",
       "press_release_url": "https://www.cantwell.senate.gov/news/press-releases",
       "parser_family": "senate-coldfusion",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "link_follow",
         "next_selector": "a.next"
@@ -346,7 +346,7 @@
       "notes": "Fixed 2026-04-18: Actually ColdFusion + AJAX. Table loads dynamically. Needs Playwright. Was misclassified as senate-generic.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "playwright"
     },
     {
       "senator_id": "capito-shelley",
