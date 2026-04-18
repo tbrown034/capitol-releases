@@ -147,7 +147,7 @@ def extract_listing_items(soup, selectors):
 
     # Fallback selectors
     for sel in [
-        "table.table-striped tbody tr", "table tbody tr",
+        "table.table-striped tbody tr", "table tbody tr", "table tr",
         ".views-row", "article",
         ".element-list .element", "li.press-release", ".record",
         ".entry", ".list-item", ".news-item",

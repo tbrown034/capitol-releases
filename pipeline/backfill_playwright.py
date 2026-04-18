@@ -45,14 +45,17 @@ MONTH_MAP = {
     "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12,
 }
 
-# The 5 AJAX senators
-AJAX_SENATORS = [
-    {"id": "schmitt-eric", "url": "https://www.schmitt.senate.gov/media/press-releases/"},
-    {"id": "tuberville-tommy", "url": "https://www.tuberville.senate.gov/newsroom/press-releases/"},
-    {"id": "young-todd", "url": "https://www.young.senate.gov/newsroom/press-releases/"},
-    {"id": "scott-tim", "url": "https://www.scott.senate.gov/media-center/press-releases/"},
-    {"id": "whitehouse-sheldon", "url": "https://www.whitehouse.senate.gov/news/release/"},
-]
+# Load AJAX senators from senate.json (requires_js = true)
+def _load_ajax_senators():
+    seed_path = Path(__file__).parent / "seeds" / "senate.json"
+    data = json.loads(seed_path.read_text())
+    return [
+        {"id": m["senator_id"], "url": m["press_release_url"]}
+        for m in data["members"]
+        if m.get("requires_js") and m.get("press_release_url")
+    ]
+
+AJAX_SENATORS = _load_ajax_senators()
 
 
 def parse_date(text):

@@ -331,7 +331,7 @@
       "official_url": "https://www.cantwell.senate.gov",
       "press_release_url": "https://www.cantwell.senate.gov/news/press-releases",
       "parser_family": "senate-generic",
-      "requires_js": false,
+      "requires_js": true,
       "pagination": {
         "type": "link_follow",
         "next_selector": "a.next"
@@ -343,10 +343,10 @@
         "detail_link": "a[href]"
       },
       "confidence": 0.9,
-      "notes": "Found 90 items on listing page. ",
+      "notes": "Found 90 items on listing page.  JS pagination (Next href=None). Needs Playwright.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "playwright"
     },
     {
       "senator_id": "capito-shelley",
