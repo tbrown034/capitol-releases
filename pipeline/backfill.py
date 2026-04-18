@@ -137,6 +137,18 @@ def extract_listing_items(soup, selectors):
     if len(items) >= 2:
         return items
 
+    # Kelly: JetEngine custom listing
+    items = soup.select("article.sen-listing-item-archive-page")
+    if len(items) >= 2:
+        return items
+
+    # Hoeven: flat sibling layout inside div#press (h2.title items)
+    press_div = soup.select_one("div#press")
+    if press_div:
+        items = press_div.select("h2.title")
+        if len(items) >= 2:
+            return items
+
     # Try discovered selectors (but skip known-bad ones)
     list_sel = selectors.get("list_item")
     bad_selectors = {"span.elementor-grid-item", "li.page-item"}
@@ -231,6 +243,28 @@ def extract_item_data(item, base_url, selectors):
                 detail_url = urljoin(base_url, href)
                 break
         date_el = item.select_one(".postDate span, .postDate")
+        if date_el:
+            date_text = date_el.get_text(strip=True)
+        return title, date_text, detail_url
+
+    # Hoeven: h2.title items (date is preceding sibling span.date)
+    if item.name == "h2" and "title" in (item.get("class") or []):
+        link = item.select_one("a")
+        if link:
+            title = link.get_text(strip=True)
+            detail_url = urljoin(base_url, link.get("href", ""))
+        prev = item.find_previous_sibling("span", class_="date")
+        if prev:
+            date_text = prev.get_text(strip=True)
+        return title, date_text, detail_url
+
+    # Kelly: JetEngine custom listing
+    if "sen-listing-item-archive-page" in item_classes:
+        link = item.select_one("h3 a, h2 a")
+        if link:
+            title = link.get_text(strip=True)
+            detail_url = urljoin(base_url, link.get("href", ""))
+        date_el = item.select_one("strong")
         if date_el:
             date_text = date_el.get_text(strip=True)
         return title, date_text, detail_url
@@ -398,8 +432,20 @@ def find_next_page(soup, current_url):
         or soup.select_one(".pager")
         or soup.select_one("nav[aria-label*='pagination' i]")
         or soup.select_one(".wp-pagenavi")
-        or soup.select_one(".page-numbers")
     )
+    # WordPress .page-numbers: class is on individual <a>/<span> tags, not a container.
+    # Walk up to find the <ul> or <nav> that wraps all page number elements.
+    if not pager:
+        page_num_el = soup.select_one(".page-numbers")
+        if page_num_el:
+            candidate = page_num_el.parent
+            # Keep walking up until we find a container with multiple .page-numbers descendants
+            for _ in range(3):
+                if candidate and len(candidate.select(".page-numbers")) >= 2:
+                    pager = candidate
+                    break
+                if candidate:
+                    candidate = candidate.parent
     if pager:
         # Try to find active/current page marker
         active = pager.select_one(".active, .current, [aria-current], .PageNum_rs_current, strong")
