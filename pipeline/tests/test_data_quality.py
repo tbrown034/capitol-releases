@@ -254,6 +254,49 @@ def test_depth_to_jan_2025():
     assert count >= 30, f"Only {count} senators reach Jan-Feb 2025, expected >= 30"
 
 
+def test_no_date_clumping():
+    """Total records should not be smashed onto a tiny set of unique publication days.
+
+    Catches the Scott-rick / Blackburn pattern: 400 records dated to only 16
+    unique days (all first-of-month), meaning the collector fetched real
+    content but failed to parse per-record dates. Flag when
+    unique_days / total < 0.2 AND total >= 30.
+
+    Run `python -m pipeline back-coverage` for the full list and
+    `--detail <senator_id>` for a weekly histogram.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT s.full_name,
+               count(pr.id)::int as total,
+               count(DISTINCT pr.published_at::date)::int as unique_days
+        FROM senators s
+        JOIN press_releases pr ON pr.senator_id = s.id
+        WHERE s.status = 'active'
+          AND pr.deleted_at IS NULL
+          AND pr.published_at >= '2025-01-01'
+        GROUP BY s.id, s.full_name
+        HAVING count(pr.id) >= 30
+    """)
+    clumped = []
+    for name, total, unique_days in cur.fetchall():
+        if unique_days / total < 0.2:
+            clumped.append((name, total, unique_days))
+    cur.close()
+    conn.close()
+
+    if clumped:
+        print(f"WARNING: {len(clumped)} senators show date-clumping (real content, wrong dates):")
+        for name, total, udays in clumped:
+            print(f"  {name}: {total} records on only {udays} unique days ({udays/total:.0%})")
+    # Soft assertion -- fail hard only if the problem grows.
+    assert len(clumped) < 8, (
+        f"{len(clumped)} senators have date-clumped records. "
+        f"Run `python -m pipeline back-coverage` to diagnose."
+    )
+
+
 def test_back_coverage_not_truncated():
     """Per-senator check: earliest record should not be >60 days after coverage start.
 
@@ -406,6 +449,7 @@ def run_all():
         test_no_suspicious_round_counts,
         test_depth_to_jan_2025,
         test_back_coverage_not_truncated,
+        test_no_date_clumping,
         test_body_coverage_above_threshold,
         test_no_anomalously_low_counts,
         test_no_stale_senators,
