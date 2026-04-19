@@ -78,7 +78,7 @@ export async function getSenators(): Promise<SenatorWithCount[]> {
            max(pr.published_at) as latest_release
     FROM senators s
     LEFT JOIN press_releases pr ON pr.senator_id = s.id AND pr.deleted_at IS NULL
-    WHERE s.status = 'active'
+    WHERE s.status = 'active' AND s.chamber = 'senate'
     GROUP BY s.id
     ORDER BY s.state, s.full_name
   `) as SenatorWithCount[];
@@ -117,7 +117,7 @@ export async function getStats() {
       max(pr.published_at) as latest
     FROM senators s
     LEFT JOIN press_releases pr ON pr.senator_id = s.id AND pr.deleted_at IS NULL
-    WHERE s.status = 'active'
+    WHERE s.status = 'active' AND s.chamber = 'senate'
   `;
   return result[0];
 }
@@ -153,6 +153,7 @@ export async function getTopSenators(limit = 10) {
     JOIN senators s ON s.id = pr.senator_id
     WHERE pr.deleted_at IS NULL
       AND s.status = 'active'
+      AND s.chamber = 'senate'
     GROUP BY s.id, s.full_name, s.party, s.state
     ORDER BY count DESC
     LIMIT ${limit}

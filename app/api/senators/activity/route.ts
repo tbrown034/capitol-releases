@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
       JOIN senators s ON s.id = pr.senator_id
       WHERE pr.deleted_at IS NULL
         AND (s.status IS NULL OR s.status = 'current')
+        AND s.chamber = 'senate'
       GROUP BY s.id, s.full_name, s.party, s.state
       ORDER BY count DESC
       LIMIT ${limit}
@@ -49,6 +50,7 @@ export async function GET(request: NextRequest) {
       LEFT JOIN press_releases pr ON s.id = pr.senator_id AND pr.deleted_at IS NULL
       WHERE s.collection_method IS NOT NULL
         AND (s.status IS NULL OR s.status = 'current')
+        AND s.chamber = 'senate'
       GROUP BY s.id, s.full_name, s.party, s.state
       ORDER BY count ASC
       LIMIT ${limit}
@@ -61,6 +63,7 @@ export async function GET(request: NextRequest) {
       JOIN senators s ON s.id = pr.senator_id
       WHERE pr.deleted_at IS NULL
         AND pr.published_at >= NOW() - make_interval(days => ${days})
+        AND s.chamber = 'senate'
       GROUP BY s.id, s.full_name, s.party, s.state
       ORDER BY count DESC
       LIMIT ${limit}
@@ -74,6 +77,7 @@ export async function GET(request: NextRequest) {
         AND pr.published_at >= NOW() - make_interval(days => ${days})
       WHERE s.collection_method IS NOT NULL
         AND (s.status IS NULL OR s.status = 'current')
+        AND s.chamber = 'senate'
       GROUP BY s.id, s.full_name, s.party, s.state
       ORDER BY count ASC
       LIMIT ${limit}

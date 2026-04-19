@@ -24,6 +24,7 @@ export async function getCoverageByFamily() {
            count(*) FILTER (WHERE pr.body_text IS NOT NULL AND length(pr.body_text) > 50)::int as has_body
     FROM senators s
     LEFT JOIN press_releases pr ON pr.senator_id = s.id
+    WHERE s.chamber = 'senate'
     GROUP BY s.parser_family
     ORDER BY release_count DESC
   `;
@@ -44,6 +45,7 @@ export async function getCoverageDepth() {
            END as coverage
     FROM senators s
     LEFT JOIN press_releases pr ON pr.senator_id = s.id
+    WHERE s.chamber = 'senate'
     GROUP BY s.id, s.full_name, s.party, s.state, s.parser_family
     ORDER BY s.state, s.full_name
   `;
