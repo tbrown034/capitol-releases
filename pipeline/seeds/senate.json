@@ -1070,7 +1070,7 @@
       "party": "R",
       "state": "MS",
       "official_url": "https://www.hydesmith.senate.gov",
-      "press_release_url": "https://www.hydesmith.senate.gov/newsroom",
+      "press_release_url": "https://www.hydesmith.senate.gov/news-releases",
       "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
