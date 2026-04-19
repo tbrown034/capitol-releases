@@ -329,12 +329,11 @@
       "party": "D",
       "state": "WA",
       "official_url": "https://www.cantwell.senate.gov",
-      "press_release_url": "https://www.cantwell.senate.gov/news/press-releases",
+      "press_release_url": "https://www.cantwell.senate.gov/themes/cantwell/templates/partials/includes/resultset.cfm?view=press_quick_vw&columns=title,date,friendly_url&order_cols=date&order_dirs=DESC&current_page=1&results_per_page=99999&restrict_keys=type&restrict_vals=press_release&restrict_ops=",
       "parser_family": "senate-coldfusion",
-      "requires_js": true,
+      "requires_js": false,
       "pagination": {
-        "type": "link_follow",
-        "next_selector": "a.next"
+        "type": "none"
       },
       "selectors": {
         "date": "td:first-child",
@@ -342,11 +341,11 @@
         "list_item": "table tr",
         "detail_link": "td a[href]"
       },
-      "confidence": 0.9,
-      "notes": "Fixed 2026-04-18: Actually ColdFusion + AJAX. Table loads dynamically. Needs Playwright. Was misclassified as senate-generic.",
-      "last_verified": "2026-04-15",
+      "confidence": 0.95,
+      "notes": "Fixed 2026-04-18 (evening): site exposes a ColdFusion resultset.cfm endpoint that returns all 5400+ releases on one page. No Playwright needed. Static HTML with table tr/td layout. Pagination disabled -- single page covers full archive. Daily update should use /news/press-releases (page 1 only) or keep hitting the all-results URL; backfill uses all-results.",
+      "last_verified": "2026-04-18",
       "recon_status": "discovered",
-      "collection_method": "playwright"
+      "collection_method": "httpx"
     },
     {
       "senator_id": "capito-shelley",
