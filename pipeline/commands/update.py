@@ -80,7 +80,7 @@ def insert_release(conn, release: ReleaseRecord) -> bool:
             release.title,
             release.published_at,
             release.body_text or None,
-            release.source_url,
+            normalize_url(release.source_url),
             release.raw_html or None,
             release.content_type,
             release.date_source or None,
