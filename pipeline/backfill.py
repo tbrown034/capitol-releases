@@ -340,7 +340,11 @@ def extract_item_data(item, base_url, selectors):
         link_el = item.select_one("a[href]")
         if link_el:
             detail_url = urljoin(base_url, link_el.get("href", ""))
-        date_el = item.select_one(".element-date")
+        # Newer templates use .element-datetime; older ones use .element-date
+        date_el = (
+            item.select_one(".element-datetime")
+            or item.select_one(".element-date")
+        )
         if date_el:
             date_text = date_el.get_text(strip=True)
         return title, date_text, detail_url

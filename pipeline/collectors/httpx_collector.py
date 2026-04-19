@@ -125,14 +125,17 @@ class HttpxCollector:
                             detail_soup = BeautifulSoup(raw_html, "lxml")
                             body_text = extract_body_text(detail_soup)
 
-                            # Try to get a better date from the detail page
-                            if not pub_date:
-                                from pipeline.lib.dates import extract_date_from_html
-                                html_date = extract_date_from_html(detail_soup)
-                                if html_date:
-                                    pub_date = html_date.value
-                                    date_source = html_date.source
-                                    date_confidence = html_date.confidence
+                            # Always probe the detail page — meta tags (confidence
+                            # 0.95) beat URL-path dates (0.70–0.90), and many
+                            # senate-generic sites expose /YYYY/M/slug URLs where
+                            # the day defaults to 1 and silently clumps every
+                            # record to first-of-month.
+                            from pipeline.lib.dates import extract_date_from_html
+                            html_date = extract_date_from_html(detail_soup)
+                            if html_date and html_date.confidence > date_confidence:
+                                pub_date = html_date.value
+                                date_source = html_date.source
+                                date_confidence = html_date.confidence
                     except Exception as e:
                         log.warning("Detail page failed for %s: %s", detail_url, e)
 
