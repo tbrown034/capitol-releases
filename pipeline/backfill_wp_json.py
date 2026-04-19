@@ -19,6 +19,7 @@ import argparse
 import os
 import re
 import sys
+import time
 from datetime import date, datetime, timezone
 from pathlib import Path
 
@@ -51,6 +52,39 @@ def html_to_text(html: str) -> str:
     return soup.get_text(" ", strip=True)
 
 
+def _parse_wp_body(text: str):
+    """Parse a WP JSON response, tolerating plugin-injected HTML prefix/suffix."""
+    import json as _json
+    text = text.strip()
+    try:
+        return _json.loads(text)
+    except ValueError:
+        pass
+    start = text.find("[")
+    end = text.rfind("]")
+    if start >= 0 and end > start:
+        return _json.loads(text[start:end + 1])
+    raise ValueError("no JSON array found in response body")
+
+
+def fetch_page(client, url, params, attempts=4):
+    """GET with simple backoff for transient WP JSON failures."""
+    for i in range(attempts):
+        try:
+            r = client.get(url, params=params)
+            if r.status_code == 400:
+                return r, None
+            r.raise_for_status()
+            return r, _parse_wp_body(r.text)
+        except (httpx.HTTPError, ValueError) as e:
+            if i == attempts - 1:
+                raise
+            wait = 2 ** i
+            print(f"  [retry {i+1}/{attempts}] {type(e).__name__}: sleeping {wait}s")
+            time.sleep(wait)
+    return None, None
+
+
 def fetch_all(base_url: str, endpoint: str, per_page: int = 100) -> list[dict]:
     """Walk every page of a WP REST collection."""
     url = f"{base_url.rstrip('/')}/wp-json/wp/v2/{endpoint}"
@@ -58,12 +92,8 @@ def fetch_all(base_url: str, endpoint: str, per_page: int = 100) -> list[dict]:
     page = 1
     with httpx.Client(follow_redirects=True, timeout=60) as client:
         while True:
-            r = client.get(url, params={"per_page": per_page, "page": page})
-            if r.status_code == 400:
-                break
-            r.raise_for_status()
-            batch = r.json()
-            if not batch:
+            r, batch = fetch_page(client, url, {"per_page": per_page, "page": page})
+            if r is None or r.status_code == 400 or not batch:
                 break
             out.extend(batch)
             total_pages = int(r.headers.get("X-WP-TotalPages", "0") or 0)
@@ -93,7 +123,7 @@ def run(senator_id: str, endpoint: str) -> None:
     senator = get_senator(conn, senator_id)
     base_url = senator["official_url"] or re.sub(r"/[^/]+/?$", "/", senator["press_release_url"] or "")
 
-    run_id = f"wpjson-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M')}"
+    run_id = f"wpjson-{senator_id}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
     cur = conn.cursor()
     cur.execute("INSERT INTO scrape_runs (id, run_type) VALUES (%s, 'backfill')", (run_id,))
     conn.commit()
