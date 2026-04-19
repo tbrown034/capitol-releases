@@ -2,7 +2,7 @@ import { sql } from "./db";
 
 export async function getWeeklyActivity() {
   return sql`
-    SELECT date_trunc('week', published_at)::date as week,
+    SELECT to_char(date_trunc('week', published_at), 'YYYY-MM-DD') as week,
            count(*)::int as count,
            s.party
     FROM press_releases pr
@@ -16,7 +16,7 @@ export async function getWeeklyActivity() {
 export async function getSenatorActivity() {
   return sql`
     SELECT s.id, s.full_name, s.party, s.state,
-           date_trunc('week', pr.published_at)::date as week,
+           to_char(date_trunc('week', pr.published_at), 'YYYY-MM-DD') as week,
            count(*)::int as count
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
@@ -67,7 +67,7 @@ export async function getTopicTrends() {
 
 export async function getDailyVolume(days = 90) {
   return sql`
-    SELECT published_at::date as day,
+    SELECT to_char(published_at, 'YYYY-MM-DD') as day,
            count(*)::int as count
     FROM press_releases
     WHERE published_at >= NOW() - make_interval(days => ${days})

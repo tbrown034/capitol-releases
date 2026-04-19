@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import * as d3 from "d3";
+import { familyName } from "../lib/names";
 
 type SenatorRow = {
   id: string;
@@ -106,7 +107,7 @@ export function SenatorBars({ data }: { data: SenatorRow[] }) {
         .attr("font-size", 11)
         .attr("fill", "#44403c")
         .text(
-          `${senator.full_name.split(" ").pop()} (${senator.party}-${senator.state})`
+          `${familyName(senator.full_name)} (${senator.party}-${senator.state})`
         );
 
       // Party dot

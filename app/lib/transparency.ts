@@ -34,8 +34,8 @@ export async function getCoverageDepth() {
     SELECT s.full_name, s.party, s.state, s.parser_family,
            count(pr.id)::int as total,
            count(*) FILTER (WHERE pr.published_at IS NOT NULL)::int as dated,
-           min(pr.published_at)::date as earliest,
-           max(pr.published_at)::date as latest,
+           to_char(min(pr.published_at), 'YYYY-MM-DD') as earliest,
+           to_char(max(pr.published_at), 'YYYY-MM-DD') as latest,
            CASE
              WHEN min(pr.published_at)::date <= '2025-02-01' THEN 'complete'
              WHEN min(pr.published_at) IS NULL AND count(pr.id) > 50 THEN 'undated'

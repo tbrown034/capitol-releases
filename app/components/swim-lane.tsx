@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import * as d3 from "d3";
+import { familyName } from "../lib/names";
 
 type SenatorRow = {
   id: string;
@@ -79,7 +80,7 @@ export function SwimLane({ data }: { data: SenatorRow[] }) {
       .attr("dominant-baseline", "middle")
       .attr("font-size", 10)
       .attr("fill", "#44403c")
-      .text((d) => `${d.full_name.split(" ").pop()} (${d.party}-${d.state})`);
+      .text((d) => `${familyName(d.full_name)} (${d.party}-${d.state})`);
 
     // Dots
     for (let i = 0; i < data.length; i++) {
