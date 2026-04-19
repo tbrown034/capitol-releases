@@ -52,3 +52,6 @@ next-env.d.ts
 /docs/
 CLAUDE.md
 AGENTS.md
+
+# claude-code local settings (project skills ARE tracked; just not local overrides)
+.claude/settings.local.json
