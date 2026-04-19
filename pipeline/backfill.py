@@ -221,15 +221,27 @@ def extract_item_data(item, base_url, selectors):
             date_text = date_el.get_text(strip=True)
         return title, date_text, detail_url
 
-    # WordPress Divi (Bennet): article.et_pb_post
+    # WordPress Divi (Bennet, Moody, Kim, Hickenlooper, Budd): article.et_pb_post
     if "et_pb_post" in item_classes:
         link = item.select_one("h3.entry-title a, h2.entry-title a, .entry-title a")
         if link:
             title = link.get_text(strip=True)
             detail_url = urljoin(base_url, link.get("href", ""))
-        date_el = item.select_one("span.published, .post-meta span")
+        # Divi post-meta structure: "by <span.author>...</span> | <span.published>Mar 19, 2026</span> | ..."
+        # Using ".post-meta span" as a fallback would hit the author span first in document order,
+        # so prefer the specific .published class, then regex the post-meta text.
+        date_el = item.select_one("span.published")
         if date_el:
             date_text = date_el.get_text(strip=True)
+        else:
+            pm = item.select_one(".post-meta")
+            if pm:
+                pm_text = pm.get_text(" ", strip=True)
+                for pat, _ in DATE_PATTERNS:
+                    m = pat.search(pm_text)
+                    if m:
+                        date_text = m.group(0)
+                        break
         return title, date_text, detail_url
 
     # WordPress postItem (Welch)
@@ -409,8 +421,23 @@ def extract_body_text(soup):
 
 
 def find_next_page(soup, current_url):
-    """Find the next page URL from pagination."""
-    # 1. Explicit next link (most reliable)
+    """Find the URL for the next page in a backward-in-time archive walk.
+
+    Blog-style archives (WordPress/Divi) show two pagination links: "Older Entries"
+    goes backward in time, "Next Entries" goes forward. For a backfill, we want
+    older -- forward links just loop us to content we already have.
+    """
+    # 1. Older-first in blog archives: "Older Entries" text is the direction we want.
+    # Check this BEFORE generic "next" because Divi/WP blogs show both and
+    # text.startswith("next") would match "Next Entries" (newer) and cycle page 1<->page 2.
+    for a in soup.select("a[href]"):
+        text = a.get_text(strip=True).lower().replace("\xa0", " ")
+        if "older" in text and ("entries" in text or "posts" in text):
+            href = a.get("href", "")
+            if href and href != "#":
+                return urljoin(current_url, href)
+
+    # 2. Explicit next link (most reliable on non-blog pagers)
     for sel in ["a[rel='next']", "a.next", ".pagination a.next", "li.next a",
                  "a.pager-next", ".pager__item--next a",
                  ".wp-pagenavi a.nextpostslink", ".nav-links a.next"]:
@@ -418,10 +445,13 @@ def find_next_page(soup, current_url):
         if el and el.get("href"):
             return urljoin(current_url, el["href"])
 
-    # 2. Senate-style "Next" text link (Collins, Ernst, Fischer, Cramer, etc.)
+    # 3. Senate-style "Next" text link (Collins, Ernst, Fischer, Cramer, etc.)
+    # Skip "next entries" -- that's the blog-archive newer-direction link handled above.
     for a in soup.select("a[href]"):
         text = a.get_text(strip=True).lower().replace("\xa0", " ")
-        if text.startswith("next") or text in (">>", ">", "older entries"):
+        if "entries" in text or "posts" in text:
+            continue
+        if text.startswith("next") or text in (">>", ">"):
             href = a.get("href", "")
             if href and href != "#":
                 return urljoin(current_url, href)
