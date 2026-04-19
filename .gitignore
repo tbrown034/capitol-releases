@@ -50,3 +50,5 @@ next-env.d.ts
 # internal docs and working notes
 /internal/
 /docs/
+CLAUDE.md
+AGENTS.md
