@@ -11,6 +11,7 @@ import logging
 from pipeline.collectors.base import Collector
 from pipeline.collectors.rss_collector import RSSCollector
 from pipeline.collectors.httpx_collector import HttpxCollector
+from pipeline.collectors.whitehouse_collector import WhitehouseCollector
 
 log = logging.getLogger("capitol.registry")
 
@@ -21,6 +22,7 @@ class CollectorRegistry:
     def __init__(self):
         self._rss = RSSCollector()
         self._httpx = HttpxCollector()
+        self._whitehouse = WhitehouseCollector()
 
     def get_collector(self, senator: dict) -> Collector:
         """Get the canonical collector for a senator based on config."""
@@ -28,6 +30,8 @@ class CollectorRegistry:
 
         if method == "rss":
             return self._rss
+        elif method == "whitehouse":
+            return self._whitehouse
         elif method == "playwright":
             # Playwright collector not yet implemented.
             # Fall back to httpx (works for page 1 on most JS sites)
