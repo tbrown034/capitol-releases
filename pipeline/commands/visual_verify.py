@@ -180,9 +180,8 @@ def main():
     )
 
     # Load senators
-    seed_path = Path(__file__).resolve().parent.parent / "seeds" / "senate.json"
-    data = json.loads(seed_path.read_text())
-    senators = data["members"]
+    from pipeline.lib.seeds import load_members
+    senators = load_members()
 
     if args.senator:
         senators = [s for s in senators if s["senator_id"] == args.senator]

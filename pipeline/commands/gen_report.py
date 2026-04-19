@@ -22,10 +22,9 @@ def main():
     conn = psycopg2.connect(DB_URL)
     cur = conn.cursor()
 
-    # Load seed config
-    seed_path = Path(__file__).resolve().parent.parent / "seeds" / "senate.json"
-    data = json.loads(seed_path.read_text())
-    senators = {m["senator_id"]: m for m in data["members"]}
+    # Load seed config across chambers
+    from pipeline.lib.seeds import load_members
+    senators = {m["senator_id"]: m for m in load_members()}
 
     # DB stats per senator
     cur.execute("""

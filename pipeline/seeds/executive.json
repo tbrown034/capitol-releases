@@ -1,0 +1,37 @@
+{
+  "members": [
+    {
+      "senator_id": "whitehouse",
+      "full_name": "The White House",
+      "party": "R",
+      "state": "DC",
+      "chamber": "executive",
+      "official_url": "https://www.whitehouse.gov",
+      "press_release_url": "https://www.whitehouse.gov/releases/",
+      "parser_family": "whitehouse-wp",
+      "requires_js": false,
+      "pagination": {
+        "type": "page_param",
+        "pattern": "/page/N/"
+      },
+      "selectors": {
+        "list_item": "li.wp-block-post",
+        "title": "h2.wp-block-post-title a",
+        "date": "div.wp-block-post-date time",
+        "detail_link": "h2.wp-block-post-title a"
+      },
+      "confidence": 0.95,
+      "notes": "Three URL streams: /releases/ (press_release), /briefings-statements/ (statement), /presidential-actions/ (presidential_action). 10 items/page, /page/N/ pagination. Gutenberg WordPress; wp-json is 403-blocked. Content type resolved via URL rules in classifier.",
+      "last_verified": "2026-04-19",
+      "recon_status": "verified",
+      "collection_method": "whitehouse",
+      "scrape_config": {
+        "sources": [
+          { "url": "https://www.whitehouse.gov/releases/", "content_type": "press_release" },
+          { "url": "https://www.whitehouse.gov/briefings-statements/", "content_type": "statement" },
+          { "url": "https://www.whitehouse.gov/presidential-actions/", "content_type": "presidential_action" }
+        ]
+      }
+    }
+  ]
+}
