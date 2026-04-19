@@ -181,11 +181,19 @@ export default async function Home() {
 
       {/* Senator Rankings */}
       <section className="mb-10 md:mb-16">
-        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
-          Senator Rankings
-        </h2>
+        <div className="flex items-center justify-between border-b border-neutral-900 pb-2 mb-4 md:mb-6">
+          <h2 className="text-xs uppercase tracking-wider text-neutral-500">
+            Senator Rankings
+          </h2>
+          <Link
+            href="/senators"
+            className="text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
+          >
+            View all 100
+          </Link>
+        </div>
         <p className="text-xs text-neutral-400 mb-6">
-          Total releases by senator
+          Top 15 senators by release volume since January 2025
           <span className="ml-3 inline-flex items-center gap-3">
             <span className="inline-flex items-center gap-1">
               <span className="inline-block h-2 w-2 rounded-full bg-blue-500" />{" "}
@@ -202,6 +210,15 @@ export default async function Home() {
           </span>
         </p>
         <SenatorBars data={swimLaneData} />
+        <div className="mt-4 pt-4 border-t border-neutral-200 flex items-center justify-between text-xs text-neutral-500">
+          <span>Showing {swimLaneData.length} of 100 senators</span>
+          <Link
+            href="/senators"
+            className="text-neutral-900 hover:underline font-medium"
+          >
+            See full rankings →
+          </Link>
+        </div>
       </section>
 
     </div>

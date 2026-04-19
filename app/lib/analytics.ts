@@ -8,6 +8,8 @@ export async function getWeeklyActivity() {
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
     WHERE published_at IS NOT NULL
+      AND pr.deleted_at IS NULL
+      AND pr.published_at >= '2025-01-01'
     GROUP BY week, s.party
     ORDER BY week
   `;
@@ -21,6 +23,9 @@ export async function getSenatorActivity() {
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
     WHERE pr.published_at IS NOT NULL
+      AND pr.deleted_at IS NULL
+      AND pr.published_at >= '2025-01-01'
+      AND s.status = 'active'
     GROUP BY s.id, s.full_name, s.party, s.state, week
     ORDER BY s.full_name, week
   `;
@@ -33,6 +38,7 @@ export async function getTopSenatorsByPeriod(days = 30) {
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
     WHERE pr.published_at >= NOW() - make_interval(days => ${days})
+      AND pr.deleted_at IS NULL
     GROUP BY s.id, s.full_name, s.party, s.state
     ORDER BY count DESC
     LIMIT 15
@@ -49,6 +55,7 @@ export async function getTopicTrends() {
       ))) as word
       FROM press_releases pr
       WHERE pr.published_at >= NOW() - interval '30 days'
+        AND pr.deleted_at IS NULL
     ) words
     WHERE length(word) > 4
       AND word NOT IN ('senator','senators','press','release','statement',
@@ -72,6 +79,7 @@ export async function getDailyVolume(days = 90) {
     FROM press_releases
     WHERE published_at >= NOW() - make_interval(days => ${days})
       AND published_at IS NOT NULL
+      AND deleted_at IS NULL
     GROUP BY day
     ORDER BY day
   `;

@@ -18,55 +18,56 @@ export async function getFeed({
 } = {}): Promise<{ items: FeedItem[]; total: number }> {
   const offset = (page - 1) * perPage;
 
-  // Use different queries based on filter combinations to stay with tagged templates
+  // Use different queries based on filter combinations to stay with tagged templates.
+  // deleted_at IS NULL hides tombstoned records from all user-facing feeds.
   if (search) {
     if (party && state) {
-      const countResult = await sql`SELECT count(*) as total FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.fts @@ plainto_tsquery('english', ${search}) AND s.party = ${party} AND s.state = ${state}`;
-      const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.fts @@ plainto_tsquery('english', ${search}) AND s.party = ${party} AND s.state = ${state} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
+      const countResult = await sql`SELECT count(*) as total FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL AND pr.fts @@ plainto_tsquery('english', ${search}) AND s.party = ${party} AND s.state = ${state}`;
+      const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL AND pr.fts @@ plainto_tsquery('english', ${search}) AND s.party = ${party} AND s.state = ${state} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
       return { items: items as FeedItem[], total: Number(countResult[0].total) };
     }
     if (party) {
-      const countResult = await sql`SELECT count(*) as total FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.fts @@ plainto_tsquery('english', ${search}) AND s.party = ${party}`;
-      const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.fts @@ plainto_tsquery('english', ${search}) AND s.party = ${party} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
+      const countResult = await sql`SELECT count(*) as total FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL AND pr.fts @@ plainto_tsquery('english', ${search}) AND s.party = ${party}`;
+      const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL AND pr.fts @@ plainto_tsquery('english', ${search}) AND s.party = ${party} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
       return { items: items as FeedItem[], total: Number(countResult[0].total) };
     }
     if (state) {
-      const countResult = await sql`SELECT count(*) as total FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.fts @@ plainto_tsquery('english', ${search}) AND s.state = ${state}`;
-      const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.fts @@ plainto_tsquery('english', ${search}) AND s.state = ${state} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
+      const countResult = await sql`SELECT count(*) as total FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL AND pr.fts @@ plainto_tsquery('english', ${search}) AND s.state = ${state}`;
+      const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL AND pr.fts @@ plainto_tsquery('english', ${search}) AND s.state = ${state} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
       return { items: items as FeedItem[], total: Number(countResult[0].total) };
     }
-    const countResult = await sql`SELECT count(*) as total FROM press_releases pr WHERE pr.fts @@ plainto_tsquery('english', ${search})`;
-    const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.fts @@ plainto_tsquery('english', ${search}) ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
+    const countResult = await sql`SELECT count(*) as total FROM press_releases pr WHERE pr.deleted_at IS NULL AND pr.fts @@ plainto_tsquery('english', ${search})`;
+    const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL AND pr.fts @@ plainto_tsquery('english', ${search}) ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
     return { items: items as FeedItem[], total: Number(countResult[0].total) };
   }
 
   if (senator) {
-    const countResult = await sql`SELECT count(*) as total FROM press_releases WHERE senator_id = ${senator}`;
-    const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.senator_id = ${senator} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
+    const countResult = await sql`SELECT count(*) as total FROM press_releases WHERE deleted_at IS NULL AND senator_id = ${senator}`;
+    const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL AND pr.senator_id = ${senator} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
     return { items: items as FeedItem[], total: Number(countResult[0].total) };
   }
 
   if (party && state) {
-    const countResult = await sql`SELECT count(*) as total FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE s.party = ${party} AND s.state = ${state}`;
-    const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE s.party = ${party} AND s.state = ${state} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
+    const countResult = await sql`SELECT count(*) as total FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL AND s.party = ${party} AND s.state = ${state}`;
+    const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL AND s.party = ${party} AND s.state = ${state} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
     return { items: items as FeedItem[], total: Number(countResult[0].total) };
   }
 
   if (party) {
-    const countResult = await sql`SELECT count(*) as total FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE s.party = ${party}`;
-    const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE s.party = ${party} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
+    const countResult = await sql`SELECT count(*) as total FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL AND s.party = ${party}`;
+    const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL AND s.party = ${party} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
     return { items: items as FeedItem[], total: Number(countResult[0].total) };
   }
 
   if (state) {
-    const countResult = await sql`SELECT count(*) as total FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE s.state = ${state}`;
-    const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE s.state = ${state} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
+    const countResult = await sql`SELECT count(*) as total FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL AND s.state = ${state}`;
+    const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL AND s.state = ${state} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
     return { items: items as FeedItem[], total: Number(countResult[0].total) };
   }
 
   // No filters
-  const countResult = await sql`SELECT count(*) as total FROM press_releases`;
-  const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
+  const countResult = await sql`SELECT count(*) as total FROM press_releases WHERE deleted_at IS NULL`;
+  const items = await sql`SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, s.full_name as senator_name, s.party, s.state FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE pr.deleted_at IS NULL ORDER BY pr.published_at DESC NULLS LAST LIMIT ${perPage} OFFSET ${offset}`;
   return { items: items as FeedItem[], total: Number(countResult[0].total) };
 }
 
@@ -76,7 +77,8 @@ export async function getSenators(): Promise<SenatorWithCount[]> {
            count(pr.id)::int as release_count,
            max(pr.published_at) as latest_release
     FROM senators s
-    LEFT JOIN press_releases pr ON pr.senator_id = s.id
+    LEFT JOIN press_releases pr ON pr.senator_id = s.id AND pr.deleted_at IS NULL
+    WHERE s.status = 'active'
     GROUP BY s.id
     ORDER BY s.state, s.full_name
   `) as SenatorWithCount[];
@@ -93,11 +95,11 @@ export async function getSenatorReleases(
   perPage = 25
 ): Promise<{ items: PressRelease[]; total: number }> {
   const offset = (page - 1) * perPage;
-  const countResult = await sql`SELECT count(*) as total FROM press_releases WHERE senator_id = ${senatorId}`;
+  const countResult = await sql`SELECT count(*) as total FROM press_releases WHERE senator_id = ${senatorId} AND deleted_at IS NULL`;
   const total = Number(countResult[0].total);
 
   const items = (await sql`
-    SELECT * FROM press_releases WHERE senator_id = ${senatorId}
+    SELECT * FROM press_releases WHERE senator_id = ${senatorId} AND deleted_at IS NULL
     ORDER BY published_at DESC NULLS LAST
     LIMIT ${perPage} OFFSET ${offset}
   `) as PressRelease[];
@@ -114,7 +116,8 @@ export async function getStats() {
       min(pr.published_at) as earliest,
       max(pr.published_at) as latest
     FROM senators s
-    LEFT JOIN press_releases pr ON pr.senator_id = s.id
+    LEFT JOIN press_releases pr ON pr.senator_id = s.id AND pr.deleted_at IS NULL
+    WHERE s.status = 'active'
   `;
   return result[0];
 }
@@ -124,6 +127,7 @@ export async function getPartyBreakdown() {
     SELECT s.party, count(pr.id)::int as count
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
+    WHERE pr.deleted_at IS NULL
     GROUP BY s.party
     ORDER BY count DESC
   `;
@@ -135,6 +139,7 @@ export async function getWeeklyVolume() {
            count(*)::int as count
     FROM press_releases
     WHERE published_at IS NOT NULL
+      AND deleted_at IS NULL
     GROUP BY week
     ORDER BY week
   `;
@@ -147,7 +152,7 @@ export async function getTopSenators(limit = 10) {
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
     WHERE pr.deleted_at IS NULL
-      AND (s.status IS NULL OR s.status = 'current')
+      AND s.status = 'active'
     GROUP BY s.id, s.full_name, s.party, s.state
     ORDER BY count DESC
     LIMIT ${limit}
@@ -162,7 +167,7 @@ export async function getLeastActiveSenators(limit = 10) {
     FROM senators s
     LEFT JOIN press_releases pr ON s.id = pr.senator_id AND pr.deleted_at IS NULL
     WHERE s.collection_method IS NOT NULL
-      AND (s.status IS NULL OR s.status = 'current')
+      AND s.status = 'active'
     GROUP BY s.id, s.full_name, s.party, s.state
     ORDER BY count ASC
     LIMIT ${limit}
