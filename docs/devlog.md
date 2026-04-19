@@ -4,6 +4,143 @@ A chronological record of development sessions and significant changes.
 
 ---
 
+## 2026-04-18 (evening) - Frontend overhaul, collector audit, +2,344 records
+
+**Context:** Site was live but had visual gaps and 18 broken collectors hiding behind good aggregate numbers. User reviewed the live homepage and flagged 8 issues. Session became a combined frontend polish + pipeline rescue.
+
+**Frontend (8 features in one commit):**
+- Fixed /feed crash: `feed-filters.tsx` (client component) imported `getStates` from `queries.ts`, triggering `neon()` evaluation on the client. Moved to `states.ts`.
+- Senator mugshots: 28px photos with party-colored rings in Latest feed, 20px in activity sidebar. Downloaded 12 missing from Congressional Bioguide. Built `app/lib/photos.ts` with ID-based + fuzzy matching. 103/103 matched.
+- Least Active section + date range filter (All/YTD/Year/Month/Week). New API route + client component.
+- All-caps headline normalization preserving acronyms.
+- Release Volume chart: color gradient (blue -> indigo -> rose).
+- Senator Rankings: swim lane chart (weekly breakdown).
+- Trending Topics: clickable keyword pills linking to search.
+- Former senators filtered via `status = 'former'`.
+
+**Collector audit (18 senators diagnosed):**
+- ColdFusion wrong selectors (6): `"li"` -> `"table tr"`. Klobuchar, Thune, McConnell, Fischer, Boozman, Kennedy.
+- Wrong URLs (2): Booker `/news` -> `/news/press`, McConnell `/news` -> `/pressreleases`.
+- RSS-limited (3): Welch, Budd, Moody switched from RSS to httpx.
+- Null/wrong selectors (5): Divi sites, Kelly, Hoeven.
+- Needs Playwright (1): Cantwell (AJAX ColdFusion).
+- Empty (1): Armstrong (new senator).
+- Full audit: `docs/collector-audit-2026-04-18.md`
+
+**backfill.py improvements:**
+- Hoeven pattern: `h2.title` items inside `div#press`, date in preceding `span.date` sibling.
+- Kelly pattern: `article.sen-listing-item-archive-page`.
+- WordPress `.page-numbers` pagination fix: walk up to container with 2+ descendants.
+
+**Backfill results (+2,344 records):**
+- Thune +432, Booker +373, Kennedy +329, Welch +287, Klobuchar +292
+- Hoeven +277, Boozman +186, Fischer +185, McConnell +155, Kelly +50
+- Total: 22,762 -> 25,106 active records
+
+**Remaining:** Cantwell (custom Playwright needed), Armstrong (empty), Divi group may benefit from deeper crawl.
+
+**5 commits:** Frontend overhaul, collector configs, CMS patterns, McConnell URL, backfill results.
+
+---
+
+## 2026-04-18 - Congressional web infrastructure research
+
+**Context:** Pipeline is solid (22,800+ releases, 17/17 tests green). Stepped back to deeply understand the ecosystem we're operating in -- how Congress builds websites, who the competitors are, what open source projects exist, and what data collection methods we might be missing.
+
+**Research approach:** 13 parallel web research agents across two rounds, pulling from 100+ sources.
+
+**Round 1 -- Infrastructure and Competition (8 agents):**
+- CMS platforms, press release systems, new member onboarding, tech vendors, web patterns, competitors, open source projects, UX research
+- Output: `docs/congressional-web-infrastructure.md`
+
+**Round 2 -- Pipeline Blind Spots (5 agents):**
+- Undocumented APIs, alternative collection methods, data blind spots, real-time feeds, live reverse-engineering of senate.gov endpoints
+- Output: `docs/data-pipeline-research.md`
+
+**Top findings:**
+
+1. **WordPress JSON API (game-changer):** 40+ senators run WordPress with fully exposed REST APIs at `/wp-json/wp/v2/press_releases`. Structured JSON with full content, dates, modification timestamps, categories. 27 senators have a dedicated `press_releases` custom post type. Warner alone has 4,419 releases via API. This eliminates HTML scraping fragility for ~40% of the Senate.
+
+2. **Committee websites are our biggest content gap.** Chairs and ranking members publish releases on committee sites (appropriations.senate.gov, judiciary.senate.gov, etc.) that never appear on personal senator pages. 20+ committee sites untapped.
+
+3. **The free/open tier is dead.** ProPublica API shut down July 2024. Sunlight Foundation gone since 2020. Derek Willis launched "Congress Press" on April 4, 2026 (two weeks ago) -- closest competitor but it's a dataset (JSONL downloads), not a product. No deletion detection, no provenance, no search.
+
+4. **No one does deletion detection.** Zero competitors, free or paid. Our strongest differentiator.
+
+5. **No true push-based feed exists anywhere.** Bloomberg, POLITICO Pro, LegiStorm -- everyone polls. Our 2-4 hour cycle is comparable. Email press lists (`press@lastname.senate.gov`) are the fastest signal.
+
+6. **81% of journalists would increase coverage with better tools** (ISOJ survey), but 63% can't afford $3K+/year enterprise tools. Pricing gap between free data dumps and enterprise.
+
+7. **Senate uses Documentum** (not Drupal). House uses Drupal (520 sites). 3-4 vendor oligopoly (Leidos IQ 65%, Fireside 150+ sites, iConstituent 40%) explains template clustering.
+
+8. **~34 senators on Substack** with content that doesn't cross-post to .gov sites.
+
+9. **DCinbox** -- 211K+ official e-newsletters archived with Bioguide IDs, downloadable as CSVs. Free backfill opportunity.
+
+10. **robots.txt permissive** on individual senator subdomains. The restrictive rules are on congress.gov, not senator sites.
+
+**Files created:**
+- `docs/congressional-web-infrastructure.md` -- CMS, vendors, competitors, open source, UX patterns, market positioning
+- `docs/data-pipeline-research.md` -- WordPress APIs, RSS ecosystems, alt collection methods, blind spots, real-time feeds, edge cases, prioritized recommendations
+
+**Key decisions:**
+- WordPress JSON API migration should be next major pipeline work (switch ~40 senators from HTML to JSON)
+- Committee websites should be added as a second data layer
+- Party leadership sites (democrats.senate.gov, republican.senate.gov) are low-hanging fruit (2 new collectors)
+- Email press list subscription remains the best path to real-time collection
+
+**No code changes this session.** Pure research and documentation.
+
+---
+
+## 2026-04-18 - Email/press contact recon, business planning
+
+**Context:** Pipeline and collectors are solid (22,800+ releases, 17/17 tests green). Shifting focus from "can we collect?" to "how do we collect smarter and is this a business?"
+
+**Email signup recon (all 100 senators):**
+- Built `pipeline/recon/email_signup_recon.py` -- async httpx scanner checking 10 common signup paths per senator
+- Results: 39 confirmed signup forms, 29 likely forms, 32 not found (need Playwright or manual browser check)
+- No GovDelivery/Mailchimp detected via static HTML -- likely JS-rendered widgets
+- Strategy: email as primary real-time intake trigger, web scraping as verification/backup
+
+**Press contacts recon (all 100 senators):**
+- Built `pipeline/recon/press_contacts_recon.py` -- scans 13 pages per senator for staff names, titles, emails, phones
+- Only 1 clean named contact and 20 press office emails found via static HTML
+- Senate sites don't list staff on easily scrapable pages -- names live in press release footers
+- Derived `press@SUBDOMAIN.senate.gov` for all 100 (standard Senate pattern)
+- Built `pipeline/recon/mine_contacts_from_releases.py` -- mines existing 22,800 press releases for "Contact: Name" footers (needs DATABASE_URL to run)
+
+**Combined press directory:**
+- `pipeline/recon/senate_press_directory.json` -- DB-mappable JSON with 100 entries
+- Each entry: press email (derived + confirmed), newsletter signup URL, named contacts, platform info
+- Ready to extend with DB-mined contacts and manual enrichment
+
+**Business plan (`docs/business_plan.md`):**
+- Cost analysis across 4 scenarios: side project ($2/mo) to intelligence platform ($625-1,200/mo)
+- Senate vs. House scaling: House is 6-10 weeks of work, not just 4.35x Senate
+- Revenue model options: freemium SaaS ($29-299/mo tiers), data licensing, API access
+- SWOT analysis covering moat (archival corpus), risks (solo maintainer, site redesigns)
+- Recommended phased approach: lock Senate -> ship product -> validate revenue -> expand if traction
+
+**Files created:**
+- `pipeline/recon/email_signup_recon.py` -- email signup scanner
+- `pipeline/recon/email_signup_results.json` -- results (100 senators)
+- `pipeline/recon/press_contacts_recon.py` -- press contact scanner
+- `pipeline/recon/press_contacts_results.json` -- raw results
+- `pipeline/recon/mine_contacts_from_releases.py` -- DB enrichment script
+- `pipeline/recon/senate_press_directory.json` -- combined directory
+- `docs/business_plan.md` -- cost/revenue/SWOT analysis
+
+**Key decision:** Two-prong collection strategy confirmed. Email lists as primary (real-time), web scraping as backup (verification + deletion detection). Email can't catch deletions; scraping can't match email speed.
+
+**Next steps:**
+- Run `mine_contacts_from_releases.py` with DB access to fill in named press contacts
+- Manual browser check for 32 senators with no signup found
+- Verify derived press emails are active (MX/SMTP check)
+- Deploy pipeline to VPS with cron (stop running locally)
+
+---
+
 ## 2026-04-17 - Pipeline v2: survivability, RSS discovery, daily updater
 
 **The problem:** Pipeline was prototype-quality. Hardcoded database credentials in 5 files, silent `except Exception: pass` swallowing errors, date parsing duplicated in 3 files, no daily updater, no RSS support, no monitoring. Not business-grade.
