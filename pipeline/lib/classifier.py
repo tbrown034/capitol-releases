@@ -18,6 +18,7 @@ CONTENT_TYPES = [
     "letter",
     "photo_release",
     "floor_statement",
+    "presidential_action",
     "other",
 ]
 
@@ -40,6 +41,8 @@ _URL_RULES: list[tuple[str, str]] = [
     ("/floor-speech", "floor_statement"),
     ("/letter", "letter"),
     ("/photo-release", "photo_release"),
+    ("/presidential-actions/", "presidential_action"),
+    ("/briefings-statements/", "statement"),
 ]
 
 # WordPress category mappings
@@ -101,7 +104,8 @@ def is_external_content(url: str, title: str = "") -> bool:
         return False
     url_lower = url.lower()
     # External domains (not .gov)
-    if "senate.gov" not in url_lower and "house.gov" not in url_lower:
+    allowed_gov = ("senate.gov", "house.gov", "whitehouse.gov")
+    if not any(d in url_lower for d in allowed_gov):
         if any(d in url_lower for d in [
             "nytimes.com", "washingtonpost.com", "cnn.com", "foxnews.com",
             "politico.com", "thehill.com", "reuters.com", "apnews.com",
