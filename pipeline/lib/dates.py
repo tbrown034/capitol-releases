@@ -28,9 +28,11 @@ MONTH_MAP = {
 }
 
 # Compiled patterns for text-based date parsing
+# Accepts optional ordinal suffix (e.g. "April 17th, 2026") that some
+# senate-custom CMS templates (Heinrich) emit.
 _PAT_MDY_TEXT = re.compile(
     r"((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*)"
-    r"\s+(\d{1,2}),?\s+(\d{4})",
+    r"\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})",
     re.I,
 )
 _PAT_MDY_NUMERIC = re.compile(r"(\d{1,2})[./](\d{1,2})[./](\d{2,4})")

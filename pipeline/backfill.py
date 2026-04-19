@@ -56,7 +56,7 @@ HEADERS = {
 # Date parsing patterns
 DATE_PATTERNS = [
     (re.compile(r"(\d{1,2})[./](\d{1,2})[./](\d{2,4})"), "mdy_numeric"),
-    (re.compile(r"((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*)\s+(\d{1,2}),?\s+(\d{4})", re.I), "mdy_text"),
+    (re.compile(r"((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})", re.I), "mdy_text"),
     (re.compile(r"(\d{4})-(\d{2})-(\d{2})"), "iso"),
 ]
 
@@ -297,14 +297,26 @@ def extract_item_data(item, base_url, selectors):
                 break
         return title, date_text, detail_url
 
-    # Senate custom CMS: ArticleBlock pattern
-    article_link = item.select_one(".ArticleTitle a, .ArticleTitle__link, a.ArticleTitle__link")
-    if article_link:
-        title = article_link.get_text(strip=True)
-        href = article_link.get("href", "")
-        if href:
-            detail_url = urljoin(base_url, href)
-        date_el = item.select_one(".ArticleBlock__date")
+    # Senate custom CMS: ArticleBlock pattern (two layouts observed)
+    # Old: .ArticleTitle is a link, date in .ArticleBlock__date
+    # New (Heinrich): .ArticleBlock__link wraps title + date, date in .Heading--time
+    article_link = item.select_one(
+        ".ArticleBlock__link, .ArticleTitle__link, a.ArticleTitle__link, .ArticleTitle a"
+    )
+    if article_link or item.select_one(".ArticleTitle"):
+        title_el = item.select_one(".ArticleTitle")
+        if title_el:
+            title = title_el.get_text(strip=True)
+        elif article_link:
+            title = article_link.get_text(strip=True)
+        if article_link:
+            href = article_link.get("href", "")
+            if href:
+                detail_url = urljoin(base_url, href)
+        date_el = (
+            item.select_one(".ArticleBlock__date")
+            or item.select_one(".Heading--time")
+        )
         if date_el:
             date_text = date_el.get_text(strip=True)
         return title, date_text, detail_url

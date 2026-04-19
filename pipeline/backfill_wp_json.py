@@ -85,19 +85,36 @@ def fetch_page(client, url, params, attempts=4):
     return None, None
 
 
-def fetch_all(base_url: str, endpoint: str, per_page: int = 100) -> list[dict]:
-    """Walk every page of a WP REST collection."""
+def fetch_all(
+    base_url: str,
+    endpoint: str,
+    per_page: int = 100,
+    extra_params: dict | None = None,
+) -> list[dict]:
+    """Walk every page of a WP REST collection.
+
+    extra_params supports server-side filtering — e.g.
+        {"categories": "24", "after": "2025-01-01T00:00:00"}
+    pushes the CUTOFF_DATE filter down to the server so we don't download
+    the entire pre-2025 archive only to throw it out client-side.
+    """
     url = f"{base_url.rstrip('/')}/wp-json/wp/v2/{endpoint}"
     out: list[dict] = []
     page = 1
+    extras = extra_params or {}
     with httpx.Client(follow_redirects=True, timeout=60) as client:
         while True:
-            r, batch = fetch_page(client, url, {"per_page": per_page, "page": page})
+            params = {"per_page": per_page, "page": page, **extras}
+            r, batch = fetch_page(client, url, params)
             if r is None or r.status_code == 400 or not batch:
                 break
             out.extend(batch)
             total_pages = int(r.headers.get("X-WP-TotalPages", "0") or 0)
-            print(f"  page {page}/{total_pages}: fetched {len(batch)} (running total {len(out)})")
+            total_items = r.headers.get("X-WP-Total", "?")
+            print(
+                f"  page {page}/{total_pages}: fetched {len(batch)} "
+                f"(running total {len(out)}/{total_items})"
+            )
             if page >= total_pages or len(batch) < per_page:
                 break
             page += 1
@@ -117,7 +134,12 @@ def get_senator(conn, senator_id: str) -> dict:
     return {"id": row[0], "full_name": row[1], "official_url": row[2], "press_release_url": row[3]}
 
 
-def run(senator_id: str, endpoint: str) -> None:
+def run(
+    senator_id: str,
+    endpoint: str,
+    categories: str | None = None,
+    after: str | None = None,
+) -> None:
     load_env()
     conn = psycopg2.connect(os.environ["DATABASE_URL"])
     senator = get_senator(conn, senator_id)
@@ -129,8 +151,16 @@ def run(senator_id: str, endpoint: str) -> None:
     conn.commit()
     cur.close()
 
+    extras: dict = {}
+    if categories:
+        extras["categories"] = categories
+    if after:
+        extras["after"] = after
+
     print(f"\nFetching WP JSON for {senator['full_name']} -- endpoint={endpoint}")
-    records = fetch_all(base_url, endpoint)
+    if extras:
+        print(f"  filters: {extras}")
+    records = fetch_all(base_url, endpoint, extra_params=extras)
     print(f"Total fetched: {len(records)}")
 
     inserted = 0
@@ -209,8 +239,12 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--senator", required=True, help="senator_id, e.g. risch-james")
     ap.add_argument("--endpoint", default="press_releases", help="WP REST collection name")
+    ap.add_argument("--categories", default=None,
+                    help="Comma-separated category IDs to filter (e.g. 24)")
+    ap.add_argument("--after", default=None,
+                    help="ISO date; server-side filter (e.g. 2025-01-01T00:00:00)")
     args = ap.parse_args()
-    run(args.senator, args.endpoint)
+    run(args.senator, args.endpoint, args.categories, args.after)
 
 
 if __name__ == "__main__":
