@@ -7,6 +7,7 @@ Usage:
     python -m pipeline health                    # run health checks
     python -m pipeline health --method rss       # check RSS senators only
     python -m pipeline test                      # run data quality tests
+    python -m pipeline back-coverage             # flag senators missing 2025 back-coverage
     python -m pipeline stats                     # show database stats
 """
 
@@ -53,6 +54,10 @@ def main():
     elif command == "review":
         from pipeline.commands.review import main as review_main
         review_main()
+
+    elif command == "back-coverage":
+        from pipeline.commands.check_back_coverage import main as bc_main
+        bc_main()
 
     elif command == "stats":
         _show_stats()

@@ -12,7 +12,7 @@ Usage:
 import os
 import sys
 import json
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from collections import Counter
 
@@ -254,6 +254,61 @@ def test_depth_to_jan_2025():
     assert count >= 30, f"Only {count} senators reach Jan-Feb 2025, expected >= 30"
 
 
+def test_back_coverage_not_truncated():
+    """Per-senator check: earliest record should not be >60 days after coverage start.
+
+    Catches the Heinrich/Murray pattern where a senator has a plausible total
+    record count but every record is from the last few months -- the collector
+    is reading page 1 and missing older paginated archives. Complements the
+    aggregate `test_depth_to_jan_2025` check which only counts senators
+    reaching Jan-Feb, not the ones that silently start in late 2025.
+
+    Run the standalone report for diagnostics:
+        python -m pipeline back-coverage
+    """
+    # Mid-window seat changes -- expected start is their in-office date.
+    overrides = {
+        "husted-jon": date(2025, 1, 21),   # Vance -> Husted
+        "moody-ashley": date(2025, 1, 21), # Rubio -> Moody
+    }
+    default_start = date(2025, 1, 1)
+    threshold_days = 60
+
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT s.id, s.full_name,
+               min(pr.published_at) FILTER (WHERE pr.deleted_at IS NULL)::date AS earliest,
+               count(pr.id) FILTER (WHERE pr.deleted_at IS NULL)::int AS total
+        FROM senators s
+        LEFT JOIN press_releases pr ON pr.senator_id = s.id
+        WHERE s.status = 'active'
+        GROUP BY s.id, s.full_name
+    """)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    truncated = []
+    for sid, name, earliest, total in rows:
+        if earliest is None or total == 0:
+            continue  # NO_DATA handled by test_minimum_senator_coverage
+        expected = overrides.get(sid, default_start)
+        gap = (earliest - expected).days
+        if gap > threshold_days:
+            truncated.append((name, earliest, gap, total))
+
+    if truncated:
+        print(f"WARNING: {len(truncated)} senators have truncated back-coverage:")
+        for name, earliest, gap, total in truncated:
+            print(f"  {name}: earliest={earliest} gap={gap}d total={total}")
+    # Soft assertion -- fail hard only when the problem grows.
+    assert len(truncated) < 10, (
+        f"{len(truncated)} senators have earliest record > {threshold_days}d after expected start. "
+        f"Run `python -m pipeline back-coverage` to diagnose."
+    )
+
+
 # ---- Body text and provenance tests ----
 
 def test_body_coverage_above_threshold():
@@ -350,6 +405,7 @@ def run_all():
         test_no_navigation_urls,
         test_no_suspicious_round_counts,
         test_depth_to_jan_2025,
+        test_back_coverage_not_truncated,
         test_body_coverage_above_threshold,
         test_no_anomalously_low_counts,
         test_no_stale_senators,
