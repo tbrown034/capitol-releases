@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS senators (
   confidence      REAL,
   last_verified   TIMESTAMPTZ,
   rss_feed_url    TEXT,                    -- RSS feed URL if available
-  collection_method TEXT,                  -- rss, httpx, playwright
+  collection_method TEXT,                  -- rss, httpx, playwright, whitehouse
+  chamber         TEXT NOT NULL DEFAULT 'senate', -- senate, house, executive
   created_at      TIMESTAMPTZ DEFAULT NOW(),
   updated_at      TIMESTAMPTZ DEFAULT NOW()
 );
