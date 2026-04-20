@@ -61,33 +61,41 @@ def check_anomalies(conn) -> list[Alert]:
     alerts = []
     cur = conn.cursor()
 
-    # 1. Senators with 0 recent releases who normally post regularly
+    # 1. Senators with 0 recent releases who normally post regularly.
+    # A 14-day silence from a senator with >= 30 releases in the last
+    # 90 days (~2.3/week cadence) is suspicious enough to check. Looser
+    # thresholds produce false positives on legitimate quiet weeks
+    # (recess, between PR drops).
     cur.execute("""
         WITH recent AS (
             SELECT senator_id, COUNT(*) as cnt
             FROM press_releases
-            WHERE published_at > NOW() - INTERVAL '7 days'
+            WHERE published_at > NOW() - INTERVAL '14 days'
+              AND deleted_at IS NULL
             GROUP BY senator_id
         ),
         historical AS (
             SELECT senator_id, COUNT(*) as total,
-                   COUNT(*) FILTER (WHERE published_at > NOW() - INTERVAL '90 days') as last_90
+                   COUNT(*) FILTER (WHERE published_at > NOW() - INTERVAL '90 days') as last_90,
+                   COUNT(*) FILTER (WHERE published_at > NOW() - INTERVAL '30 days') as last_30
             FROM press_releases
+            WHERE deleted_at IS NULL
             GROUP BY senator_id
-            HAVING COUNT(*) > 20  -- only check senators with enough data
+            HAVING COUNT(*) > 20
         )
         SELECT h.senator_id, h.total, h.last_90, COALESCE(r.cnt, 0) as recent_count
         FROM historical h
         LEFT JOIN recent r ON h.senator_id = r.senator_id
         WHERE COALESCE(r.cnt, 0) = 0
-        AND h.last_90 > 10  -- they were active in the last 90 days
+        AND h.last_90 >= 30
+        AND h.last_30 >= 5
     """)
     for row in cur.fetchall():
         sid, total, last_90, recent = row
         alerts.append(Alert(
             alert_type="anomaly",
             severity="warning",
-            message=f"{sid}: 0 releases in last 7 days but {last_90} in last 90 days. Possible collection issue.",
+            message=f"{sid}: 0 releases in last 14 days but {last_90} in last 90 days. Possible collection issue.",
             senator_id=sid,
             details={"total": total, "last_90": last_90, "last_7": recent},
         ))
