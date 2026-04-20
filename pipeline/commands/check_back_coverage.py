@@ -174,12 +174,23 @@ def classify_and_score(
     peer_ratio = total / peer_median if peer_median else 1.0
     round_flag = total in ROUND_NUMBER_SET
 
+    # Implied cadence: how many posts per active week (only counting weeks
+    # the senator actually published). For senators who naturally post
+    # infrequently, long zero-runs are expected and shouldn't be punished
+    # like they are for a senator who normally posts daily.
+    active_weeks = max(1, unique_days)  # rough proxy
+    # Use total/15mo-in-weeks ≈ 65 weeks for cadence calc; guard against div0.
+    window_weeks = max(1, ((today - expected).days // 7) or 1)
+    posts_per_week = total / window_weeks
+
     # Severity in priority order.
     if gap_days is not None and gap_days > threshold_days:
         severity = "TRUNCATED"
     elif clump_ratio < 0.2 and total >= 30:
         severity = "DATE_CLUMPED"
-    elif longest_gap_weeks >= 4 and total >= 30:
+    elif longest_gap_weeks >= 4 and total >= 30 and posts_per_week >= 2:
+        # Only call it a gap if the senator normally posts 2+/week.
+        # A 4-week gap for a senator who posts 1/week is expected.
         severity = "INTERNAL_GAP"
     elif peer_ratio < 0.25:
         severity = "LOW_VOLUME"
@@ -189,19 +200,35 @@ def classify_and_score(
         severity = "OK"
 
     # Confidence score components (each in [0.1, 1.0]).
+    # Coverage start: did we reach expected cutoff?
     coverage_start_score = 1 - clamp(max(0, (gap_days or 0) - 14) / 200, 0, 0.9)
-    continuity_score = 1 - clamp(longest_gap_weeks / 16, 0, 0.7)
-    volume_score = clamp(peer_ratio, 0.3, 1.0)
-    date_quality_score = clamp(clump_ratio * 1.25, 0.3, 1.0)
-    round_penalty = 0.9 if round_flag else 1.0
-    clump_penalty = 0.5 if severity == "DATE_CLUMPED" else 1.0
+    # Continuity: scale expected-gap tolerance by cadence. A senator posting
+    # 5x/week with a 4-week gap is suspicious; one posting 1x/week is not.
+    expected_gap_weeks = max(2.0, 4.0 / max(0.5, posts_per_week))
+    excess_gap = max(0, longest_gap_weeks - expected_gap_weeks)
+    continuity_score = 1 - clamp(excess_gap / 20, 0, 0.5)
+    # Volume: only penalize when volume is shockingly low AND publisher
+    # signals incomplete collection (round-number total). Otherwise trust
+    # the count as the senator's real cadence.
+    if peer_ratio < 0.2 and round_flag:
+        volume_score = 0.7
+    elif peer_ratio < 0.1:
+        volume_score = 0.8
+    else:
+        volume_score = 1.0
+    # Date quality: high clump_ratio = healthy. Low clump_ratio is only bad
+    # if we're not confident the records are real (caught by DATE_CLUMPED).
+    date_quality_score = clamp(0.6 + clump_ratio * 0.5, 0.6, 1.0)
+    # Hard penalties for detected failure modes.
+    truncated_penalty = 0.3 if severity == "TRUNCATED" else 1.0
+    clump_penalty = 0.4 if severity == "DATE_CLUMPED" else 1.0
 
     confidence = (
         coverage_start_score
         * continuity_score
         * volume_score
         * date_quality_score
-        * round_penalty
+        * truncated_penalty
         * clump_penalty
     )
     confidence = clamp(confidence, 0.05, 1.0)
