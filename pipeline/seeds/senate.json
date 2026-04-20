@@ -827,17 +827,19 @@
       "parser_family": "senate-coldfusion",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 1
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": "td.recordListTitle",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a"
       },
       "confidence": 0.55,
-      "notes": "Found 361 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "ColdFusion table rows; date in preceding <td>. Junk anchor links filtered by td.recordListTitle selector.",
+      "last_verified": "2026-04-19",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },
