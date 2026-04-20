@@ -22,8 +22,8 @@
       "notes": "Elementor WordPress. 10/page, 23 pages. Pagination: ?e-page-f7b8172=N. Dates in text. Verified 2026-04-17.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "rss",
-      "rss_feed_url": "https://www.alsobrooks.senate.gov/feed/"
+      "collection_method": "httpx",
+      "rss_feed_url": null
     },
     {
       "senator_id": "armstrong-alan",
@@ -96,8 +96,8 @@
       "notes": "Found 4 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "rss",
-      "rss_feed_url": "https://www.banks.senate.gov/feed/"
+      "collection_method": "httpx",
+      "rss_feed_url": null
     },
     {
       "senator_id": "barrasso-john",
@@ -221,8 +221,8 @@
       "notes": "Found 4 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "rss",
-      "rss_feed_url": "https://www.bluntrochester.senate.gov/feed/"
+      "collection_method": "httpx",
+      "rss_feed_url": null
     },
     {
       "senator_id": "booker-cory",
@@ -296,7 +296,7 @@
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "playwright",
-      "rss_feed_url": "https://www.britt.senate.gov/media/press-releases/feed/"
+      "rss_feed_url": null
     },
     {
       "senator_id": "budd-ted",
@@ -1486,8 +1486,8 @@
       "notes": "Found 4 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "rss",
-      "rss_feed_url": "https://www.mccormick.senate.gov/feed/"
+      "collection_method": "httpx",
+      "rss_feed_url": null
     },
     {
       "senator_id": "merkley-jeff",
@@ -1513,7 +1513,7 @@
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "playwright",
-      "rss_feed_url": "https://www.merkley.senate.gov/news/press-releases/feed/"
+      "rss_feed_url": "https://www.merkley.senate.gov/feed/"
     },
     {
       "senator_id": "moody-ashley",
@@ -1812,7 +1812,7 @@
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "playwright",
-      "rss_feed_url": "https://www.ricketts.senate.gov/newsroom/press-releases/feed/"
+      "rss_feed_url": null
     },
     {
       "senator_id": "risch-james",
@@ -2409,7 +2409,7 @@
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "playwright",
-      "rss_feed_url": "https://www.whitehouse.senate.gov/news/press-releases-test-sorting/feed/"
+      "rss_feed_url": null
     },
     {
       "senator_id": "wicker-roger",
@@ -2484,8 +2484,8 @@
       "notes": "Found 5 items on listing page. ",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "rss",
-      "rss_feed_url": "https://www.young.senate.gov/feed/"
+      "collection_method": "httpx",
+      "rss_feed_url": null
     }
   ],
   "generated_at": "2026-04-15T22:20:28.817086+00:00"
