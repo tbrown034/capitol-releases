@@ -1,10 +1,11 @@
+import Image from "next/image";
 import { getStats, getSenators } from "../lib/queries";
 import { getDataQuality, getCoverageByFamily, getCoverageDepth } from "../lib/transparency";
 
 export const metadata = {
-  title: "About -- Capitol Releases",
+  title: "About — Capitol Releases",
   description:
-    "Methodology, data sources, and technical approach behind Capitol Releases.",
+    "Methodology, data sources and technical approach behind Capitol Releases.",
 };
 
 export const dynamic = "force-dynamic";
@@ -59,12 +60,12 @@ export default async function AboutPage() {
       <section className="mt-10">
         <h2 className="font-serif text-2xl">About the developer</h2>
         <div className="mt-4 flex items-start gap-5">
-          <img
-            src="https://trevorthewebdeveloper.com/headshot.jpg"
+          <Image
+            src="/trevor-brown.jpeg"
             alt="Trevor Brown"
-            width={80}
-            height={80}
-            className="rounded-full shrink-0"
+            width={96}
+            height={96}
+            className="rounded-full shrink-0 object-cover"
           />
           <p className="text-stone-600 leading-relaxed">
             Built by{" "}
@@ -77,7 +78,7 @@ export default async function AboutPage() {
             <a href="https://oklahomawatch.org" className="underline text-stone-900 hover:text-stone-600 transition-colors">
               Oklahoma Watch
             </a>
-            . This project bridges both worlds -- journalism instinct driving
+            . This project bridges both worlds — journalism instinct driving
             a developer tool.
           </p>
         </div>
@@ -147,7 +148,7 @@ export default async function AboutPage() {
           Coverage by Senator
         </h2>
         <p className="mt-2 text-sm text-stone-500">
-          Every senator&apos;s scraping status, release count, date range, and
+          Every senator&apos;s scraping status, release count, date range and
           CMS type. This is the ground truth of what we have and what we are
           missing.
         </p>
@@ -181,7 +182,7 @@ export default async function AboutPage() {
                     {d.dated}
                   </td>
                   <td className="py-1.5 pr-3 tabular-nums">
-                    {d.earliest ?? "--"}
+                    {d.earliest ?? "—"}
                   </td>
                   <td className="py-1.5 pr-3 text-stone-400">
                     {d.parser_family?.replace("senate-", "") ?? "?"}
@@ -234,21 +235,21 @@ export default async function AboutPage() {
                     {f.parser_family ?? "unknown"}
                   </td>
                   <td className="py-2 pr-4 text-right tabular-nums">
-                    {f.senator_count}
+                    {f.senator_count.toLocaleString()}
                   </td>
                   <td className="py-2 pr-4 text-right tabular-nums">
-                    {f.release_count}
+                    {f.release_count.toLocaleString()}
                   </td>
                   <td className="py-2 pr-4 text-right tabular-nums">
-                    {f.dated}
+                    {f.dated.toLocaleString()}
                   </td>
                   <td className="py-2 pr-4 text-right tabular-nums">
-                    {f.undated}
+                    {f.undated.toLocaleString()}
                   </td>
                   <td className="py-2 text-right tabular-nums">
                     {f.release_count > 0
                       ? `${Math.round((f.dated / f.release_count) * 100)}%`
-                      : "--"}
+                      : "—"}
                   </td>
                 </tr>
               ))}
@@ -273,11 +274,11 @@ export default async function AboutPage() {
             title="Reconnaissance"
             description="An async script probes all 100 senator websites with 21 URL
               patterns per site, fingerprints the content management system,
-              extracts CSS selectors for list items, titles, dates, and detail
-              links, detects the pagination mechanism, and assigns a confidence
+              extracts CSS selectors for list items, titles, dates and detail
+              links, detects the pagination mechanism and assigns a confidence
               score. This produces a seed configuration file that tells the
               scraping scripts exactly where to find press releases and how to
-              parse them. The script was run iteratively -- the first pass
+              parse them. The script was run iteratively — the first pass
               discovered 92 senators, then ColdFusion paths were added for 6
               more, then individual URLs were manually corrected for the final 2.
               The House required a separate run with conservative rate limiting
@@ -289,7 +290,7 @@ export default async function AboutPage() {
             description="A scraping script reads the seed configuration, crawls each
               senator's press release archive from January 1, 2025 to the
               present, follows pagination, visits each detail page for the full
-              body text, and writes normalized records to a Postgres database.
+              body text and writes normalized records to a Postgres database.
               Deduplication happens at the database level using the source URL
               as a unique key. The backfill was run multiple times as pagination
               bugs were discovered and fixed. Each run skips already-scraped
@@ -299,9 +300,9 @@ export default async function AboutPage() {
             number={3}
             title="Daily Updater"
             description="A collector-based updater checks each senator via their
-              assigned collection method (RSS feeds for 24 senators, HTTP
-              scraping for 68, Playwright for 8). It fetches page 1, deduplicates
-              against known URLs, and inserts only new records. Runs in under
+              assigned collection method (HTTP scraping for 70 senators, Playwright
+              for 19, RSS feeds for 11). It fetches page 1, deduplicates
+              against known URLs and inserts only new records. Runs in under
               2 minutes for all 100 senators. Includes post-run anomaly detection
               and email alerts for failures."
           />
@@ -315,14 +316,14 @@ export default async function AboutPage() {
         </h2>
         <p className="mt-2 text-stone-600 leading-relaxed">
           Senate websites use at least eight distinct content management systems.
-          Each required its own discovery process, selector strategy, and
+          Each required its own discovery process, selector strategy and
           pagination handling. Here is exactly how each was identified and
           what we had to build to scrape it.
         </p>
 
         <div className="mt-6 space-y-6">
           <CMSDiscovery
-            name="Senate WordPress (47 senators)"
+            name="Senate WordPress (48 senators)"
             discovery="Identified by meta generator tags containing 'WordPress' or
               wp-content in stylesheet URLs. The most common Senate CMS."
             selectors="List items matched by standard WordPress post selectors (article,
@@ -336,7 +337,7 @@ export default async function AboutPage() {
               WordPress post selectors."
           />
           <CMSDiscovery
-            name="Senate ArticleBlock / Custom CMS (46 senators)"
+            name="Senate ArticleBlock / Custom CMS (47 senators)"
             discovery="Identified by the presence of .ArticleBlock elements in the DOM.
               This is a Senate-specific CMS component not used outside senate.gov.
               We only discovered it after the first backfill run produced 0
@@ -353,13 +354,13 @@ export default async function AboutPage() {
               text had to be matched explicitly."
           />
           <CMSDiscovery
-            name="Senate ColdFusion (6 senators)"
+            name="Senate ColdFusion (7 senators)"
             discovery="Discovered after the first recon run returned 8 senators as
-              'not found'. A manual investigation revealed 6 used ColdFusion --
+              'not found'. A manual investigation revealed 7 used ColdFusion --
               a legacy web technology from the early 2000s. URLs follow the
               pattern /public/index.cfm/press-releases, which is invisible to
-              standard URL probing. Senators: Fischer, Graham, Kennedy,
-              Klobuchar, McConnell, Moran, Thune."
+              standard URL probing. Senators: Durbin, Fischer, Graham, Kennedy,
+              Klobuchar, McConnell, Moran."
             selectors="Table rows with UUID-based detail links. Dates in table header
               cells. The DOM structure is completely different from all other
               Senate sites."
@@ -367,7 +368,7 @@ export default async function AboutPage() {
               ?startPosition=N or similar parameters. The total page count is
               visible in pagination metadata."
             challenges="ColdFusion sites return 403 to some User-Agent strings. Date
-              extraction was the biggest challenge -- dates are embedded in
+              extraction was the biggest challenge — dates are embedded in
               page text rather than structured HTML elements, leading to high
               null-date rates."
           />
@@ -382,7 +383,7 @@ export default async function AboutPage() {
             pagination="Most use standard WordPress pagination. Some use AJAX-based
               load-more (not yet supported)."
             challenges="The recon script initially stored span.elementor-grid-item as the
-              list selector -- these are actually pagination dots, not press
+              list selector — these are actually pagination dots, not press
               release items. This caused the backfill to find 'items' but
               extract no titles. Fixed by prioritizing e-loop-item over the
               stored recon selector."
@@ -442,7 +443,7 @@ export default async function AboutPage() {
               for the U.S. House (254 of 437 members)."
             selectors=".views-row items with standard Drupal field markup."
             pagination="Drupal pager with ?page=N parameters."
-            challenges="Minimal -- Drupal sites are the most consistent and reliable to
+            challenges="Minimal — Drupal sites are the most consistent and reliable to
               scrape. The House's standardization on Drupal makes it significantly
               easier to scrape at scale than the Senate."
           />
@@ -459,15 +460,17 @@ export default async function AboutPage() {
 
         <div className="mt-4 space-y-4 text-stone-600 leading-relaxed">
           <Challenge
-            title="50% of records have no publication date"
+            title="Null publication dates — once endemic, now under 0.5%"
             body={`${quality.null_date.toLocaleString()} out of ${quality.total.toLocaleString()}
-              press releases are missing dates. This primarily affects senators
-              on the ArticleBlock CMS and ColdFusion sites where dates are
-              rendered as text within the page body rather than in structured
-              HTML elements (time tags, .date classes). The date parser handles
-              five formats but some sites embed dates in ways that resist
-              automated extraction. This is the project's most significant
-              data quality gap.`}
+              press releases are still missing dates. The early backfill left
+              over half the corpus undated because the date parser didn't
+              understand ArticleBlock or ColdFusion date placement. Both CMS
+              families embed dates as bare text next to the title rather than
+              in a structured element. A dedicated find_all_previous() walk for
+              h2.title elements and five additional date-format regexes cut
+              the rate from roughly 50 percent to under one half of one percent.
+              The remaining nulls are real edge cases — historical items where
+              the date is in an image or was never published.`}
           />
           <Challenge
             title="Pagination broke silently for 65 senators"
@@ -558,7 +561,7 @@ export default async function AboutPage() {
         <p className="mt-2 text-stone-600 leading-relaxed">
           All data is sourced from official senator websites on senate.gov.
           Press releases are public records published by Senate offices for
-          public consumption. This project collects, normalizes, and indexes
+          public consumption. This project collects, normalizes and indexes
           that public information to make it searchable and analyzable. No
           private or restricted data is used.
         </p>
@@ -572,7 +575,7 @@ export default async function AboutPage() {
         <p className="mt-3 text-stone-600 leading-relaxed">
           This project scrapes public web pages at a polite rate (1 concurrent
           request per domain, 0.5-1.5 second delays). No login credentials,
-          CAPTCHA circumvention, or rate-limit evasion is used. All requests
+          CAPTCHA circumvention or rate-limit evasion is used. All requests
           identify themselves with standard browser headers.
         </p>
       </section>
@@ -591,12 +594,12 @@ export default async function AboutPage() {
           <ResourceLink
             href="https://www.congress.gov/"
             title="Congress.gov"
-            description="Official source for legislation, floor activity, and committee records."
+            description="Official source for legislation, floor activity and committee records."
           />
           <ResourceLink
             href="https://www.propublica.org/datastore/api/propublica-congress-api"
             title="ProPublica Congress API"
-            description="Structured data on bills, votes, and member information."
+            description="Structured data on bills, votes and member information."
           />
           <ResourceLink
             href="https://github.com/unitedstates/congress-legislators"
@@ -612,7 +615,7 @@ export default async function AboutPage() {
       <section className="mt-10">
         <h2 className="font-serif text-2xl">Open source</h2>
         <p className="mt-3 text-stone-600 leading-relaxed">
-          Capitol Releases is open source. The code, data pipeline, and
+          Capitol Releases is open source. The code, data pipeline and
           documentation are available on{" "}
           <a href="https://github.com/tbrown034/capitol-releases" className="underline text-stone-900 hover:text-stone-600 transition-colors">
             GitHub
@@ -759,7 +762,7 @@ function ResourceLink({ href, title, description }: { href: string; title: strin
       <a href={href} className="underline font-medium text-stone-900 hover:text-stone-600 transition-colors" target="_blank" rel="noopener noreferrer">
         {title}
       </a>
-      <span className="text-stone-400"> -- </span>
+      <span className="text-stone-400"> —</span>
       <span>{description}</span>
     </div>
   );

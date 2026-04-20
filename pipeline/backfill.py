@@ -411,9 +411,12 @@ def extract_body_text(soup):
     # Try common content containers
     for sel in [
         "article .body", ".press-release-content", ".field-name-body",
-        ".bodycopy", ".post-content", ".entry-content",
+        ".bodycopy", ".entry-content",
         "article .content", ".press_release__body",
         "#press-release-body", ".newsroom__press-release",
+        ".et_pb_post_content", ".et_pb_text_inner",
+        ".elementor-widget-theme-post-content .elementor-widget-container",
+        ".post-content",
         "main article", "main .content",
     ]:
         el = soup.select_one(sel)
