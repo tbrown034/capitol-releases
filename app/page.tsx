@@ -17,7 +17,7 @@ export default async function Home() {
       getStats(),
       getTopSenators(10),
       getLeastActiveSenators(10),
-      getFeed({ perPage: 8 }),
+      getFeed({ perPage: 12 }),
       getDailyVolume(90),
       getSenatorActivity(),
       getTopicTrends(),
@@ -64,24 +64,20 @@ export default async function Home() {
     <div className="mx-auto max-w-5xl px-4">
       {/* Hero */}
       <section className="pt-10 pb-8 md:pt-16 md:pb-12">
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 md:gap-8">
-          <div>
-            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl leading-tight text-neutral-900 mb-3 md:mb-4">
-              What are your senators
-              <br className="hidden sm:block" />
-              {" "}saying?
-            </h1>
-            <p className="text-sm md:text-base text-neutral-500 max-w-xl leading-relaxed">
-              Every official press release from all 100 U.S. senators, scraped
-              from {stats.senators_with_releases ?? 0} individual senate.gov
-              websites into one normalized, searchable archive.
-            </p>
-            <p className="text-xs text-neutral-400 mt-3">
-              Updated daily · Collecting since January 2025
-            </p>
-          </div>
-          <HeroGraphic />
-        </div>
+        <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl leading-[1.05] text-neutral-900 mb-4 md:mb-5">
+          100 Senators.
+          <br />
+          One Archive.
+        </h1>
+        <p className="text-sm md:text-base text-neutral-500 max-w-2xl leading-relaxed">
+          Every official press release from all 100 U.S. senators, scraped
+          daily from their individual senate.gov sites into one normalized,
+          searchable archive.
+        </p>
+        <p className="text-xs text-neutral-400 mt-3">
+          Collecting since January 2025 · {stats.senators_with_releases ?? 0}{" "}
+          of 100 senators publishing
+        </p>
       </section>
 
       {/* Stats */}
@@ -94,13 +90,13 @@ export default async function Home() {
         </div>
         <div>
           <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
-            {stats.senators_with_releases ?? 0}
+            {stats.total_senators ?? 0}
           </span>
           senators tracked
         </div>
         <div>
           <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
-            2025
+            Jan 1, 2025
           </span>
           to present
         </div>
@@ -109,8 +105,16 @@ export default async function Home() {
       {/* Search */}
       <div className="mb-10 md:mb-16 md:max-w-lg">
         <Suspense>
-          <SearchBox />
+          <SearchBox placeholder="Search release text — e.g. fentanyl, Ukraine, Medicaid" />
         </Suspense>
+        <p className="mt-2 text-xs text-neutral-400">
+          Searches the full text of every press release. Looking for a
+          specific senator?{" "}
+          <Link href="/senators" className="underline hover:text-neutral-900">
+            Browse the directory
+          </Link>
+          .
+        </p>
       </div>
 
       {/* Latest + Most active */}
@@ -225,75 +229,3 @@ export default async function Home() {
   );
 }
 
-function HeroGraphic() {
-  // Stylized stack of press releases / official documents
-  const docs = [
-    { y: 0, w: 120, fill: "#e5e5e5", lines: 4 },
-    { y: -6, w: 126, fill: "#d4d4d4", lines: 5 },
-    { y: -12, w: 132, fill: "#a3a3a3", lines: 3 },
-    { y: -18, w: 138, fill: "#737373", lines: 6 },
-    { y: -24, w: 144, fill: "#292524", lines: 4 },
-  ];
-
-  return (
-    <svg
-      width={200}
-      height={200}
-      viewBox="0 0 200 200"
-      fill="none"
-      aria-hidden="true"
-      className="hidden md:block shrink-0"
-    >
-      {/* Document stack */}
-      <g transform="translate(30, 80)">
-        {docs.map((doc, i) => (
-          <g key={i} transform={`translate(${(144 - doc.w) / 2}, ${doc.y})`}>
-            <rect
-              width={doc.w}
-              height={80}
-              rx="2"
-              fill="white"
-              stroke={doc.fill}
-              strokeWidth="1.5"
-            />
-            {/* Header bar (senate seal area) */}
-            <rect width={doc.w} height={12} rx="2" fill={doc.fill} opacity="0.15" />
-            <circle cx={doc.w / 2} cy={6} r={3} fill={doc.fill} opacity="0.4" />
-            {/* Text lines */}
-            {Array.from({ length: doc.lines }, (_, j) => (
-              <rect
-                key={j}
-                x={10}
-                y={20 + j * 12}
-                width={doc.w - 20 - (j === doc.lines - 1 ? 30 : 0)}
-                height={2}
-                rx="1"
-                fill={doc.fill}
-                opacity="0.3"
-              />
-            ))}
-          </g>
-        ))}
-      </g>
-      {/* Party indicators */}
-      <circle cx="45" cy="50" r="4" fill="#3b82f6" opacity="0.8" />
-      <circle cx="100" cy="40" r="5" fill="#ef4444" opacity="0.8" />
-      <circle cx="155" cy="50" r="3" fill="#f59e0b" opacity="0.8" />
-      {/* Count badge */}
-      <g transform="translate(150, 145)">
-        <rect x="-16" y="-10" width="38" height="20" rx="10" fill="#292524" />
-        <text
-          x="3"
-          y="4"
-          textAnchor="middle"
-          fill="white"
-          fontSize="10"
-          fontFamily="monospace"
-          fontWeight="600"
-        >
-          100
-        </text>
-      </g>
-    </svg>
-  );
-}

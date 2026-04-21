@@ -70,6 +70,9 @@ for (const [id, bioguideId] of Object.entries(ID_OVERRIDES)) {
 }
 
 export function getSenatorPhotoUrl(fullName: string, senatorId?: string): string | null {
+  // Non-senate members (e.g. White House) use senator_id as the filename directly.
+  if (senatorId === "whitehouse") return `/senators/whitehouse.jpg`;
+
   // Try senator_id first (most reliable)
   if (senatorId) {
     const byId = idToBioguide.get(senatorId);

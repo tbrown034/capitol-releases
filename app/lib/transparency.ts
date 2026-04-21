@@ -30,6 +30,39 @@ export async function getCoverageByFamily() {
   `;
 }
 
+export async function getCollectionMethodBreakdown() {
+  return sql`
+    SELECT collection_method,
+           count(*)::int as senator_count
+    FROM senators
+    WHERE chamber = 'senate' AND status = 'active' AND collection_method IS NOT NULL
+    GROUP BY collection_method
+    ORDER BY senator_count DESC
+  `;
+}
+
+export async function getContentTypeBreakdown() {
+  return sql`
+    SELECT pr.content_type,
+           count(*)::int as count
+    FROM press_releases pr
+    JOIN senators s ON s.id = pr.senator_id
+    WHERE s.chamber = 'senate' AND pr.deleted_at IS NULL
+    GROUP BY pr.content_type
+    ORDER BY count DESC
+  `;
+}
+
+export async function getDeletionCount() {
+  const result = await sql`
+    SELECT count(*)::int as count
+    FROM press_releases pr
+    JOIN senators s ON s.id = pr.senator_id
+    WHERE s.chamber = 'senate' AND pr.deleted_at IS NOT NULL
+  `;
+  return Number(result[0]?.count ?? 0);
+}
+
 export async function getCoverageDepth() {
   return sql`
     SELECT s.full_name, s.party, s.state, s.parser_family,

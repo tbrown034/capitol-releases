@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { DomeIcon } from "./dome-icon";
 
 const links = [
   { href: "/feed", label: "Feed" },
@@ -19,17 +18,15 @@ export function Nav() {
       <nav className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
         <Link
           href="/"
-          className="flex items-center gap-2.5 text-neutral-900 hover:text-neutral-600 transition-colors"
+          className="text-neutral-900 hover:text-neutral-600 transition-colors font-[family-name:var(--font-source-serif)] font-semibold text-[15px] sm:text-base tracking-[0.08em] leading-[1.05]"
+          aria-label="Capitol Releases home"
         >
-          <DomeIcon size={22} />
-          <div className="leading-none">
-            <span className="block text-[10px] font-serif tracking-[0.2em] text-neutral-400">
-              CAPITOL
-            </span>
-            <span className="block text-[12px] font-serif font-bold tracking-[0.05em]">
-              RELEASES
-            </span>
-          </div>
+          <span className="hidden min-[480px]:inline">CAPITOL RELEASES</span>
+          <span className="min-[480px]:hidden block">
+            CAPITOL
+            <br />
+            RELEASES
+          </span>
         </Link>
 
         {/* Desktop links */}

@@ -62,7 +62,7 @@ function SenatorList({
               </span>
             </span>
             <span className="font-mono text-neutral-500 tabular-nums">
-              {row.count}
+              {row.count.toLocaleString()}
             </span>
           </Link>
         );

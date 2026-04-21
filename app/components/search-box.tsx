@@ -3,7 +3,13 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-export function SearchBox({ basePath = "/search" }: { basePath?: string }) {
+export function SearchBox({
+  basePath = "/search",
+  placeholder = "Search release text...",
+}: {
+  basePath?: string;
+  placeholder?: string;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
@@ -23,7 +29,7 @@ export function SearchBox({ basePath = "/search" }: { basePath?: string }) {
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search press releases..."
+        placeholder={placeholder}
         className="flex-1 border-b border-neutral-300 bg-transparent px-1 py-2 text-sm text-neutral-900 focus:border-neutral-900 focus:outline-none transition-colors placeholder:text-neutral-400"
       />
       <button
