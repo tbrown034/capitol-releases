@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { FeedItem } from "../lib/db";
 import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
+import { TypeBadge } from "./type-badge";
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "";
@@ -44,7 +45,7 @@ export function ReleaseCard({ item }: { item: FeedItem }) {
         : "ring-amber-500";
 
   return (
-    <article className="border-b border-neutral-100 py-2.5">
+    <article className="border-b border-neutral-100 py-1.5">
       <div className="flex items-start gap-2.5">
         <Link
           href={`/senators/${item.senator_id}`}
@@ -67,7 +68,7 @@ export function ReleaseCard({ item }: { item: FeedItem }) {
           )}
         </Link>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 text-xs text-neutral-400">
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-neutral-400">
             <Link
               href={`/senators/${item.senator_id}`}
               className="text-neutral-500 hover:text-neutral-900 transition-colors"
@@ -86,6 +87,13 @@ export function ReleaseCard({ item }: { item: FeedItem }) {
                   {formatDate(item.published_at)}
                 </time>
               </>
+            )}
+            {item.content_type && item.content_type !== "press_release" && (
+              <TypeBadge
+                type={item.content_type}
+                href={`/feed?type=${item.content_type}`}
+                size="xs"
+              />
             )}
           </div>
           <h3 className="text-sm text-neutral-900 leading-snug mt-0.5">

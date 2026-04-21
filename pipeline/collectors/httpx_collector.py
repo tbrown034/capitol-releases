@@ -125,6 +125,23 @@ class HttpxCollector:
                             detail_soup = BeautifulSoup(raw_html, "lxml")
                             body_text = extract_body_text(detail_soup)
 
+                            # Canonical title from detail page: prefer og:title
+                            # over list-page title. List cards sometimes wrap
+                            # date + title + excerpt in a single anchor, and
+                            # the generic get_text() fallback captures all of
+                            # it. og:title / <h1> is always the clean headline.
+                            canonical_title = None
+                            og = detail_soup.select_one('meta[property="og:title"]')
+                            if og and og.get("content"):
+                                canonical_title = og["content"].strip()
+                            if not canonical_title:
+                                h1 = detail_soup.select_one("h1")
+                                if h1:
+                                    canonical_title = h1.get_text(strip=True)
+                            if canonical_title and 5 < len(canonical_title) < 400:
+                                if len(title) > len(canonical_title) * 1.5 or len(title) > 250:
+                                    title = canonical_title
+
                             # Always probe the detail page — meta tags (confidence
                             # 0.95) beat URL-path dates (0.70–0.90), and many
                             # senate-generic sites expose /YYYY/M/slug URLs where

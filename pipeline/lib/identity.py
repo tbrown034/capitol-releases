@@ -25,6 +25,8 @@ def normalize_url(url: str) -> str:
     """Normalize a URL for consistent deduplication.
 
     - Lowercases scheme and host
+    - Upgrades http -> https for senate.gov domains (the real canonical)
+    - Lowercases query param KEYS so ?id= and ?ID= dedup
     - Strips tracking query params (utm_*, fbclid, etc.)
     - Removes trailing slashes from path
     - Removes fragment (#)
@@ -34,27 +36,26 @@ def normalize_url(url: str) -> str:
 
     parsed = urlparse(url)
 
-    # Lowercase scheme and host
     scheme = parsed.scheme.lower()
     netloc = parsed.netloc.lower()
 
-    # Clean path: remove trailing slash (except root)
+    if scheme == "http" and (netloc.endswith(".senate.gov") or netloc.endswith(".gov")):
+        scheme = "https"
+
     path = parsed.path
     if path != "/" and path.endswith("/"):
         path = path.rstrip("/")
 
-    # Filter query params
     if parsed.query:
         params = parse_qs(parsed.query, keep_blank_values=True)
         filtered = {
-            k: v for k, v in params.items()
+            k.lower(): v for k, v in params.items()
             if k.lower() not in _STRIP_PARAMS
         }
         query = urlencode(filtered, doseq=True) if filtered else ""
     else:
         query = ""
 
-    # Drop fragment
     return urlunparse((scheme, netloc, path, "", query, ""))
 
 

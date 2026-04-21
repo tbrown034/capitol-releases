@@ -204,8 +204,14 @@ async def repair_batch(client, records, dry_run=False):
         if bad_reason:
             stats["bad_url"] += 1
             if not dry_run and conn:
+                # Tombstone rather than hard-delete: CLAUDE.md invariant is
+                # "Never hard-delete. Deleted-at-source releases become tombstones
+                # with deleted_at set."
                 cur = conn.cursor()
-                cur.execute("DELETE FROM press_releases WHERE id = %s", (record_id,))
+                cur.execute(
+                    "UPDATE press_releases SET deleted_at = NOW() WHERE id = %s AND deleted_at IS NULL",
+                    (record_id,),
+                )
                 conn.commit()
                 cur.close()
             continue

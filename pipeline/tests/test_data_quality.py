@@ -429,6 +429,122 @@ def test_no_stale_senators():
     assert len(stale) < 10, f"{len(stale)} senators are stale (no releases in 60 days)"
 
 
+# ---- Per-content-type coverage tests ----
+#
+# These exist because aggregate tests hide silent collapses of specific types.
+# If the classifier regresses and stops emitting 'letter', the total record
+# count barely moves (letters are ~100 of 34k) and every other test passes,
+# but a real coverage gap just opened. These tests assert a floor per type.
+
+# Expected floors calibrated from 2026-04-21 DB state. Adjust only when scope
+# changes (e.g. new collector added). A floor going up is fine; the purpose is
+# to catch a sudden drop.
+_TYPE_FLOORS = {
+    "press_release":        30_000,
+    "statement":               300,
+    "op_ed":                   100,
+    "letter":                   50,
+    "floor_statement":          50,
+    "presidential_action":     400,
+    # photo_release and 'other' intentionally omitted -- low signal,
+    # not worth asserting a floor on.
+}
+
+
+def test_per_type_floors():
+    """Each tracked content_type should have at least its expected floor of records.
+
+    Catches the failure mode where a classifier regression or collector bug
+    silently zeroes out an entire type while total record count looks fine.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT content_type, count(*)::int
+        FROM press_releases
+        WHERE deleted_at IS NULL
+        GROUP BY content_type
+    """)
+    actual = dict(cur.fetchall())
+    cur.close()
+    conn.close()
+
+    low = []
+    for t, floor in _TYPE_FLOORS.items():
+        got = actual.get(t, 0)
+        if got < floor:
+            low.append(f"{t}: {got} (floor {floor})")
+
+    assert not low, (
+        "content_type record counts below calibrated floor — possible "
+        f"classifier regression: {', '.join(low)}"
+    )
+
+
+def test_per_type_back_coverage():
+    """No content_type should have its earliest record more than 90 days after Jan 1, 2025.
+
+    If all op_eds date from Sep 2025 even though press releases go back to
+    January, the op-ed collector is missing its historical archive.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT content_type, min(published_at)::date
+        FROM press_releases
+        WHERE deleted_at IS NULL
+          AND published_at IS NOT NULL
+        GROUP BY content_type
+    """)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    expected_start = date(2025, 1, 1)
+    truncated = []
+    for t, earliest in rows:
+        if t not in _TYPE_FLOORS:  # only check tracked types
+            continue
+        gap = (earliest - expected_start).days
+        if gap > 90:
+            truncated.append(f"{t}: earliest={earliest} gap={gap}d")
+
+    assert not truncated, (
+        "per-type back-coverage truncated: " + ", ".join(truncated)
+    )
+
+
+def test_per_type_not_date_clumped():
+    """No content_type should collapse onto a tiny set of publication days.
+
+    Same logic as test_no_date_clumping but split by type. Catches the failure
+    where a specific collector (e.g. floor-statement parser) falls back to a
+    single default date for every record it processes.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT content_type,
+               count(*)::int as total,
+               count(DISTINCT published_at::date)::int as unique_days
+        FROM press_releases
+        WHERE deleted_at IS NULL
+          AND published_at >= '2025-01-01'
+        GROUP BY content_type
+        HAVING count(*) >= 30
+    """)
+    clumped = []
+    for t, total, unique_days in cur.fetchall():
+        if t not in _TYPE_FLOORS:
+            continue
+        if unique_days / total < 0.2:
+            clumped.append(f"{t}: {total} records on {unique_days} days ({unique_days/total:.0%})")
+    cur.close()
+    conn.close()
+
+    assert not clumped, "per-type date clumping: " + ", ".join(clumped)
+
+
 # ---- Run all tests ----
 
 def run_all():
@@ -453,6 +569,9 @@ def run_all():
         test_body_coverage_above_threshold,
         test_no_anomalously_low_counts,
         test_no_stale_senators,
+        test_per_type_floors,
+        test_per_type_back_coverage,
+        test_per_type_not_date_clumped,
     ]
 
     passed = 0

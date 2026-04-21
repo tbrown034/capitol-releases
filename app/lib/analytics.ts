@@ -8,7 +8,7 @@ export async function getWeeklyActivity() {
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
     WHERE published_at IS NOT NULL
-      AND pr.deleted_at IS NULL
+      AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       AND pr.published_at >= '2025-01-01'
     GROUP BY week, s.party
     ORDER BY week
@@ -23,7 +23,7 @@ export async function getSenatorActivity() {
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
     WHERE pr.published_at IS NOT NULL
-      AND pr.deleted_at IS NULL
+      AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       AND pr.published_at >= '2025-01-01'
       AND s.status = 'active'
       AND s.chamber = 'senate'
@@ -39,7 +39,7 @@ export async function getTopSenatorsByPeriod(days = 30) {
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
     WHERE pr.published_at >= NOW() - make_interval(days => ${days})
-      AND pr.deleted_at IS NULL
+      AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       AND s.chamber = 'senate'
     GROUP BY s.id, s.full_name, s.party, s.state
     ORDER BY count DESC
@@ -57,7 +57,7 @@ export async function getTopicTrends() {
       ))) as word
       FROM press_releases pr
       WHERE pr.published_at >= NOW() - interval '30 days'
-        AND pr.deleted_at IS NULL
+        AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
     ) words
     WHERE length(word) > 4
       AND word NOT IN ('senator','senators','press','release','statement',
@@ -82,6 +82,7 @@ export async function getSenatorDailyActivity(senatorId: string) {
     WHERE senator_id = ${senatorId}
       AND published_at IS NOT NULL
       AND deleted_at IS NULL
+      AND content_type != 'photo_release'
       AND published_at >= '2025-01-01'
     GROUP BY day
     ORDER BY day
@@ -108,7 +109,7 @@ export async function getSenatorSignatureTopics(
              (pr.senator_id = ${senatorId}) as is_self
       FROM press_releases pr
       JOIN senators s ON s.id = pr.senator_id
-      WHERE pr.deleted_at IS NULL
+      WHERE pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
         AND pr.published_at >= '2025-01-01'
         AND s.status = 'active'
         AND s.chamber = 'senate'
@@ -176,7 +177,7 @@ export async function getSenatorTopicTrends(
                       pr.published_at
       FROM press_releases pr
       WHERE pr.senator_id = ${senatorId}
-        AND pr.deleted_at IS NULL
+        AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
         AND pr.published_at >= NOW() - interval '60 days'
     )
     SELECT word,
@@ -210,6 +211,7 @@ export async function getDailyVolume(days = 90) {
     WHERE published_at >= NOW() - make_interval(days => ${days})
       AND published_at IS NOT NULL
       AND deleted_at IS NULL
+      AND content_type != 'photo_release'
     GROUP BY day
     ORDER BY day
   `;

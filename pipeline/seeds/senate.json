@@ -554,14 +554,14 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "li.SiteNav__dropdownItem",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": "div.ArticleBlock",
+        "title": ".ArticleBlock__title a",
+        "date": ".ArticleBlock__date",
+        "detail_link": ".ArticleBlock__title a[href]"
       },
       "confidence": 0.85,
-      "notes": "Found 24 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "ArticleBlock grid. Old selector li.SiteNav__dropdownItem caught navigation menu.",
+      "last_verified": "2026-04-19",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },
@@ -579,13 +579,13 @@
       },
       "selectors": {
         "list_item": "li.PageList__item.mb-5",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "title": "h2.ArticleTitle",
+        "date": ".Heading--overline",
+        "detail_link": "a.ArticleBlock[href]"
       },
-      "confidence": 0.8,
-      "notes": "Found 19 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "confidence": 0.9,
+      "notes": "ArticleBlock (a.ArticleBlock wraps .ArticleBlock__title with h2.ArticleTitle + .Heading--overline date in MM.DD.YYYY). Old title=a captured entire block text including date and excerpt.",
+      "last_verified": "2026-04-19",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },
@@ -1032,13 +1032,13 @@
       },
       "selectors": {
         "date": null,
-        "title": "h2 a",
-        "list_item": null,
-        "detail_link": "h2 a[href]"
+        "title": "h2.title a",
+        "list_item": "h2.title",
+        "detail_link": "h2.title a[href]"
       },
       "confidence": 0.8,
-      "notes": "Fixed 2026-04-18: Unique layout - divs with h2/date text. Uses ?PageNum_rs=N pagination (299 pages). Date format MM.DD.YY in plain text div.",
-      "last_verified": "2026-04-15",
+      "notes": "Tightened selectors 2026-04-19 to h2.title only, excludes sidebar nav. ?PageNum_rs=N pagination.",
+      "last_verified": "2026-04-19",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },
@@ -1280,13 +1280,13 @@
       },
       "selectors": {
         "date": "td:first-child",
-        "title": "td a",
-        "list_item": "table tr",
-        "detail_link": "td a[href]"
+        "title": "td.recordListTitle a",
+        "list_item": "table.recordList tr",
+        "detail_link": "td.recordListTitle a[href]"
       },
       "confidence": 0.55,
-      "notes": "Fixed 2026-04-18: ColdFusion table. 406 pages. Date M/D/YY.",
-      "last_verified": "2026-04-15",
+      "notes": "Scoped to table.recordList + td.recordListTitle to exclude sidebar nav. ColdFusion, 406 pages, date M/D/YY.",
+      "last_verified": "2026-04-19",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },
@@ -1455,13 +1455,13 @@
       },
       "selectors": {
         "date": "td:first-child",
-        "title": "td a",
-        "list_item": "table tr",
-        "detail_link": "td a[href]"
+        "title": "td.recordListTitle a",
+        "list_item": "table.recordList tr",
+        "detail_link": "td.recordListTitle a[href]"
       },
       "confidence": 0.55,
-      "notes": "Fixed 2026-04-18: URL was /news (landing page with 3 featured articles). Changed to /pressreleases (full listing). ColdFusion table pattern.",
-      "last_verified": "2026-04-15",
+      "notes": "Scoped to table.recordList + td.recordListTitle to exclude sidebar nav. ColdFusion, /pressreleases full listing.",
+      "last_verified": "2026-04-19",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },
@@ -2220,7 +2220,7 @@
       "party": "R",
       "state": "NC",
       "official_url": "https://www.tillis.senate.gov",
-      "press_release_url": "https://www.tillis.senate.gov/press-releases",
+      "press_release_url": "https://www.tillis.senate.gov/press-releases?style=blocks",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
@@ -2229,14 +2229,14 @@
         "starts_at": 1
       },
       "selectors": {
-        "list_item": "div.menu-item",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": "div.posttype-list div.element",
+        "title": ".element-title",
+        "date": ".element-datetime",
+        "detail_link": "a[href*=\"/20\"]"
       },
       "confidence": 0.9,
-      "notes": "Found 33 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Uses ?style=blocks view for structured press release blocks. Old div.menu-item selector grabbed nav.",
+      "last_verified": "2026-04-19",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },

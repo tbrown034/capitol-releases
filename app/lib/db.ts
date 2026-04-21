@@ -13,7 +13,21 @@ export type Senator = {
   press_release_url: string | null;
   parser_family: string | null;
   confidence: number | null;
+  senate_class: number | null;
+  first_term_start: string | null;
+  current_term_end: string | null;
+  chamber: string;
 };
+
+export type ContentType =
+  | "press_release"
+  | "statement"
+  | "op_ed"
+  | "letter"
+  | "photo_release"
+  | "floor_statement"
+  | "presidential_action"
+  | "other";
 
 export type PressRelease = {
   id: string;
@@ -23,6 +37,7 @@ export type PressRelease = {
   body_text: string | null;
   source_url: string;
   scraped_at: string;
+  content_type: ContentType;
 };
 
 export type FeedItem = PressRelease & {
@@ -31,7 +46,11 @@ export type FeedItem = PressRelease & {
   state: string;
 };
 
+export type TypeBreakdown = Partial<Record<ContentType, number>>;
+
 export type SenatorWithCount = Senator & {
   release_count: number;
   latest_release: string | null;
+  earliest_release: string | null;
+  type_breakdown: TypeBreakdown;
 };

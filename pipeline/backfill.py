@@ -297,9 +297,11 @@ def extract_item_data(item, base_url, selectors):
                 break
         return title, date_text, detail_url
 
-    # Senate custom CMS: ArticleBlock pattern (two layouts observed)
+    # Senate custom CMS: ArticleBlock pattern (four layouts observed)
     # Old: .ArticleTitle is a link, date in .ArticleBlock__date
-    # New (Heinrich): .ArticleBlock__link wraps title + date, date in .Heading--time
+    # Heinrich: .ArticleBlock__link wraps title + date, date in .Heading--time
+    # Crapo: <a> wraps <h2.ArticleTitle>, date in .Heading--time
+    # Cruz: <a.ArticleBlock> wraps .ArticleBlock__title containing <h2.ArticleTitle>, date in .Heading--overline (MM.DD.YYYY)
     article_link = item.select_one(
         ".ArticleBlock__link, .ArticleTitle__link, a.ArticleTitle__link, .ArticleTitle a"
     )
@@ -313,9 +315,14 @@ def extract_item_data(item, base_url, selectors):
             href = article_link.get("href", "")
             if href:
                 detail_url = urljoin(base_url, href)
+        if not detail_url and title_el:
+            parent_a = title_el.find_parent("a")
+            if parent_a and parent_a.get("href"):
+                detail_url = urljoin(base_url, parent_a.get("href", ""))
         date_el = (
             item.select_one(".ArticleBlock__date")
             or item.select_one(".Heading--time")
+            or item.select_one(".Heading--overline")
         )
         if date_el:
             date_text = date_el.get_text(strip=True)
@@ -416,7 +423,9 @@ def extract_body_text(soup):
         "#press-release-body", ".newsroom__press-release",
         ".et_pb_post_content", ".et_pb_text_inner",
         ".elementor-widget-theme-post-content .elementor-widget-container",
+        ".js-press-release", ".RawHTML",
         ".post-content",
+        "#newscontent", "#press",
         "main article", "main .content",
     ]:
         el = soup.select_one(sel)

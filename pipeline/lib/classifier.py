@@ -22,23 +22,37 @@ CONTENT_TYPES = [
     "other",
 ]
 
-# Title prefix patterns (case-insensitive)
+# Title prefix patterns (case-insensitive). Anchored patterns are preferred --
+# unanchored \bOP-ED\b and \bletter\b phrases tend to match quotes and references
+# to someone ELSE's op-ed/letter, which violates the "original content only" rule.
 _TITLE_RULES: list[tuple[re.Pattern, str]] = [
+    # Explicit prefix labels -- strongest signal
     (re.compile(r"^(?:PHOTO\s*(?:RELEASE)?)\s*:", re.I), "photo_release"),
     (re.compile(r"^(?:OP[- ]?ED)\s*:", re.I), "op_ed"),
+    (re.compile(r"^(?:COMMENTARY)\s*:", re.I), "op_ed"),
     (re.compile(r"^(?:LETTER)\s*:", re.I), "letter"),
     (re.compile(r"^(?:FLOOR\s+STATEMENT)\s*:", re.I), "floor_statement"),
     (re.compile(r"^(?:STATEMENT)\s*:", re.I), "statement"),
-    (re.compile(r"\bOP[- ]?ED\b", re.I), "op_ed"),
-    (re.compile(r"\bfloor (?:speech|statement|remarks)\b", re.I), "floor_statement"),
+    # "Senator X pens/authors/writes op-ed" -- subject anchored, first-person authorship
+    (re.compile(r"\b(?:pens?|authors?|wrote|writes)\s+op[- ]?ed\b", re.I), "op_ed"),
+    (re.compile(r"\bop[- ]?ed\s+by\s+(?:sen\.?|senator)\b", re.I), "op_ed"),
+    # Floor remarks -- safe; rarely a quote
+    (re.compile(r"\b(?:delivers?|gives?|made)\s+(?:floor\s+)?(?:speech|statement|remarks)\b", re.I), "floor_statement"),
+    (re.compile(r"^floor (?:speech|statement|remarks)\b", re.I), "floor_statement"),
+    # Letter -- requires senator-as-subject verb; "in letter to" removed
+    # (previously matched quoted references to someone else's letter).
+    (re.compile(r"\b(?:sends?|sent|signs?|led|leads?)\s+letter(?:s)?\s+to\b", re.I), "letter"),
+    (re.compile(r"^letter\s+to\b", re.I), "letter"),
 ]
 
 # URL path patterns
 _URL_RULES: list[tuple[str, str]] = [
     ("/op-ed", "op_ed"),
     ("/op_ed", "op_ed"),
+    ("/commentary", "op_ed"),
     ("/floor-statement", "floor_statement"),
     ("/floor-speech", "floor_statement"),
+    ("/speeches", "floor_statement"),
     ("/letter", "letter"),
     ("/photo-release", "photo_release"),
     ("/presidential-actions/", "presidential_action"),
@@ -53,10 +67,14 @@ _CATEGORY_MAP: dict[str, str] = {
     "statement": "statement",
     "op-eds": "op_ed",
     "op-ed": "op_ed",
+    "commentary": "op_ed",
+    "commentaries": "op_ed",
     "letters": "letter",
     "letter": "letter",
     "floor statements": "floor_statement",
     "floor statement": "floor_statement",
+    "speeches": "floor_statement",
+    "speech": "floor_statement",
     "photo releases": "photo_release",
     "photo release": "photo_release",
 }
