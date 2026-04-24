@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { getStats, getTopSenators, getLeastActiveSenators, getFeed } from "./lib/queries";
+import { getStats, getTopSenators, getLeastActiveSenators, getFeed, getLatestRun } from "./lib/queries";
 import { getDailyVolume, getSenatorActivity, getTopicTrends } from "./lib/analytics";
 import { ReleaseCard } from "./components/release-card";
 import { SearchBox } from "./components/search-box";
@@ -12,7 +12,7 @@ import type { FeedItem } from "./lib/db";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [stats, topSenators, leastActive, { items: latest }, dailyVolume, senatorActivity, topicTrends] =
+  const [stats, topSenators, leastActive, { items: latest }, dailyVolume, senatorActivity, topicTrends, latestRun] =
     await Promise.all([
       getStats(),
       getTopSenators(10),
@@ -21,6 +21,7 @@ export default async function Home() {
       getDailyVolume(90),
       getSenatorActivity(),
       getTopicTrends(),
+      getLatestRun(),
     ]);
 
   const senatorMap = new Map<
@@ -78,6 +79,30 @@ export default async function Home() {
           Collecting since January 2025 · {stats.senators_with_releases ?? 0}{" "}
           of 100 senators publishing
         </p>
+        {latestRun?.finished_at && (
+          <p className="text-xs text-neutral-400 mt-1">
+            Last updated{" "}
+            <time dateTime={latestRun.finished_at}>
+              {new Date(latestRun.finished_at).toLocaleString("en-US", {
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+                timeZone: "America/New_York",
+                timeZoneName: "short",
+              })}
+            </time>
+            {" · "}
+            {latestRun.inserted.toLocaleString()} new release
+            {latestRun.inserted === 1 ? "" : "s"} across{" "}
+            {latestRun.senators_with_new} senator
+            {latestRun.senators_with_new === 1 ? "" : "s"}
+            {" · "}
+            <Link href="/status" className="underline hover:text-neutral-900">
+              run history
+            </Link>
+          </p>
+        )}
       </section>
 
       {/* Stats */}

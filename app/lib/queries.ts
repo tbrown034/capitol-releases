@@ -292,6 +292,49 @@ export const CONTENT_TYPE_PLURAL: Record<ContentType, string> = {
 
 /** Display order for filter chips + breakdowns. Press release leads.
  *  photo_release is intentionally omitted -- it's excluded from every UI surface. */
+export type LatestRun = {
+  id: string;
+  started_at: string;
+  finished_at: string | null;
+  inserted: number;
+  senators_with_new: number;
+  senators_processed: number;
+  errors: number;
+};
+
+export async function getLatestRun(): Promise<LatestRun | null> {
+  const rows = (await sql`
+    SELECT id,
+           started_at,
+           finished_at,
+           COALESCE((stats->>'total_inserted')::int, 0)    AS inserted,
+           COALESCE((stats->>'senators_with_new')::int, 0) AS senators_with_new,
+           COALESCE((stats->>'senators_processed')::int, 0) AS senators_processed,
+           COALESCE((stats->>'total_errors')::int, 0)      AS errors
+    FROM scrape_runs
+    WHERE run_type = 'daily' AND finished_at IS NOT NULL
+    ORDER BY finished_at DESC
+    LIMIT 1
+  `) as LatestRun[];
+  return rows[0] ?? null;
+}
+
+export async function getRecentRuns(limit = 30): Promise<LatestRun[]> {
+  return (await sql`
+    SELECT id,
+           started_at,
+           finished_at,
+           COALESCE((stats->>'total_inserted')::int, 0)    AS inserted,
+           COALESCE((stats->>'senators_with_new')::int, 0) AS senators_with_new,
+           COALESCE((stats->>'senators_processed')::int, 0) AS senators_processed,
+           COALESCE((stats->>'total_errors')::int, 0)      AS errors
+    FROM scrape_runs
+    WHERE run_type = 'daily'
+    ORDER BY started_at DESC
+    LIMIT ${limit}
+  `) as LatestRun[];
+}
+
 export const CONTENT_TYPE_ORDER: ContentType[] = [
   "press_release",
   "statement",
