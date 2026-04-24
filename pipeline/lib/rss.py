@@ -10,7 +10,7 @@ import asyncio
 import logging
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 
 import httpx
@@ -81,22 +81,42 @@ def _looks_like_feed(content_type: str, body: str) -> str:
     return ""
 
 
+# ColdFusion RSS feeds on Boozman/Kennedy/Moran emit day-of-year where the
+# RFC 2822 day-of-month field should be, e.g. "Thu, 113 Apr 2026 12:00:00 EST".
+# Detect values 32-366 in the DD slot and rebuild the date from the year + DOY.
+_DOY_PATTERN = re.compile(
+    r"^\s*(?:[A-Za-z]{3},\s+)?"
+    r"(\d{1,3})\s+"
+    r"[A-Za-z]{3}\s+"
+    r"(\d{4})\s+"
+    r"(\d{2}):(\d{2}):(\d{2})"
+    r"(?:\s+[A-Za-z0-9+\-:]{1,6})?\s*$"
+)
+
+
 def _parse_rss_date(date_str: str) -> datetime | None:
     """Parse an RSS pubDate or Atom updated/published date."""
     if not date_str:
         return None
     try:
-        # RFC 2822 format (RSS standard)
         dt = parsedate_to_datetime(date_str)
         return dt.astimezone(timezone.utc)
     except (ValueError, TypeError):
         pass
     try:
-        # ISO 8601 (Atom standard)
         dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
         return dt.replace(tzinfo=timezone.utc) if dt.tzinfo is None else dt
     except (ValueError, TypeError):
         pass
+    m = _DOY_PATTERN.match(date_str)
+    if m:
+        doy, year, hh, mm, ss = (int(x) for x in m.groups())
+        if 32 <= doy <= 366:
+            try:
+                d = datetime(year, 1, 1, tzinfo=timezone.utc) + timedelta(days=doy - 1)
+                return d.replace(hour=hh, minute=mm, second=ss)
+            except (ValueError, OverflowError):
+                pass
     return None
 
 
