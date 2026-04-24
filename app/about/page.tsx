@@ -418,7 +418,7 @@ export default async function AboutPage() {
           </li>
           <li>
             <strong className="text-neutral-900">Armstrong exception.</strong>{" "}
-            Sen. Armstrong (R-ND) has published zero releases since taking
+            Sen. Armstrong (R-OK) has published zero releases since taking
             office. His row stays configured and health-checked; coverage is
             expected to stay at zero until his office begins publishing.
           </li>

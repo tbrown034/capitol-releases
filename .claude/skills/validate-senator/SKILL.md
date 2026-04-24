@@ -58,7 +58,7 @@ If no argument is given, ask the user which senator; do not guess.
 
 4. **Compare.** Compute three signals:
    - **DB coverage:** in-window count vs any total the site exposes.
-   - **Freshness:** days since `max(published_at)`. Flag if > 14 days and the senator isn't on the expected-zero list (Armstrong-ND as of 2026-04-18).
+   - **Freshness:** days since `max(published_at)`. Flag if > 14 days and the senator isn't on the expected-zero list (Armstrong-OK as of 2026-04-18).
    - **Collected-vs-published gap:** if `max(collected_at)` is recent but `max(published_at)` is stale, the collector is running but returning nothing new — that's the interesting state.
 
 5. **Classify.** Pick one:
@@ -88,5 +88,5 @@ If no argument is given, ask the user which senator; do not guess.
 
 - Read-only. This skill never writes to the DB, never edits `senate.json`, never triggers a scrape.
 - One senator per invocation. For the full-fleet picture, use `python -m pipeline health` and `python -m pipeline stats`.
-- Respect the expected-zero list. Armstrong-ND reporting zero is not a bug.
+- Respect the expected-zero list. Armstrong-OK reporting zero is not a bug.
 - If the live site blocks the fetch (Cloudflare, JS-only, 403), say so and fall back to RSS if available — don't fabricate a count.
