@@ -127,6 +127,21 @@ export default async function Home() {
         </div>
       </div>
 
+      {/* Release Volume */}
+      <section className="mb-10 md:mb-16">
+        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
+          Release Volume
+        </h2>
+        <p className="text-xs text-neutral-400 mb-4">
+          Daily press releases over the past 90 days
+        </p>
+        <div className="overflow-x-auto -mx-4 px-4">
+          <ActivityChart
+            data={dailyVolume as { day: string; count: number }[]}
+          />
+        </div>
+      </section>
+
       {/* Search */}
       <div className="mb-10 md:mb-16 md:max-w-lg">
         <Suspense>
@@ -166,21 +181,6 @@ export default async function Home() {
           initialBottom={leastActive as { id: string; full_name: string; party: string; state: string; count: number }[]}
         />
       </div>
-
-      {/* Release Volume */}
-      <section className="mb-10 md:mb-16">
-        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
-          Release Volume
-        </h2>
-        <p className="text-xs text-neutral-400 mb-4">
-          Daily press releases over the past 90 days
-        </p>
-        <div className="overflow-x-auto -mx-4 px-4">
-          <ActivityChart
-            data={dailyVolume as { day: string; count: number }[]}
-          />
-        </div>
-      </section>
 
       {/* Trending Topics */}
       <section className="mb-10 md:mb-16">
