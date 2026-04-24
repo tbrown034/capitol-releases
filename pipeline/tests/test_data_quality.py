@@ -281,7 +281,8 @@ def test_no_date_clumping():
     """)
     clumped = []
     for name, total, unique_days in cur.fetchall():
-        if unique_days / total < 0.2:
+        min_required_days = min(int(total * 0.2), 20)
+        if unique_days < min_required_days:
             clumped.append((name, total, unique_days))
     cur.close()
     conn.close()
@@ -533,12 +534,20 @@ def test_per_type_not_date_clumped():
         GROUP BY content_type
         HAVING count(*) >= 30
     """)
+    # Require at least 20 distinct publication days for any content_type with
+    # >=30 records, scaled down for small types. A pure ratio (unique/total)
+    # breaks at high volume: 32k records spanning 468 distinct days is near-full
+    # day-coverage but reads as 1% "unique" under a ratio threshold.
     clumped = []
     for t, total, unique_days in cur.fetchall():
         if t not in _TYPE_FLOORS:
             continue
-        if unique_days / total < 0.2:
-            clumped.append(f"{t}: {total} records on {unique_days} days ({unique_days/total:.0%})")
+        min_required_days = min(int(total * 0.2), 20)
+        if unique_days < min_required_days:
+            clumped.append(
+                f"{t}: {total} records on {unique_days} days "
+                f"(need >= {min_required_days})"
+            )
     cur.close()
     conn.close()
 
