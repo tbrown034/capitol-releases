@@ -191,15 +191,17 @@ def test_no_listing_page_urls():
 
 
 def test_no_navigation_urls():
-    """Source URLs should not be navigation/about/contact pages."""
+    """Source URLs should not be navigation/about/contact pages.
+
+    Match the path segment as a leaf (e.g. trailing /about, /about/, or
+    /about?...). Substring matching falsely flagged Husted's newsletters
+    that live at /contact/newsletters/... (a legit content path).
+    """
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
         SELECT count(*) FROM press_releases WHERE deleted_at IS NULL
-        AND (source_url LIKE '%/about%'
-           OR source_url LIKE '%/contact%'
-           OR source_url LIKE '%/services%'
-           OR source_url LIKE '%/issues%'
+        AND (source_url ~ '/(about|contact|services|issues)(/?(\\?.*)?$)'
            OR source_url LIKE '%facebook.com%'
            OR source_url LIKE '%twitter.com%'
            OR source_url LIKE '%bsky.app%')
