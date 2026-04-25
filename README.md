@@ -1,37 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Capitol Releases
 
-## Getting Started
+A journalism and public-records project that builds an archival-grade, searchable corpus of every original press release, statement, op-ed, and blog post from each of the 100 current U.S. senators.
 
-First, run the development server:
+Live at **[capitolreleases.com](https://capitolreleases.com)**.
+
+## What it does
+
+Capitol Releases collects communications from every senator's official `senate.gov` site daily, normalizes them into a single schema, and exposes them through a Next.js frontend with full-text search, a per-senator dashboard, and release-volume analytics.
+
+Coverage starts January 1, 2025. Every record carries provenance — source URL, scrape run, date confidence — and deletions at the source are preserved as tombstones rather than removed.
+
+## Repository layout
+
+| Path | Purpose |
+|------|---------|
+| `app/` | Next.js 16 frontend (App Router, React 19, Tailwind 4) |
+| `pipeline/` | Python collection pipeline, CLI, tests, backfill scripts |
+| `pipeline/seeds/senate.json` | Per-senator URL, CMS family, selectors, collection method |
+| `pipeline/collectors/` | RSS, httpx, and Playwright-driven collectors |
+| `pipeline/commands/` | CLI subcommands — update, health, test, deletions, repair |
+| `db/` | Postgres schema and migrations |
+| `.github/workflows/` | Daily and weekly cron jobs |
+
+## Stack
+
+- **Frontend** — Next.js 16, React 19, Tailwind 4, TypeScript, D3
+- **Pipeline** — Python 3.14, httpx, BeautifulSoup, lxml, Playwright, feedparser
+- **Database** — Postgres on Neon (full-text search via tsvector)
+- **AI** — Claude Haiku 4.5 for post-collection quality checks
+- **Hosting** — Vercel (frontend), Neon (database), GitHub Actions (cron)
+
+## Frontend — getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). Set `DATABASE_URL` in `.env.local` to point at a Neon branch.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Pipeline CLI
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+python -m pipeline update          # collect new releases (daily)
+python -m pipeline health          # per-senator canary
+python -m pipeline test            # data quality suite
+python -m pipeline back-coverage   # flag senators with truncated archives
+python -m pipeline stats           # database overview
+python -m pipeline review quality  # detailed quality breakdown
+python -m pipeline deletions       # detect deleted releases
+python -m pipeline repair          # targeted fixes for known-broken senators
+python -m pipeline verify-visual   # compare DB vs live site for drift
+```
 
-## Learn More
+Daily and weekly runs are scheduled via GitHub Actions in `.github/workflows/`.
 
-To learn more about Next.js, take a look at the following resources:
+## Design principles
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Determinism first.** AI assists, never drives. Every database write is traceable to a collector run.
+2. **Per-senator accountability.** A broken senator must not hide in 99 healthy ones.
+3. **Provenance everywhere.** Every date carries `date_source` and `date_confidence`. Every record carries `source_url`, `scrape_run`, and `scraped_at`.
+4. **Collect wide, surface narrow.** Store everything original. Show press releases by default; classify the rest.
+5. **No silent failures.** Zero records for a senator is a P0 alert unless explicitly whitelisted.
+6. **Archival permanence.** Never hard-delete. Source-deleted releases become tombstones with `deleted_at` set.
+7. **House-ready.** Schema, config, and UI treat "senator" as one member type — adding House members is a config change, not a rewrite.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scope
 
-## Deploy on Vercel
+- **Current holders only.** Where a seat changed hands during the window, only the current holder's releases are collected.
+- **Original content only.** Curated third-party clippings and "In the News" mentions are skipped.
+- **Senate first.** House expansion is a later phase, but the architecture is chamber-agnostic today.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Status
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# capitol-releases
+Around 30,000 records across 100 senators, with daily updates running. Coverage is near-complete for 2025–present, with documented gaps on a small number of CMS-truncated archives. See `docs/devlog.md` (gitignored) for session-level history.
+
+## License
+
+All rights reserved. Source code is public for transparency; reuse requires permission.
