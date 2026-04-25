@@ -252,11 +252,15 @@ def test_no_suspicious_round_counts():
 
 # ---- RSS undercollection signature ----
 
-def test_rss_collectors_not_undercollecting():
+def test_rss_collectors_not_severely_undercollecting():
     """RSS feeds typically cap at 20-50 items, so any senator on
-    collection_method=rss with low total record count is likely
-    undercollected. A normal senator yields 200+ records across
-    Jan 2025-now.
+    collection_method=rss with very few records is almost certainly the
+    Moran-shape misclassification bug -- where the underlying CMS
+    actually supports full-archive pagination but we never wired it up.
+
+    Threshold is intentionally low (<75) so we don't false-flag senators
+    with naturally low publishing volume. The ramp-up signature test is
+    the better tool for borderline cases.
 
     History: Moran (R-KS) sat at 50 records and Boozman (R-AR) at 195
     despite their sites having 250+ pages of press releases. Both were
@@ -282,12 +286,12 @@ def test_rss_collectors_not_undercollecting():
     conn.close()
 
     flagged = sorted(
-        ((sid, counts.get(sid, 0)) for sid in rss_ids if counts.get(sid, 0) < 200),
+        ((sid, counts.get(sid, 0)) for sid in rss_ids if counts.get(sid, 0) < 75),
         key=lambda x: x[1],
     )
     assert not flagged, (
-        f"{len(flagged)} senator(s) on collection_method=rss have <200 "
-        f"records (likely RSS-cap undercollection): "
+        f"{len(flagged)} senator(s) on collection_method=rss have <75 "
+        f"records (likely RSS-cap undercollection from misclassified seed): "
         + ", ".join(f"{sid}={n}" for sid, n in flagged)
     )
 
@@ -681,7 +685,7 @@ def run_all():
         test_no_listing_page_urls,
         test_no_navigation_urls,
         test_no_suspicious_round_counts,
-        test_rss_collectors_not_undercollecting,
+        test_rss_collectors_not_severely_undercollecting,
         test_no_rss_rampup_signature,
         test_depth_to_jan_2025,
         test_back_coverage_not_truncated,
