@@ -12,7 +12,7 @@ Usage:
 import os
 import sys
 import json
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from collections import Counter
 
@@ -223,7 +223,7 @@ def test_no_suspicious_round_counts():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT s.full_name, count(pr.id)::int as cnt
+        SELECT s.id, s.full_name, count(pr.id)::int as cnt
         FROM senators s
         JOIN press_releases pr ON pr.senator_id = s.id
         WHERE pr.deleted_at IS NULL
@@ -233,20 +233,27 @@ def test_no_suspicious_round_counts():
     cur.close()
     conn.close()
 
-    suspicious_exact = {10, 20, 25, 50, 75, 100, 150, 200}
-    suspicious = [(name, cnt) for name, cnt in rows
-                  if cnt in suspicious_exact and cnt < 500]
+    suspicious_exact = {10, 20, 25, 50, 75, 100, 150, 200, 250, 300, 350, 400, 450}
+    # Verified-legitimate coincidences: each manually checked for healthy
+    # monthly distribution and full back-coverage to Jan 2025.
+    verified_ok = {
+        "tillis-thom",       # 100 -- retiring, lower output, 15-month spread
+        "baldwin-tammy",     # 350 -- healthy 14-35/mo across 16 months
+        "moran-jerry",       # 250 -- post-backfill on 2026-04-25, 8-30/mo
+    }
+    suspicious = [(sid, name, cnt) for sid, name, cnt in rows
+                  if cnt in suspicious_exact and cnt < 500
+                  and sid not in verified_ok]
 
     if suspicious:
         print(f"Suspicious round counts ({len(suspicious)}):")
-        for name, cnt in suspicious:
-            print(f"  {name}: {cnt}")
-    # Hard fail -- a single round-number hit is worth investigating. Allow
-    # at most 2 to absorb genuine coincidences without masking real bugs.
-    assert len(suspicious) <= 2, (
-        f"{len(suspicious)} senators have suspicious round counts (likely "
-        f"RSS or pagination caps): "
-        + ", ".join(f"{n}={c}" for n, c in suspicious)
+        for sid, name, cnt in suspicious:
+            print(f"  {name} ({sid}): {cnt}")
+    assert not suspicious, (
+        f"{len(suspicious)} senators have unverified suspicious round counts "
+        f"(likely RSS or pagination caps): "
+        + ", ".join(f"{n}={c}" for _, n, c in suspicious)
+        + ". Investigate distribution, then add to verified_ok if legitimate."
     )
 
 
@@ -344,6 +351,116 @@ def test_no_rss_rampup_signature():
         f"{len(flagged)} senators show RSS ramp-up signature "
         f"(last_30 >= 4x q1_2025 monthly, total < 500): "
         + ", ".join(f"{sid}({r:.1f}x)" for sid, _, _, _, r in flagged)
+    )
+
+
+# ---- Per-senator activity-period checks ----
+
+def test_no_zero_volume_months():
+    """Each senator should have at least one record in every calendar month
+    between their first record and the last completed month.
+
+    A zero-volume month inside an active senator's window is a strong
+    signal of partial collection failure or pagination truncation.
+    The floor is the senator's first-record month (not Jan 2025) so we
+    don't false-flag late-start appointees -- a separate test
+    (test_back_coverage_not_truncated) checks that the floor itself
+    isn't suspiciously late.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT senator_id,
+               to_char(date_trunc('month', published_at), 'YYYY-MM') AS m,
+               count(*)::int AS n
+        FROM press_releases
+        WHERE deleted_at IS NULL
+          AND published_at >= '2025-01-01'
+        GROUP BY 1, 2
+    """)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    by_sen: dict[str, dict[str, int]] = {}
+    for sid, m, n in rows:
+        by_sen.setdefault(sid, {})[m] = n
+
+    today = date.today()
+    last_complete_month = (today.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")
+
+    expected_months = []
+    cur_year, cur_month = 2025, 1
+    while True:
+        ym = f"{cur_year:04d}-{cur_month:02d}"
+        expected_months.append(ym)
+        if ym == last_complete_month:
+            break
+        cur_month += 1
+        if cur_month > 12:
+            cur_month = 1
+            cur_year += 1
+
+    flagged = []
+    for sid, months in by_sen.items():
+        floor_month = min(months)
+        missing = [m for m in expected_months
+                   if m not in months and m >= floor_month]
+        if missing:
+            flagged.append((sid, missing))
+
+    if flagged:
+        print(f"Zero-volume months ({len(flagged)} senators):")
+        for sid, miss in flagged[:20]:
+            print(f"  {sid}: missing {','.join(miss)}")
+    # Hard fail -- a senator should always have something in a given month
+    # unless they aren't yet active. Allow a small grace for senators on
+    # genuine recess or with very low publishing cadence.
+    assert len(flagged) <= 5, (
+        f"{len(flagged)} senators have zero-volume months in their active "
+        f"window: " + ", ".join(sid for sid, _ in flagged[:10])
+        + ("..." if len(flagged) > 10 else "")
+    )
+
+
+def test_no_long_publication_gaps():
+    """Flag any consecutive-record gap longer than 45 days within an
+    active senator's 2025-now window. Catches partial collection failures
+    where a contiguous span of dates is missing.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    # Compute per-senator max-gap using window functions
+    cur.execute("""
+        WITH ordered AS (
+            SELECT senator_id,
+                   published_at,
+                   lag(published_at) OVER (PARTITION BY senator_id ORDER BY published_at) AS prev_at
+            FROM press_releases
+            WHERE deleted_at IS NULL
+              AND published_at >= '2025-01-01'
+        )
+        SELECT senator_id,
+               max(extract(epoch FROM (published_at - prev_at)) / 86400)::int AS max_gap_days
+        FROM ordered
+        WHERE prev_at IS NOT NULL
+        GROUP BY senator_id
+        HAVING max(extract(epoch FROM (published_at - prev_at)) / 86400) > 45
+    """)
+    flagged = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    if flagged:
+        print(f"Long publication gaps ({len(flagged)} senators):")
+        for sid, gap in flagged[:20]:
+            print(f"  {sid}: max gap {gap} days")
+    # Allow a small grace: holiday recess + government shutdown periods
+    # can produce legitimate ~30-40 day gaps; >45 is the threshold.
+    assert len(flagged) <= 5, (
+        f"{len(flagged)} senators have publication gaps > 45 days: "
+        + ", ".join(f"{sid}={g}d" for sid, g in flagged[:10])
+        + ("..." if len(flagged) > 10 else "")
     )
 
 
@@ -687,6 +804,8 @@ def run_all():
         test_no_suspicious_round_counts,
         test_rss_collectors_not_severely_undercollecting,
         test_no_rss_rampup_signature,
+        test_no_zero_volume_months,
+        test_no_long_publication_gaps,
         test_depth_to_jan_2025,
         test_back_coverage_not_truncated,
         test_no_date_clumping,
