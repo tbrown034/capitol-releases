@@ -1740,8 +1740,8 @@
         "detail_link": "h2 a[href]"
       },
       "confidence": 1,
-      "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Found 20 items on listing page. Op-eds collected separately via pipeline.scripts.backfill_paul_op_eds (WP-JSON /op_eds custom post type). Some op-eds carry date_source='wp_modified_migration' from a 2026-03-02 site migration that re-stamped recent items.",
+      "last_verified": "2026-04-25",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },
