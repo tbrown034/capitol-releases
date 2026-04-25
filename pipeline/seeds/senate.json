@@ -1549,23 +1549,24 @@
       "state": "KS",
       "official_url": "https://www.moran.senate.gov",
       "press_release_url": "https://www.moran.senate.gov/public/index.cfm/news-releases",
-      "parser_family": "senate-generic",
+      "parser_family": "senate-coldfusion",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 1
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "date": "td:first-child",
+        "title": "td.recordListTitle a",
+        "list_item": "table.recordList tr",
+        "detail_link": "td.recordListTitle a[href]"
       },
-      "confidence": 0.55,
-      "notes": "Found 323 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "confidence": 0.95,
+      "notes": "Fixed 2026-04-25: was misclassified as senate-generic + RSS (20 items, malformed pubDate). ColdFusion table, 251 pages of News Releases. /editorials and /kansas-common-sense are intentionally out of scope.",
+      "last_verified": "2026-04-25",
       "recon_status": "discovered",
-      "collection_method": "rss",
-      "rss_feed_url": "https://www.moran.senate.gov/public/?a=RSS.Feed"
+      "collection_method": "httpx"
     },
     {
       "senator_id": "moreno-bernie",

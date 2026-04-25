@@ -112,6 +112,15 @@ def extract_listing_items(soup, selectors):
     if len(items) >= 2:
         return items
 
+    # Senate ColdFusion CMS: table.recordList rows (Klobuchar, McConnell, Moran,
+    # Fischer, Boozman, Thune, Kennedy). Distinctive class; check before
+    # div.element because some ColdFusion sidebars include div.element widgets
+    # (month/year filter, developer actions) that short-circuit otherwise.
+    cf_rows = soup.select("table.recordList tr")
+    cf_rows = [tr for tr in cf_rows if tr.select_one("td.recordListTitle")]
+    if len(cf_rows) >= 2:
+        return cf_rows
+
     # Senate legacy CMS: div.element (Rick Scott, etc.)
     items = soup.select("div.element")
     if len(items) >= 2:
