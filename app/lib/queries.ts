@@ -161,6 +161,36 @@ export async function getSenatorReleases(
   return { items, total: Number(countResult[0].total) };
 }
 
+export async function getSenatorSections(
+  senatorId: string
+): Promise<{ url: string; count: number; label: string }[]> {
+  const rows = (await sql`
+    WITH paths AS (
+      SELECT
+        regexp_replace(source_url, '^(https?://[^/]+/[^/]+(?:/[^/]+)?/).*$', '\\1') AS section_url,
+        source_url
+      FROM press_releases
+      WHERE senator_id = ${senatorId} AND deleted_at IS NULL
+    )
+    SELECT section_url AS url, count(*)::int AS count
+    FROM paths
+    WHERE section_url ~ '/(press|news|newsroom|op|letters|releases|briefings|presidential)'
+    GROUP BY section_url
+    HAVING count(*) >= 5
+    ORDER BY count(*) DESC
+    LIMIT 6
+  `) as { url: string; count: number }[];
+
+  return rows.map((r) => {
+    const path = r.url.replace(/^https?:\/\/[^/]+/, "").replace(/\/$/, "");
+    const last = path.split("/").filter(Boolean).pop() ?? path;
+    const label = last
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+    return { url: r.url, count: r.count, label };
+  });
+}
+
 export async function getSenatorTypeBreakdown(
   senatorId: string
 ): Promise<{ breakdown: TypeBreakdown; earliest: string | null }> {

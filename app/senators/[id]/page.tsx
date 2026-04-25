@@ -6,6 +6,7 @@ import {
   getSenator,
   getSenatorReleases,
   getSenatorTypeBreakdown,
+  getSenatorSections,
   CONTENT_TYPE_ORDER,
   CONTENT_TYPE_LABEL,
 } from "../../lib/queries";
@@ -78,6 +79,7 @@ export default async function SenatorPage({
     topicTrends,
     signatureTopics,
     bioRows,
+    sections,
   ] = await Promise.all([
     getSenatorReleases(id, page, perPage, activeType),
     getSenatorTypeBreakdown(id),
@@ -85,6 +87,7 @@ export default async function SenatorPage({
     getSenatorTopicTrends(id, nameTokens, 12),
     getSenatorSignatureTopics(id, nameTokens, 12),
     sql`SELECT bioguide_id, status, left_date, left_reason FROM senators WHERE id = ${id}`,
+    getSenatorSections(id),
   ]);
   const grandTotal = Object.values(breakdown).reduce(
     (sum: number, n) => sum + (n ?? 0),
@@ -220,6 +223,42 @@ export default async function SenatorPage({
         )}
         . Scraped daily.
       </p>
+
+      {/* Source links */}
+      <div className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+        <span className="text-neutral-400 uppercase tracking-wider">Sources</span>
+        <a
+          href={senator.official_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-neutral-700 hover:text-neutral-900 hover:underline"
+        >
+          Official site<span aria-hidden> ↗</span>
+        </a>
+        {senator.press_release_url &&
+          senator.press_release_url !== senator.official_url && (
+            <a
+              href={senator.press_release_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-neutral-700 hover:text-neutral-900 hover:underline"
+            >
+              News page<span aria-hidden> ↗</span>
+            </a>
+          )}
+        {sections.map((s) => (
+          <a
+            key={s.url}
+            href={s.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-neutral-700 hover:text-neutral-900 hover:underline"
+            title={`${s.count.toLocaleString()} archived`}
+          >
+            {s.label}<span aria-hidden> ↗</span>
+          </a>
+        ))}
+      </div>
 
       {/* Content-type tabs */}
       {activeTypes.length > 1 && (
