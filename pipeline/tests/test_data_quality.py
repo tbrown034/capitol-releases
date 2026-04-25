@@ -27,10 +27,15 @@ if _env_path.exists():
             os.environ.setdefault(k.strip(), v.strip())
 
 DB_URL = os.environ["DATABASE_URL"]
+SEED_PATH = Path(__file__).resolve().parent.parent / "seeds" / "senate.json"
 
 
 def get_conn():
     return psycopg2.connect(DB_URL)
+
+
+def _load_seeds():
+    return json.load(SEED_PATH.open())["members"]
 
 
 # ---- Senator coverage tests ----
@@ -208,30 +213,134 @@ def test_no_navigation_urls():
 # ---- Round number anomaly detection ----
 
 def test_no_suspicious_round_counts():
-    """Flag senators with suspiciously round release counts (pagination caps)."""
+    """Flag senators with suspiciously round release counts (pagination/RSS caps).
+
+    Common RSS-cap totals (10, 20, 25, 50, 100) and pagination-cap totals
+    (multiples of 10 below 200) are red flags when records should number in
+    the hundreds for an active senator. Triggered the Moran/Boozman fix on
+    2026-04-25 (50 and 195 records vs ~2500 live).
+    """
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
         SELECT s.full_name, count(pr.id)::int as cnt
         FROM senators s
         JOIN press_releases pr ON pr.senator_id = s.id
+        WHERE pr.deleted_at IS NULL
         GROUP BY s.id, s.full_name
     """)
     rows = cur.fetchall()
     cur.close()
     conn.close()
 
-    # Exact multiples of 10 or 20 are suspicious if between 10 and 200
+    suspicious_exact = {10, 20, 25, 50, 75, 100, 150, 200}
     suspicious = [(name, cnt) for name, cnt in rows
-                  if cnt in (10, 20, 30, 40, 50, 100, 200) and cnt < 500]
+                  if cnt in suspicious_exact and cnt < 500]
 
-    # This is a warning, not a hard failure -- some counts genuinely land on round numbers
     if suspicious:
-        print(f"WARNING: {len(suspicious)} senators have suspicious round counts:")
+        print(f"Suspicious round counts ({len(suspicious)}):")
         for name, cnt in suspicious:
             print(f"  {name}: {cnt}")
-    # Soft assertion -- fewer than 15 should be suspicious
-    assert len(suspicious) < 15, f"{len(suspicious)} senators have suspicious round counts (likely pagination caps)"
+    # Hard fail -- a single round-number hit is worth investigating. Allow
+    # at most 2 to absorb genuine coincidences without masking real bugs.
+    assert len(suspicious) <= 2, (
+        f"{len(suspicious)} senators have suspicious round counts (likely "
+        f"RSS or pagination caps): "
+        + ", ".join(f"{n}={c}" for n, c in suspicious)
+    )
+
+
+# ---- RSS undercollection signature ----
+
+def test_rss_collectors_not_undercollecting():
+    """RSS feeds typically cap at 20-50 items, so any senator on
+    collection_method=rss with low total record count is likely
+    undercollected. A normal senator yields 200+ records across
+    Jan 2025-now.
+
+    History: Moran (R-KS) sat at 50 records and Boozman (R-AR) at 195
+    despite their sites having 250+ pages of press releases. Both were
+    misclassified as RSS when their underlying CMS exposed full
+    pagination via httpx.
+    """
+    seeds = _load_seeds()
+    rss_ids = [s["senator_id"] for s in seeds
+               if s.get("collection_method") == "rss"]
+    if not rss_ids:
+        return
+
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT senator_id, count(*)::int
+        FROM press_releases
+        WHERE deleted_at IS NULL AND senator_id = ANY(%s)
+        GROUP BY senator_id
+    """, (rss_ids,))
+    counts = dict(cur.fetchall())
+    cur.close()
+    conn.close()
+
+    flagged = sorted(
+        ((sid, counts.get(sid, 0)) for sid in rss_ids if counts.get(sid, 0) < 200),
+        key=lambda x: x[1],
+    )
+    assert not flagged, (
+        f"{len(flagged)} senator(s) on collection_method=rss have <200 "
+        f"records (likely RSS-cap undercollection): "
+        + ", ".join(f"{sid}={n}" for sid, n in flagged)
+    )
+
+
+def test_no_rss_rampup_signature():
+    """Detect the RSS-cap fingerprint: dense recent months but sparse
+    early-2025. A healthy collector produces roughly flat monthly volume
+    across Jan 2025-now; an RSS feed inherits its sliding window so
+    older entries fall off and the DB ramps up.
+
+    Flags any senator where last-30-day volume is >= 4x the average
+    monthly volume across Jan-Mar 2025, AND total < 500.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT senator_id,
+               count(*) FILTER (
+                   WHERE published_at >= '2025-01-01'
+                   AND published_at < '2025-04-01'
+               )::float / 3.0 AS q1_monthly,
+               count(*) FILTER (
+                   WHERE published_at >= NOW() - INTERVAL '30 days'
+               )::int AS last_30,
+               count(*)::int AS total
+        FROM press_releases
+        WHERE deleted_at IS NULL
+        GROUP BY senator_id
+    """)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    flagged = []
+    for sid, q1_monthly, last_30, total in rows:
+        if total >= 500:
+            continue
+        if q1_monthly < 1:
+            continue
+        ratio = last_30 / q1_monthly
+        if ratio >= 4.0:
+            flagged.append((sid, total, q1_monthly, last_30, ratio))
+
+    if flagged:
+        print(f"RSS ramp-up signature ({len(flagged)}):")
+        for sid, total, q1m, l30, r in flagged:
+            print(f"  {sid}: total={total} q1_monthly={q1m:.1f} last_30={l30} ratio={r:.1f}x")
+    # Soft assertion -- new senators legitimately ramp up; allow up to 3.
+    assert len(flagged) <= 3, (
+        f"{len(flagged)} senators show RSS ramp-up signature "
+        f"(last_30 >= 4x q1_2025 monthly, total < 500): "
+        + ", ".join(f"{sid}({r:.1f}x)" for sid, _, _, _, r in flagged)
+    )
 
 
 # ---- Completeness tests ----
@@ -572,6 +681,8 @@ def run_all():
         test_no_listing_page_urls,
         test_no_navigation_urls,
         test_no_suspicious_round_counts,
+        test_rss_collectors_not_undercollecting,
+        test_no_rss_rampup_signature,
         test_depth_to_jan_2025,
         test_back_coverage_not_truncated,
         test_no_date_clumping,
