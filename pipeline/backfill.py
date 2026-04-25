@@ -499,6 +499,9 @@ def find_next_page(soup, current_url):
         or soup.select_one(".pager")
         or soup.select_one("nav[aria-label*='pagination' i]")
         or soup.select_one(".wp-pagenavi")
+        # ColdFusion senate sites use a bootstrap navbar dropdown
+        # (Moran, Boozman, etc.) with li.disabled marking the current page.
+        or soup.select_one("div.navbar ul.dropdown-menu")
     )
     # WordPress .page-numbers: class is on individual <a>/<span> tags, not a container.
     # Walk up to find the <ul> or <nav> that wraps all page number elements.
@@ -515,7 +518,12 @@ def find_next_page(soup, current_url):
                     candidate = candidate.parent
     if pager:
         # Try to find active/current page marker
-        active = pager.select_one(".active, .current, [aria-current], .PageNum_rs_current, strong")
+        active = pager.select_one(
+            ".active, .current, [aria-current], .PageNum_rs_current, strong, "
+            # Bootstrap-style "current page" markers used by ColdFusion senate
+            # navbar dropdowns: the active li carries .disabled.
+            "li.disabled"
+        )
         if active:
             # Walk siblings to find next page link
             nxt = active.find_next_sibling()
