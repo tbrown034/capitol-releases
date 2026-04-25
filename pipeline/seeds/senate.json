@@ -258,20 +258,21 @@
       "parser_family": "senate-coldfusion",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 1
       },
       "selectors": {
         "date": "td:first-child",
-        "title": "td a",
-        "list_item": "table tr",
-        "detail_link": "td a[href]"
+        "title": "td.recordListTitle a",
+        "list_item": "table.recordList tr",
+        "detail_link": "td.recordListTitle a[href]"
       },
-      "confidence": 0.55,
-      "notes": "Fixed 2026-04-18: ColdFusion under hood. 253 pages.",
-      "last_verified": "2026-04-15",
+      "confidence": 0.95,
+      "notes": "Fixed 2026-04-25: was rss + generic table tr; switched to httpx + ColdFusion-specific selectors. 253 pages.",
+      "last_verified": "2026-04-25",
       "recon_status": "discovered",
-      "collection_method": "rss",
-      "rss_feed_url": "https://www.boozman.senate.gov/public/?a=RSS.Feed"
+      "collection_method": "httpx"
     },
     {
       "senator_id": "britt-katie",
