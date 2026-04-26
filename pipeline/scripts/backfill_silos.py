@@ -49,6 +49,17 @@ SILOS: list[tuple[str, str, str]] = [
     ("grassley-chuck", "https://www.grassley.senate.gov/news/remarks/", "floor_statement"),
     ("warren-elizabeth", "https://www.warren.senate.gov/newsroom/op-eds/", "op_ed"),
     ("warren-elizabeth", "https://www.warren.senate.gov/oversight/reports/", "letter"),
+    # Round 2 — surfaced by audit_sources.py 2026-04-26
+    ("grassley-chuck", "https://www.grassley.senate.gov/news/commentary/", "op_ed"),
+    ("cotton-tom", "https://www.cotton.senate.gov/news/op-eds/", "op_ed"),
+    ("rounds-mike", "https://www.rounds.senate.gov/newsroom/weekly-column/", "op_ed"),
+    ("rounds-mike", "https://www.rounds.senate.gov/newsroom/weekly-rounds/", "blog"),
+    ("heinrich-martin", "https://www.heinrich.senate.gov/newsroom/blog/", "blog"),
+    ("sanders-bernard", "https://www.sanders.senate.gov/vermont/vermont-press/", "press_release"),
+    ("marshall-roger", "https://www.marshall.senate.gov/newsroom/op-eds/", "op_ed"),
+    ("bennet-michael", "https://www.bennet.senate.gov/news/newsletter-archive/", "blog"),
+    # King's /newsroom/blog/ uses Drupal markup the seed selectors don't match;
+    # needs custom selectors before it can be added.
 ]
 
 UA = (

@@ -100,6 +100,8 @@ SKIP_SECTIONS = (
     "/audio",
     "/multimedia", "/photo-galleries", "-photo-galleries",
     "/news-coverage",  # press clippings, not original
+    "/success-stories", "-success-stories",  # constituent stories, not first-party
+    "/toolkit",  # informational landing pages (e.g. solar-toolkit), not releases
     "/events", "/event", "/upcoming-events",
     "/about", "/biography", "/bio",
     "/contact",
@@ -454,8 +456,10 @@ def classify(senator: dict, db_state: dict, probe: dict) -> dict:
 
     # Liveness HEAD-probe: distinguish stale sitemap entries (404) from
     # genuinely-untapped live sections. Section URL = official + section.
+    # 403/503 = WAF blocked us — unknown, not a gap.
     untapped_live: list[tuple[str, int]] = []
     untapped_dead: list[tuple[str, int, int]] = []  # (sec, n, status)
+    untapped_unknown: list[tuple[str, int, int]] = []  # (sec, n, status)
     if official and untapped_sections:
         with httpx.Client(timeout=10, follow_redirects=True, headers=BROWSER_HEADERS) as c:
             for sec, n in untapped_sections:
@@ -469,6 +473,8 @@ def classify(senator: dict, db_state: dict, probe: dict) -> dict:
                     status = 0
                 if status == 404 or status == 410:
                     untapped_dead.append((sec, n, status))
+                elif status in (403, 503) or status == 0:
+                    untapped_unknown.append((sec, n, status))
                 else:
                     untapped_live.append((sec, n))
 
@@ -520,6 +526,7 @@ def classify(senator: dict, db_state: dict, probe: dict) -> dict:
         "sitemap_urls": len(sitemap_urls),
         "untapped": untapped_live,
         "untapped_dead": untapped_dead,
+        "untapped_unknown": untapped_unknown,
         "archival": archival_sections,
         "wp_types": wp_types or {},
         "check_official": check_official,
@@ -848,6 +855,22 @@ def render(rows: list[dict]) -> str:
         out.append("| Count | State | Senator | Section | Status |")
         out.append("|---:|---|---|---|---:|")
         for n, st, name, sec, status in stale:
+            out.append(f"| {n:,} | {st} | {name} | `{sec}` | {status} |")
+        out.append("")
+
+    # WAF-blocked HEAD probes — can't tell if live or 404.
+    unknown: list[tuple[int, str, str, str, int]] = []
+    for r in rows:
+        for sec, n, status in r.get("untapped_unknown", []) or []:
+            unknown.append((n, r["state"], r["name"], sec, status))
+    if unknown:
+        unknown.sort(reverse=True)
+        out.append("## Unknown-status sitemap entries (WAF-blocked HEAD probe)\n")
+        out.append("HEAD probe returned 403/503 — Akamai WAF blocked us. ")
+        out.append("Cannot determine if live or 404. Investigate manually.\n")
+        out.append("| Count | State | Senator | Section | Status |")
+        out.append("|---:|---|---|---|---:|")
+        for n, st, name, sec, status in unknown:
             out.append(f"| {n:,} | {st} | {name} | `{sec}` | {status} |")
         out.append("")
 
