@@ -23,6 +23,7 @@ export type ContentType =
   | "press_release"
   | "statement"
   | "op_ed"
+  | "blog"
   | "letter"
   | "photo_release"
   | "floor_statement"

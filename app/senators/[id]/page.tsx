@@ -26,6 +26,7 @@ const VALID_TYPES = new Set<ContentType>([
   "press_release",
   "statement",
   "op_ed",
+  "blog",
   "letter",
   "floor_statement",
   "presidential_action",

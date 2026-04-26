@@ -678,6 +678,7 @@ _TYPE_FLOORS = {
     "press_release":        30_000,
     "statement":               300,
     "op_ed":                    30,
+    "blog":                    100,
     "letter":                    3,
     "floor_statement":          20,
     "presidential_action":     400,
