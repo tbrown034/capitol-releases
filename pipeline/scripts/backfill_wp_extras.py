@@ -31,12 +31,17 @@ EXTRAS: dict[tuple[str, str], str] = {
     ("rochester-lisa", "newsletter"): "blog",
     ("young-todd", "newsletter"): "blog",
     ("scott-tim", "newsletter"): "blog",
+    ("scott-tim", "sweet_tea"): "blog",
     ("husted-jon", "newsletters"): "blog",
     ("curtis-john", "newsletters"): "blog",
     ("sanders-bernard", "bernie-buzz"): "blog",
     ("whitehouse-sheldon", "blogs"): "blog",
     ("whitehouse-sheldon", "speeches"): "floor_statement",
     ("mccormick-david", "remarks"): "floor_statement",
+    ("lankford-james", "newsletter"): "blog",
+    ("risch-james", "newsletter"): "blog",
+    ("masto-catherine", "newsletter"): "blog",
+    ("padilla-alex", "newsletter"): "blog",
 }
 
 
