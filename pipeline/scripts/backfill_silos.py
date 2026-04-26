@@ -86,6 +86,7 @@ def collect_silo(
         "skipped_pre_cutoff": 0,
         "skipped_no_date": 0,
         "skipped_short": 0,
+        "skipped_non_gov": 0,
     }
 
     run_id = f"silo-{senator_id}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
@@ -134,6 +135,9 @@ def collect_silo(
             if detail in seen_urls:
                 continue
             seen_urls.add(detail)
+            if ".senate.gov" not in detail:
+                counts["skipped_non_gov"] = counts.get("skipped_non_gov", 0) + 1
+                continue
 
             pub_dt = parse_date(date_text) if date_text else None
             if not pub_dt:
@@ -213,6 +217,7 @@ def main() -> None:
         "items_seen": 0, "inserted": 0,
         "skipped_existing": 0, "skipped_pre_cutoff": 0,
         "skipped_no_date": 0, "skipped_short": 0,
+        "skipped_non_gov": 0,
     }
     with httpx.Client(timeout=20.0, headers=headers) as client:
         for sid, url, ct in silos:

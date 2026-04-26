@@ -382,6 +382,26 @@ def classify(senator: dict, db_state: dict, probe: dict) -> dict:
         untapped_sections.append((sec, n))
     untapped_sections.sort(key=lambda x: -x[1])
 
+    # Liveness HEAD-probe: distinguish stale sitemap entries (404) from
+    # genuinely-untapped live sections. Section URL = official + section.
+    untapped_live: list[tuple[str, int]] = []
+    untapped_dead: list[tuple[str, int, int]] = []  # (sec, n, status)
+    if official and untapped_sections:
+        with httpx.Client(timeout=10, follow_redirects=True, headers=BROWSER_HEADERS) as c:
+            for sec, n in untapped_sections:
+                url = official + sec
+                try:
+                    r = c.head(url)
+                    if r.status_code == 405:  # method not allowed; retry GET
+                        r = c.get(url)
+                    status = r.status_code
+                except Exception:
+                    status = 0
+                if status == 404 or status == 410:
+                    untapped_dead.append((sec, n, status))
+                else:
+                    untapped_live.append((sec, n))
+
     check_official = OK if official else FAIL
     if not official:
         issues.append("seed missing official_url")
@@ -401,9 +421,9 @@ def classify(senator: dict, db_state: dict, probe: dict) -> dict:
     elif not sitemap_urls:
         check_sitemap = NA
     else:
-        check_sitemap = OK if not untapped_sections else FAIL
-        if untapped_sections:
-            sample = ", ".join(f"{s.strip('/')}({n})" for s, n in untapped_sections[:3])
+        check_sitemap = OK if not untapped_live else FAIL
+        if untapped_live:
+            sample = ", ".join(f"{s.strip('/')}({n})" for s, n in untapped_live[:3])
             issues.append(f"sitemap-untapped: {sample}")
 
     if wp_status == "blocked":
@@ -428,7 +448,8 @@ def classify(senator: dict, db_state: dict, probe: dict) -> dict:
         "n_pr": db_state["n_pr"],
         "last_scrape": db_state["last_scrape"],
         "sitemap_urls": len(sitemap_urls),
-        "untapped": untapped_sections,
+        "untapped": untapped_live,
+        "untapped_dead": untapped_dead,
         "wp_types": wp_types or {},
         "check_official": check_official,
         "check_news": check_news,
@@ -725,6 +746,22 @@ def render(rows: list[dict]) -> str:
         out.append("|---:|---|---|---|")
         for n, st, name, sec in silos:
             out.append(f"| {n:,} | {st} | {name} | `{sec}` |")
+        out.append("")
+
+    # Stale sitemap entries — sitemap URLs that 404 on the live site.
+    stale: list[tuple[int, str, str, str, int]] = []
+    for r in rows:
+        for sec, n, status in r.get("untapped_dead", []) or []:
+            stale.append((n, r["state"], r["name"], sec, status))
+    if stale:
+        stale.sort(reverse=True)
+        out.append("## Stale sitemap entries (404/410 on live site)\n")
+        out.append("These sections appear in the sitemap but the URL is dead. ")
+        out.append("Treat as informational — not coverage gaps.\n")
+        out.append("| Count | State | Senator | Section | Status |")
+        out.append("|---:|---|---|---|---:|")
+        for n, st, name, sec, status in stale:
+            out.append(f"| {n:,} | {st} | {name} | `{sec}` | {status} |")
         out.append("")
 
     # Counts of each status, so it's easy to see overall health
