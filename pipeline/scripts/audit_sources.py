@@ -110,6 +110,7 @@ WP_KNOWN_COLLECTED = {
     "statements", "statement",
     "letters", "letter",
     "floor_statements", "floor_statement",
+    "sweet_tea",
 }
 WP_KNOWN_SKIP = {
     "page", "attachment", "wp_block", "wp_template", "wp_template_part",
@@ -130,7 +131,7 @@ WP_KNOWN_SKIP = {
     "spending_requests", "priorities", "project", "map-post",
     "success-story", "locations", "location", "r-location",
     "alert", "alert-banner", "site-alerts",
-    "audio_library", "sweet_tea", "oceanwp_library", "hiking-trail",
+    "audio_library", "oceanwp_library", "hiking-trail",
     "schedule", "news_sources", "issues", "legislation",
     "shortcuts", "rec-products", "amn_smtp", "wpcf7_contact_form",
 }
@@ -200,8 +201,21 @@ def find_sitemaps(client: httpx.Client, base: str) -> tuple[list[str], str]:
     return [], "missing"
 
 
+URL_LASTMOD_RE = re.compile(
+    r"<url>\s*<loc>([^<]+)</loc>(?:[^<]*<lastmod>([^<]+)</lastmod>)?",
+    re.DOTALL,
+)
+
+
 def fetch_sitemap_urls(client: httpx.Client, sitemap_url: str, depth: int = 0) -> list[str]:
     """Recursively fetch <loc> URLs from a sitemap or sitemap index."""
+    return [u for (u, _) in fetch_sitemap_with_lastmod(client, sitemap_url, depth)]
+
+
+def fetch_sitemap_with_lastmod(
+    client: httpx.Client, sitemap_url: str, depth: int = 0
+) -> list[tuple[str, str | None]]:
+    """Recursively fetch (url, lastmod) tuples from a sitemap or sitemap index."""
     if depth > 3:
         return []
     try:
@@ -212,18 +226,15 @@ def fetch_sitemap_urls(client: httpx.Client, sitemap_url: str, depth: int = 0) -
     except Exception:
         return []
 
-    urls: list[str] = []
-    # Cheap regex parse — sitemaps are big and consistent
-    locs = re.findall(r"<loc>([^<]+)</loc>", text)
     is_index = "<sitemapindex" in text
     if is_index:
-        # Walk children
-        for child in locs[:30]:  # cap children
+        out: list[tuple[str, str | None]] = []
+        children = re.findall(r"<loc>([^<]+)</loc>", text)
+        for child in children[:30]:
             if child.endswith(".xml"):
-                urls.extend(fetch_sitemap_urls(client, child, depth + 1))
-    else:
-        urls.extend(locs)
-    return urls
+                out.extend(fetch_sitemap_with_lastmod(client, child, depth + 1))
+        return out
+    return [(m.group(1), m.group(2)) for m in URL_LASTMOD_RE.finditer(text)]
 
 
 def section_path(url: str) -> str | None:
@@ -333,15 +344,17 @@ def pull_db_state(conn_url: str, senator_id: str) -> dict:
 def httpx_probe(official: str) -> dict:
     """Probe sitemap + WP types via httpx. Returns {sitemap_urls, sitemap_status, wp_types, wp_status}."""
     if not official:
-        return {"sitemap_urls": [], "sitemap_status": "missing", "wp_types": None, "wp_status": "missing"}
+        return {"sitemap_urls": [], "sitemap_lastmods": [],
+                "sitemap_status": "missing", "wp_types": None, "wp_status": "missing"}
     with httpx.Client(timeout=20, follow_redirects=True, headers=BROWSER_HEADERS) as client:
         sm_urls, sitemap_status = find_sitemaps(client, official)
-        sitemap_urls: list[str] = []
+        pairs: list[tuple[str, str | None]] = []
         for sm in sm_urls:
-            sitemap_urls.extend(fetch_sitemap_urls(client, sm))
+            pairs.extend(fetch_sitemap_with_lastmod(client, sm))
         wp_types, wp_status = probe_wp_types(client, official)
     return {
-        "sitemap_urls": sitemap_urls,
+        "sitemap_urls": [u for (u, _) in pairs],
+        "sitemap_lastmods": pairs,
         "sitemap_status": sitemap_status,
         "wp_types": wp_types,
         "wp_status": wp_status,
@@ -364,12 +377,23 @@ def classify(senator: dict, db_state: dict, probe: dict) -> dict:
     db_sections = db_state["db_sections"]
 
     section_counts: dict[str, int] = defaultdict(int)
-    for url in sitemap_urls:
+    section_in_window: dict[str, int] = defaultdict(int)
+    section_has_lastmod: dict[str, bool] = defaultdict(bool)
+    pairs = probe.get("sitemap_lastmods") or [(u, None) for u in sitemap_urls]
+    for url, lm in pairs:
         sec = section_path(url)
-        if sec:
-            section_counts[sec] += 1
+        if not sec:
+            continue
+        section_counts[sec] += 1
+        if lm:
+            section_has_lastmod[sec] = True
+            if lm >= "2025-01-01":
+                section_in_window[sec] += 1
+        elif "/2025" in url or "/2026" in url:
+            section_in_window[sec] += 1
 
     untapped_sections: list[tuple[str, int]] = []
+    archival_sections: list[tuple[str, int]] = []
     for sec, n in section_counts.items():
         if n < MIN_SECTION_SIZE:
             continue
@@ -379,8 +403,12 @@ def classify(senator: dict, db_state: dict, probe: dict) -> dict:
             continue
         if any(s.startswith(sec) or sec.startswith(s) for s in db_sections):
             continue
+        if section_has_lastmod[sec] and section_in_window[sec] == 0:
+            archival_sections.append((sec, n))
+            continue
         untapped_sections.append((sec, n))
     untapped_sections.sort(key=lambda x: -x[1])
+    archival_sections.sort(key=lambda x: -x[1])
 
     # Liveness HEAD-probe: distinguish stale sitemap entries (404) from
     # genuinely-untapped live sections. Section URL = official + section.
@@ -450,6 +478,7 @@ def classify(senator: dict, db_state: dict, probe: dict) -> dict:
         "sitemap_urls": len(sitemap_urls),
         "untapped": untapped_live,
         "untapped_dead": untapped_dead,
+        "archival": archival_sections,
         "wp_types": wp_types or {},
         "check_official": check_official,
         "check_news": check_news,
@@ -745,6 +774,22 @@ def render(rows: list[dict]) -> str:
         out.append("| Count | State | Senator | Section |")
         out.append("|---:|---|---|---|")
         for n, st, name, sec in silos:
+            out.append(f"| {n:,} | {st} | {name} | `{sec}` |")
+        out.append("")
+
+    # Archival sections — sitemap entries with lastmod data but zero in-window URLs.
+    archival: list[tuple[int, str, str, str]] = []
+    for r in rows:
+        for sec, n in r.get("archival", []) or []:
+            archival.append((n, r["state"], r["name"], sec))
+    if archival:
+        archival.sort(reverse=True)
+        out.append("## Archival sections (sitemap lastmod < 2025-01-01)\n")
+        out.append("Live sections that the sitemap classifies as pre-window only. ")
+        out.append("Treat as informational — no in-window content to collect.\n")
+        out.append("| Count | State | Senator | Section |")
+        out.append("|---:|---|---|---|")
+        for n, st, name, sec in archival:
             out.append(f"| {n:,} | {st} | {name} | `{sec}` |")
         out.append("")
 
