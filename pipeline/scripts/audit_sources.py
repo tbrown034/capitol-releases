@@ -54,8 +54,41 @@ import psycopg2
 from bs4 import BeautifulSoup
 
 from pipeline.backfill_wp_json import load_env
+from pipeline.scripts.backfill_silos import SILOS as _CUSTOM_SILOS
+from pipeline.scripts.backfill_wp_extras import EXTRAS as _WP_EXTRAS
 
 MIN_SECTION_SIZE = 10  # ignore sections with fewer URLs than this
+
+
+def _section_from_url(url: str) -> str | None:
+    """Extract the leading 1-2 path segments + trailing slash from a URL."""
+    try:
+        path = urlparse(url).path or "/"
+    except Exception:
+        return None
+    parts = [p for p in path.split("/") if p]
+    if not parts:
+        return None
+    if len(parts) == 1:
+        return f"/{parts[0]}/"
+    return f"/{parts[0]}/{parts[1]}/"
+
+
+# (senator_id, section_path) pairs that backfill_silos covers.
+# Their canonical sitemap section is "covered" via the silo crawler even
+# when the inserted URLs end up under a different path (e.g. Crapo's
+# /media/columns/ links resolve to /news/in-the-news/ aliases).
+COVERED_BY_SILO_BACKFILL: set[tuple[str, str]] = {
+    (sid, _section_from_url(url)) for sid, url, _ in _CUSTOM_SILOS
+    if _section_from_url(url)
+}
+
+# Senators with at least one (sid, post_type) covered via WP-JSON extras.
+# Used to suppress sitemap sections that name-match an extras post type
+# (e.g. /newsroom/newsletters/ when EXTRAS has (sid, 'newsletter')).
+COVERED_WP_EXTRAS_BY_SENATOR: dict[str, set[str]] = {}
+for (sid, post_type), _ct in _WP_EXTRAS.items():
+    COVERED_WP_EXTRAS_BY_SENATOR.setdefault(sid, set()).add(post_type)
 
 # Section path FRAGMENTS we deliberately skip. Match against the
 # section path joined with /, e.g. "/news/in-the-news/" or "/videos/".
@@ -102,8 +135,9 @@ YEAR_ARCHIVE = re.compile(r"^/(19|20)\d{2}(/\d{1,2})?/?$")
 
 # WP custom post types we recognize.
 WP_KNOWN_COLLECTED = {
-    "press_releases", "press_release", "posts", "post", "news",
-    "op_eds", "op_ed",
+    "press_releases", "press_release", "press-releases", "press-release",
+    "posts", "post", "news",
+    "op_eds", "op_ed", "op-eds", "op-ed",
     "newsletter", "newsletters", "bernie-buzz",
     "blogs", "blog",
     "speeches", "remarks",
@@ -394,6 +428,7 @@ def classify(senator: dict, db_state: dict, probe: dict) -> dict:
 
     untapped_sections: list[tuple[str, int]] = []
     archival_sections: list[tuple[str, int]] = []
+    wp_extras_pts = COVERED_WP_EXTRAS_BY_SENATOR.get(sid, set())
     for sec, n in section_counts.items():
         if n < MIN_SECTION_SIZE:
             continue
@@ -402,6 +437,13 @@ def classify(senator: dict, db_state: dict, probe: dict) -> dict:
         if db_sections.get(sec, 0) >= 1:
             continue
         if any(s.startswith(sec) or sec.startswith(s) for s in db_sections):
+            continue
+        if (sid, sec) in COVERED_BY_SILO_BACKFILL:
+            continue
+        # Suppress sections whose name matches a WP-JSON post type we
+        # collect from this senator: /newsroom/newsletters/ for a senator
+        # with EXTRAS = (sid, 'newsletter') etc.
+        if any(pt in sec or pt.replace("_", "-") in sec for pt in wp_extras_pts):
             continue
         if section_has_lastmod[sec] and section_in_window[sec] == 0:
             archival_sections.append((sec, n))
