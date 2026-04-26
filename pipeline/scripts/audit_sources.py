@@ -20,18 +20,22 @@ Sitemap discovery order:
     /wp-sitemap.xml (WP)
     /sitemap.xml
 
-Limitation: most senate.gov sites sit behind the Senate Akamai WAF and
-return 403 to non-browser fingerprints. Those senators show "WAF" in
-the report — that's *not* a failure, it just means we can't probe
-their sitemap from this IP. The WAF-blocked senators are still scraped
-fine by the daily pipeline (via Playwright or specifically-shaped
-httpx). To audit them, run from a different IP or extend the script
-with Playwright.
+Two-pass design:
+    Pass 1 — httpx, parallel, fast. Most senators clear here.
+    Pass 2 — Playwright, sequential with back-off, for senators that
+             return 403 to httpx (Senate Akamai WAF). Real Chrome
+             fingerprint + per-senator cooldown bypasses the WAF.
+
+If both passes return 403 for a senator, the report shows "WAF" — a
+known unprobeable state, not a coverage gap. (Akamai also rate-limits
+by source IP. Run from a different IP or wait if many "WAF" persist.)
 
 Usage:
     python -m pipeline.scripts.audit_sources
     python -m pipeline.scripts.audit_sources --senator paul-rand
     python -m pipeline.scripts.audit_sources --write docs/source_audit.md
+    python -m pipeline.scripts.audit_sources --no-playwright   # skip pass 2
+    python -m pipeline.scripts.audit_sources --pw-delay 15     # gentler pass 2
 """
 from __future__ import annotations
 
@@ -51,7 +55,7 @@ from bs4 import BeautifulSoup
 
 from pipeline.backfill_wp_json import load_env
 
-MIN_SECTION_SIZE = 5  # ignore sections with fewer URLs than this
+MIN_SECTION_SIZE = 10  # ignore sections with fewer URLs than this
 
 # Section path FRAGMENTS we deliberately skip. Match against the
 # section path joined with /, e.g. "/news/in-the-news/" or "/videos/".
@@ -61,7 +65,7 @@ SKIP_SECTIONS = (
     "/photos", "/photo",
     "/clips", "/clip",
     "/audio",
-    "/multimedia", "/photo-galleries",
+    "/multimedia", "/photo-galleries", "-photo-galleries",
     "/news-coverage",  # press clippings, not original
     "/events", "/event", "/upcoming-events",
     "/about", "/biography", "/bio",
@@ -73,7 +77,7 @@ SKIP_SECTIONS = (
     "/constituent", "/student", "/students", "/delawareans",
     "/internship", "/jobs", "/employment",
     "/visiting", "/visit", "/tours", "/flag",
-    "/newsletter-signup", "/sign-up", "/signup",
+    "/newsletter-signup", "/sign-up", "/signup", "/join-newsletter",
     "/privacy", "/accessibility", "/terms",
     "/connect", "/serving-you",
     "/wp-content", "/wp-admin", "/wp-includes", "/wp-json",
@@ -87,6 +91,10 @@ SKIP_SECTIONS = (
     "/spending-requests",
     "/grants",
     "/es/", "/es-mx/",  # Spanish mirrors -- duplicates of EN content
+    "/ultimas-noticias", "/comunicados", "/comunicados-de-prensa",
+    "/jet-popup", "/popup",
+    "/meet-", "/working-for-",
+    "/2021/", "/2022/", "/2023/", "/2024/",  # pre-window year archives
 )
 
 # Year-archive pattern: /YYYY/MM/ or /YYYY/ at the leaf -- treat as skip
@@ -281,16 +289,15 @@ def probe_wp_types(client: httpx.Client, base: str) -> tuple[dict[str, int] | No
     return out, "ok"
 
 
-def audit_senator(senator: dict, conn_url: str) -> dict:
-    sid = senator["senator_id"]
-    name = senator.get("full_name", sid)
-    state = senator.get("state", "")
-    official = (senator.get("official_url") or "").rstrip("/")
-    press = (senator.get("press_release_url") or "").rstrip("/")
+BROWSER_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+}
 
-    issues: list[str] = []
 
-    # ---- DB pull ----
+def pull_db_state(conn_url: str, senator_id: str) -> dict:
     conn = psycopg2.connect(conn_url)
     cur = conn.cursor()
     cur.execute("""
@@ -299,10 +306,9 @@ def audit_senator(senator: dict, conn_url: str) -> dict:
              max(scraped_at) FILTER (WHERE deleted_at IS NULL),
              max(published_at) FILTER (WHERE deleted_at IS NULL)
         FROM press_releases WHERE senator_id = %s
-    """, (sid,))
+    """, (senator_id,))
     total, n_pr, last_scrape, last_pub = cur.fetchone()
 
-    # Section -> count of records we have under that section path
     cur.execute("""
       WITH paths AS (
         SELECT regexp_replace(source_url,
@@ -313,65 +319,72 @@ def audit_senator(senator: dict, conn_url: str) -> dict:
       SELECT section, count(*) FROM paths
       WHERE section LIKE '/%%'
       GROUP BY section
-    """, (sid,))
+    """, (senator_id,))
     db_sections = {r[0]: r[1] for r in cur.fetchall()}
     cur.close(); conn.close()
-
-    # ---- HTTP probes (sitemap + WP only; URL reachability inferred from DB) ----
-    # Cloudflare blocks our IP under load, so probing every senator's
-    # homepage is unreliable. We verify reachability by DB freshness:
-    # if the daily collector successfully scraped within 48 hours, the
-    # site is reachable from our pipeline IP.
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                      "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
+    return {
+        "n_total": total,
+        "n_pr": n_pr,
+        "last_scrape": last_scrape,
+        "db_sections": db_sections,
     }
-    with httpx.Client(timeout=20, follow_redirects=True, headers=headers) as client:
+
+
+def httpx_probe(official: str) -> dict:
+    """Probe sitemap + WP types via httpx. Returns {sitemap_urls, sitemap_status, wp_types, wp_status}."""
+    if not official:
+        return {"sitemap_urls": [], "sitemap_status": "missing", "wp_types": None, "wp_status": "missing"}
+    with httpx.Client(timeout=20, follow_redirects=True, headers=BROWSER_HEADERS) as client:
+        sm_urls, sitemap_status = find_sitemaps(client, official)
         sitemap_urls: list[str] = []
-        sitemap_status = "missing"
-        if official:
-            sm_urls, sitemap_status = find_sitemaps(client, official)
-            for sm in sm_urls:
-                sitemap_urls.extend(fetch_sitemap_urls(client, sm))
+        for sm in sm_urls:
+            sitemap_urls.extend(fetch_sitemap_urls(client, sm))
+        wp_types, wp_status = probe_wp_types(client, official)
+    return {
+        "sitemap_urls": sitemap_urls,
+        "sitemap_status": sitemap_status,
+        "wp_types": wp_types,
+        "wp_status": wp_status,
+    }
 
-        if official:
-            wp_types, wp_status = probe_wp_types(client, official)
-        else:
-            wp_types, wp_status = None, "missing"
 
-    # ---- Section enumeration from sitemap ----
+def classify(senator: dict, db_state: dict, probe: dict) -> dict:
+    """Combine seed + DB + probe into final audit row."""
+    sid = senator["senator_id"]
+    name = senator.get("full_name", sid)
+    state = senator.get("state", "")
+    official = (senator.get("official_url") or "").rstrip("/")
+    press = (senator.get("press_release_url") or "").rstrip("/")
+    issues: list[str] = []
+
+    sitemap_urls = probe["sitemap_urls"]
+    sitemap_status = probe["sitemap_status"]
+    wp_types = probe["wp_types"]
+    wp_status = probe["wp_status"]
+    db_sections = db_state["db_sections"]
+
     section_counts: dict[str, int] = defaultdict(int)
     for url in sitemap_urls:
         sec = section_path(url)
         if sec:
             section_counts[sec] += 1
 
-    # Sections we don't collect from but should consider
     untapped_sections: list[tuple[str, int]] = []
     for sec, n in section_counts.items():
         if n < MIN_SECTION_SIZE:
             continue
         if is_skip_section(sec):
             continue
-        # Already have records in this section?
         if db_sections.get(sec, 0) >= 1:
             continue
-        # Also accept records at deeper / shallower paths (e.g. seed
-        # press_url is /newsroom/press-releases/ but sitemap reports
-        # /newsroom/ as a section due to how URLs are split).
         if any(s.startswith(sec) or sec.startswith(s) for s in db_sections):
             continue
         untapped_sections.append((sec, n))
-
     untapped_sections.sort(key=lambda x: -x[1])
 
-    # ---- Checks ----
     check_official = OK if official else FAIL
     if not official:
         issues.append("seed missing official_url")
-
     check_news = OK if press else FAIL
     if not press:
         issues.append("seed missing press_release_url")
@@ -379,7 +392,7 @@ def audit_senator(senator: dict, conn_url: str) -> dict:
     if sid == "armstrong-alan":
         check_pr = NA
     else:
-        check_pr = OK if n_pr >= 1 else FAIL
+        check_pr = OK if db_state["n_pr"] >= 1 else FAIL
         if check_pr == FAIL:
             issues.append("zero press_release records")
 
@@ -411,9 +424,9 @@ def audit_senator(senator: dict, conn_url: str) -> dict:
         "senator_id": sid,
         "name": name,
         "state": state,
-        "n_total": total,
-        "n_pr": n_pr,
-        "last_scrape": last_scrape,
+        "n_total": db_state["n_total"],
+        "n_pr": db_state["n_pr"],
+        "last_scrape": db_state["last_scrape"],
         "sitemap_urls": len(sitemap_urls),
         "untapped": untapped_sections,
         "wp_types": wp_types or {},
@@ -423,7 +436,258 @@ def audit_senator(senator: dict, conn_url: str) -> dict:
         "check_sitemap": check_sitemap,
         "check_wp": check_wp,
         "issues": issues,
+        "probe_method": probe.get("method", "httpx"),
     }
+
+
+def audit_senator(senator: dict, conn_url: str) -> dict:
+    """httpx-only audit (the parallel-fast path)."""
+    sid = senator["senator_id"]
+    official = (senator.get("official_url") or "").rstrip("/")
+    db_state = pull_db_state(conn_url, sid)
+    probe = httpx_probe(official)
+    probe["method"] = "httpx"
+    return classify(senator, db_state, probe)
+
+
+# ----- Playwright fallback for WAF-blocked senators -----
+
+def _pw_fetch_text(ctx, url: str) -> tuple[int, str]:
+    """Fetch a URL via the Playwright context's request stack."""
+    try:
+        r = ctx.request.get(url, timeout=20000)
+        try:
+            txt = r.text()
+        except Exception:
+            txt = ""
+        return r.status, txt
+    except Exception:
+        return 0, ""
+
+
+def _pw_find_sitemaps(ctx, base: str) -> tuple[list[str], str]:
+    found: list[str] = []
+    saw_403 = False
+    saw_other = False
+
+    code, txt = _pw_fetch_text(ctx, f"{base}/robots.txt")
+    if code == 200:
+        for line in txt.splitlines():
+            if line.lower().startswith("sitemap:"):
+                sm = line.split(":", 1)[1].strip()
+                if sm and sm not in found:
+                    found.append(sm)
+    elif code == 403:
+        saw_403 = True
+    elif code:
+        saw_other = True
+
+    for url in (
+        f"{base}/sitemap_index.xml",
+        f"{base}/wp-sitemap.xml",
+        f"{base}/sitemap.xml",
+    ):
+        if url in found:
+            continue
+        code, txt = _pw_fetch_text(ctx, url)
+        if code == 200 and ("<urlset" in txt or "<sitemapindex" in txt):
+            found.append(url)
+        elif code == 403:
+            saw_403 = True
+        elif code:
+            saw_other = True
+
+    if found:
+        return found, "ok"
+    if saw_403 and not saw_other:
+        return [], "blocked"
+    return [], "missing"
+
+
+def _pw_walk_sitemap(ctx, sitemap_url: str, depth: int = 0) -> list[str]:
+    if depth > 3:
+        return []
+    code, txt = _pw_fetch_text(ctx, sitemap_url)
+    if code != 200:
+        return []
+    urls: list[str] = []
+    locs = re.findall(r"<loc>([^<]+)</loc>", txt)
+    if "<sitemapindex" in txt:
+        for child in locs[:30]:
+            if child.endswith(".xml"):
+                urls.extend(_pw_walk_sitemap(ctx, child, depth + 1))
+    else:
+        urls.extend(locs)
+    return urls
+
+
+def _pw_probe_wp_types(ctx, base: str) -> tuple[dict[str, int] | None, str]:
+    code, txt = _pw_fetch_text(ctx, f"{base}/wp-json/wp/v2/types")
+    if code == 403:
+        return None, "blocked"
+    if code != 200 or not txt:
+        return None, "missing"
+    try:
+        types = json.loads(txt)
+        if not isinstance(types, dict):
+            return None, "missing"
+    except Exception:
+        return None, "missing"
+
+    out: dict[str, int] = {}
+    for slug, info in types.items():
+        if not isinstance(info, dict) or not info.get("rest_base"):
+            continue
+        if slug in WP_KNOWN_SKIP:
+            continue
+        if slug in {"posts", "post", "page", "attachment"}:
+            continue
+        rb = info.get("rest_base", slug)
+        url = f"{base}/wp-json/wp/v2/{rb}?per_page=1&after=2025-01-01T00:00:00"
+        try:
+            r2 = ctx.request.get(url, timeout=20000)
+            if r2.status != 200:
+                continue
+            total = int(r2.headers.get("x-wp-total", "0") or 0)
+            if total >= MIN_SECTION_SIZE:
+                out[slug] = total
+        except Exception:
+            continue
+    return out, "ok"
+
+
+# ----- Wayback Machine fallback -----
+# When even Playwright hits Akamai (IP-level rate limit), fall back
+# to archive.org. The Wayback Machine has cached copies of senate.gov
+# sitemaps and is not WAF'd.
+
+WAYBACK_TS = "2026"  # year to ask for; wayback redirects to closest
+
+
+def _wayback_url(url: str) -> str:
+    return f"https://web.archive.org/web/{WAYBACK_TS}id_/{url}"
+
+
+def _wb_fetch(client: httpx.Client, url: str) -> tuple[int, str]:
+    try:
+        r = client.get(_wayback_url(url))
+        return r.status_code, r.text if r.status_code == 200 else ""
+    except Exception:
+        return 0, ""
+
+
+def wayback_probe(official: str) -> dict:
+    """Fetch sitemap via Wayback. WP types we don't try (Wayback rarely caches API)."""
+    if not official:
+        return {"sitemap_urls": [], "sitemap_status": "missing",
+                "wp_types": None, "wp_status": "missing", "method": "wayback"}
+    found_sm: list[str] = []
+    sitemap_urls: list[str] = []
+    with httpx.Client(timeout=45, follow_redirects=True) as client:
+        # Try robots.txt first
+        code, txt = _wb_fetch(client, f"{official}/robots.txt")
+        if code == 200:
+            for line in txt.splitlines():
+                if line.lower().startswith("sitemap:"):
+                    sm = line.split(":", 1)[1].strip()
+                    if sm and sm not in found_sm:
+                        found_sm.append(sm)
+        for u in (
+            f"{official}/sitemap_index.xml",
+            f"{official}/wp-sitemap.xml",
+            f"{official}/sitemap.xml",
+        ):
+            if u in found_sm:
+                continue
+            code, txt = _wb_fetch(client, u)
+            if code == 200 and ("<urlset" in txt or "<sitemapindex" in txt):
+                found_sm.append(u)
+
+        def walk(sm_url: str, depth: int = 0) -> None:
+            if depth > 3:
+                return
+            code, txt = _wb_fetch(client, sm_url)
+            if code != 200:
+                return
+            locs = re.findall(r"<loc>([^<]+)</loc>", txt)
+            if "<sitemapindex" in txt:
+                for child in locs[:30]:
+                    if child.endswith(".xml"):
+                        walk(child, depth + 1)
+            else:
+                sitemap_urls.extend(locs)
+        for sm in found_sm:
+            walk(sm)
+
+    if sitemap_urls:
+        return {"sitemap_urls": sitemap_urls, "sitemap_status": "ok",
+                "wp_types": None, "wp_status": "missing", "method": "wayback"}
+    return {"sitemap_urls": [], "sitemap_status": "missing",
+            "wp_types": None, "wp_status": "missing", "method": "wayback"}
+
+
+def playwright_probe_batch(senators: list[dict], per_senator_delay: float = 8.0) -> dict[str, dict]:
+    """Open one browser, iterate through senators with back-off, probe each.
+
+    For each senator: open a fresh context, visit homepage (sets WAF
+    cookies + lets challenge JS run), then fetch sitemap + WP types via
+    the same browser context. Real Chrome fingerprint + per-senator
+    cooldown bypasses Akamai. Slow but reliable.
+    """
+    from playwright.sync_api import sync_playwright
+    import time as _time
+
+    out: dict[str, dict] = {}
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        try:
+            for i, s in enumerate(senators):
+                sid = s["senator_id"]
+                official = (s.get("official_url") or "").rstrip("/")
+                if not official:
+                    out[sid] = {
+                        "sitemap_urls": [], "sitemap_status": "missing",
+                        "wp_types": None, "wp_status": "missing",
+                        "method": "playwright",
+                    }
+                    continue
+                ctx = browser.new_context(
+                    user_agent=BROWSER_HEADERS["User-Agent"],
+                    viewport={"width": 1280, "height": 800},
+                    locale="en-US",
+                )
+                page = ctx.new_page()
+                try:
+                    page.goto(official, wait_until="networkidle", timeout=30000)
+                except Exception:
+                    try:
+                        page.goto(official, wait_until="domcontentloaded", timeout=20000)
+                    except Exception as e:
+                        print(f"\n[{sid}] homepage load failed: {e}", file=sys.stderr)
+                _time.sleep(1.5)  # let WAF challenge JS settle
+
+                sm_urls, sitemap_status = _pw_find_sitemaps(ctx, official)
+                sitemap_urls: list[str] = []
+                for sm in sm_urls:
+                    sitemap_urls.extend(_pw_walk_sitemap(ctx, sm))
+                wp_types, wp_status = _pw_probe_wp_types(ctx, official)
+
+                out[sid] = {
+                    "sitemap_urls": sitemap_urls,
+                    "sitemap_status": sitemap_status,
+                    "wp_types": wp_types,
+                    "wp_status": wp_status,
+                    "method": "playwright",
+                }
+                ctx.close()
+                marker = "+" if sitemap_status == "ok" else ("." if sitemap_status == "missing" else "x")
+                print(marker, end="", flush=True, file=sys.stderr)
+
+                if i + 1 < len(senators):
+                    _time.sleep(per_senator_delay)
+        finally:
+            browser.close()
+    return out
 
 
 def render(rows: list[dict]) -> str:
@@ -449,6 +713,25 @@ def render(rows: list[dict]) -> str:
             out.append(f"| {r['state']} | {r['name']} | {seed_check} | {r['check_pr']} | {r['check_sitemap']} | {r['check_wp']} | {'<br>'.join(r['issues'])} |")
         out.append("")
 
+    # Untapped silos roll-up — every (senator, section, count) sorted by volume.
+    silos: list[tuple[int, str, str, str]] = []
+    for r in rows:
+        for sec, n in r.get("untapped", []):
+            silos.append((n, r["state"], r["name"], sec))
+    if silos:
+        silos.sort(reverse=True)
+        out.append("## Untapped silos (every (senator, section) sorted by volume)\n")
+        out.append("| Count | State | Senator | Section |")
+        out.append("|---:|---|---|---|")
+        for n, st, name, sec in silos:
+            out.append(f"| {n:,} | {st} | {name} | `{sec}` |")
+        out.append("")
+
+    # Counts of each status, so it's easy to see overall health
+    n_waf = sum(1 for r in rows if r["check_sitemap"] == "WAF" or r["check_wp"] == "WAF")
+    n_probed = sum(1 for r in rows if r["sitemap_urls"] > 0)
+    out.append(f"_Probed via sitemap: {n_probed}/{len(rows)}. Akamai-blocked (both passes): {n_waf}._\n")
+
     out.append("## Full table (alphabetical by state)\n")
     out.append("| State | Senator | seed | PR | sm | wp | sitemap URLs | Total recs |")
     out.append("|---|---|---|---|---|---|---|---|")
@@ -462,7 +745,12 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--senator", help="Audit only one senator_id")
     ap.add_argument("--write", help="Write the report to this path")
-    ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--workers", type=int, default=2,
+                    help="httpx parallelism (low default to avoid tripping Akamai)")
+    ap.add_argument("--no-playwright", action="store_true",
+                    help="Skip the Playwright second pass for WAF-blocked senators")
+    ap.add_argument("--pw-delay", type=float, default=8.0,
+                    help="Seconds between Playwright probes (back-off vs Akamai)")
     args = ap.parse_args()
 
     load_env()
@@ -475,8 +763,9 @@ def main() -> None:
             sys.exit(1)
 
     db_url = os.environ["DATABASE_URL"]
+    seed_by_id = {s["senator_id"]: s for s in seeds}
 
-    print(f"Auditing {len(seeds)} senators (sitemap-driven)...", file=sys.stderr)
+    print(f"Pass 1 (httpx): {len(seeds)} senators...", file=sys.stderr)
     rows: list[dict] = []
     with ThreadPoolExecutor(max_workers=args.workers) as ex:
         futures = {ex.submit(audit_senator, s, db_url): s["senator_id"] for s in seeds}
@@ -488,6 +777,51 @@ def main() -> None:
             except Exception as e:
                 print(f"\n[{sid}] error: {e}", file=sys.stderr)
     print("", file=sys.stderr)
+
+    # Pass 2: Wayback Machine for senators that httpx couldn't reach.
+    # Wayback isn't Akamai-blocked, so it always works. We use it before
+    # Playwright because it's cheaper and IP-rate-limit-free.
+    blocked = [r for r in rows if r["check_sitemap"] == "WAF"]
+    if blocked:
+        print(f"Pass 2 (wayback): {len(blocked)} senators...", file=sys.stderr)
+        row_by_id = {r["senator_id"]: r for r in rows}
+        with ThreadPoolExecutor(max_workers=min(args.workers, 4)) as ex:
+            futs = {ex.submit(wayback_probe, (seed_by_id[r["senator_id"]].get("official_url") or "").rstrip("/")): r["senator_id"] for r in blocked}
+            for fut in as_completed(futs):
+                sid = futs[fut]
+                try:
+                    probe = fut.result()
+                except Exception as e:
+                    print(f"\n[{sid}] wayback err: {e}", file=sys.stderr)
+                    continue
+                if probe["sitemap_status"] == "ok":
+                    seed = seed_by_id[sid]
+                    db_state = pull_db_state(db_url, sid)
+                    row_by_id[sid] = classify(seed, db_state, probe)
+                    print("w", end="", flush=True, file=sys.stderr)
+                else:
+                    print(".", end="", flush=True, file=sys.stderr)
+        print("", file=sys.stderr)
+        rows = list(row_by_id.values())
+
+    # Pass 3: Playwright for senators still WAF (sitemap might just be
+    # missing-from-Wayback, or we want WP types data). Optional.
+    if not args.no_playwright:
+        still_blocked = [r for r in rows if r["check_sitemap"] == "WAF" or r["check_wp"] == "WAF"]
+        if still_blocked:
+            print(f"Pass 3 (playwright): {len(still_blocked)} senators...",
+                  file=sys.stderr)
+            blocked_seeds = [seed_by_id[r["senator_id"]] for r in still_blocked]
+            pw_results = playwright_probe_batch(blocked_seeds, per_senator_delay=args.pw_delay)
+            print("", file=sys.stderr)
+            row_by_id = {r["senator_id"]: r for r in rows}
+            for sid, probe in pw_results.items():
+                if probe["sitemap_status"] != "ok" and probe["wp_status"] != "ok":
+                    continue
+                seed = seed_by_id[sid]
+                db_state = pull_db_state(db_url, sid)
+                row_by_id[sid] = classify(seed, db_state, probe)
+            rows = list(row_by_id.values())
 
     report = render(rows)
     print(report)
