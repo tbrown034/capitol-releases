@@ -51,3 +51,10 @@ jobs:
 
       - name: Run data-quality tests
         run: python -m pipeline test
+
+      - name: Generate data-health report
+        # Runs after collection + tests so the report reflects today's run.
+        # docs/ is gitignored so the file lands in the runner workspace
+        # only; for now this serves as in-CI diagnostics + a future
+        # commit-target if we decide to surface it on the site.
+        run: python -m pipeline health-report
