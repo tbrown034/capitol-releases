@@ -107,12 +107,12 @@ export default async function Home() {
           daily from their individual senate.gov sites into one normalized,
           searchable archive.
         </p>
-        <p className="text-xs text-neutral-400 mt-3">
+        <p className="text-xs text-neutral-500 mt-3">
           Collecting since January 2025 · {stats.senators_with_releases ?? 0}{" "}
           of 100 senators publishing
         </p>
         {latestRun?.finished_at && (
-          <p className="text-xs text-neutral-400 mt-1">
+          <p className="text-xs text-neutral-500 mt-1">
             Last updated{" "}
             <time dateTime={latestRun.finished_at}>
               {new Date(latestRun.finished_at).toLocaleString("en-US", {
@@ -175,7 +175,7 @@ export default async function Home() {
         <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
           Release Volume
         </h2>
-        <p className="text-xs text-neutral-400 mb-4">
+        <p className="text-xs text-neutral-500 mb-4">
           Daily press releases over the past 90 days
         </p>
         <div className="overflow-x-auto -mx-4 px-4">
@@ -190,7 +190,7 @@ export default async function Home() {
         <Suspense>
           <SearchBox placeholder="Search release text — e.g. fentanyl, Ukraine, Medicaid" />
         </Suspense>
-        <p className="mt-2 text-xs text-neutral-400">
+        <p className="mt-2 text-xs text-neutral-500">
           Searches the full text of every press release. Looking for a
           specific senator?{" "}
           <Link href="/senators" className="underline hover:text-neutral-900">
@@ -230,7 +230,7 @@ export default async function Home() {
         <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
           Trending Topics
         </h2>
-        <p className="text-xs text-neutral-400 mb-4">
+        <p className="text-xs text-neutral-500 mb-4">
           Most mentioned terms in press releases over the past 30 days
         </p>
         <div className="flex flex-wrap gap-2">
@@ -264,7 +264,7 @@ export default async function Home() {
             View all 100
           </Link>
         </div>
-        <p className="text-xs text-neutral-400 mb-6">
+        <p className="text-xs text-neutral-500 mb-6">
           Top 15 senators by release volume since January 2025
           <span className="ml-3 inline-flex items-center gap-3">
             <span className="inline-flex items-center gap-1">

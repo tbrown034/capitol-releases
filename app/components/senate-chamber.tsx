@@ -95,7 +95,7 @@ export function SenateChamber({
           </>
         )}
       </p>
-      <p className="text-xs text-neutral-400 mb-4">
+      <p className="text-xs text-neutral-500 mb-4">
         Each seat = one senator. Color intensity = press releases in the last{" "}
         {days} days. Democrats left, Independents center, Republicans right.
       </p>

@@ -117,15 +117,17 @@ export function SenatorActivity({
   return (
     <aside className={loading ? "opacity-60 transition-opacity" : ""}>
       {/* Range filter */}
-      <div className="flex items-center gap-1 mb-4 border-b border-neutral-900 pb-2">
+      <div role="group" aria-label="Time range" className="flex items-center gap-1 mb-4 border-b border-neutral-900 pb-2">
         {RANGE_LABELS.map((r) => (
           <button
             key={r.value}
+            type="button"
+            aria-pressed={range === r.value}
             onClick={() => setRange(r.value)}
             className={`px-2 py-0.5 text-xs rounded transition-colors ${
               range === r.value
                 ? "bg-neutral-900 text-white"
-                : "text-neutral-400 hover:text-neutral-900"
+                : "text-neutral-500 hover:text-neutral-900"
             }`}
           >
             {r.label}

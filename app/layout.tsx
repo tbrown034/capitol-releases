@@ -38,9 +38,15 @@ export default function RootLayout({
       className={`${dmSans.variable} ${dmMono.variable} ${sourceSerif.variable} antialiased`}
     >
       <body className="bg-white text-neutral-900 font-[family-name:var(--font-dm-sans)]">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:bg-neutral-900 focus:text-white focus:text-sm focus:rounded"
+        >
+          Skip to content
+        </a>
         <div className="h-[3px] bg-neutral-800 w-full" />
         <Nav />
-        <main>{children}</main>
+        <main id="main">{children}</main>
         <footer className="border-t border-neutral-200 bg-stone-50">
           <div className="mx-auto max-w-5xl px-4 py-8 md:py-10">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
