@@ -65,6 +65,11 @@ ROUND_COUNT_WHITELIST = {"tillis-thom", "baldwin-tammy", "moran-jerry"}
 
 
 def fetch_senators(conn, ids: list[str] | None) -> list[dict]:
+    """Read active members from the DB but overlay the press_release_url
+    and selectors from the seed file. The DB row's press_release_url can
+    drift from the seed because seed edits don't auto-sync to the DB; the
+    daily updater reads from the seed, so the seed is the source of truth
+    for live-probe URLs."""
     cur = conn.cursor()
     where = "WHERE status = 'active' AND chamber IN ('senate', 'executive')"
     params: list = []
@@ -81,6 +86,18 @@ def fetch_senators(conn, ids: list[str] | None) -> list[dict]:
     cols = [d[0] for d in cur.description]
     out = [dict(zip(cols, row)) for row in cur.fetchall()]
     cur.close()
+
+    # Overlay seed values (URL, selectors) so health probes match what the
+    # daily updater actually uses.
+    seed_path = Path(__file__).resolve().parents[1] / "seeds" / "senate.json"
+    if seed_path.exists():
+        seed = {s["senator_id"]: s for s in json.loads(seed_path.read_text())["members"]}
+        for row in out:
+            sd = seed.get(row["id"])
+            if sd:
+                if sd.get("press_release_url"):
+                    row["press_release_url"] = sd["press_release_url"]
+                row["selectors"] = sd.get("selectors") or {}
     return out
 
 
@@ -223,6 +240,7 @@ def db_corpus_totals(conn) -> dict[str, int]:
 
 async def live_probe_one(client, senator: dict) -> dict[str, Any]:
     url = senator.get("press_release_url") or ""
+    selectors = senator.get("selectors") or {}
     out: dict[str, Any] = {"live_status": None, "live_latest": None, "live_items": 0}
     if not url:
         out["live_error"] = "no press_release_url"
@@ -233,7 +251,7 @@ async def live_probe_one(client, senator: dict) -> dict[str, Any]:
         if resp.status_code != 200:
             return out
         soup = BeautifulSoup(resp.text, "lxml")
-        items = extract_listing_items(soup, {})
+        items = extract_listing_items(soup, selectors)
         out["live_items"] = len(items)
         latest = None
         for item in items:

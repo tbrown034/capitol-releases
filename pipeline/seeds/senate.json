@@ -850,7 +850,7 @@
       "party": "R",
       "state": "IA",
       "official_url": "https://www.grassley.senate.gov",
-      "press_release_url": "https://www.grassley.senate.gov/404?notfound=/newsroom/press-releases",
+      "press_release_url": "https://www.grassley.senate.gov/news/news-releases",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
