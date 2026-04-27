@@ -48,20 +48,27 @@ export async function getTopSenatorsByPeriod(days = 30) {
 }
 
 export async function getTopicTrends() {
-  // Simple keyword-based topic extraction from titles
+  // Simple keyword-based topic extraction from titles. Strips a single trailing
+  // 's' so "trump"/"trumps" and "family"/"families"-style plurals collapse into
+  // one stem before counting.
   return sql`
-    SELECT word, count(*)::int as count
-    FROM (
-      SELECT DISTINCT pr.id, lower(unnest(string_to_array(
-        regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '
-      ))) as word
+    WITH stemmed AS (
+      SELECT DISTINCT pr.id,
+        regexp_replace(
+          lower(unnest(string_to_array(
+            regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '
+          ))),
+          's$', ''
+        ) as word
       FROM press_releases pr
       WHERE pr.published_at >= NOW() - interval '30 days'
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
-    ) words
+    )
+    SELECT word, count(*)::int as count
+    FROM stemmed
     WHERE length(word) > 4
       AND word NOT IN ('senator','senators','press','release','statement',
-        'announces','urges','calls','joins','leads','supports','introduces',
+        'announce','urge','call','join','lead','support','introduce',
         'legislation','bipartisan','their','about','after','would','could',
         'should','which','where','other','there','these','those','being',
         'through','between','under','during','before','above','below',
@@ -200,6 +207,26 @@ export async function getSenatorTopicTrends(
     HAVING count(*) FILTER (WHERE published_at >= NOW() - interval '30 days') >= 2
     ORDER BY recent_count DESC, prior_count ASC
     LIMIT ${limit}
+  `;
+}
+
+export async function getChamberActivity(days = 7) {
+  return sql`
+    SELECT s.id, s.full_name, s.party, s.state,
+           coalesce(rc.count, 0)::int as count
+    FROM senators s
+    LEFT JOIN (
+      SELECT senator_id, count(*)::int as count
+      FROM press_releases
+      WHERE published_at >= NOW() - make_interval(days => ${days})
+        AND published_at IS NOT NULL
+        AND deleted_at IS NULL
+        AND content_type != 'photo_release'
+      GROUP BY senator_id
+    ) rc ON rc.senator_id = s.id
+    WHERE s.status = 'active'
+      AND s.chamber = 'senate'
+    ORDER BY s.party, s.state, s.full_name
   `;
 }
 

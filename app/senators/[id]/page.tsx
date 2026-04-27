@@ -21,6 +21,7 @@ import { SenatorHeatmap } from "../../components/senator-heatmap";
 import { Pagination } from "../../components/pagination";
 import { TypeBadge } from "../../components/type-badge";
 import { STATE_NAMES } from "../../lib/states";
+import { excludeNameTokens } from "../../lib/names";
 
 const VALID_TYPES = new Set<ContentType>([
   "press_release",
@@ -66,12 +67,9 @@ export default async function SenatorPage({
   const senator = await getSenator(id);
   if (!senator) notFound();
 
-  // Derive name tokens to exclude from signature topics (senator's own name
-  // shouldn't count as a distinctive word).
-  const nameTokens = senator.full_name
-    .toLowerCase()
-    .split(/[^a-z]+/)
-    .filter((t) => t.length > 2);
+  // Derive name tokens to exclude from signature topics (senator's own name +
+  // common nicknames, e.g. "Chuck" for "Charles E. Schumer").
+  const nameTokens = excludeNameTokens(senator.full_name, senator.id);
 
   const [
     { items, total },

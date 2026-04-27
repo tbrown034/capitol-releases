@@ -53,11 +53,14 @@ export async function getFeed({
 
   // Build WHERE predicates + parameters dynamically. Every user value goes
   // through the Neon driver as a $N parameter -- no string interpolation.
-  // The two literal filters (deleted_at, photo_release exclusion) are always
-  // applied and are the product-level invariants.
+  // The literal filters (deleted_at, photo_release exclusion, active senate
+  // members) are always applied and are the product-level invariants. Status
+  // and chamber filters keep counts consistent with getStats / getSenators.
   const preds: string[] = [
     "pr.deleted_at IS NULL",
     "pr.content_type != 'photo_release'",
+    "s.status = 'active'",
+    "s.chamber = 'senate'",
   ];
   const params: unknown[] = [];
   const push = (pred: string, value: unknown) => {

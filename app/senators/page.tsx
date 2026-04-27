@@ -166,10 +166,10 @@ export default async function SenatorsPage({
             <th className="pb-2 pr-4 text-left font-medium">Senator</th>
             <th className="pb-2 pr-4 text-left font-medium">State</th>
             <th className="pb-2 pr-4 text-left font-medium">Party</th>
-            <th className="pb-2 pr-4 text-right font-medium">Yrs in office</th>
-            <th className="pb-2 pr-4 text-right font-medium">Next election</th>
+            <th className="hidden md:table-cell pb-2 pr-4 text-right font-medium">Yrs in office</th>
+            <th className="hidden md:table-cell pb-2 pr-4 text-right font-medium">Next election</th>
             <th className="pb-2 pr-4 text-right font-medium">Releases</th>
-            <th className="pb-2 text-right font-medium">Latest</th>
+            <th className="hidden sm:table-cell pb-2 text-right font-medium">Latest</th>
           </tr>
         </thead>
         <tbody>
@@ -221,10 +221,10 @@ export default async function SenatorsPage({
                     {s.party === "D" ? "Democrat" : s.party === "R" ? "Republican" : "Independent"}
                   </span>
                 </td>
-                <td className="py-2.5 pr-4 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-500 align-top">
+                <td className="hidden md:table-cell py-2.5 pr-4 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-500 align-top">
                   {yearsInOffice(s.first_term_start)}
                 </td>
-                <td className="py-2.5 pr-4 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-500 align-top">
+                <td className="hidden md:table-cell py-2.5 pr-4 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-500 align-top">
                   {nextElection(s.current_term_end)}
                 </td>
                 <td className="py-2.5 pr-4 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-600 align-top">
@@ -232,7 +232,7 @@ export default async function SenatorsPage({
                     <span className="text-neutral-300">—</span>
                   )}
                 </td>
-                <td className="py-2.5 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-400 whitespace-nowrap align-top">
+                <td className="hidden sm:table-cell py-2.5 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-400 whitespace-nowrap align-top">
                   {s.latest_release
                     ? new Date(s.latest_release).toLocaleDateString("en-US", {
                         month: "short",

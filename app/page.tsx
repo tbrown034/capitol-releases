@@ -1,28 +1,58 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { getStats, getTopSenators, getLeastActiveSenators, getFeed, getLatestRun } from "./lib/queries";
-import { getDailyVolume, getSenatorActivity, getTopicTrends } from "./lib/analytics";
+import { getChamberActivity, getDailyVolume, getSenatorActivity, getTopicTrends } from "./lib/analytics";
 import { ReleaseCard } from "./components/release-card";
 import { SearchBox } from "./components/search-box";
 import { ActivityChart } from "./components/activity-chart";
+import { SenateChamber } from "./components/senate-chamber";
 import { SenatorBars } from "./components/senator-bars";
 import { SenatorActivity } from "./components/senator-activity";
 import type { FeedItem } from "./lib/db";
 
 export const dynamic = "force-dynamic";
 
+/** Reorder a date-sorted feed so no senator appears more than `maxRun` times
+ *  consecutively. Items beyond the cap are deferred to the next slot where a
+ *  different senator has appeared, preserving rough recency. */
+function diversifyFeed(items: FeedItem[], maxRun: number): FeedItem[] {
+  const out: FeedItem[] = [];
+  const queue = [...items];
+  while (queue.length) {
+    const lastId = out[out.length - 1]?.senator_id;
+    const runLength = (() => {
+      let n = 0;
+      for (let i = out.length - 1; i >= 0 && out[i].senator_id === lastId; i--) n++;
+      return n;
+    })();
+    let pickIdx = 0;
+    if (lastId && runLength >= maxRun) {
+      const alt = queue.findIndex((it) => it.senator_id !== lastId);
+      pickIdx = alt === -1 ? 0 : alt;
+    }
+    out.push(queue.splice(pickIdx, 1)[0]);
+  }
+  return out;
+}
+
 export default async function Home() {
-  const [stats, topSenators, leastActive, { items: latest }, dailyVolume, senatorActivity, topicTrends, latestRun] =
+  const [stats, topSenators, leastActive, { items: latestPool }, dailyVolume, senatorActivity, topicTrends, latestRun, chamber] =
     await Promise.all([
       getStats(),
       getTopSenators(10),
       getLeastActiveSenators(10),
-      getFeed({ perPage: 12 }),
+      // Pull a larger pool than displayed; diversify keeps no senator with
+      // more than 2 consecutive releases at the top (Apr 24 town-hall flood
+      // had 8 Merkley posts in a row crowding everyone out).
+      getFeed({ perPage: 36 }),
       getDailyVolume(90),
       getSenatorActivity(),
       getTopicTrends(),
       getLatestRun(),
+      getChamberActivity(7),
     ]);
+
+  const latest = diversifyFeed(latestPool, 2).slice(0, 12);
 
   const senatorMap = new Map<
     string,
@@ -126,6 +156,17 @@ export default async function Home() {
           to present
         </div>
       </div>
+
+      {/* Senate Chamber */}
+      <section className="mb-10 md:mb-16">
+        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
+          The Chamber, This Week
+        </h2>
+        <SenateChamber
+          senators={chamber as { id: string; full_name: string; party: "D" | "R" | "I"; state: string; count: number }[]}
+          days={7}
+        />
+      </section>
 
       {/* Release Volume */}
       <section className="mb-10 md:mb-16">

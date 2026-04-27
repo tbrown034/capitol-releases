@@ -439,7 +439,9 @@ def extract_body_text(soup):
     ]:
         el = soup.select_one(sel)
         if el and len(el.get_text(strip=True)) > 100:
-            return el.get_text("\n", strip=True)
+            # Use a space separator so inline siblings ("found</a>here") don't
+            # concatenate into "foundhere". \n still separates block-level nodes.
+            return _normalize_whitespace(el.get_text(" ", strip=True))
 
     # Fallback: largest text block in main
     main = soup.select_one("main") or soup.select_one("article") or soup.body
@@ -450,11 +452,20 @@ def extract_body_text(soup):
     best = ""
     for div in main.find_all(["div", "section"]):
         paras = div.find_all("p")
-        text = "\n".join(p.get_text(strip=True) for p in paras)
+        text = "\n".join(p.get_text(" ", strip=True) for p in paras)
         if len(text) > len(best):
             best = text
 
-    return best if len(best) > 100 else ""
+    return _normalize_whitespace(best) if len(best) > 100 else ""
+
+
+def _normalize_whitespace(text: str) -> str:
+    """Collapse runs of spaces (created by the get_text(' ',...) separator) but
+    preserve newlines that demarcate paragraphs."""
+    import re
+    # Collapse runs of horizontal whitespace, then trim each line.
+    text = re.sub(r"[ \t]+", " ", text)
+    return "\n".join(line.strip() for line in text.split("\n")).strip()
 
 
 def find_next_page(soup, current_url):
@@ -648,10 +659,10 @@ async def scrape_senator(client, semaphore, senator, run_id, max_pages, _conn_un
                 cur = conn.cursor()
                 try:
                     cur.execute("""
-                        INSERT INTO press_releases (senator_id, title, published_at, body_text, source_url, scrape_run)
-                        VALUES (%s, %s, %s, %s, %s, %s)
+                        INSERT INTO press_releases (senator_id, title, published_at, body_text, source_url, scrape_run, date_source, date_confidence)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                         ON CONFLICT (source_url) DO NOTHING
-                    """, (sid, title, pub_date, body_text or None, detail_url, run_id))
+                    """, (sid, title, pub_date, body_text or None, detail_url, run_id, "listing_page", 0.6))
                     conn.commit()
                     if cur.rowcount > 0:
                         inserted += 1
