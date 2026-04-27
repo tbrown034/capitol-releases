@@ -45,5 +45,9 @@ jobs:
       - name: Refresh WP extras (newsletters, speeches, blogs, remarks)
         run: python -m pipeline.scripts.backfill_wp_extras
 
+      - name: Refresh HTML silos (commentary, columns, op-eds, blogs on
+          dedicated listing URLs not covered by /press-releases/)
+        run: python -m pipeline.scripts.backfill_silos --max-pages 3
+
       - name: Run data-quality tests
         run: python -m pipeline test
