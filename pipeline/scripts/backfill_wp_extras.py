@@ -42,6 +42,8 @@ EXTRAS: dict[tuple[str, str], str] = {
     ("risch-james", "newsletter"): "blog",
     ("masto-catherine", "newsletter"): "blog",
     ("padilla-alex", "newsletter"): "blog",
+    # Discovered 2026-04-27 in content_stream recon (162 records waiting).
+    ("ricketts-pete", "weekly_column"): "blog",
 }
 
 
