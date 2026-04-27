@@ -58,7 +58,7 @@ pipeline/
     senate.json     # Per-senator config (URLs, selectors, methods)
     executive.json  # White House and other executive-branch sources
 
-  tests/            # Data quality tests (16 tests)
+  tests/            # Data quality tests (26 tests)
   recon/            # Site discovery (completed)
   scripts/          # One-shot + daily-cron backfills (op-eds, WP extras, HTML silos)
 ```
