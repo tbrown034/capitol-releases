@@ -42,10 +42,11 @@ pipeline/
     ai_validator.py # Claude Haiku validation (advisory)
 
   collectors/       # Collection strategies
-    base.py         # Collector protocol
-    rss_collector.py    # RSS feeds (24 senators)
-    httpx_collector.py  # Static HTML (68 senators)
-    registry.py         # Routes senators to collectors
+    base.py                 # Collector protocol
+    rss_collector.py        # RSS feeds (9 senators)
+    httpx_collector.py      # Static HTML (72 senators)
+    whitehouse_collector.py # Multi-source HTTP for /releases, /briefings, /presidential-actions
+    registry.py             # Routes senators to collectors
 
   commands/         # CLI entry points
     update.py           # Daily updater (Script 3)
@@ -55,20 +56,29 @@ pipeline/
 
   seeds/            # Configuration
     senate.json     # Per-senator config (URLs, selectors, methods)
+    executive.json  # White House and other executive-branch sources
 
   tests/            # Data quality tests (16 tests)
   recon/            # Site discovery (completed)
+  scripts/          # One-shot + daily-cron backfills (op-eds, WP extras, HTML silos)
 ```
 
 ## Collection Methods
 
-Each senator is assigned a canonical collector:
+Each senator is assigned a canonical collector. Last verified 2026-04-27:
 
-| Method | Senators | How it works |
+| Method | Members | How it works |
 |--------|----------|-------------|
-| RSS | 24 | Parse RSS/Atom feeds. Most reliable -- no selectors to break. |
-| httpx | 68 | Fetch HTML + CSS selectors. Battle-tested across 8+ CMS types. |
-| Playwright | 8 | Headless browser for JS-rendered sites. Pending full integration. |
+| RSS | 9 | Parse RSS/Atom feeds. Most reliable -- no selectors to break. |
+| httpx | 72 | Fetch HTML + CSS selectors with a CMS-pattern waterfall. Battle-tested across 8+ CMS families. |
+| Playwright | 19 | Headless browser for JS-rendered sites. The seed records this method, but the registry currently falls back to httpx for many of them; a per-senator audit is pending. |
+| whitehouse | 1 | Multi-source collector for `/releases/`, `/briefings-statements/`, `/presidential-actions/`. Health check probes all three. |
+
+In addition to the daily updater, two backfill scripts run on the same cron to catch original content that lives outside `/press-releases/`:
+
+- `pipeline/scripts/backfill_op_eds.py` — auto-discovers `/wp-json/wp/v2/op_eds` across all WP senators.
+- `pipeline/scripts/backfill_wp_extras.py` — explicit `(senator, post_type) -> content_type` map for newsletters / blogs / speeches / weekly columns.
+- `pipeline/scripts/backfill_silos.py` — explicit `(senator, listing_url, content_type)` HTML silos for sections like Grassley `/news/commentary/`, Ernst `/news/columns/`, Heinrich `/newsroom/blog`.
 
 ## Database
 
