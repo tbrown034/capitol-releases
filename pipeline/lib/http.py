@@ -21,7 +21,13 @@ HEADERS = {
     ),
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.9",
-    "Accept-Encoding": "gzip, deflate, br",
+    # Note: Brotli is intentionally omitted. httpx decodes gzip/deflate
+    # natively but needs the optional `brotli` (or `brotlicffi`) package to
+    # decode `br`. Without it, advertising `br` causes Cloudflare-fronted
+    # sites (whitehouse.gov today) to ship Brotli bytes that we then parse
+    # as garbage HTML, silently producing 0-item health checks. Until/unless
+    # brotli is added to requirements, only advertise what we can decode.
+    "Accept-Encoding": "gzip, deflate",
 }
 
 DEFAULT_TIMEOUT = 20.0

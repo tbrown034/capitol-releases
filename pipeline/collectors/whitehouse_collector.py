@@ -63,15 +63,48 @@ class WhitehouseCollector:
         return merged
 
     async def health_check(self, senator: dict) -> HealthCheckResult:
-        """Health-check the first configured source.
+        """Health-check every configured source independently.
 
-        WH streams share a WordPress deployment — one probe is enough
-        to catch an outage.
+        WH publishes three streams (releases / briefings-statements /
+        presidential-actions) on the same Gutenberg deployment. They share
+        markup but not state — a renamed selector or empty page on one
+        stream wouldn't show up if we only probed sources[0]. Aggregate the
+        per-source HealthCheckResults: pass only when every source passes,
+        and bubble up the first failure as the headline status.
         """
         sources = (senator.get("scrape_config") or {}).get("sources", [])
-        scoped = dict(senator)
-        if sources:
-            scoped["press_release_url"] = sources[0].get(
-                "url", scoped.get("press_release_url", "")
+        if not sources:
+            scoped = dict(senator)
+            return await self._httpx.health_check(scoped)
+
+        sid = senator["senator_id"]
+        per_source: list[HealthCheckResult] = []
+        for src in sources:
+            url = src.get("url")
+            if not url:
+                continue
+            scoped = {**senator, "press_release_url": url}
+            per_source.append(await self._httpx.health_check(scoped))
+
+        merged = HealthCheckResult(senator_id=sid)
+        merged.url_status = max(
+            (h.url_status for h in per_source if h.url_status), default=0
+        )
+        merged.items_found = sum(h.items_found or 0 for h in per_source)
+        merged.selector_ok = all(h.selector_ok for h in per_source)
+        merged.date_parseable = all(
+            (h.date_parseable is not False) for h in per_source
+        )
+        merged.page_load_ms = (
+            sum(h.page_load_ms or 0 for h in per_source) // max(len(per_source), 1)
+        )
+        first_fail = next(
+            (h for h in per_source if not h.selector_ok or h.error_message),
+            None,
+        )
+        if first_fail is not None:
+            merged.error_message = (
+                first_fail.error_message
+                or f"Source failed: {first_fail.items_found} items, status {first_fail.url_status}"
             )
-        return await self._httpx.health_check(scoped)
+        return merged
