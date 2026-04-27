@@ -15,7 +15,9 @@ export const metadata = {
     "How Capitol Releases collects, classifies and archives every U.S. senator's official press releases.",
 };
 
-export const dynamic = "force-dynamic";
+// About page is mostly static + per-senator coverage table from a daily-cron
+// query. Long ISR is fine and saves a 2.5s SSR pass per visitor.
+export const revalidate = 3600;
 
 const CONTENT_TYPE_LABELS: Record<string, string> = {
   press_release: "Press release",

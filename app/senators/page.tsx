@@ -30,7 +30,7 @@ export const metadata = {
   title: "Directory — Capitol Releases",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 600;
 
 type SortKey = "count" | "state" | "name";
 
@@ -60,9 +60,10 @@ export default async function SenatorsPage({
     sort === "state" ? "state" : sort === "name" ? "name" : "count";
   const activeState = stateParam?.toUpperCase();
 
-  const senators = await getSenators();
-
-  const bioguides = await sql`SELECT id, bioguide_id FROM senators WHERE bioguide_id IS NOT NULL`;
+  const [senators, bioguides] = await Promise.all([
+    getSenators(),
+    sql`SELECT id, bioguide_id FROM senators WHERE bioguide_id IS NOT NULL`,
+  ]);
   const bioMap = new Map<string, string>();
   for (const row of bioguides as { id: string; bioguide_id: string }[]) {
     bioMap.set(row.id, row.bioguide_id);

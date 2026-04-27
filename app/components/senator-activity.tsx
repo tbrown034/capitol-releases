@@ -84,6 +84,10 @@ export function SenatorActivity({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // initialTop/initialBottom are stable on the server but become a new array
+    // reference each parent render; including them in deps refires this effect
+    // every time Home() re-renders. They are only consulted on the "all" branch
+    // (synchronous, no fetch), so excluding them is safe.
     if (range === "all") {
       setTop(initialTop);
       setBottom(initialBottom);
@@ -107,7 +111,8 @@ export function SenatorActivity({
     return () => {
       cancelled = true;
     };
-  }, [range, initialTop, initialBottom]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [range]);
 
   return (
     <aside className={loading ? "opacity-60 transition-opacity" : ""}>

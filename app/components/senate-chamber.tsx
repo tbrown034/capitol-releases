@@ -28,7 +28,9 @@ const VIEW_H = 380;
 
 type Seat = { row: number; idx: number; angle: number; x: number; y: number };
 
-function buildSeats(): Seat[] {
+// Pure-deterministic; depends only on module-level constants. Computed once at
+// module load to avoid recomputing 100 (x, y) pairs on every render.
+const SEATS: Seat[] = (() => {
   const seats: Seat[] = [];
   for (let row = 0; row < ROWS.length; row++) {
     const n = ROWS[row];
@@ -41,7 +43,7 @@ function buildSeats(): Seat[] {
     }
   }
   return seats.sort((a, b) => a.angle - b.angle);
-}
+})();
 
 function fillFor(party: "D" | "R" | "I", count: number, max: number) {
   if (count === 0) return { fill: "#f5f5f4", stroke: "#d6d3d1" };
@@ -63,7 +65,7 @@ export function SenateChamber({
     return a.full_name.localeCompare(b.full_name);
   });
 
-  const seats = buildSeats();
+  const seats = SEATS;
   const max = sorted.reduce((m, s) => Math.max(m, s.count), 0);
   const active = sorted.filter((s) => s.count > 0).length;
   const top = sorted.reduce<Senator | null>(
@@ -136,10 +138,13 @@ export function SenateChamber({
             max
           );
           return (
-            <Link
+            // Plain <a> instead of next/link: valid in SVG, no client-side
+            // prefetcher attached to each of 100 hover targets.
+            <a
               key={senator.id}
               href={`/senators/${senator.id}`}
               aria-label={`${senator.full_name} (${senator.party}-${senator.state}), ${senator.count} releases`}
+              className="outline-none focus-visible:[outline:2px_solid_#0a0a0a] focus-visible:[outline-offset:2px]"
             >
               <circle
                 cx={seat.x}
@@ -149,11 +154,11 @@ export function SenateChamber({
                 fillOpacity={opacity ?? 1}
                 stroke={stroke}
                 strokeWidth={1}
-                className="transition-[r,fill-opacity] duration-150 hover:[r:11] hover:fill-opacity-100"
+                className="motion-safe:transition-[r,fill-opacity] motion-safe:duration-150 hover:[r:11] hover:fill-opacity-100"
               >
                 <title>{`${senator.full_name} (${senator.party}-${senator.state}) — ${senator.count} release${senator.count === 1 ? "" : "s"}`}</title>
               </circle>
-            </Link>
+            </a>
           );
         })}
       </svg>

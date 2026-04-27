@@ -10,7 +10,9 @@ import { SenatorBars } from "./components/senator-bars";
 import { SenatorActivity } from "./components/senator-activity";
 import type { FeedItem } from "./lib/db";
 
-export const dynamic = "force-dynamic";
+// Daily-cron data; 10-min ISR is plenty and keeps the homepage off the
+// request-time DB path (was 9 sequential SQL round-trips per visitor).
+export const revalidate = 600;
 
 /** Reorder a date-sorted feed so no senator appears more than `maxRun` times
  *  consecutively. Items beyond the cap are deferred to the next slot where a
