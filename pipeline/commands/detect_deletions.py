@@ -83,11 +83,18 @@ async def check_urls(
 def get_urls_to_check(conn, senator_id: str = None, batch_size: int = 500) -> list[tuple]:
     """Get URLs to check, prioritizing those not recently verified."""
     cur = conn.cursor()
+    # Allowed source domains: any first-party .gov site we collect from.
+    # Keep this in sync with classifier.is_external_content() and any new
+    # chamber additions (house.gov when we expand beyond Senate).
     query = """
         SELECT id::text, senator_id, source_url
         FROM press_releases
         WHERE deleted_at IS NULL
-        AND source_url LIKE '%%senate.gov%%'
+        AND (
+          source_url LIKE '%%senate.gov%%'
+          OR source_url LIKE '%%whitehouse.gov%%'
+          OR source_url LIKE '%%house.gov%%'
+        )
     """
     params = []
     if senator_id:

@@ -15,6 +15,7 @@ CONTENT_TYPES = [
     "press_release",
     "statement",
     "op_ed",
+    "blog",
     "letter",
     "photo_release",
     "floor_statement",
@@ -74,6 +75,16 @@ _URL_RULES: list[tuple[str, str]] = [
     ("/photo-release", "photo_release"),
     ("/presidential-actions/", "presidential_action"),
     ("/briefings-statements/", "statement"),
+    # Newsletters / blogs / weekly columns. Some senators publish under
+    # /newsletter/ (Curtis weekly), /weekly-column/ (Grassley), /diary/, etc.
+    # Backfill_op_eds and backfill_wp_extras already map these by senator+CPT;
+    # this lets the daily updater catch them too if they slip through silos.
+    ("/newsletters/", "blog"),
+    ("/newsletter/", "blog"),
+    ("/weekly-column/", "blog"),
+    ("/weekly-update/", "blog"),
+    ("/diary/", "blog"),
+    ("/blog/", "blog"),
 ]
 
 # WordPress category mappings
@@ -94,6 +105,16 @@ _CATEGORY_MAP: dict[str, str] = {
     "speech": "floor_statement",
     "photo releases": "photo_release",
     "photo release": "photo_release",
+    "blog": "blog",
+    "blogs": "blog",
+    "blog post": "blog",
+    "blog posts": "blog",
+    "newsletter": "blog",
+    "newsletters": "blog",
+    "weekly column": "blog",
+    "weekly columns": "blog",
+    "weekly update": "blog",
+    "weekly updates": "blog",
 }
 
 

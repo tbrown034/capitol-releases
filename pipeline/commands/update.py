@@ -64,37 +64,105 @@ def get_existing_urls(conn, senator_id: str) -> set[str]:
     return urls
 
 
-def insert_release(conn, release: ReleaseRecord) -> bool:
-    """Insert a release into the database. Returns True if new."""
+def upsert_release(conn, release: ReleaseRecord) -> tuple[bool, bool]:
+    """Upsert a release with content versioning.
+
+    Returns (is_new, was_updated):
+      - is_new=True   when source_url was not in the DB
+      - was_updated=True when source_url existed but content_hash changed; in
+        that case the prior body is moved into content_versions before the
+        main row is updated.
+
+    The archival mission requires capturing edits, not just first-publish: a
+    senator silently rewriting a release after it goes live should leave a
+    trail. Pure ON CONFLICT DO NOTHING (the prior behavior) lost those edits.
+    """
+    canonical = normalize_url(release.source_url)
+    run_id = f"daily-{datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
     cur = conn.cursor()
     try:
-        cur.execute("""
-            INSERT INTO press_releases
-                (senator_id, title, published_at, body_text, source_url,
-                 raw_html, content_type, date_source, date_confidence,
-                 content_hash, scrape_run, scraped_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
-            ON CONFLICT (source_url) DO NOTHING
-        """, (
-            release.senator_id,
-            release.title,
-            release.published_at,
-            release.body_text or None,
-            normalize_url(release.source_url),
-            release.raw_html or None,
-            release.content_type,
-            release.date_source or None,
-            release.date_confidence or None,
-            release.content_hash or None,
-            f"daily-{datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
-        ))
+        cur.execute(
+            "SELECT id, content_hash, body_text FROM press_releases WHERE source_url = %s",
+            (canonical,),
+        )
+        existing = cur.fetchone()
+
+        if existing is None:
+            cur.execute(
+                """
+                INSERT INTO press_releases
+                    (senator_id, title, published_at, body_text, source_url,
+                     raw_html, content_type, date_source, date_confidence,
+                     content_hash, scrape_run, scraped_at, last_seen_live)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+                ON CONFLICT (source_url) DO NOTHING
+                """,
+                (
+                    release.senator_id,
+                    release.title,
+                    release.published_at,
+                    release.body_text or None,
+                    canonical,
+                    release.raw_html or None,
+                    release.content_type,
+                    release.date_source or None,
+                    release.date_confidence or None,
+                    release.content_hash or None,
+                    run_id,
+                ),
+            )
+            conn.commit()
+            return (cur.rowcount > 0, False)
+
+        existing_id, existing_hash, existing_body = existing
+        new_hash = release.content_hash or None
+
+        # Always bump last_seen_live so the deletion detector knows the URL is
+        # still resolving from the source.
+        cur.execute(
+            "UPDATE press_releases SET last_seen_live = NOW() WHERE id = %s",
+            (existing_id,),
+        )
+
+        # If we have hashes on both sides and they differ, archive the old
+        # version then update the main row. If either hash is missing we
+        # cannot reliably detect an edit, so we treat this as a no-op.
+        if new_hash and existing_hash and new_hash != existing_hash:
+            cur.execute(
+                """
+                INSERT INTO content_versions
+                    (press_release_id, body_text, content_hash, captured_at)
+                VALUES (%s, %s, %s, NOW())
+                """,
+                (existing_id, existing_body, existing_hash),
+            )
+            cur.execute(
+                """
+                UPDATE press_releases
+                SET title = %s,
+                    body_text = %s,
+                    content_hash = %s,
+                    raw_html = COALESCE(%s, raw_html),
+                    updated_at = NOW()
+                WHERE id = %s
+                """,
+                (
+                    release.title,
+                    release.body_text or None,
+                    new_hash,
+                    release.raw_html or None,
+                    existing_id,
+                ),
+            )
+            conn.commit()
+            return (False, True)
+
         conn.commit()
-        is_new = cur.rowcount > 0
-        return is_new
+        return (False, False)
     except Exception as e:
         conn.rollback()
-        log.error("Insert failed for %s: %s", release.source_url, e)
-        return False
+        log.error("Upsert failed for %s: %s", release.source_url, e)
+        return (False, False)
     finally:
         cur.close()
 
@@ -135,12 +203,13 @@ async def run_update(
     semaphore = asyncio.Semaphore(max_concurrent)
 
     total_inserted = 0
+    total_updated = 0
     total_skipped = 0
     total_errors = 0
     senator_results = []
 
     async def process_senator(senator):
-        nonlocal total_inserted, total_skipped, total_errors
+        nonlocal total_inserted, total_updated, total_skipped, total_errors
 
         async with semaphore:
             sid = senator["senator_id"]
@@ -159,33 +228,29 @@ async def run_update(
                     log.warning("Collector error for %s: %s", sid, err)
                 total_errors += len(result.errors)
 
-            # Get existing URLs for dedup
-            existing_urls = set()
-            if conn:
-                existing_urls = get_existing_urls(conn, sid)
-
             inserted = 0
+            updated = 0
             skipped = 0
             for release in result.releases:
-                canonical = normalize_url(release.source_url)
-                if canonical in existing_urls:
-                    skipped += 1
-                    continue
-
                 if dry_run:
                     date_str = release.published_at.strftime("%Y-%m-%d") if release.published_at else "no date"
                     print(f"  [DRY] {sid}: {date_str} | {release.title[:70]}")
                     inserted += 1
+                    continue
+
+                is_new, was_updated = upsert_release(conn, release)
+                if is_new:
+                    inserted += 1
+                    date_str = release.published_at.strftime("%Y-%m-%d") if release.published_at else "no date"
+                    log.info("  + %s: %s | %s", sid, date_str, release.title[:70])
+                elif was_updated:
+                    updated += 1
+                    log.info("  ~ %s: %s | %s (content changed)", sid, release.published_at.strftime("%Y-%m-%d") if release.published_at else "no date", release.title[:70])
                 else:
-                    if insert_release(conn, release):
-                        inserted += 1
-                        date_str = release.published_at.strftime("%Y-%m-%d") if release.published_at else "no date"
-                        log.info("  + %s: %s | %s", sid, date_str, release.title[:70])
-                        existing_urls.add(canonical)
-                    else:
-                        skipped += 1
+                    skipped += 1
 
             total_inserted += inserted
+            total_updated += updated
             total_skipped += skipped
 
             senator_results.append({
@@ -193,13 +258,14 @@ async def run_update(
                 "method": result.method,
                 "collected": len(result.releases),
                 "inserted": inserted,
+                "updated": updated,
                 "skipped": skipped,
                 "duration_s": round(result.duration_seconds, 1),
                 "errors": result.errors,
             })
 
-            if inserted > 0:
-                log.info("%s: +%d new, %d skipped (via %s)", sid, inserted, skipped, result.method)
+            if inserted > 0 or updated > 0:
+                log.info("%s: +%d new, ~%d updated, %d skipped (via %s)", sid, inserted, updated, skipped, result.method)
 
     # Run all senators concurrently
     tasks = [process_senator(s) for s in senators]
@@ -208,10 +274,12 @@ async def run_update(
     # Record the run
     stats = {
         "total_inserted": total_inserted,
+        "total_updated": total_updated,
         "total_skipped": total_skipped,
         "total_errors": total_errors,
         "senators_processed": len(senator_results),
         "senators_with_new": sum(1 for r in senator_results if r.get("inserted", 0) > 0),
+        "senators_with_updates": sum(1 for r in senator_results if r.get("updated", 0) > 0),
     }
 
     if conn and not dry_run:
@@ -235,8 +303,8 @@ async def run_update(
 
     elapsed = (datetime.now(timezone.utc) - started_at).total_seconds()
     log.info(
-        "Update complete in %.1fs. +%d new, %d skipped, %d errors across %d senators",
-        elapsed, total_inserted, total_skipped, total_errors, len(senator_results),
+        "Update complete in %.1fs. +%d new, ~%d updated, %d skipped, %d errors across %d senators",
+        elapsed, total_inserted, total_updated, total_skipped, total_errors, len(senator_results),
     )
 
     return stats
@@ -278,7 +346,12 @@ def main():
         max_concurrent=args.max_concurrent,
     ))
 
-    print(f"\nSummary: +{stats['total_inserted']} new, {stats['total_skipped']} skipped, {stats['total_errors']} errors")
+    print(
+        f"\nSummary: +{stats['total_inserted']} new, "
+        f"~{stats.get('total_updated', 0)} updated, "
+        f"{stats['total_skipped']} skipped, "
+        f"{stats['total_errors']} errors"
+    )
 
 
 if __name__ == "__main__":
