@@ -57,6 +57,12 @@ CONTENT_TYPES = [
 # usually real signal.
 LAG_FLAG_DAYS = 5
 
+# Senators whose suspiciously-round record counts have been investigated
+# and confirmed legitimate. Mirrors test_data_quality.py's verified_ok
+# set; keep in sync. Adding a senator here means "we know about this,
+# it's not a pagination cap."
+ROUND_COUNT_WHITELIST = {"tillis-thom", "baldwin-tammy", "moran-jerry"}
+
 
 def fetch_senators(conn, ids: list[str] | None) -> list[dict]:
     cur = conn.cursor()
@@ -285,15 +291,24 @@ def per_senator_flags(
                 flags.append(f"lag-{lag}d")
         except ValueError:
             pass
-    # Suspicious round-counts (potential pagination cap)
-    if db["total"] in (100, 200, 250, 300, 500, 1000) and db["total"] > 0:
+    # Suspicious round-counts (potential pagination cap). Skip
+    # already-investigated senators whose round count is legitimate.
+    if (
+        db["total"] in (100, 200, 250, 300, 500, 1000)
+        and db["total"] > 0
+        and sid not in ROUND_COUNT_WHITELIST
+    ):
         flags.append(f"round-count-{db['total']}")
-    # Single-type concentration -- low-volume senators are fine, but >300
-    # records all of one type is a classifier-miss smell.
-    if db["total"] >= 300:
-        max_type, max_n = max(db["by_type"].items(), key=lambda x: x[1])
-        if max_n / db["total"] > 0.97:
-            flags.append(f"single-type-{max_type}")
+    # NB: a "single-type-press_release" flag was tried and dropped. The
+    # classifier is designed to let the section URL win -- everything in a
+    # senator's /press-releases/ section is press_release regardless of
+    # title, even items titled "STATEMENT:" or "OP-ED:". For senators
+    # whose entire site is one section, 100% press_release is correct
+    # behavior, not a classifier miss. Multi-type breakdowns only emerge
+    # when a senator maintains a distinct /op-eds/, /blog/, etc. section,
+    # which is exactly what backfill_silos.py + classifier URL rules
+    # already handle. Flagging single-type would generate noise on every
+    # well-behaved senator with a single publishing surface.
     return flags
 
 
