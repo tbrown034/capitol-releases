@@ -251,3 +251,31 @@ def extract_date(
 
     # Return highest confidence
     return max(candidates, key=lambda r: r.confidence)
+
+
+def demote_if_future(
+    result: "DateResult | None",
+    *,
+    tolerance_days: int = 1,
+    now: datetime | None = None,
+) -> "DateResult | None":
+    """Demote confidence and re-tag a DateResult that lands more than
+    `tolerance_days` ahead of now. Senator press shops sometimes typo a
+    month (e.g. "May 04" on a release scraped April 28); we keep the
+    extracted date for journalistic provenance but downgrade confidence
+    so downstream sorts and trust scores treat it as suspect. Returns the
+    same DateResult mutated in place (or None if the input was None).
+    """
+    if result is None or result.value is None:
+        return result
+    reference = now or datetime.now(timezone.utc)
+    val = result.value
+    if val.tzinfo is None:
+        val = val.replace(tzinfo=timezone.utc)
+    delta_days = (val - reference).total_seconds() / 86400
+    if delta_days > tolerance_days:
+        # Keep the date and the original source for the audit trail; flag
+        # the suspicion in the source string and crater confidence.
+        result.source = f"{result.source}_future_typo"
+        result.confidence = min(result.confidence, 0.2)
+    return result

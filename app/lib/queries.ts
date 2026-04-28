@@ -31,6 +31,15 @@ function normalizeType(t?: string): ContentType | undefined {
 // SELECT columns for all feed queries -- keep in sync with FeedItem.
 const FEED_COLUMNS = `pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, pr.content_type, s.full_name as senator_name, s.party, s.state`;
 
+// Sort key that defends against upstream date typos (e.g. a senator's
+// office putting "May 04" on a release captured April 28). The display
+// date stays whatever the office published, but ordering uses the lesser
+// of {published_at, scraped_at} so a future-dated outlier can't pin to the
+// top of /feed or the homepage hero. A release we captured today can't
+// truly have been published in the future, regardless of what their meta
+// tag claims.
+const EFFECTIVE_DATE_SQL = `LEAST(pr.published_at, pr.scraped_at)`;
+
 export type FeedFilters = {
   page?: number;
   perPage?: number;
@@ -94,8 +103,8 @@ export async function getFeed(
 
   const orderBy =
     sort === "relevance" && f.search
-      ? `ts_rank(pr.fts, plainto_tsquery('english', $1)) DESC, pr.published_at DESC NULLS LAST`
-      : `pr.published_at DESC NULLS LAST`;
+      ? `ts_rank(pr.fts, plainto_tsquery('english', $1)) DESC, ${EFFECTIVE_DATE_SQL} DESC NULLS LAST`
+      : `${EFFECTIVE_DATE_SQL} DESC NULLS LAST`;
 
   params.push(perPage);
   const limitIdx = `$${params.length}`;
@@ -366,7 +375,7 @@ export async function getSenatorReleases(
     const items = (await sql`
       SELECT * FROM press_releases
       WHERE senator_id = ${senatorId} AND deleted_at IS NULL AND content_type = ${ctype}
-      ORDER BY published_at DESC NULLS LAST
+      ORDER BY LEAST(published_at, scraped_at) DESC NULLS LAST
       LIMIT ${perPage} OFFSET ${offset}
     `) as PressRelease[];
     return { items, total: Number(countResult[0].total) };
@@ -375,7 +384,7 @@ export async function getSenatorReleases(
   const countResult = await sql`SELECT count(*) as total FROM press_releases WHERE senator_id = ${senatorId} AND deleted_at IS NULL AND content_type != 'photo_release'`;
   const items = (await sql`
     SELECT * FROM press_releases WHERE senator_id = ${senatorId} AND deleted_at IS NULL AND content_type != 'photo_release'
-    ORDER BY published_at DESC NULLS LAST
+    ORDER BY LEAST(published_at, scraped_at) DESC NULLS LAST
     LIMIT ${perPage} OFFSET ${offset}
   `) as PressRelease[];
   return { items, total: Number(countResult[0].total) };

@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 
 from pipeline.collectors.base import Collector, CollectorResult, ReleaseRecord, HealthCheckResult
 from pipeline.lib.classifier import classify_content_type, is_external_content
-from pipeline.lib.dates import parse_date_text, extract_date_from_url, extract_date
+from pipeline.lib.dates import parse_date_text, extract_date_from_url, extract_date, demote_if_future
 from pipeline.lib.http import create_client, fetch_with_retry, politeness_delay
 from pipeline.lib.identity import normalize_url, content_hash
 
@@ -153,6 +153,22 @@ class HttpxCollector:
                                 pub_date = html_date.value
                                 date_source = html_date.source
                                 date_confidence = html_date.confidence
+
+                    # Future-dated typos: keep the extracted date but flag
+                    # confidence so downstream sorts/quality treat it as
+                    # suspect. Most of these are press-office month typos
+                    # (e.g. "May 04" on a release captured April 28).
+                    if pub_date:
+                        from datetime import datetime as _dt, timezone as _tz
+                        _now = _dt.now(_tz.utc)
+                        _pd = pub_date if pub_date.tzinfo else pub_date.replace(tzinfo=_tz.utc)
+                        if (_pd - _now).total_seconds() > 86400:
+                            log.warning(
+                                "Future-dated release flagged: %s claims %s, captured now (%s); demoting confidence",
+                                detail_url, pub_date.isoformat(), _now.isoformat(),
+                            )
+                            date_source = f"{date_source}_future_typo" if date_source else "future_typo"
+                            date_confidence = min(date_confidence, 0.2)
                     except Exception as e:
                         log.warning("Detail page failed for %s: %s", detail_url, e)
 

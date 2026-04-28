@@ -42,6 +42,21 @@ export function formatTimestamp(input: string | Date | null | undefined): string
   });
 }
 
+// True when the published date is more than a day ahead of when we
+// captured the release. Catches upstream typos (e.g. senator's office
+// puts "May 04" on a release we scraped April 28). Never overwrite the
+// source date in the DB; flag it on display.
+export function isFutureDated(
+  publishedAt: string | Date | null | undefined,
+  scrapedAt: string | Date | null | undefined,
+  toleranceMs: number = 24 * 60 * 60 * 1000
+): boolean {
+  if (!publishedAt || !scrapedAt) return false;
+  const p = typeof publishedAt === "string" ? new Date(publishedAt) : publishedAt;
+  const s = typeof scrapedAt === "string" ? new Date(scrapedAt) : scrapedAt;
+  return p.getTime() - s.getTime() > toleranceMs;
+}
+
 export function formatTimestampShort(input: string | Date | null | undefined): string {
   if (!input) return "";
   const d = typeof input === "string" ? new Date(input) : input;

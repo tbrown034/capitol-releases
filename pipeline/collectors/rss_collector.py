@@ -102,6 +102,19 @@ class RSSCollector:
                     except Exception as e:
                         log.warning("Detail page failed for %s: %s", item.url, e)
 
+                # Future-dated typos: keep the date but flag confidence.
+                if item.published_at:
+                    from datetime import datetime as _dt, timezone as _tz
+                    _now = _dt.now(_tz.utc)
+                    _pd = item.published_at if item.published_at.tzinfo else item.published_at.replace(tzinfo=_tz.utc)
+                    if (_pd - _now).total_seconds() > 86400:
+                        log.warning(
+                            "Future-dated release flagged (rss): %s claims %s; demoting confidence",
+                            item.url, item.published_at.isoformat(),
+                        )
+                        date_source = f"{date_source}_future_typo"
+                        date_confidence = min(date_confidence, 0.2)
+
                 record = ReleaseRecord(
                     senator_id=sid,
                     title=item.title,

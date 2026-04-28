@@ -5,7 +5,7 @@ import Link from "next/link";
 import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
 import { normalizeTitle } from "../lib/titles";
 import { TypeIcon } from "./type-icon";
-import { formatReleaseDate, formatTimestamp, formatTimestampShort } from "../lib/dates";
+import { formatReleaseDate, formatTimestamp, formatTimestampShort, isFutureDated } from "../lib/dates";
 import type { ContentType } from "../lib/db";
 
 type HeroItem = {
@@ -69,6 +69,7 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
 
   const dateLabel = formatDateTime(item.published_at);
   const captured = formatCaptured(item.scraped_at);
+  const isFuture = isFutureDated(item.published_at, item.scraped_at);
   const hasPublishedTime = (() => {
     if (!item.published_at) return false;
     const d = new Date(item.published_at);
@@ -133,12 +134,22 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
                 <span>Press release</span>
               </span>
               {dateLabel && (
-                <time
-                  dateTime={item.published_at ?? undefined}
-                  className="font-[family-name:var(--font-dm-mono)] tabular-nums normal-case tracking-normal text-[11px] text-neutral-500"
-                >
-                  {dateLabel}
-                </time>
+                <span className="inline-flex items-center gap-1">
+                  <time
+                    dateTime={item.published_at ?? undefined}
+                    className="font-[family-name:var(--font-dm-mono)] tabular-nums normal-case tracking-normal text-[11px] text-neutral-500"
+                  >
+                    {dateLabel}
+                  </time>
+                  {isFuture && (
+                    <span
+                      title={`Office-published date is in the future (likely upstream typo); captured ${captured}.`}
+                      className="text-amber-700 cursor-help text-xs"
+                    >
+                      *
+                    </span>
+                  )}
+                </span>
               )}
             </div>
 

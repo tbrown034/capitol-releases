@@ -11,7 +11,7 @@ import { TypeBadge } from "../../components/type-badge";
 import { getSenatorPhotoUrl, getInitials } from "../../lib/photos";
 import { normalizeTitle } from "../../lib/titles";
 import { STATE_NAMES } from "../../lib/states";
-import { formatReleaseDate, formatTimestamp } from "../../lib/dates";
+import { formatReleaseDate, formatTimestamp, isFutureDated } from "../../lib/dates";
 
 export const revalidate = 600;
 
@@ -99,6 +99,7 @@ export default async function ReleasePage({
         : "ring-amber-500";
   const host = sourceHost(release.source_url);
   const isDeleted = release.deleted_at !== null;
+  const isFuture = isFutureDated(release.published_at, release.scraped_at);
   const title = normalizeTitle(release.title);
 
   return (
@@ -109,6 +110,25 @@ export default async function ReleasePage({
       >
         ← Back to feed
       </Link>
+
+      {isFuture && (
+        <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 px-4 py-3">
+          <p className="text-sm text-amber-900">
+            <span className="font-semibold">Date discrepancy.</span>{" "}
+            The senator&apos;s office published this release with a date of{" "}
+            <time dateTime={release.published_at!}>
+              {formatReleaseDate(release.published_at)}
+            </time>
+            , but Capitol Releases captured it on{" "}
+            <time dateTime={release.scraped_at}>
+              {formatReleaseDate(release.scraped_at)}
+            </time>
+            . The published date appears to be a typo on the source site; the
+            capture timestamp is when the release first appeared at the URL
+            below.
+          </p>
+        </div>
+      )}
 
       {isDeleted && (
         <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 px-4 py-3">

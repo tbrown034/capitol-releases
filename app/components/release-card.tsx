@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { FeedItem } from "../lib/db";
 import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
 import { normalizeTitle } from "../lib/titles";
-import { formatReleaseDate } from "../lib/dates";
+import { formatReleaseDate, isFutureDated } from "../lib/dates";
 import { TypeBadge } from "./type-badge";
 import { TypeIcon } from "./type-icon";
 
@@ -126,6 +126,14 @@ export function ReleaseCard({
                 >
                   {formatReleaseDate(item.published_at)}
                 </time>
+                {isFutureDated(item.published_at, item.scraped_at) && (
+                  <span
+                    title={`Office-published date is in the future (likely upstream typo); we captured this on ${formatReleaseDate(item.scraped_at)}.`}
+                    className="text-amber-700 cursor-help"
+                  >
+                    *
+                  </span>
+                )}
               </>
             )}
             {type !== "press_release" && (
