@@ -29,19 +29,26 @@ export default async function DeletedPage({
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
       <h1 className="font-[family-name:var(--font-source-serif)] text-4xl text-neutral-900 mb-3">
-        Scrubbed releases
+        Confirmed deletions
       </h1>
       <p className="text-sm text-neutral-600 leading-relaxed mb-2 max-w-2xl">
-        Press releases that have been removed from a senator&apos;s official
-        site since we first archived them. Capitol Releases preserves the
-        original captured copy of each.
+        Press releases that have returned 404 or 410 on multiple consecutive
+        re-checks from the senator&apos;s official site. We preserve the
+        captured body text on Capitol Releases.
       </p>
-      <p className="text-xs text-neutral-400 leading-relaxed mb-8 max-w-2xl">
+      <p className="text-xs text-neutral-500 leading-relaxed mb-2 max-w-2xl">
         <span className="font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-900 font-semibold">
           {total.toLocaleString()}
         </span>{" "}
-        record{total !== 1 ? "s" : ""} flagged as deleted by the daily detector.
-        Pages return 404 or 410 from the source; we keep the body text.
+        record{total !== 1 ? "s" : ""} confirmed deleted.
+      </p>
+      <p className="text-xs text-neutral-400 leading-relaxed mb-8 max-w-2xl border-l-2 border-neutral-200 pl-3">
+        Note: the deletion detector requires three independent 404/410 hits
+        spaced apart before tombstoning a record. Senate sites sit behind
+        Akamai and occasionally return transient 404s that resolve within
+        seconds; the multi-confirmation gate filters those out. A 2026-04-19
+        run created 1,286 unconfirmed tombstones; on re-verification with a
+        browser User-Agent, 1,283 returned 200 and were restored.
       </p>
 
       <div className="border-b border-neutral-200 mb-2" />

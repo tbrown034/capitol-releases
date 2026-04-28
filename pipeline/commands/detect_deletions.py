@@ -42,33 +42,70 @@ DB_URL = os.environ["DATABASE_URL"]
 log = logging.getLogger("capitol.deletions")
 
 
+# A first 404/410 hit is treated as a candidate, not a tombstone. The detector
+# requires CONFIRMATION_RUNS independent re-checks before tombstoning. The
+# 2026-04-19 incident produced 1,286 false-positive tombstones because a single
+# transient 404 (likely Akamai/CDN behavior) was treated as deletion -- 1,283
+# of 1,286 returned 200 on browser-UA reverification a week later.
+CONFIRMATION_RUNS = 3
+CONFIRMATION_SPACING_S = 60  # seconds between confirmation re-checks
+
+
 async def check_urls(
     urls: list[tuple[str, str, str]],  # (id, senator_id, source_url)
     max_concurrent: int = 10,
 ) -> list[dict]:
     """Check a batch of URLs for 404/410 responses.
 
-    Uses GET (not HEAD) because HEAD is unreliable on many Senate sites.
-    Returns list of detected deletions.
+    Any candidate 404/410 is re-checked CONFIRMATION_RUNS times with
+    CONFIRMATION_SPACING_S seconds between checks before being treated as a
+    real deletion. Single hits are too noisy for tombstoning.
     """
     semaphore = asyncio.Semaphore(max_concurrent)
-    deletions = []
+    deletions: list[dict] = []
+
+    async def confirm(client, url) -> int | None:
+        # Returns the final status code if every confirmation pass agrees on
+        # 404/410; None otherwise.
+        first = None
+        for i in range(CONFIRMATION_RUNS):
+            try:
+                resp = await client.get(url, follow_redirects=True)
+                code = resp.status_code
+            except Exception:
+                return None
+            if code not in (404, 410):
+                return None
+            if first is None:
+                first = code
+            elif code != first:
+                return None
+            if i < CONFIRMATION_RUNS - 1:
+                await asyncio.sleep(CONFIRMATION_SPACING_S)
+        return first
 
     async def check_one(client, record_id, senator_id, url):
         async with semaphore:
             try:
                 resp = await client.get(url, follow_redirects=True)
                 if resp.status_code in (404, 410):
-                    deletions.append({
-                        "id": record_id,
-                        "senator_id": senator_id,
-                        "source_url": url,
-                        "status_code": resp.status_code,
-                    })
-                    log.info("DELETED: %s [%d] %s", senator_id, resp.status_code, url[:80])
-                elif resp.status_code == 200:
-                    # Still live -- update last_seen_live
-                    pass  # handled in batch after
+                    confirmed = await confirm(client, url)
+                    if confirmed is not None:
+                        deletions.append({
+                            "id": record_id,
+                            "senator_id": senator_id,
+                            "source_url": url,
+                            "status_code": confirmed,
+                        })
+                        log.info(
+                            "DELETED (confirmed %dx): %s [%d] %s",
+                            CONFIRMATION_RUNS, senator_id, confirmed, url[:80],
+                        )
+                    else:
+                        log.info(
+                            "DELETION CANDIDATE NOT CONFIRMED: %s %s",
+                            senator_id, url[:80],
+                        )
             except Exception as e:
                 log.debug("Check failed for %s: %s", url[:60], type(e).__name__)
             await asyncio.sleep(0.2)  # politeness
