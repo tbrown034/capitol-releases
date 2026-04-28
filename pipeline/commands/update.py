@@ -213,20 +213,26 @@ async def run_update(
 
         async with semaphore:
             sid = senator["senator_id"]
+            expect_empty = bool(senator.get("expect_empty"))
             collector = registry.get_collector(senator)
 
             try:
                 result = await collector.collect(senator, since=since, max_pages=1)
             except Exception as e:
                 log.error("Collector crashed for %s: %s: %s", sid, type(e).__name__, e)
-                total_errors += 1
+                if not expect_empty:
+                    total_errors += 1
                 senator_results.append({"senator_id": sid, "error": str(e)})
                 return
 
             if result.errors:
-                for err in result.errors:
-                    log.warning("Collector error for %s: %s", sid, err)
-                total_errors += len(result.errors)
+                if expect_empty and not result.releases:
+                    for err in result.errors:
+                        log.info("Expected-empty senator %s: %s", sid, err)
+                else:
+                    for err in result.errors:
+                        log.warning("Collector error for %s: %s", sid, err)
+                    total_errors += len(result.errors)
 
             inserted = 0
             updated = 0

@@ -44,7 +44,8 @@
         "detail_link": null
       },
       "confidence": 0,
-      "notes": "Page exists but div.page-content is empty. New senator, no releases published yet. Verified 2026-04-17.",
+      "expect_empty": true,
+      "notes": "Page exists but div.page-content is empty. New senator, no releases published yet. Verified 2026-04-17. Remove expect_empty flag once first release publishes.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "httpx",
