@@ -3,6 +3,7 @@ import { DM_Sans, DM_Mono, Source_Serif_4 } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Nav } from "./components/nav";
 import { Footer } from "./components/footer";
+import { SITE_URL } from "./lib/site";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -22,6 +23,7 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Capitol Releases",
   description:
     "A searchable archive of official press releases from all 100 U.S. senators. Normalized, indexed, updated daily.",

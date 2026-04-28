@@ -280,6 +280,44 @@ export async function getRelatedReleases(
   return rows as FeedItem[];
 }
 
+export async function getReleaseIdsForSitemap(
+  offset: number,
+  limit: number
+): Promise<{ id: string; updated_at: string | null; published_at: string | null }[]> {
+  const rows = await sql`
+    SELECT pr.id, pr.updated_at, pr.published_at
+    FROM press_releases pr
+    JOIN senators s ON s.id = pr.senator_id
+    WHERE pr.deleted_at IS NULL
+      AND pr.content_type != 'photo_release'
+      AND s.status = 'active'
+      AND s.chamber = 'senate'
+    ORDER BY pr.published_at DESC NULLS LAST
+    LIMIT ${limit} OFFSET ${offset}
+  `;
+  return rows as { id: string; updated_at: string | null; published_at: string | null }[];
+}
+
+export async function getReleaseCountForSitemap(): Promise<number> {
+  const rows = await sql`
+    SELECT count(*)::int as total
+    FROM press_releases pr
+    JOIN senators s ON s.id = pr.senator_id
+    WHERE pr.deleted_at IS NULL
+      AND pr.content_type != 'photo_release'
+      AND s.status = 'active'
+      AND s.chamber = 'senate'
+  `;
+  return Number((rows[0] as { total: number }).total);
+}
+
+export async function getActiveSenatorIds(): Promise<string[]> {
+  const rows = await sql`
+    SELECT id FROM senators WHERE status = 'active' AND chamber = 'senate' ORDER BY id
+  `;
+  return rows.map((r) => (r as { id: string }).id);
+}
+
 export async function getDeletedReleases(
   page = 1,
   perPage = 50
