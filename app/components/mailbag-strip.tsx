@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ContentType } from "../lib/db";
-import { CONTENT_TYPE_PLURAL } from "../lib/queries";
+import { CONTENT_TYPE_PLURAL } from "../lib/content-types";
 import { TypeIcon } from "./type-icon";
 
 type MailbagRow = { content_type: ContentType; count: number };

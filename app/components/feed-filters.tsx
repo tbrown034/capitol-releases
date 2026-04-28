@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { getStates } from "../lib/states";
-import { CONTENT_TYPE_ORDER, CONTENT_TYPE_LABEL } from "../lib/queries";
+import { CONTENT_TYPE_ORDER, CONTENT_TYPE_LABEL } from "../lib/content-types";
 
 export function FeedFilters({ basePath = "/feed" }: { basePath?: string }) {
   const router = useRouter();

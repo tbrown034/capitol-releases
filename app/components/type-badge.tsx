@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ContentType } from "../lib/db";
-import { CONTENT_TYPE_LABEL_SHORT, CONTENT_TYPE_LABEL } from "../lib/queries";
+import { CONTENT_TYPE_LABEL_SHORT, CONTENT_TYPE_LABEL } from "../lib/content-types";
 
 // photo_release is intentionally absent -- it's excluded from every UI surface
 // via queries.ts, so this component never receives it.
