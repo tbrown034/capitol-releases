@@ -17,7 +17,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
 from pipeline.collectors.base import Collector, CollectorResult, ReleaseRecord, HealthCheckResult
-from pipeline.lib.classifier import classify_content_type, is_external_content
+from pipeline.lib.classifier import classify_content_type, is_external_content, is_listing_url
 from pipeline.lib.dates import parse_date_text, extract_date_from_url, extract_date, demote_if_future
 from pipeline.lib.http import create_client, fetch_with_retry, politeness_delay
 from pipeline.lib.identity import normalize_url, content_hash
@@ -87,8 +87,13 @@ class HttpxCollector:
                     if not title or not detail_url:
                         continue
 
-                    # Skip external content
+                    # Skip external content (non-.gov, social media, news aggregators)
                     if is_external_content(detail_url, title):
+                        continue
+
+                    # Skip listing/index pages misclassified as detail URLs
+                    if is_listing_url(detail_url):
+                        log.debug("Skipping listing-page URL: %s", detail_url)
                         continue
 
                     # Parse date with provenance

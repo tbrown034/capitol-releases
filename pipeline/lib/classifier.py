@@ -161,19 +161,35 @@ def classify_content_type(
 def is_external_content(url: str, title: str = "") -> bool:
     """Check if a URL points to external content (not senator-produced).
 
-    Used to filter out 'In the News' links to external media coverage.
+    Used to filter out 'In the News' links, social-media handles, news-aggregator
+    items, and any URL that isn't on a first-party government domain. Conservative
+    by design: a URL that isn't on senate.gov, house.gov, or whitehouse.gov is
+    treated as external regardless of where it came from.
     """
     if not url:
         return False
     url_lower = url.lower()
-    # External domains (not .gov)
     allowed_gov = ("senate.gov", "house.gov", "whitehouse.gov")
-    if not any(d in url_lower for d in allowed_gov):
-        if any(d in url_lower for d in [
-            "nytimes.com", "washingtonpost.com", "cnn.com", "foxnews.com",
-            "politico.com", "thehill.com", "reuters.com", "apnews.com",
-            "twitter.com", "x.com", "facebook.com", "instagram.com",
-            "youtube.com", "bsky.app", "threads.net",
-        ]):
-            return True
-    return False
+    return not any(d in url_lower for d in allowed_gov)
+
+
+# URL paths that are listing pages, not individual releases. Hoeven, Cantwell,
+# Graham, Klobuchar and Thune all had collector misfires where the listing
+# page itself got captured as a "release". Match the path as a leaf so that
+# /press-releases/some-actual-release is preserved.
+_LISTING_PATH_RE = re.compile(
+    r"/(press-releases|news-releases|newsroom|news|media|press)(/?(\?.*)?$)",
+    re.IGNORECASE,
+)
+
+
+def is_listing_url(url: str) -> bool:
+    """True when the URL looks like a section index, not an individual release."""
+    if not url:
+        return False
+    try:
+        from urllib.parse import urlparse
+        path = urlparse(url).path
+    except Exception:
+        path = url
+    return bool(_LISTING_PATH_RE.search(path))

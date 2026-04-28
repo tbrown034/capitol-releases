@@ -15,7 +15,7 @@ import httpx
 from bs4 import BeautifulSoup
 
 from pipeline.collectors.base import Collector, CollectorResult, ReleaseRecord, HealthCheckResult
-from pipeline.lib.classifier import classify_content_type, is_external_content
+from pipeline.lib.classifier import classify_content_type, is_external_content, is_listing_url
 from pipeline.lib.dates import parse_date_text, DateResult
 from pipeline.lib.http import create_client, fetch_with_retry, politeness_delay
 from pipeline.lib.identity import normalize_url, content_hash
@@ -60,8 +60,13 @@ class RSSCollector:
             result.pages_scraped = 1
 
             for item in items:
-                # Skip external content (In the News links)
+                # Skip external content (In the News links, social, non-.gov)
                 if is_external_content(item.url, item.title):
+                    continue
+
+                # Skip listing/index pages misclassified as detail URLs
+                if is_listing_url(item.url):
+                    log.debug("Skipping listing-page URL: %s", item.url)
                     continue
 
                 # Skip items before the cutoff
