@@ -446,19 +446,26 @@ export default async function SenatorPage({
                   {pr.published_at ? formatReleaseDate(pr.published_at) : "---"}
                 </td>
                 <td className="py-2.5 text-neutral-900">
-                  <a
-                    href={pr.source_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    href={`/releases/${pr.id}`}
                     className="hover:underline"
                   >
                     {pr.title}
-                  </a>
+                  </Link>
                   {pr.content_type && pr.content_type !== "press_release" && (
                     <span className="ml-2 inline-block align-middle">
                       <TypeBadge type={pr.content_type} size="xs" />
                     </span>
                   )}
+                  <a
+                    href={pr.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 text-[10px] text-neutral-400 hover:text-neutral-700"
+                    title="Open original on senate.gov"
+                  >
+                    source <span aria-hidden>↗</span>
+                  </a>
                 </td>
               </tr>
             ))}

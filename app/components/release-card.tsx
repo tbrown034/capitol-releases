@@ -91,16 +91,21 @@ export function ReleaseCard({ item }: { item: FeedItem }) {
             )}
           </div>
           <h3 className="text-sm text-neutral-900 leading-snug mt-0.5">
-            <a
-              href={item.source_url}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href={`/releases/${item.id}`}
               className="hover:underline"
             >
               {normalizeTitle(item.title)}
-            </a>
+            </Link>
           </h3>
-          <div className="mt-0.5 text-[10px] text-neutral-400">
+          <div className="mt-0.5 text-[10px] text-neutral-400 flex items-center gap-2">
+            <Link
+              href={`/releases/${item.id}`}
+              className="hover:text-neutral-600 transition-colors"
+            >
+              Read here
+            </Link>
+            <span className="text-neutral-300">·</span>
             <a
               href={item.source_url}
               target="_blank"
@@ -108,6 +113,7 @@ export function ReleaseCard({ item }: { item: FeedItem }) {
               className="hover:text-neutral-600 transition-colors"
             >
               {host}
+              <span aria-hidden> ↗</span>
             </a>
           </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
 import { normalizeTitle } from "../lib/titles";
 import { TypeIcon } from "./type-icon";
@@ -169,14 +170,12 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
 
             <div className="border-t border-neutral-100 pt-3">
               <div className="text-[10px] uppercase tracking-wider text-neutral-400 mb-1">Subject</div>
-              <a
-                href={item.source_url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href={`/releases/${item.id}`}
                 className="block text-[15px] leading-snug text-neutral-900 font-[family-name:var(--font-source-serif)] hover:underline line-clamp-3"
               >
                 {normalizeTitle(item.title)}
-              </a>
+              </Link>
             </div>
 
             <div className="mt-4 flex items-center justify-between text-[10px] text-neutral-400">

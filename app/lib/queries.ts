@@ -136,6 +136,117 @@ export async function getSenator(id: string): Promise<Senator | null> {
   return (rows[0] as Senator) ?? null;
 }
 
+export type ReleaseDetail = FeedItem & {
+  deleted_at: string | null;
+  last_seen_live: string | null;
+  updated_at: string | null;
+  version_count: number;
+};
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export async function getReleaseById(
+  id: string
+): Promise<ReleaseDetail | null> {
+  if (!UUID_RE.test(id)) return null;
+  const rows = await sql`
+    SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text,
+           pr.source_url, pr.scraped_at, pr.content_type,
+           pr.deleted_at, pr.last_seen_live, pr.updated_at,
+           s.full_name as senator_name, s.party, s.state,
+           (SELECT count(*)::int FROM content_versions cv WHERE cv.press_release_id = pr.id) as version_count
+    FROM press_releases pr
+    JOIN senators s ON s.id = pr.senator_id
+    WHERE pr.id = ${id}
+  `;
+  return (rows[0] as ReleaseDetail) ?? null;
+}
+
+export type ReleaseVersion = {
+  id: number;
+  press_release_id: string;
+  body_text: string | null;
+  content_hash: string | null;
+  captured_at: string;
+};
+
+export async function getReleaseVersions(
+  releaseId: string
+): Promise<ReleaseVersion[]> {
+  if (!UUID_RE.test(releaseId)) return [];
+  const rows = await sql`
+    SELECT id, press_release_id, body_text, content_hash, captured_at
+    FROM content_versions
+    WHERE press_release_id = ${releaseId}
+    ORDER BY captured_at DESC
+  `;
+  return rows as ReleaseVersion[];
+}
+
+export async function getRelatedReleases(
+  release: { id: string; published_at: string | null; senator_id: string },
+  limit = 6
+): Promise<FeedItem[]> {
+  if (!release.published_at) return [];
+  const text = `
+    SELECT ${FEED_COLUMNS}
+    FROM press_releases pr
+    JOIN senators s ON s.id = pr.senator_id
+    WHERE pr.deleted_at IS NULL
+      AND pr.content_type != 'photo_release'
+      AND s.status = 'active'
+      AND s.chamber = 'senate'
+      AND pr.id != $1
+      AND pr.senator_id != $2
+      AND pr.published_at IS NOT NULL
+      AND pr.published_at BETWEEN ($3::timestamptz - INTERVAL '24 hours')
+                              AND ($3::timestamptz + INTERVAL '24 hours')
+    ORDER BY ABS(EXTRACT(EPOCH FROM (pr.published_at - $3::timestamptz)))
+    LIMIT $4
+  `;
+  const rows = await sql.query(text, [
+    release.id,
+    release.senator_id,
+    release.published_at,
+    limit,
+  ]);
+  return rows as FeedItem[];
+}
+
+export async function getDeletedReleases(
+  page = 1,
+  perPage = 50
+): Promise<{ items: ReleaseDetail[]; total: number }> {
+  const offset = (page - 1) * perPage;
+  const countResult = await sql`
+    SELECT count(*)::int as total FROM press_releases pr
+    JOIN senators s ON s.id = pr.senator_id
+    WHERE pr.deleted_at IS NOT NULL
+      AND pr.content_type != 'photo_release'
+      AND s.status = 'active'
+      AND s.chamber = 'senate'
+  `;
+  const items = await sql`
+    SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text,
+           pr.source_url, pr.scraped_at, pr.content_type,
+           pr.deleted_at, pr.last_seen_live, pr.updated_at,
+           s.full_name as senator_name, s.party, s.state,
+           0 as version_count
+    FROM press_releases pr
+    JOIN senators s ON s.id = pr.senator_id
+    WHERE pr.deleted_at IS NOT NULL
+      AND pr.content_type != 'photo_release'
+      AND s.status = 'active'
+      AND s.chamber = 'senate'
+    ORDER BY pr.deleted_at DESC
+    LIMIT ${perPage} OFFSET ${offset}
+  `;
+  return {
+    items: items as ReleaseDetail[],
+    total: Number(countResult[0].total),
+  };
+}
+
 export async function getSenatorReleases(
   senatorId: string,
   page = 1,
