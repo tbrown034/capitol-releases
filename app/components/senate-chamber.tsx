@@ -57,9 +57,20 @@ const SEATS: Seat[] = (() => {
   return seats.sort((a, b) => a.angle - b.angle);
 })();
 
+// Log-compressed intensity. Linear count/max gets crushed when one outlier
+// (e.g. Warren at 43 mentions of "Trump") sits far above the median (~5);
+// every other senator collapses to the floor opacity and the chamber reads
+// as "one bright dot, ninety-nine pale dots". log(count+1)/log(max+1)
+// spreads the middle of the distribution into visible bands while still
+// reserving full saturation for the leader.
+function intensity(count: number, max: number): number {
+  if (count <= 0 || max <= 0) return 0;
+  return Math.log(count + 1) / Math.log(max + 1);
+}
+
 function fillFor(party: "D" | "R" | "I", count: number, max: number) {
   if (count === 0) return { fill: "#f5f5f4", stroke: "#d6d3d1" };
-  const t = Math.max(0.25, Math.min(1, count / Math.max(max, 1)));
+  const t = Math.max(0.25, Math.min(1, intensity(count, max)));
   return { fill: PARTY_COLOR[party], stroke: PARTY_COLOR[party], opacity: t };
 }
 
@@ -80,10 +91,16 @@ export function SenateChamber({
   const searchParams = useSearchParams();
 
   // Initialize from URL so views are shareable (?scope=alltime&q=Trump).
+  // Default landing state is `q=Trump` -- the unscoped "press release count"
+  // view is functionally just a senator productivity ranking; defaulting to
+  // Trump frames the chamber as a topic-attention map, which is what the
+  // viz is for.
   const initialScope: TimeScope =
     searchParams.get("scope") === "alltime" ? "alltime" : "recent";
   const initialTerm = (() => {
-    const raw = (searchParams.get("q") ?? "")
+    const qParam = searchParams.get("q");
+    if (qParam === null) return "Trump";
+    const raw = qParam
       .trim()
       .replace(/[^a-zA-Z0-9 \-']/g, "")
       .slice(0, MAX_TERM_LEN);
