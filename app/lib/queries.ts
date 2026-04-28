@@ -31,15 +31,7 @@ function normalizeType(t?: string): ContentType | undefined {
 // SELECT columns for all feed queries -- keep in sync with FeedItem.
 const FEED_COLUMNS = `pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, pr.content_type, s.full_name as senator_name, s.party, s.state`;
 
-export async function getFeed({
-  page = 1,
-  perPage = 25,
-  party,
-  state,
-  senator,
-  search,
-  type,
-}: {
+export type FeedFilters = {
   page?: number;
   perPage?: number;
   party?: string;
@@ -47,15 +39,17 @@ export async function getFeed({
   senator?: string;
   search?: string;
   type?: string;
-} = {}): Promise<{ items: FeedItem[]; total: number }> {
-  const offset = (page - 1) * perPage;
-  const ctype = normalizeType(type);
+  from?: string;
+  to?: string;
+  sort?: "date" | "relevance";
+};
 
-  // Build WHERE predicates + parameters dynamically. Every user value goes
-  // through the Neon driver as a $N parameter -- no string interpolation.
-  // The literal filters (deleted_at, photo_release exclusion, active senate
-  // members) are always applied and are the product-level invariants. Status
-  // and chamber filters keep counts consistent with getStats / getSenators.
+export type SearchFeedItem = FeedItem & { snippet?: string | null };
+
+function buildFeedPredicates(f: FeedFilters): {
+  preds: string[];
+  params: unknown[];
+} {
   const preds: string[] = [
     "pr.deleted_at IS NULL",
     "pr.content_type != 'photo_release'",
@@ -67,32 +61,105 @@ export async function getFeed({
     params.push(value);
     preds.push(pred.replace("$?", `$${params.length}`));
   };
-
-  if (search) push("pr.fts @@ plainto_tsquery('english', $?)", search);
-  if (party) push("s.party = $?", party);
-  if (state) push("s.state = $?", state);
-  if (senator) push("pr.senator_id = $?", senator);
+  const ctype = normalizeType(f.type);
+  if (f.search) push("pr.fts @@ plainto_tsquery('english', $?)", f.search);
+  if (f.party) push("s.party = $?", f.party);
+  if (f.state) push("s.state = $?", f.state);
+  if (f.senator) push("pr.senator_id = $?", f.senator);
   if (ctype) push("pr.content_type = $?", ctype);
+  if (f.from) push("pr.published_at >= $?::date", f.from);
+  if (f.to) push("pr.published_at < ($?::date + INTERVAL '1 day')", f.to);
+  return { preds, params };
+}
 
+export async function getFeed(
+  f: FeedFilters = {}
+): Promise<{ items: SearchFeedItem[]; total: number }> {
+  const page = f.page ?? 1;
+  const perPage = f.perPage ?? 25;
+  const offset = (page - 1) * perPage;
+  const sort = f.sort ?? "date";
+  const wantSnippet = Boolean(f.search);
+
+  const { preds, params } = buildFeedPredicates(f);
   const where = preds.join(" AND ");
+
+  const cols = wantSnippet
+    ? `${FEED_COLUMNS},
+       ts_headline('english', COALESCE(pr.body_text, ''),
+         plainto_tsquery('english', $1),
+         'StartSel=<mark>,StopSel=</mark>,MaxFragments=2,MaxWords=18,MinWords=6,ShortWord=3,FragmentDelimiter=" \u2026 "'
+       ) AS snippet`
+    : FEED_COLUMNS;
+
+  const orderBy =
+    sort === "relevance" && f.search
+      ? `ts_rank(pr.fts, plainto_tsquery('english', $1)) DESC, pr.published_at DESC NULLS LAST`
+      : `pr.published_at DESC NULLS LAST`;
+
   params.push(perPage);
   const limitIdx = `$${params.length}`;
   params.push(offset);
   const offsetIdx = `$${params.length}`;
 
   const countText = `SELECT count(*)::int AS total FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE ${where}`;
-  const itemsText = `SELECT ${FEED_COLUMNS} FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE ${where} ORDER BY pr.published_at DESC NULLS LAST LIMIT ${limitIdx} OFFSET ${offsetIdx}`;
+  const itemsText = `SELECT ${cols} FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE ${where} ORDER BY ${orderBy} LIMIT ${limitIdx} OFFSET ${offsetIdx}`;
 
-  // Count query uses only the filter params; items query uses all of them.
   const countParams = params.slice(0, params.length - 2);
   const [countResult, items] = await Promise.all([
     sql.query(countText, countParams),
     sql.query(itemsText, params),
   ]);
   return {
-    items: items as FeedItem[],
+    items: items as SearchFeedItem[],
     total: Number((countResult as { total: number }[])[0].total),
   };
+}
+
+export type SearchFacets = {
+  party: { D: number; R: number; I: number };
+  type: Partial<Record<ContentType, number>>;
+  state: { state: string; count: number }[];
+};
+
+export async function getSearchFacets(
+  f: FeedFilters
+): Promise<SearchFacets> {
+  // Facet counts ignore the facet's own filter — we want "if you removed
+  // this filter, here's the count". For party facet, we omit party from
+  // the predicate, etc.
+  async function countBy(omit: keyof FeedFilters, groupCol: string) {
+    const filtered: FeedFilters = { ...f, [omit]: undefined };
+    const { preds, params } = buildFeedPredicates(filtered);
+    const where = preds.join(" AND ");
+    const text = `SELECT ${groupCol} as key, count(*)::int as count FROM press_releases pr JOIN senators s ON s.id = pr.senator_id WHERE ${where} GROUP BY ${groupCol}`;
+    return (await sql.query(text, params)) as { key: string; count: number }[];
+  }
+
+  const [partyRows, typeRows, stateRows] = await Promise.all([
+    countBy("party", "s.party"),
+    countBy("type", "pr.content_type"),
+    countBy("state", "s.state"),
+  ]);
+
+  const party = { D: 0, R: 0, I: 0 };
+  for (const r of partyRows) {
+    if (r.key === "D" || r.key === "R" || r.key === "I") {
+      party[r.key] = r.count;
+    }
+  }
+  const type: Partial<Record<ContentType, number>> = {};
+  for (const r of typeRows) {
+    if (r.key && r.key !== EXCLUDED_FROM_UI) {
+      type[r.key as ContentType] = r.count;
+    }
+  }
+  const state = stateRows
+    .filter((r) => r.key)
+    .sort((a, b) => b.count - a.count)
+    .map((r) => ({ state: r.key, count: r.count }));
+
+  return { party, type, state };
 }
 
 export async function getSenators(): Promise<SenatorWithCount[]> {

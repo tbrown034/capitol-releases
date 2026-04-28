@@ -14,7 +14,53 @@ function sourceHost(url: string): string {
   }
 }
 
-export function ReleaseCard({ item }: { item: FeedItem }) {
+// ts_headline output is server-trusted Postgres output that we explicitly
+// asked to wrap matches in <mark>. We escape the rest, then re-inject mark
+// tags. Anything else is rendered as text.
+function renderSnippet(snippet: string): React.ReactNode {
+  const escape = (s: string) =>
+    s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  // Split on our known mark tokens (we set StartSel/StopSel ourselves).
+  const parts = snippet.split(/(<mark>|<\/mark>)/g);
+  let inMark = false;
+  const nodes: React.ReactNode[] = [];
+  parts.forEach((p, i) => {
+    if (p === "<mark>") {
+      inMark = true;
+      return;
+    }
+    if (p === "</mark>") {
+      inMark = false;
+      return;
+    }
+    if (!p) return;
+    const safe = escape(p)
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">");
+    nodes.push(
+      inMark ? (
+        <mark key={i} className="bg-yellow-100 text-neutral-900 px-0.5 rounded-sm">
+          {safe}
+        </mark>
+      ) : (
+        <span key={i}>{safe}</span>
+      )
+    );
+  });
+  return nodes;
+}
+
+export function ReleaseCard({
+  item,
+  snippet,
+}: {
+  item: FeedItem;
+  snippet?: string | null;
+}) {
   const photoUrl = getSenatorPhotoUrl(item.senator_name, item.senator_id);
   const partyRing =
     item.party === "D"
@@ -98,6 +144,11 @@ export function ReleaseCard({ item }: { item: FeedItem }) {
               {normalizeTitle(item.title)}
             </Link>
           </h3>
+          {snippet && snippet.trim().length > 0 && (
+            <p className="mt-1 text-[12px] text-neutral-600 leading-relaxed line-clamp-3">
+              {renderSnippet(snippet)}
+            </p>
+          )}
           <div className="mt-0.5 text-[10px] text-neutral-400 flex items-center gap-2">
             <Link
               href={`/releases/${item.id}`}
