@@ -13,61 +13,149 @@ const STOPWORDS = [
   "into","over","your","what","when","they","them","also",
 ];
 
+export type TrendingScope = "week" | "month" | "ytd" | "all";
+
 /**
- * Trending now: words from titles in the last 30 days vs the 30 days before,
- * with the delta. Returns up to 30 stems.
+ * Trending now. Returns top stems for the chosen scope, with delta vs the
+ * equivalent prior window (same length for week/month, prior calendar year
+ * for ytd, no delta for "all").
  */
-export async function getTrendingWithDelta() {
+export async function getTrendingWithDelta(scope: TrendingScope = "month") {
+  if (scope === "week") {
+    return sql`
+      WITH recent AS (
+        SELECT DISTINCT pr.id,
+          regexp_replace(lower(unnest(string_to_array(
+            regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
+        FROM press_releases pr
+        WHERE pr.published_at >= NOW() - interval '7 days'
+          AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
+      ),
+      prior AS (
+        SELECT DISTINCT pr.id,
+          regexp_replace(lower(unnest(string_to_array(
+            regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
+        FROM press_releases pr
+        WHERE pr.published_at >= NOW() - interval '14 days'
+          AND pr.published_at < NOW() - interval '7 days'
+          AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
+      ),
+      rcounts AS (
+        SELECT word, count(*)::int as cnt FROM recent
+        WHERE length(word) > 4 AND word != ALL(${STOPWORDS}::text[])
+        GROUP BY word
+      ),
+      pcounts AS (
+        SELECT word, count(*)::int as cnt FROM prior
+        WHERE length(word) > 4 AND word != ALL(${STOPWORDS}::text[])
+        GROUP BY word
+      )
+      SELECT r.word, r.cnt as recent_count,
+             coalesce(p.cnt, 0) as prior_count,
+             r.cnt - coalesce(p.cnt, 0) as delta
+      FROM rcounts r LEFT JOIN pcounts p ON p.word = r.word
+      WHERE r.cnt >= 2
+      ORDER BY r.cnt DESC LIMIT 30
+    `;
+  }
+
+  if (scope === "ytd") {
+    // 2026 YTD vs the same calendar window in 2025.
+    return sql`
+      WITH recent AS (
+        SELECT DISTINCT pr.id,
+          regexp_replace(lower(unnest(string_to_array(
+            regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
+        FROM press_releases pr
+        WHERE pr.published_at >= date_trunc('year', NOW())
+          AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
+      ),
+      prior AS (
+        SELECT DISTINCT pr.id,
+          regexp_replace(lower(unnest(string_to_array(
+            regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
+        FROM press_releases pr
+        WHERE pr.published_at >= date_trunc('year', NOW()) - interval '1 year'
+          AND pr.published_at < date_trunc('year', NOW())
+              - (NOW() - date_trunc('year', NOW()))
+              + interval '1 day'
+          AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
+      ),
+      rcounts AS (
+        SELECT word, count(*)::int as cnt FROM recent
+        WHERE length(word) > 4 AND word != ALL(${STOPWORDS}::text[])
+        GROUP BY word
+      ),
+      pcounts AS (
+        SELECT word, count(*)::int as cnt FROM prior
+        WHERE length(word) > 4 AND word != ALL(${STOPWORDS}::text[])
+        GROUP BY word
+      )
+      SELECT r.word, r.cnt as recent_count,
+             coalesce(p.cnt, 0) as prior_count,
+             r.cnt - coalesce(p.cnt, 0) as delta
+      FROM rcounts r LEFT JOIN pcounts p ON p.word = r.word
+      WHERE r.cnt >= 5
+      ORDER BY r.cnt DESC LIMIT 30
+    `;
+  }
+
+  if (scope === "all") {
+    // Since Jan 1, 2025. No prior window — delta will be 0 / not shown.
+    return sql`
+      WITH stemmed AS (
+        SELECT DISTINCT pr.id,
+          regexp_replace(lower(unnest(string_to_array(
+            regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
+        FROM press_releases pr
+        WHERE pr.published_at >= '2025-01-01'
+          AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
+      )
+      SELECT word, count(*)::int as recent_count,
+             0::int as prior_count, 0::int as delta
+      FROM stemmed
+      WHERE length(word) > 4 AND word != ALL(${STOPWORDS}::text[])
+      GROUP BY word
+      HAVING count(*) >= 30
+      ORDER BY count(*) DESC LIMIT 30
+    `;
+  }
+
+  // month (default): last 30 days vs prior 30
   return sql`
     WITH recent AS (
       SELECT DISTINCT pr.id,
-        regexp_replace(
-          lower(unnest(string_to_array(
-            regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '
-          ))),
-          's$', ''
-        ) as word
+        regexp_replace(lower(unnest(string_to_array(
+          regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
       FROM press_releases pr
       WHERE pr.published_at >= NOW() - interval '30 days'
-        AND pr.deleted_at IS NULL
-        AND pr.content_type != 'photo_release'
+        AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
     ),
     prior AS (
       SELECT DISTINCT pr.id,
-        regexp_replace(
-          lower(unnest(string_to_array(
-            regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '
-          ))),
-          's$', ''
-        ) as word
+        regexp_replace(lower(unnest(string_to_array(
+          regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
       FROM press_releases pr
       WHERE pr.published_at >= NOW() - interval '60 days'
         AND pr.published_at < NOW() - interval '30 days'
-        AND pr.deleted_at IS NULL
-        AND pr.content_type != 'photo_release'
+        AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
     ),
     rcounts AS (
       SELECT word, count(*)::int as cnt FROM recent
-      WHERE length(word) > 4
-        AND word != ALL(${STOPWORDS}::text[])
+      WHERE length(word) > 4 AND word != ALL(${STOPWORDS}::text[])
       GROUP BY word
     ),
     pcounts AS (
       SELECT word, count(*)::int as cnt FROM prior
-      WHERE length(word) > 4
-        AND word != ALL(${STOPWORDS}::text[])
+      WHERE length(word) > 4 AND word != ALL(${STOPWORDS}::text[])
       GROUP BY word
     )
-    SELECT
-      r.word,
-      r.cnt as recent_count,
-      coalesce(p.cnt, 0) as prior_count,
-      r.cnt - coalesce(p.cnt, 0) as delta
-    FROM rcounts r
-    LEFT JOIN pcounts p ON p.word = r.word
+    SELECT r.word, r.cnt as recent_count,
+           coalesce(p.cnt, 0) as prior_count,
+           r.cnt - coalesce(p.cnt, 0) as delta
+    FROM rcounts r LEFT JOIN pcounts p ON p.word = r.word
     WHERE r.cnt >= 3
-    ORDER BY r.cnt DESC
-    LIMIT 30
+    ORDER BY r.cnt DESC LIMIT 30
   `;
 }
 

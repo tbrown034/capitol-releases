@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getTrendingWithDelta, getTopicOwnership, getPartySkew } from "../lib/trending";
+import { getTrendingWithDelta, getTopicOwnership, getPartySkew, type TrendingScope } from "../lib/trending";
 import { TermChart } from "../components/term-chart";
 import { TopicTimeline } from "../components/topic-timeline";
 import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
@@ -35,9 +35,21 @@ type SkewRow = {
   side: "D" | "R";
 };
 
-export default async function TrendingPage() {
+const VALID_SCOPES: TrendingScope[] = ["week", "month", "ytd", "all"];
+
+export default async function TrendingPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const sp = await searchParams;
+  const scope: TrendingScope =
+    sp.scope && VALID_SCOPES.includes(sp.scope as TrendingScope)
+      ? (sp.scope as TrendingScope)
+      : "month";
+
   const [trendingRaw, skewRaw] = await Promise.all([
-    getTrendingWithDelta(),
+    getTrendingWithDelta(scope),
     getPartySkew(10),
   ]);
 
@@ -80,14 +92,52 @@ export default async function TrendingPage() {
         <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
           Trending now
         </h2>
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <span className="text-[10px] uppercase tracking-wider text-neutral-500 mr-1">
+            Window:
+          </span>
+          {(
+            [
+              { key: "week", label: "Last 7 days" },
+              { key: "month", label: "Last 30 days" },
+              { key: "ytd", label: "2026 YTD" },
+              { key: "all", label: "Since Jan 2025" },
+            ] as { key: TrendingScope; label: string }[]
+          ).map((opt) => {
+            const selected = scope === opt.key;
+            const href = opt.key === "month" ? "/trending" : `/trending?scope=${opt.key}`;
+            return (
+              <Link
+                key={opt.key}
+                href={href}
+                className={`text-xs rounded-full border px-2.5 py-0.5 transition-colors ${
+                  selected
+                    ? "border-neutral-900 bg-neutral-900 text-white"
+                    : "border-neutral-300 text-neutral-600 hover:border-neutral-500"
+                }`}
+              >
+                {opt.label}
+              </Link>
+            );
+          })}
+        </div>
         <p className="text-xs text-neutral-500 mb-4">
-          Top stems in release titles over the last 30 days, with the change
-          versus the 30 days before.
+          {scope === "week" &&
+            "Top stems in release titles over the last 7 days, with the change versus the 7 days before."}
+          {scope === "month" &&
+            "Top stems in release titles over the last 30 days, with the change versus the 30 days before."}
+          {scope === "ytd" &&
+            "Top stems in release titles since January 1, 2026, with the change versus the same calendar window in 2025."}
+          {scope === "all" &&
+            "Top stems in release titles since January 1, 2025. No prior window — counts only."}
         </p>
         <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6">
           {trending.map((row, i) => {
-            const direction =
-              row.prior_count === 0 && row.recent_count >= 3
+            const showDelta = scope !== "all";
+            const newThreshold = scope === "week" ? 2 : scope === "ytd" ? 5 : 3;
+            const direction = !showDelta
+              ? "none"
+              : row.prior_count === 0 && row.recent_count >= newThreshold
                 ? "new"
                 : row.delta > 0
                   ? "up"
@@ -108,6 +158,12 @@ export default async function TrendingPage() {
                   : direction === "new"
                     ? "text-indigo-600"
                     : "text-neutral-400";
+            const priorLabel =
+              scope === "week"
+                ? "vs prior 7 days"
+                : scope === "ytd"
+                  ? "vs same window 2025"
+                  : "vs prior 30 days";
             return (
               <li
                 key={row.word}
@@ -125,21 +181,23 @@ export default async function TrendingPage() {
                   </Link>
                 </span>
                 <span className="flex items-center gap-2 font-mono tabular-nums text-xs shrink-0">
-                  <span className="text-neutral-700">{row.recent_count}</span>
-                  <span
-                    className={tone}
-                    title={
-                      direction === "new"
-                        ? "New in last 30 days"
-                        : `${row.delta >= 0 ? "+" : ""}${row.delta} vs prior 30 days`
-                    }
-                  >
-                    {arrow}
-                    {direction !== "flat" && direction !== "new" && (
-                      <span className="ml-0.5">{Math.abs(row.delta)}</span>
-                    )}
-                    {direction === "new" && <span className="ml-1">new</span>}
-                  </span>
+                  <span className="text-neutral-700">{row.recent_count.toLocaleString()}</span>
+                  {showDelta && (
+                    <span
+                      className={tone}
+                      title={
+                        direction === "new"
+                          ? `New in window`
+                          : `${row.delta >= 0 ? "+" : ""}${row.delta} ${priorLabel}`
+                      }
+                    >
+                      {arrow}
+                      {direction !== "flat" && direction !== "new" && (
+                        <span className="ml-0.5">{Math.abs(row.delta)}</span>
+                      )}
+                      {direction === "new" && <span className="ml-1">new</span>}
+                    </span>
+                  )}
                 </span>
               </li>
             );
