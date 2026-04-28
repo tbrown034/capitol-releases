@@ -2,9 +2,10 @@ name: Daily pipeline
 
 on:
   schedule:
-    # 13:00 UTC daily = 9:00 AM ET (8:00 AM during DST). Press releases from
-    # the prior day have landed; the morning news cycle hasn't started.
-    - cron: "0 13 * * *"
+    # 4x/day at 9 AM, 1 PM, 5 PM, 9 PM ET (UTC: 13, 17, 21, 01). Same-day
+    # business-hour content gets captured within ~4h instead of waiting
+    # until the next morning. Source-URL dedup makes re-runs safe.
+    - cron: "0 1,13,17,21 * * *"
   workflow_dispatch:
 
 concurrency:
