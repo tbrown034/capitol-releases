@@ -154,6 +154,9 @@ class HttpxCollector:
                                 date_source = html_date.source
                                 date_confidence = html_date.confidence
 
+                    except Exception as e:
+                        log.warning("Detail page failed for %s: %s", detail_url, e)
+
                     # Future-dated typos: keep the extracted date but flag
                     # confidence so downstream sorts/quality treat it as
                     # suspect. Most of these are press-office month typos
@@ -169,8 +172,6 @@ class HttpxCollector:
                             )
                             date_source = f"{date_source}_future_typo" if date_source else "future_typo"
                             date_confidence = min(date_confidence, 0.2)
-                    except Exception as e:
-                        log.warning("Detail page failed for %s: %s", detail_url, e)
 
                     record = ReleaseRecord(
                         senator_id=sid,
