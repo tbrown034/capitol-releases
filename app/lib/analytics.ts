@@ -230,6 +230,19 @@ export async function getChamberActivity(days = 7) {
   `;
 }
 
+export async function getMailbag(days = 7) {
+  return sql`
+    SELECT content_type, count(*)::int as count
+    FROM press_releases
+    WHERE published_at >= NOW() - make_interval(days => ${days})
+      AND published_at IS NOT NULL
+      AND deleted_at IS NULL
+      AND content_type != 'photo_release'
+    GROUP BY content_type
+    ORDER BY count DESC
+  `;
+}
+
 export async function getDailyVolume(days = 90) {
   return sql`
     SELECT to_char(published_at, 'YYYY-MM-DD') as day,

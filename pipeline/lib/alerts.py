@@ -57,6 +57,7 @@ def check_anomalies(conn) -> list[Alert]:
     - Senators with 0 releases in last 7 days (normally active)
     - Sudden spikes in null fields
     - Senators whose last release is unusually old
+    - Future-dated published_at (upstream typo on senator's site)
     """
     alerts = []
     cur = conn.cursor()
@@ -139,6 +140,38 @@ def check_anomalies(conn) -> list[Alert]:
             message=f"{sid}: last release was {last_release.date()}. May need attention.",
             senator_id=sid,
             details={"last_release": str(last_release.date())},
+        ))
+
+    # 4. Future-dated published_at — these are virtually always upstream
+    # typos on the senator's senate.gov page (a date field set to a future
+    # day by the press shop). We collect what they publish; flagging it
+    # creates a paper trail without polluting email alerts (warning, not
+    # error). Window of 1-60 days catches typos but excludes obvious parser
+    # bugs (those go through test_dates_in_valid_range as failures).
+    cur.execute("""
+        SELECT senator_id, source_url, published_at, scraped_at
+        FROM press_releases
+        WHERE deleted_at IS NULL
+          AND published_at > NOW() + INTERVAL '1 day'
+          AND published_at <= NOW() + INTERVAL '60 days'
+        ORDER BY scraped_at DESC
+    """)
+    for row in cur.fetchall():
+        sid, source_url, pub_at, scraped_at = row
+        alerts.append(Alert(
+            alert_type="upstream_date_typo",
+            severity="warning",
+            message=(
+                f"{sid}: source page lists published date as "
+                f"{pub_at.strftime('%Y-%m-%d')} (future). Likely typo on "
+                f"senator's senate.gov page."
+            ),
+            senator_id=sid,
+            details={
+                "source_url": source_url,
+                "published_at": str(pub_at),
+                "scraped_at": str(scraped_at),
+            },
         ))
 
     cur.close()

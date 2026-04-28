@@ -1,14 +1,16 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { getStats, getTopSenators, getLeastActiveSenators, getFeed, getLatestRun } from "./lib/queries";
-import { getChamberActivity, getDailyVolume, getSenatorActivity, getTopicTrends } from "./lib/analytics";
+import { getChamberActivity, getDailyVolume, getSenatorActivity, getTopicTrends, getMailbag } from "./lib/analytics";
 import { ReleaseCard } from "./components/release-card";
 import { SearchBox } from "./components/search-box";
 import { ActivityChart } from "./components/activity-chart";
 import { SenateChamber } from "./components/senate-chamber";
 import { SenatorBars } from "./components/senator-bars";
 import { SenatorActivity } from "./components/senator-activity";
-import type { FeedItem } from "./lib/db";
+import { MailbagStrip } from "./components/mailbag-strip";
+import { HeroLetter } from "./components/hero-letter";
+import type { FeedItem, ContentType } from "./lib/db";
 
 // Daily-cron data; 10-min ISR is plenty and keeps the homepage off the
 // request-time DB path (was 9 sequential SQL round-trips per visitor).
@@ -38,7 +40,7 @@ function diversifyFeed(items: FeedItem[], maxRun: number): FeedItem[] {
 }
 
 export default async function Home() {
-  const [stats, topSenators, leastActive, { items: latestPool }, dailyVolume, senatorActivity, topicTrends, latestRun, chamber] =
+  const [stats, topSenators, leastActive, { items: latestPool }, dailyVolume, senatorActivity, topicTrends, latestRun, chamber, mailbag] =
     await Promise.all([
       getStats(),
       getTopSenators(10),
@@ -51,8 +53,25 @@ export default async function Home() {
       getSenatorActivity(),
       getTopicTrends(),
       getLatestRun(),
-      getChamberActivity(7),
+      getChamberActivity(30),
+      getMailbag(7),
     ]);
+
+  const heroItems = (latestPool as FeedItem[])
+    .filter((it) => (it.content_type ?? "press_release") === "press_release")
+    .slice(0, 6)
+    .map((it) => ({
+      id: it.id,
+      title: it.title,
+      senator_id: it.senator_id,
+      senator_name: it.senator_name,
+      party: it.party as "D" | "R" | "I",
+      state: it.state,
+      published_at: it.published_at,
+      scraped_at: it.scraped_at,
+      content_type: (it.content_type ?? "press_release") as ContentType,
+      source_url: it.source_url,
+    }));
 
   const latest = diversifyFeed(latestPool, 2).slice(0, 12);
 
@@ -96,84 +115,130 @@ export default async function Home() {
   return (
     <div className="mx-auto max-w-5xl px-4">
       {/* Hero */}
-      <section className="pt-10 pb-8 md:pt-16 md:pb-12">
-        <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl leading-[1.05] text-neutral-900 mb-4 md:mb-5">
-          100 Senators.
-          <br />
-          One Archive.
-        </h1>
-        <p className="text-sm md:text-base text-neutral-500 max-w-2xl leading-relaxed">
-          Every official press release from all 100 U.S. senators, scraped
-          daily from their individual senate.gov sites into one normalized,
-          searchable archive.
-        </p>
-        <p className="text-xs text-neutral-500 mt-3">
-          Collecting since January 2025 · {stats.senators_with_releases ?? 0}{" "}
-          of 100 senators publishing
-        </p>
-        {latestRun?.finished_at && (
-          <p className="text-xs text-neutral-500 mt-1">
-            Last updated{" "}
-            <time dateTime={latestRun.finished_at}>
-              {new Date(latestRun.finished_at).toLocaleString("en-US", {
-                month: "short",
-                day: "numeric",
-                hour: "numeric",
-                minute: "2-digit",
-                timeZone: "America/New_York",
-                timeZoneName: "short",
-              })}
-            </time>
-            {" · "}
-            {latestRun.inserted.toLocaleString()} new release
-            {latestRun.inserted === 1 ? "" : "s"} across{" "}
-            {latestRun.senators_with_new} senator
-            {latestRun.senators_with_new === 1 ? "" : "s"}
-            {" · "}
-            <Link href="/status" className="underline hover:text-neutral-900">
-              run history
-            </Link>
-          </p>
-        )}
+      <section className="pt-8 pb-6 md:pt-10 md:pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-center">
+          <div className="md:col-span-7">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-[3.25rem] leading-[1.05] text-neutral-900 mb-3 md:mb-4">
+              100 Senators.
+              <br />
+              One Archive.
+            </h1>
+            <p className="text-base md:text-lg text-neutral-700 max-w-2xl leading-snug mb-3">
+              See who&rsquo;s posting most, on what topics, and how the Senate&rsquo;s
+              press machine moves day to day.
+            </p>
+            <p className="text-sm md:text-base text-neutral-500 max-w-2xl leading-relaxed">
+              Every record each senator&rsquo;s office publishes on their own
+              senate.gov site. Normalized, searchable, updated four times a
+              day.
+            </p>
+          </div>
+          {heroItems.length > 0 && (
+            <div className="md:col-span-5 flex justify-center md:justify-end">
+              <HeroLetter items={heroItems} asOf={latestRun?.finished_at ?? null} />
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Stats */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-8 sm:gap-y-2 text-sm text-neutral-500 border-b border-neutral-200 pb-4 mb-8 md:mb-12">
-        <div>
-          <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
-            {(stats.total_releases ?? 0).toLocaleString()}
-          </span>
-          press releases
+      <div className="border-b border-neutral-200 pb-4 mb-8 md:mb-10">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-8 sm:gap-y-2 text-sm text-neutral-500">
+          <div>
+            <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
+              {(stats.total_releases ?? 0).toLocaleString()}
+            </span>
+            press releases &amp; other records
+          </div>
+          <div>
+            <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
+              {stats.total_senators ?? 0}
+            </span>
+            senators tracked
+          </div>
+          <div>
+            <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
+              Jan 1, 2025
+            </span>
+            to present
+          </div>
         </div>
-        <div>
-          <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
-            {stats.total_senators ?? 0}
-          </span>
-          senators tracked
-        </div>
-        <div>
-          <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
-            Jan 1, 2025
-          </span>
-          to present
-        </div>
+        <p className="mt-3 text-xs text-neutral-500">
+          {stats.senators_with_releases ?? 0} of 100 senators publishing
+          {latestRun?.finished_at && (
+            <>
+              {" · "}Last updated{" "}
+              <time dateTime={latestRun.finished_at}>
+                {new Date(latestRun.finished_at).toLocaleString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "2-digit",
+                  timeZone: "America/New_York",
+                  timeZoneName: "short",
+                })}
+              </time>
+              {" · "}
+              {latestRun.inserted.toLocaleString()} new
+              {" · "}
+              <Link href="/status" className="underline hover:text-neutral-900">
+                run history
+              </Link>
+            </>
+          )}
+        </p>
       </div>
 
       {/* Senate Chamber */}
       <section className="mb-10 md:mb-16">
         <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
-          The Chamber, This Week
+          The Chamber
         </h2>
-        <SenateChamber
-          senators={chamber as { id: string; full_name: string; party: "D" | "R" | "I"; state: string; count: number }[]}
-          days={7}
-        />
+        <Suspense>
+          <SenateChamber
+            senators={chamber as { id: string; full_name: string; party: "D" | "R" | "I"; state: string; count: number }[]}
+            days={30}
+          />
+        </Suspense>
+      </section>
+
+      {/* Mailbag */}
+      <MailbagStrip
+        items={mailbag as { content_type: ContentType; count: number }[]}
+        days={7}
+      />
+
+      {/* Trending Topics */}
+      <section className="mb-10 md:mb-16">
+        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
+          Trending Topics
+        </h2>
+        <p className="text-xs text-neutral-500 mb-4">
+          Most mentioned terms in release titles over the past 30 days. Click
+          a term to search the full text (title + body) of every release.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {(topicTrends as { word: string; count: number }[])
+            .slice(0, 24)
+            .map((topic) => (
+              <Link
+                key={topic.word}
+                href={`/search?q=${encodeURIComponent(topic.word)}`}
+                className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-700 hover:border-neutral-400 hover:text-neutral-900 transition-colors"
+              >
+                {topic.word}
+                <span className="text-xs text-neutral-400 font-mono tabular-nums">
+                  {topic.count}
+                </span>
+              </Link>
+            ))}
+        </div>
       </section>
 
       {/* Release Volume */}
       <section className="mb-10 md:mb-16">
         <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
-          Release Volume
+          Total Release Volume
         </h2>
         <p className="text-xs text-neutral-500 mb-4">
           Daily press releases over the past 90 days
@@ -225,37 +290,11 @@ export default async function Home() {
         />
       </div>
 
-      {/* Trending Topics */}
-      <section className="mb-10 md:mb-16">
-        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
-          Trending Topics
-        </h2>
-        <p className="text-xs text-neutral-500 mb-4">
-          Most mentioned terms in press releases over the past 30 days
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {(topicTrends as { word: string; count: number }[])
-            .slice(0, 24)
-            .map((topic) => (
-              <Link
-                key={topic.word}
-                href={`/search?q=${encodeURIComponent(topic.word)}`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-700 hover:border-neutral-400 hover:text-neutral-900 transition-colors"
-              >
-                {topic.word}
-                <span className="text-xs text-neutral-400 font-mono tabular-nums">
-                  {topic.count}
-                </span>
-              </Link>
-            ))}
-        </div>
-      </section>
-
       {/* Senator Rankings */}
       <section className="mb-10 md:mb-16">
         <div className="flex items-center justify-between border-b border-neutral-900 pb-2 mb-4 md:mb-6">
           <h2 className="text-xs uppercase tracking-wider text-neutral-500">
-            Senator Rankings
+            Senator Frequency Rankings
           </h2>
           <Link
             href="/senators"

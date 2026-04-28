@@ -1,7 +1,9 @@
 import Link from "next/link";
 import type { FeedItem } from "../lib/db";
 import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
+import { normalizeTitle } from "../lib/titles";
 import { TypeBadge } from "./type-badge";
+import { TypeIcon } from "./type-icon";
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "";
@@ -12,27 +14,12 @@ function formatDate(dateStr: string | null): string {
   });
 }
 
-const SMALL_WORDS = new Set([
-  "a","an","the","and","but","or","for","nor","on","at","to","by","of","in","is","it","as",
-]);
-
-function normalizeTitle(title: string): string {
-  const letters = title.replace(/[^a-zA-Z]/g, "");
-  if (letters.length === 0) return title;
-  const upperCount = letters.replace(/[^A-Z]/g, "").length;
-  if (upperCount / letters.length < 0.7) return title;
-
-  return title.replace(/\S+/g, (word, offset: number) => {
-    const core = word.replace(/[^a-zA-Z]/g, "");
-    // Keep likely acronyms (2-4 char all-caps, not a common word)
-    if (/^[A-Z]{2,4}$/.test(core) && !SMALL_WORDS.has(core.toLowerCase()))
-      return word;
-    // Lowercase common small words except at start
-    if (offset > 0 && SMALL_WORDS.has(core.toLowerCase()))
-      return word.toLowerCase();
-    // Title case
-    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-  });
+function sourceHost(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "senate.gov";
+  }
 }
 
 export function ReleaseCard({ item }: { item: FeedItem }) {
@@ -43,9 +30,20 @@ export function ReleaseCard({ item }: { item: FeedItem }) {
       : item.party === "R"
         ? "ring-red-500"
         : "ring-amber-500";
+  const partyAccent =
+    item.party === "D"
+      ? "border-l-blue-200"
+      : item.party === "R"
+        ? "border-l-red-200"
+        : "border-l-amber-200";
+
+  const type = item.content_type ?? "press_release";
+  const host = sourceHost(item.source_url);
 
   return (
-    <article className="border-b border-neutral-100 py-1.5">
+    <article
+      className={`border-b border-neutral-100 border-l-2 ${partyAccent} pl-3 py-1.5 -ml-3`}
+    >
       <div className="flex items-start gap-2.5">
         <Link
           href={`/senators/${item.senator_id}`}
@@ -69,9 +67,13 @@ export function ReleaseCard({ item }: { item: FeedItem }) {
         </Link>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5 text-xs text-neutral-400">
+            <span className="text-neutral-400 inline-flex items-center gap-1">
+              <TypeIcon type={type} size={12} className="text-neutral-400" />
+              <span className="text-[10px] uppercase tracking-wider text-neutral-400">From</span>
+            </span>
             <Link
               href={`/senators/${item.senator_id}`}
-              className="text-neutral-500 hover:text-neutral-900 transition-colors"
+              className="text-neutral-700 font-[family-name:var(--font-source-serif)] hover:text-neutral-900 transition-colors"
             >
               {item.senator_name}
             </Link>
@@ -88,10 +90,10 @@ export function ReleaseCard({ item }: { item: FeedItem }) {
                 </time>
               </>
             )}
-            {item.content_type && item.content_type !== "press_release" && (
+            {type !== "press_release" && (
               <TypeBadge
-                type={item.content_type}
-                href={`/feed?type=${item.content_type}`}
+                type={type}
+                href={`/feed?type=${type}`}
                 size="xs"
               />
             )}
@@ -106,6 +108,16 @@ export function ReleaseCard({ item }: { item: FeedItem }) {
               {normalizeTitle(item.title)}
             </a>
           </h3>
+          <div className="mt-0.5 text-[10px] text-neutral-400">
+            <a
+              href={item.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-neutral-600 transition-colors"
+            >
+              {host}
+            </a>
+          </div>
         </div>
       </div>
     </article>

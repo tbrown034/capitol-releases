@@ -311,7 +311,9 @@ export default async function SenatorPage({
             What they&apos;re talking about lately
           </h2>
           <p className="text-xs text-neutral-400 mb-4">
-            Most-used words over the last 30 days, compared to the 30 days before. Arrows show the change.
+            Most-used words in release titles over the last 30 days, compared
+            to the 30 days before. Arrows show the change. Click a word to
+            search the full text (title + body) of every release.
           </p>
           <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {topics.map((t) => {
@@ -376,7 +378,10 @@ export default async function SenatorPage({
             Topics they own
           </h2>
           <p className="text-xs text-neutral-400 mb-4">
-            Words they use disproportionately compared to the rest of the Senate. Ranked by log-odds; higher score means more distinctive.
+            Words this senator uses in release titles disproportionately
+            compared to the rest of the Senate. Ranked by log-odds; higher
+            score means more distinctive. Click a word to search the full
+            text (title + body) of every release.
           </p>
           <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {signature.map((t) => {
