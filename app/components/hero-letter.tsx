@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
 import { normalizeTitle } from "../lib/titles";
 import { TypeIcon } from "./type-icon";
+import { formatReleaseDate, formatTimestamp, formatTimestampShort } from "../lib/dates";
 import type { ContentType } from "../lib/db";
 
 type HeroItem = {
@@ -21,41 +22,16 @@ type HeroItem = {
 
 const ROTATION_MS = 8000;
 
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "";
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
 function formatDateTime(dateStr: string | null): string {
   if (!dateStr) return "";
   const d = new Date(dateStr);
   const hasTime = d.getUTCHours() !== 0 || d.getUTCMinutes() !== 0;
-  if (!hasTime) return formatDate(dateStr);
-  return d.toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "America/New_York",
-    timeZoneName: "short",
-  });
+  if (!hasTime) return formatReleaseDate(dateStr);
+  return formatTimestamp(d);
 }
 
 function formatCaptured(dateStr: string | undefined): string {
-  if (!dateStr) return "";
-  return new Date(dateStr).toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "America/New_York",
-    timeZoneName: "short",
-  });
+  return formatTimestampShort(dateStr);
 }
 
 export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string | null }) {
@@ -108,16 +84,7 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
           {asOf && (
             <p className="text-[10px] text-neutral-400 mt-0.5">
               as of{" "}
-              <time dateTime={asOf}>
-                {new Date(asOf).toLocaleString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  hour: "numeric",
-                  minute: "2-digit",
-                  timeZone: "America/New_York",
-                  timeZoneName: "short",
-                })}
-              </time>
+              <time dateTime={asOf}>{formatTimestampShort(asOf)}</time>
             </p>
           )}
         </div>
@@ -179,7 +146,7 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={photo}
-                  alt=""
+                  alt={`${item.senator_name} (${item.party}-${item.state})`}
                   width={40}
                   height={40}
                   className="h-10 w-10 rounded-full object-cover ring-1 ring-neutral-200"

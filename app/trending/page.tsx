@@ -258,7 +258,7 @@ export default async function TrendingPage({
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={photo}
-                              alt=""
+                              alt={`${o.full_name} (${o.party}-${o.state})`}
                               width={20}
                               height={20}
                               className={`h-5 w-5 rounded-full object-cover ring-1 ${ringColor}`}

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
+import { formatReleaseDate } from "../lib/dates";
 
 const MAX_TERMS = 6;
 const PALETTE = [
@@ -267,12 +268,7 @@ export function TermChart({ initialTerms }: { initialTerms: string[] }) {
       {hoverRow && hoverDate && (
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-600">
           <span className="font-mono tabular-nums text-neutral-500">
-            Week of{" "}
-            {hoverDate.toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
+            Week of {formatReleaseDate(hoverDate)}
           </span>
           {terms.map((t) => (
             <span key={t} className="inline-flex items-center gap-1">

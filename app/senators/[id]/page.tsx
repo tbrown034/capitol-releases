@@ -20,8 +20,10 @@ import type { PressRelease, ContentType } from "../../lib/db";
 import { SenatorHeatmap } from "../../components/senator-heatmap";
 import { Pagination } from "../../components/pagination";
 import { TypeBadge } from "../../components/type-badge";
+import { EmptyState } from "../../components/empty-state";
 import { STATE_NAMES } from "../../lib/states";
 import { excludeNameTokens } from "../../lib/names";
+import { formatLongMonthYear, formatReleaseDate } from "../../lib/dates";
 
 const VALID_TYPES = new Set<ContentType>([
   "press_release",
@@ -93,12 +95,7 @@ export default async function SenatorPage({
     0
   );
   const activeTypes = CONTENT_TYPE_ORDER.filter((t) => (breakdown[t] ?? 0) > 0);
-  const sinceLabel = earliest
-    ? new Date(earliest).toLocaleDateString("en-US", {
-        month: "long",
-        year: "numeric",
-      })
-    : null;
+  const sinceLabel = earliest ? formatLongMonthYear(earliest) : null;
   const buildTypeHref = (t?: ContentType) => {
     const params = new URLSearchParams();
     if (t) params.set("type", t);
@@ -174,7 +171,7 @@ export default async function SenatorPage({
           </div>
           {bio?.left_reason && (
             <p className="mt-1 text-xs text-neutral-400">
-              Left: {bio.left_reason} ({bio.left_date ? new Date(bio.left_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""})
+              Left: {bio.left_reason} ({bio.left_date ? formatReleaseDate(bio.left_date) : ""})
             </p>
           )}
         </div>
@@ -417,9 +414,20 @@ export default async function SenatorPage({
 
       {/* Release table */}
       {items.length === 0 ? (
-        <p className="py-12 text-center text-sm text-neutral-400">
-          No press releases archived yet.
-        </p>
+        activeType ? (
+          <EmptyState
+            message={`No ${CONTENT_TYPE_LABEL[activeType].toLowerCase()} from ${senator.full_name}.`}
+            clearHref={`/senators/${id}`}
+            suggestions={[{ label: "All releases from this senator", href: `/senators/${id}` }]}
+          />
+        ) : grandTotal === 0 ? (
+          <EmptyState
+            message={`No releases archived from ${senator.full_name} yet.`}
+            suggestions={[{ label: "Browse all senators", href: "/senators" }]}
+          />
+        ) : (
+          <EmptyState message="No releases on this page." />
+        )
       ) : (
         <table className="w-full text-sm">
           <thead>
@@ -435,13 +443,7 @@ export default async function SenatorPage({
                 className={`border-b border-neutral-100 ${i % 2 === 1 ? "bg-neutral-50/60" : ""}`}
               >
                 <td className="py-2.5 pr-4 font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-500 whitespace-nowrap align-top">
-                  {pr.published_at
-                    ? new Date(pr.published_at).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })
-                    : "---"}
+                  {pr.published_at ? formatReleaseDate(pr.published_at) : "---"}
                 </td>
                 <td className="py-2.5 text-neutral-900">
                   <a

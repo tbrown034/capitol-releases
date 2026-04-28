@@ -552,7 +552,7 @@ export function SenateChamber({
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={photo}
-                      alt=""
+                      alt={`${s.full_name} (${s.party}-${s.state})`}
                       width={24}
                       height={24}
                       className={`h-6 w-6 rounded-full object-cover ring-1 ${ringColor}`}
@@ -633,7 +633,7 @@ function HoverCard({
         {photo ? (
           <Image
             src={photo}
-            alt=""
+            alt={`${senator.full_name} (${senator.party}-${senator.state})`}
             width={56}
             height={70}
             className="rounded-sm object-cover bg-neutral-100"

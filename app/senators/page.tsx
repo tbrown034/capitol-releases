@@ -8,6 +8,7 @@ import {
 import { sql } from "../lib/db";
 import type { SenatorWithCount, ContentType } from "../lib/db";
 import { StateCartogram } from "../components/state-cartogram";
+import { formatMonthYear, formatShortDate } from "../lib/dates";
 
 function formatBreakdown(
   breakdown: Partial<Record<ContentType, number>>
@@ -21,9 +22,7 @@ function formatBreakdown(
 }
 
 function formatSinceDate(iso: string | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  return formatMonthYear(iso);
 }
 
 export const metadata = {
@@ -234,12 +233,7 @@ export default async function SenatorsPage({
                   )}
                 </td>
                 <td className="hidden sm:table-cell py-2.5 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-400 whitespace-nowrap align-top">
-                  {s.latest_release
-                    ? new Date(s.latest_release).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })
-                    : "---"}
+                  {s.latest_release ? formatShortDate(s.latest_release) : "---"}
                 </td>
               </tr>
             );

@@ -46,7 +46,7 @@ function SenatorList({
               {photoUrl ? (
                 <img
                   src={photoUrl}
-                  alt=""
+                  alt={`${row.full_name} (${row.party}-${row.state})`}
                   width={20}
                   height={20}
                   className="h-5 w-5 rounded-full object-cover"

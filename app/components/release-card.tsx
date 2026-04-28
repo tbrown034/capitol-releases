@@ -2,17 +2,9 @@ import Link from "next/link";
 import type { FeedItem } from "../lib/db";
 import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
 import { normalizeTitle } from "../lib/titles";
+import { formatReleaseDate } from "../lib/dates";
 import { TypeBadge } from "./type-badge";
 import { TypeIcon } from "./type-icon";
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "";
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 function sourceHost(url: string): string {
   try {
@@ -86,7 +78,7 @@ export function ReleaseCard({ item }: { item: FeedItem }) {
                   dateTime={item.published_at}
                   className="font-[family-name:var(--font-dm-mono)] tabular-nums"
                 >
-                  {formatDate(item.published_at)}
+                  {formatReleaseDate(item.published_at)}
                 </time>
               </>
             )}

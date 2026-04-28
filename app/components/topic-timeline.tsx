@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
 import Link from "next/link";
 import { normalizeTitle } from "../lib/titles";
+import { formatReleaseDate } from "../lib/dates";
 
 type Headline = {
   week: string;
@@ -208,12 +209,7 @@ export function TopicTimeline({ initialTerm }: { initialTerm: string }) {
                   className="border-l-2 border-red-200 pl-3"
                 >
                   <div className="text-[11px] text-neutral-500 font-mono tabular-nums mb-0.5">
-                    Week of{" "}
-                    {new Date(h.week).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
+                    Week of {formatReleaseDate(h.week)}
                     {" · "}
                     <Link
                       href={`/senators/${h.senator_id}`}

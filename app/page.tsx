@@ -10,6 +10,7 @@ import { SenatorBars } from "./components/senator-bars";
 import { SenatorActivity } from "./components/senator-activity";
 import { MailbagStrip } from "./components/mailbag-strip";
 import { HeroLetter } from "./components/hero-letter";
+import { formatTimestamp } from "./lib/dates";
 import type { FeedItem, ContentType } from "./lib/db";
 
 // Daily-cron data; 10-min ISR is plenty and keeps the homepage off the
@@ -169,14 +170,7 @@ export default async function Home() {
             <>
               {" · "}Last updated{" "}
               <time dateTime={latestRun.finished_at}>
-                {new Date(latestRun.finished_at).toLocaleString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  hour: "numeric",
-                  minute: "2-digit",
-                  timeZone: "America/New_York",
-                  timeZoneName: "short",
-                })}
+                {formatTimestamp(latestRun.finished_at)}
               </time>
               {" · "}
               {latestRun.inserted.toLocaleString()} new

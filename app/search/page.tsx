@@ -4,6 +4,7 @@ import { getFeed } from "../lib/queries";
 import { ReleaseCard } from "../components/release-card";
 import { SearchBox } from "../components/search-box";
 import { Pagination } from "../components/pagination";
+import { EmptyState } from "../components/empty-state";
 import type { FeedItem } from "../lib/db";
 
 export const metadata = {
@@ -67,9 +68,11 @@ export default async function SearchPage({
           <div className="border-b border-neutral-200 mb-2" />
 
           {items.length === 0 ? (
-            <p className="py-12 text-center text-sm text-neutral-400">
-              No matches. Try different keywords.
-            </p>
+            <EmptyState
+              message={`No matches for \u201C${query}\u201D. Try different keywords.`}
+              clearHref="/search"
+              suggestions={[{ label: "Browse the feed", href: "/feed" }]}
+            />
           ) : (
             <div>
               {items.map((item: FeedItem) => (

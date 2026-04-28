@@ -5,6 +5,7 @@ import { ReleaseCard } from "../components/release-card";
 import { FeedFilters } from "../components/feed-filters";
 import { Pagination } from "../components/pagination";
 import { SearchBox } from "../components/search-box";
+import { EmptyState } from "../components/empty-state";
 import { STATE_NAMES } from "../lib/states";
 import type { FeedItem, ContentType } from "../lib/db";
 
@@ -94,9 +95,30 @@ export default async function FeedPage({
       <div className="border-b border-neutral-200 mb-2" />
 
       {items.length === 0 ? (
-        <p className="py-12 text-center text-sm text-neutral-400">
-          No press releases match these filters.
-        </p>
+        (() => {
+          const hasFilters = Boolean(type || party || state);
+          const suggestions: { label: string; href: string }[] = [];
+          if (type && (party || state)) {
+            const keep = new URLSearchParams();
+            if (party) keep.set("party", party);
+            if (state) keep.set("state", state);
+            suggestions.push({
+              label: `All releases${state ? ` from ${STATE_NAMES[state] ?? state}` : ""}`,
+              href: `/feed${keep.toString() ? `?${keep.toString()}` : ""}`,
+            });
+          }
+          return (
+            <EmptyState
+              message={
+                hasFilters
+                  ? "No records match these filters."
+                  : "No records yet."
+              }
+              clearHref={hasFilters ? "/feed" : undefined}
+              suggestions={suggestions}
+            />
+          );
+        })()
       ) : (
         <div>
           {items.map((item: FeedItem) => (

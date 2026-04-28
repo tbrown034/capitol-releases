@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getRecentRuns } from "../lib/queries";
+import { formatTimestamp } from "../lib/dates";
 
 export const metadata = {
   title: "Run history — Capitol Releases",
@@ -10,15 +11,7 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "America/New_York",
-    timeZoneName: "short",
-  });
+  return formatTimestamp(iso);
 }
 
 function fmtDuration(startIso: string, endIso: string | null): string {
