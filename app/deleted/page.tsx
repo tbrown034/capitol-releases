@@ -9,9 +9,9 @@ import { STATE_NAMES } from "../lib/states";
 import { normalizeTitle } from "../lib/titles";
 
 export const metadata = {
-  title: "Scrubbed releases — Capitol Releases",
+  title: "Confirmed deletions — Capitol Releases",
   description:
-    "Press releases that were removed from senate.gov, preserved here.",
+    "Press releases confirmed removed from senate.gov, preserved here.",
 };
 
 export const revalidate = 600;

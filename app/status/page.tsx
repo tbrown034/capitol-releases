@@ -35,8 +35,8 @@ export default async function StatusPage() {
           Run history
         </h1>
         <p className="text-sm md:text-base text-neutral-500 max-w-2xl leading-relaxed">
-          The daily pipeline runs at 9:00 AM ET on GitHub Actions. Each row is
-          one invocation. Failures show as red and trigger an alert email.
+          The pipeline runs four times a day on GitHub Actions. Each row is one
+          invocation. Failures show as red and trigger an alert email.
         </p>
         <p className="text-xs text-neutral-400 mt-3">
           Full logs, including per-senator output, live in{" "}

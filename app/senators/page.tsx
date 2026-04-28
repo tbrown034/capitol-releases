@@ -131,9 +131,9 @@ export default async function SenatorsPage({
         they&apos;re talking about right now.
       </p>
       <p className="text-xs text-neutral-500 leading-relaxed mb-6 max-w-2xl">
-        Tracking all 100 senators. {withReleases.length} publish press releases;
-        Sen. Armstrong&apos;s office hasn&apos;t yet. Photos via the Congressional
-        Bioguide.
+        Tracking all 100 senators. {withReleases.length}{" "}publish press
+        releases; Sen. Armstrong&apos;s office hasn&apos;t yet. Photos via the
+        Congressional Bioguide.
       </p>
 
       <StateCartogram

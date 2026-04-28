@@ -147,11 +147,11 @@ export default async function AboutPage() {
         </div>
 
         <p className="text-xs text-neutral-500 leading-relaxed mt-4 max-w-2xl">
-          Known issues: {quality.null_date.toLocaleString()} records
+          Known issues: {quality.null_date.toLocaleString()}{" "}records
           ({Math.round((quality.null_date / quality.total) * 100)}%) are
           missing publication dates &mdash; primarily ColdFusion and custom
           sites that embed dates in page text rather than structured markup.
-          {partial} senators have archives that do not reach back to
+          {" "}{partial}{" "}senators have archives that do not reach back to
           January 2025 due to pagination limits on their specific CMS.
           {deletionCount > 0 && (
             <>
@@ -159,9 +159,9 @@ export default async function AboutPage() {
               <span className="text-neutral-900 font-medium">
                 {deletionCount.toLocaleString()}
               </span>{" "}
-              release{deletionCount !== 1 ? "s have" : " has"} been removed from
-              a senator&apos;s site since we started tracking; they remain in
-              the archive as tombstones with a recorded deletion date.
+              release{deletionCount !== 1 ? "s have" : " has"}{" "}been removed
+              from a senator&apos;s site since we started tracking; they remain
+              in the archive as tombstones with a recorded deletion date.
             </>
           )}
         </p>
