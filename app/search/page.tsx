@@ -5,7 +5,19 @@ import { ReleaseCard } from "../components/release-card";
 import { SearchBox } from "../components/search-box";
 import { Pagination } from "../components/pagination";
 import { EmptyState } from "../components/empty-state";
-import type { FeedItem } from "../lib/db";
+import { STATE_NAMES } from "../lib/states";
+import type { FeedItem, ContentType } from "../lib/db";
+
+const VALID_TYPES = new Set<ContentType>([
+  "press_release",
+  "statement",
+  "op_ed",
+  "blog",
+  "letter",
+  "floor_statement",
+  "presidential_action",
+  "other",
+]);
 
 export const metadata = {
   title: "Search — Capitol Releases",
@@ -34,12 +46,26 @@ export default async function SearchPage({
   const params = await searchParams;
   const query = params.q ?? "";
   const page = Number(params.page ?? "1");
+  const party = params.party;
+  const state = params.state;
+  const type =
+    params.type && VALID_TYPES.has(params.type as ContentType)
+      ? (params.type as ContentType)
+      : undefined;
   const perPage = 25;
 
   const hasQuery = query.trim().length > 0;
   const { items, total } = hasQuery
-    ? await getFeed({ page, perPage, search: query })
+    ? await getFeed({ page, perPage, search: query, party, state, type })
     : { items: [], total: 0 };
+
+  const activeFilters: string[] = [];
+  if (party)
+    activeFilters.push(
+      party === "D" ? "Democrats" : party === "R" ? "Republicans" : "Independents"
+    );
+  if (state) activeFilters.push(STATE_NAMES[state] ?? state);
+  if (type) activeFilters.push(type.replace("_", " "));
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
@@ -57,21 +83,43 @@ export default async function SearchPage({
 
       {hasQuery ? (
         <>
-          <p className="text-xs text-neutral-400 leading-relaxed mb-4 max-w-2xl">
+          <p className="text-xs text-neutral-400 leading-relaxed mb-2 max-w-2xl">
             <span className="font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-900 font-semibold">
               {total.toLocaleString()}
             </span>{" "}
             result{total !== 1 ? "s" : ""} for{" "}
             <span className="text-neutral-900">&ldquo;{query}&rdquo;</span>
+            {activeFilters.length > 0 && (
+              <> filtered to {activeFilters.join(", ")}</>
+            )}
           </p>
+
+          {activeFilters.length > 0 && (
+            <p className="text-xs mb-4 max-w-2xl">
+              <Link
+                href={`/search?q=${encodeURIComponent(query)}`}
+                className="text-neutral-500 underline underline-offset-2 hover:text-neutral-900"
+              >
+                Search all senators instead
+              </Link>
+            </p>
+          )}
 
           <div className="border-b border-neutral-200 mb-2" />
 
           {items.length === 0 ? (
             <EmptyState
-              message={`No matches for \u201C${query}\u201D. Try different keywords.`}
-              clearHref="/search"
-              suggestions={[{ label: "Browse the feed", href: "/feed" }]}
+              message={`No matches for \u201C${query}\u201D${activeFilters.length > 0 ? ` in ${activeFilters.join(", ")}` : ""}.`}
+              clearHref={
+                activeFilters.length > 0
+                  ? `/search?q=${encodeURIComponent(query)}`
+                  : "/search"
+              }
+              suggestions={
+                activeFilters.length > 0
+                  ? []
+                  : [{ label: "Browse the feed", href: "/feed" }]
+              }
             />
           ) : (
             <div>

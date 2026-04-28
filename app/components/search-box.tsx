@@ -16,11 +16,14 @@ export function SearchBox({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (query.trim()) {
-      const params = new URLSearchParams();
-      params.set("q", query.trim());
-      router.push(`${basePath}?${params.toString()}`);
+    if (!query.trim()) return;
+    const params = new URLSearchParams();
+    params.set("q", query.trim());
+    for (const key of ["party", "state", "type"]) {
+      const v = searchParams.get(key);
+      if (v) params.set(key, v);
     }
+    router.push(`${basePath}?${params.toString()}`);
   }
 
   return (
