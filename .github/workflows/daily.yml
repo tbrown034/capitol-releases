@@ -38,6 +38,10 @@ jobs:
         run: pip install -r pipeline/requirements.txt
 
       - name: Run daily update
+        # Loads every chamber from pipeline/seeds/*.json via load_members().
+        # That includes senate.json (US), executive.json, and tx_senate.json
+        # (Texas state senate, 30 districts). Adding a new chamber is just
+        # dropping a new seed file and registering it in pipeline/lib/seeds.py.
         run: python -m pipeline update
 
       - name: Refresh op-ed silos (WP custom post type)

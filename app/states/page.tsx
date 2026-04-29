@@ -1,43 +1,12 @@
 import Link from "next/link";
 import { CoverageCartogram } from "../components/coverage-cartogram";
+import { COVERAGE, PLANNED, type StateRow } from "../lib/state-coverage";
 
 export const metadata = {
   title: "States — Capitol Releases",
 };
 
 export const revalidate = 600;
-
-type StateRow = {
-  code: string;
-  name: string;
-  chamber: string;
-  members: number;
-  releases: number;
-  since: string | null;
-  status: "live" | "in_progress" | "planned";
-  href: string | null;
-  note: string;
-};
-
-const COVERAGE: StateRow[] = [
-  {
-    code: "TX",
-    name: "Texas",
-    chamber: "State Senate",
-    members: 31,
-    releases: 0,
-    since: null,
-    status: "in_progress",
-    href: "/states/tx",
-    note: "Backfilling press releases since Jan 1, 2025.",
-  },
-];
-
-const PLANNED: StateRow[] = [
-  { code: "CA", name: "California", chamber: "State Senate", members: 40, releases: 0, since: null, status: "planned", href: null, note: "Phase 1." },
-  { code: "NY", name: "New York", chamber: "State Senate", members: 63, releases: 0, since: null, status: "planned", href: null, note: "Phase 1." },
-  { code: "OH", name: "Ohio", chamber: "State Senate", members: 33, releases: 0, since: null, status: "planned", href: null, note: "Phase 1." },
-];
 
 export default async function StatesPage() {
   const cartogramData = COVERAGE.map((s) => ({
@@ -70,7 +39,7 @@ export default async function StatesPage() {
       <div className="border-b border-neutral-200 my-8" />
 
       <h2 className="text-xs uppercase tracking-wider text-neutral-500 mb-4">
-        In progress
+        Live
       </h2>
       <div className="space-y-3 mb-10">
         {COVERAGE.map((s) => (
