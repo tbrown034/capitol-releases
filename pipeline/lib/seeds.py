@@ -15,6 +15,7 @@ SEED_DIR = Path(__file__).resolve().parent.parent / "seeds"
 _SEED_FILES = [
     ("senate.json", "senate"),
     ("executive.json", "executive"),
+    ("tx_senate.json", "tx_senate"),
 ]
 
 
