@@ -33,9 +33,14 @@ export function TxDistrictBars({ rows }: { rows: Row[] }) {
   const rowHeight = 22;
   const labelW = 168;
   const valueW = 36;
-  const margin = { top: 4, right: 8, bottom: 4, left: labelW + 8 };
+  // Bottom margin holds an in-SVG source credit so the chart survives a
+  // screenshot crop. r/dataisbeautiful and most reposters lose anything
+  // outside the image; baking attribution into the SVG keeps it visible.
+  const margin = { top: 4, right: 8, bottom: 22, left: labelW + 8 };
   const svgW = 720;
   const svgH = margin.top + sorted.length * rowHeight + margin.bottom;
+  const total = sorted.reduce((s, r) => s + r.release_count, 0);
+  const silentCount = sorted.filter((r) => r.release_count === 0).length;
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -130,7 +135,25 @@ export function TxDistrictBars({ rows }: { rows: Row[] }) {
         .attr("fill", isZero ? "#a3a3a3" : "#171717")
         .text(isZero ? "—" : r.release_count.toString());
     });
-  }, [sorted, max, svgH]);
+
+    // Source credit baked into the SVG bottom — survives a screenshot crop.
+    const creditY = sorted.length * rowHeight + 14;
+    g.append("text")
+      .attr("x", -margin.left + 4)
+      .attr("y", creditY)
+      .attr("font-size", 10)
+      .attr("fill", "#a3a3a3")
+      .attr("font-family", "system-ui, -apple-system, sans-serif")
+      .text(`${silentCount} of ${sorted.length} senators have published nothing · n=${total} releases`);
+    g.append("text")
+      .attr("x", innerW + valueW - 4)
+      .attr("y", creditY)
+      .attr("text-anchor", "end")
+      .attr("font-size", 10)
+      .attr("fill", "#a3a3a3")
+      .attr("font-family", "system-ui, -apple-system, sans-serif")
+      .text("Capitol Releases · capitolreleases.com/texas");
+  }, [sorted, max, svgH, total, silentCount]);
 
   return (
     <div className="overflow-x-auto">

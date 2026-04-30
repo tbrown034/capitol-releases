@@ -13,8 +13,10 @@ export function TxMonthlyVolume({ data }: { data: Bar[] }) {
   const svgRef = useRef<SVGSVGElement>(null);
 
   const w = 720;
-  const h = 200;
-  const margin = { top: 18, right: 12, bottom: 28, left: 32 };
+  const h = 220;
+  // Bottom margin reserves space for both the X-axis month labels and an
+  // in-SVG source credit so the chart survives screenshot crops.
+  const margin = { top: 18, right: 12, bottom: 48, left: 32 };
 
   useEffect(() => {
     if (!svgRef.current || data.length === 0) return;
@@ -109,6 +111,26 @@ export function TxMonthlyVolume({ data }: { data: Bar[] }) {
         .attr("fill", "#a3a3a3")
         .text(t);
     });
+
+    // Source credit baked into the SVG so the chart survives screenshot
+    // crops on social/Reddit.
+    const total = data.reduce((s, d) => s + d.count, 0);
+    const creditY = innerH + 36;
+    g.append("text")
+      .attr("x", 0)
+      .attr("y", creditY)
+      .attr("font-size", 10)
+      .attr("fill", "#a3a3a3")
+      .attr("font-family", "system-ui, -apple-system, sans-serif")
+      .text(`Texas Senate press releases · n=${total} since Jan 2025`);
+    g.append("text")
+      .attr("x", innerW)
+      .attr("y", creditY)
+      .attr("text-anchor", "end")
+      .attr("font-size", 10)
+      .attr("fill", "#a3a3a3")
+      .attr("font-family", "system-ui, -apple-system, sans-serif")
+      .text("Capitol Releases · capitolreleases.com/texas");
   }, [data]);
 
   return (
