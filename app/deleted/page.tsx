@@ -9,9 +9,10 @@ import { STATE_NAMES } from "../lib/states";
 import { normalizeTitle } from "../lib/titles";
 
 export const metadata = {
-  title: "Confirmed deletions — Capitol Releases",
+  title: "Source URLs no longer resolving — Capitol Releases",
   description:
-    "Press releases confirmed removed from senate.gov, preserved here.",
+    "Records whose original source URL has stopped resolving on repeated checks. Preserved in the archive.",
+  robots: { index: false, follow: false },
 };
 
 export const revalidate = 600;
@@ -29,26 +30,26 @@ export default async function DeletedPage({
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
       <h1 className="font-[family-name:var(--font-source-serif)] text-4xl text-neutral-900 mb-3">
-        Confirmed deletions
+        Source URLs no longer resolving
       </h1>
       <p className="text-sm text-neutral-600 leading-relaxed mb-2 max-w-2xl">
-        Press releases that have returned 404 or 410 on multiple consecutive
-        re-checks from the senator&apos;s official site. We preserve the
-        captured body text on Capitol Releases.
+        Records whose original source URL has stopped responding on repeated
+        re-checks. The captured text remains in the archive.
       </p>
       <p className="text-xs text-neutral-500 leading-relaxed mb-2 max-w-2xl">
         <span className="font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-900 font-semibold">
           {total.toLocaleString()}
         </span>{" "}
-        record{total !== 1 ? "s" : ""} confirmed deleted.
+        record{total !== 1 ? "s" : ""} flagged.
       </p>
       <p className="text-xs text-neutral-500 leading-relaxed mb-8 max-w-2xl border-l-2 border-neutral-200 pl-3">
-        Note: the deletion detector requires three independent 404/410 hits
-        spaced apart before tombstoning a record. Senate sites sit behind
-        Akamai and occasionally return transient 404s that resolve within
-        seconds; the multi-confirmation gate filters those out. A 2026-04-19
-        run created 1,286 unconfirmed tombstones; on re-verification with a
-        browser User-Agent, 1,283 returned 200 and were restored.
+        We don&apos;t treat this as proof of intentional removal. Senate
+        sites get redesigned, URLs restructure, CDNs cache stale 404s, and
+        Akamai occasionally returns transient errors that resolve within
+        seconds. A 2026-04-19 run created 1,286 such tombstones; on
+        re-verification with a browser user-agent, 1,283 returned 200 and
+        were restored. The records on this page are the residue &mdash; an
+        integrity signal worth keeping, not a watchdog claim.
       </p>
 
       <div className="border-b border-neutral-200 mb-2" />

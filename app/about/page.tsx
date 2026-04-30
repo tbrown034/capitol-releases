@@ -155,13 +155,17 @@ export default async function AboutPage() {
           January 2025 due to pagination limits on their specific CMS.
           {deletionCount > 0 && (
             <>
-              {" "}
+              {" "}We periodically re-fetch source URLs as a data-quality
+              check. {" "}
               <span className="text-neutral-900 font-medium">
                 {deletionCount.toLocaleString()}
               </span>{" "}
-              release{deletionCount !== 1 ? "s have" : " has"}{" "}been removed
-              from a senator&apos;s site since we started tracking; they remain
-              in the archive as tombstones with a recorded deletion date.
+              source URL{deletionCount !== 1 ? "s have" : " has"}{" "}stopped
+              resolving on multiple consecutive checks; the captured text
+              remains in the archive. We don&apos;t treat this as proof of
+              intentional removal &mdash; sites get redesigned, URLs
+              restructure, CDNs hiccup &mdash; just an integrity signal worth
+              recording.
             </>
           )}
         </p>
