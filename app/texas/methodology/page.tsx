@@ -168,12 +168,15 @@ export default async function TexasMethodology() {
             <span className="text-neutral-900 font-medium">PDF</span>{" "}
             (~52% of records): downloaded and parsed with{" "}
             <code className="font-[family-name:var(--font-dm-mono)] text-[13px] text-neutral-700">
-              pypdf.PdfReader
-            </code>
-            . Whitespace artifacts that PDF column layouts produce
-            (&ldquo;Stoc\nkton&rdquo;, &ldquo;FOR IMM\nEDIATE RELEASE&rdquo;)
-            are normalized: a newline between two lowercase letters is a
-            wrap, not a break.
+              pdfplumber
+            </code>{" "}
+            (x_tolerance=2, y_tolerance=3). pdfplumber correctly handles TX
+            templates that separate words by x-coordinate position rather
+            than space characters &mdash; pypdf was concatenating those as
+            &ldquo;membercommitteeappointmentsforthe&rdquo;. Residual
+            whitespace artifacts (line-broken words from column layout) are
+            normalized: a newline between two lowercase letters is a wrap,
+            not a break.
           </li>
           <li>
             <span className="text-neutral-900 font-medium">HTML press.php</span>{" "}
