@@ -8,7 +8,7 @@ import {
 } from "../../lib/queries";
 import { ReleaseCard } from "../../components/release-card";
 import { TypeBadge } from "../../components/type-badge";
-import { getSenatorPhotoUrl, getInitials } from "../../lib/photos";
+import { getSenatorPhotoUrl, getInitials, getSenatorHref } from "../../lib/photos";
 import { normalizeTitle } from "../../lib/titles";
 import { STATE_NAMES } from "../../lib/states";
 import { formatReleaseDate, formatTimestamp, isFutureDated } from "../../lib/dates";
@@ -101,14 +101,18 @@ export default async function ReleasePage({
   const isDeleted = release.deleted_at !== null;
   const isFuture = isFutureDated(release.published_at, release.scraped_at);
   const title = normalizeTitle(release.title);
+  // Detect chamber from senator_id prefix so back-link and copy match.
+  const isTexas = release.senator_id.startsWith("tx-");
+  const backHref = isTexas ? "/texas/feed" : "/feed";
+  const backLabel = isTexas ? "← Back to Texas feed" : "← Back to feed";
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-12">
       <Link
-        href="/feed"
-        className="text-sm text-neutral-400 hover:text-neutral-600 transition-colors"
+        href={backHref}
+        className="text-sm text-neutral-500 hover:text-neutral-900 transition-colors"
       >
-        ← Back to feed
+        {backLabel}
       </Link>
 
       {isFuture && (
@@ -133,12 +137,14 @@ export default async function ReleasePage({
       {isDeleted && (
         <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 px-4 py-3">
           <p className="text-sm text-amber-900">
-            <span className="font-semibold">Removed from senate.gov.</span>{" "}
-            This release was scrubbed from the senator&apos;s official site on{" "}
+            <span className="font-semibold">No longer reachable on{" "}{host}.</span>{" "}
+            The source URL stopped resolving on repeated checks (first noted{" "}
             <time dateTime={release.deleted_at!}>
               {formatReleaseDate(release.deleted_at)}
             </time>
-            . Capitol Releases preserves the original copy as captured at{" "}
+            ). Could be a redesign, a CDN issue, or an intentional removal &mdash;
+            we don&apos;t treat it as proof of any of those. The captured copy
+            remains in the archive as of{" "}
             <time dateTime={release.scraped_at}>
               {formatTimestamp(release.scraped_at)}
             </time>
@@ -167,7 +173,7 @@ export default async function ReleasePage({
         )}
         <div className="text-sm">
           <Link
-            href={`/senators/${release.senator_id}`}
+            href={getSenatorHref(release.senator_id)}
             className="font-[family-name:var(--font-source-serif)] text-base text-neutral-900 hover:underline"
           >
             {release.senator_name}
@@ -214,6 +220,24 @@ export default async function ReleasePage({
       <div className="prose prose-neutral mt-6 max-w-none text-neutral-800 leading-relaxed">
         {release.body_text ? (
           <div className="text-base">{renderBody(release.body_text)}</div>
+        ) : isTexas ? (
+          <div className="rounded-md border border-neutral-200 bg-neutral-50 px-5 py-5 text-sm text-neutral-700 leading-relaxed">
+            <p className="mb-3">
+              <span className="font-medium text-neutral-900">Body text not captured.</span>{" "}
+              Most Texas Senate releases are published as linked PDFs rather
+              than HTML pages; we archive the pressroom listing entry (title +
+              date) and link to the original PDF on senate.texas.gov.
+            </p>
+            <a
+              href={release.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 border border-neutral-700 px-3 py-1.5 text-xs text-neutral-700 hover:bg-neutral-900 hover:text-white transition-colors"
+            >
+              Open the original PDF on senate.texas.gov
+              <span aria-hidden> ↗</span>
+            </a>
+          </div>
         ) : (
           <p className="text-sm text-neutral-500 italic">
             No body text was captured for this release. Read it on{" "}

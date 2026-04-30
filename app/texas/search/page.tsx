@@ -122,9 +122,15 @@ export default async function TexasSearchPage({
       <h1 className="font-[family-name:var(--font-source-serif)] text-4xl text-neutral-900 mb-3">
         Search the Texas Senate
       </h1>
-      <p className="text-sm text-neutral-600 leading-relaxed mb-6 max-w-2xl">
-        Full-text search across every Texas state senator&apos;s press
-        releases since January 2025. English stemming, title + body.
+      <p className="text-sm text-neutral-600 leading-relaxed mb-2 max-w-2xl">
+        Search across every Texas state senator&apos;s press releases since
+        January 2025. English stemming.
+      </p>
+      <p className="text-xs text-neutral-500 leading-relaxed mb-6 max-w-2xl">
+        Texas Senate releases are mostly published as PDFs; we archive the
+        listing title + date but not the body text. Searches match against
+        titles. To search the full body, open the original PDF on
+        senate.texas.gov from the result.
       </p>
 
       <div className="mb-6">

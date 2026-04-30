@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { FeedItem } from "../lib/db";
-import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
+import { getSenatorPhotoUrl, getInitials, getSenatorHref } from "../lib/photos";
 import { normalizeTitle } from "../lib/titles";
 import { formatReleaseDate, isFutureDated } from "../lib/dates";
 import { TypeBadge } from "./type-badge";
@@ -84,7 +84,7 @@ export function ReleaseCard({
     >
       <div className="flex items-start gap-2.5">
         <Link
-          href={`/senators/${item.senator_id}`}
+          href={getSenatorHref(item.senator_id)}
           className="shrink-0 mt-0.5"
         >
           {photoUrl ? (
@@ -110,7 +110,7 @@ export function ReleaseCard({
               <span className="text-[10px] uppercase tracking-wider text-neutral-400">From</span>
             </span>
             <Link
-              href={`/senators/${item.senator_id}`}
+              href={getSenatorHref(item.senator_id)}
               className="text-neutral-700 font-[family-name:var(--font-source-serif)] hover:text-neutral-900 transition-colors"
             >
               {item.senator_name}

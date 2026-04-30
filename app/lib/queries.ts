@@ -272,14 +272,20 @@ export async function getRelatedReleases(
   limit = 6
 ): Promise<FeedItem[]> {
   if (!release.published_at) return [];
+  // Scope "related" to the same chamber the release came from. Without
+  // this, a TX-state release would surface only US-Senate matches (or
+  // nothing), and a US-Senate release would surface only US matches even
+  // though TX released on the same day. Same chamber is the right
+  // editorial frame anyway — "what else was happening in this body."
   const text = `
     SELECT ${FEED_COLUMNS}
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
+    JOIN senators rel ON rel.id = $2
     WHERE pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
-      AND s.chamber = 'senate'
+      AND s.chamber = rel.chamber
       AND pr.id != $1
       AND pr.senator_id != $2
       AND pr.published_at IS NOT NULL

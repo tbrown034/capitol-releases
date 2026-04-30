@@ -73,6 +73,14 @@ export function getSenatorPhotoUrl(fullName: string, senatorId?: string): string
   // Non-senate members (e.g. White House) use senator_id as the filename directly.
   if (senatorId === "whitehouse") return `/senators/whitehouse.jpg`;
 
+  // Texas state senators have IDs like "tx-d29-blanco" and photos stored
+  // at /state-senators/tx/dXX.jpg. Pull the district number out of the ID
+  // and resolve directly — no bioguide lookup applies.
+  if (senatorId?.startsWith("tx-d")) {
+    const m = senatorId.match(/^tx-d(\d{2})-/);
+    if (m) return `/state-senators/tx/d${m[1]}.jpg`;
+  }
+
   // Try senator_id first (most reliable)
   if (senatorId) {
     const byId = idToBioguide.get(senatorId);
@@ -104,6 +112,15 @@ export function getSenatorPhotoUrl(fullName: string, senatorId?: string): string
   if (bioguideId) return `/senators/${bioguideId}.jpg`;
 
   return null;
+}
+
+// Resolve the in-app URL for a senator's archive page based on their ID.
+// US senators live under /senators/[id]; Texas state senators live under
+// /texas/[id]. Returns the right path regardless of chamber so cards and
+// release detail pages don't need chamber-aware logic locally.
+export function getSenatorHref(senatorId: string): string {
+  if (senatorId.startsWith("tx-")) return `/texas/${senatorId}`;
+  return `/senators/${senatorId}`;
 }
 
 export function getInitials(fullName: string): string {
