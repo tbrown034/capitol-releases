@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Capitol Releases",
   description:
-    "A searchable archive of official press releases from all 100 U.S. senators. Normalized, indexed, updated daily.",
+    "A searchable archive of official press releases from all 100 U.S. senators and the 31-member Texas State Senate. Normalized, indexed, updated four times daily.",
 };
 
 export default function RootLayout({

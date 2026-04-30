@@ -440,8 +440,11 @@ function Section({
   title: string;
   children: React.ReactNode;
 }) {
+  // Anchor IDs let the verified-live badge on /texas link directly to
+  // "#verification" and similar deep links from elsewhere on the site.
+  const anchor = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   return (
-    <section className="mb-10">
+    <section id={anchor} className="mb-10 scroll-mt-8">
       <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4">
         {title}
       </h2>

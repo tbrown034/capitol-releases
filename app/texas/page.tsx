@@ -19,7 +19,7 @@ import type { FeedItem, ContentType } from "../lib/db";
 export const metadata = {
   title: "Texas Senate — Capitol Releases",
   description:
-    "Press releases from the 31-member Texas State Senate, scraped daily from senate.texas.gov. Coverage, publishing patterns, and the silent caucus of senators who don't post online.",
+    "Press releases from the 31-member Texas State Senate, scraped four times daily from senate.texas.gov. Coverage, publishing patterns, and the silent caucus of senators who don't post online.",
 };
 
 export const revalidate = 600;
@@ -170,7 +170,8 @@ export default async function TexasHubPage({
             </h1>
             <p className="text-base md:text-lg text-neutral-700 max-w-2xl leading-snug mb-3">
               Every press release from every Texas state senator&rsquo;s
-              pressroom on senate.texas.gov, scraped daily, since January 2025.
+              pressroom on senate.texas.gov, scraped four times daily, since
+              January 2025.
             </p>
             <p className="text-sm md:text-base text-neutral-500 max-w-2xl leading-relaxed">
               Same archive, same provenance discipline as the U.S. Senate
@@ -217,24 +218,38 @@ export default async function TexasHubPage({
             to present
           </div>
         </div>
-        <p className="mt-3 text-xs text-neutral-500">
-          {reps}R · {dems}D
+        <p className="mt-3 text-xs text-neutral-500 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span>{reps}R · {dems}D</span>
           {vacantDistricts.length > 0 && (
-            <> · D{vacantDistricts.join(", ")} vacant</>
+            <>
+              <span className="text-neutral-300">·</span>
+              <span>D{vacantDistricts.join(", ")} vacant</span>
+            </>
           )}
           {earliest && (
             <>
-              {" · "}archive begins{" "}
-              {formatLongMonthYear(earliest)}
+              <span className="text-neutral-300">·</span>
+              <span>archive begins {formatLongMonthYear(earliest)}</span>
             </>
           )}
-          {" · "}
+          <span className="text-neutral-300">·</span>
           <Link href="/texas/feed" className="underline hover:text-neutral-900">
             full feed
           </Link>
-          {" · "}
+          <span className="text-neutral-300">·</span>
           <Link href="/texas/search" className="underline hover:text-neutral-900">
             search
+          </Link>
+          <span className="text-neutral-300">·</span>
+          {/* Verified-live badge: clickable to methodology so the reader can
+              see what was verified and re-run it themselves. */}
+          <Link
+            href="/texas/methodology#verification"
+            className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-900 hover:bg-emerald-100 transition-colors"
+            title="Re-run with python -m pipeline tx-truth"
+          >
+            <span aria-hidden>✓</span>
+            <span>Verified live · 30/30 · Apr 29</span>
           </Link>
         </p>
       </div>

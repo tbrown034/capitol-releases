@@ -31,7 +31,7 @@ export function Footer() {
         <div className="mt-8 pt-6 border-t border-neutral-200 text-[11px] text-neutral-500 leading-relaxed space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <p>
-              Data scraped multiple times daily from official{" "}
+              Data scraped four times daily (9 AM, 1 PM, 5 PM, 9 PM ET) from official{" "}
               <a
                 href="https://www.senate.gov/senators/"
                 className="underline hover:text-neutral-600"
