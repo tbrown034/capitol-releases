@@ -334,9 +334,11 @@ export async function getReleaseCountForSitemap(): Promise<number> {
   return Number((rows[0] as { total: number }).total);
 }
 
-export async function getActiveSenatorIds(): Promise<string[]> {
+export async function getActiveSenatorIds(
+  chamber: "senate" | "tx_senate" = "senate"
+): Promise<string[]> {
   const rows = await sql`
-    SELECT id FROM senators WHERE status = 'active' AND chamber = 'senate' ORDER BY id
+    SELECT id FROM senators WHERE status = 'active' AND chamber = ${chamber} ORDER BY id
   `;
   return rows.map((r) => (r as { id: string }).id);
 }

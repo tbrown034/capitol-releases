@@ -445,17 +445,23 @@ function SilentEmptyState({
   //   2. zero records, page 1 — the silent caucus framing
   //   3. zero this page only (paginated past the end) — handled by parent
   if (expectEmpty) {
+    const note = senator.scrape_config?.notes ?? null;
     return (
       <div className="rounded-md border border-amber-200 bg-amber-50 px-5 py-5 max-w-2xl">
         <p className="text-[11px] uppercase tracking-wider text-amber-900 mb-1.5 font-semibold">
           Recently seated
         </p>
         <p className="text-sm text-amber-900 leading-relaxed mb-2">
-          {senator.full_name} was sworn in recently and has not begun
-          publishing press releases on{" "}
-          <span translate="no">senate.texas.gov</span>. We re-check daily;
-          records will appear here as soon as the office begins publishing.
+          {senator.full_name} has not begun publishing press releases on{" "}
+          <span translate="no">senate.texas.gov</span>{" "}yet. We re-check
+          daily; records will appear here as soon as the office begins
+          publishing.
         </p>
+        {note && (
+          <p className="text-xs text-amber-900/80 leading-relaxed mb-3 italic">
+            Note: {note}
+          </p>
+        )}
         {senator.press_release_url && (
           <a
             href={senator.press_release_url}

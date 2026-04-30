@@ -23,12 +23,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/senators", changeFrequency: "daily" as const, priority: 0.8 },
     { path: "/search", changeFrequency: "weekly" as const, priority: 0.6 },
     { path: "/about", changeFrequency: "monthly" as const, priority: 0.4 },
-    { path: "/deleted", changeFrequency: "daily" as const, priority: 0.5 },
     { path: "/status", changeFrequency: "daily" as const, priority: 0.3 },
+    // Texas Senate section
+    { path: "/texas", changeFrequency: "daily" as const, priority: 0.8 },
+    { path: "/texas/feed", changeFrequency: "daily" as const, priority: 0.7 },
+    { path: "/texas/search", changeFrequency: "weekly" as const, priority: 0.5 },
+    { path: "/texas/trending", changeFrequency: "weekly" as const, priority: 0.5 },
   ];
 
-  const [senatorIds, total] = await Promise.all([
-    getActiveSenatorIds(),
+  const [senatorIds, txSenatorIds, total] = await Promise.all([
+    getActiveSenatorIds("senate"),
+    getActiveSenatorIds("tx_senate"),
     getReleaseCountForSitemap(),
   ]);
 
@@ -44,6 +49,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "daily" as const,
       priority: 0.7,
+    })),
+    ...txSenatorIds.map((sid) => ({
+      url: `${SITE_URL}/texas/${sid}`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.6,
     })),
   ];
 
