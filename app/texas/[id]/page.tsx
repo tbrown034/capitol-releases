@@ -2,16 +2,20 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { sql } from "../../../lib/db";
-import type { PressRelease } from "../../../lib/db";
-import { Pagination } from "../../../components/pagination";
-import { TypeBadge } from "../../../components/type-badge";
-import { TxSenatorSparkline } from "../../../components/tx-senator-sparkline";
+import { sql } from "../../lib/db";
+import type { PressRelease } from "../../lib/db";
+import {
+  getTxSenatorTopicTrends,
+  getTxSenatorSignatureTopics,
+} from "../../lib/texas";
+import { Pagination } from "../../components/pagination";
+import { TypeBadge } from "../../components/type-badge";
+import { TxSenatorSparkline } from "../../components/tx-senator-sparkline";
 import {
   formatLongMonthYear,
   formatReleaseDate,
   formatShortDate,
-} from "../../../lib/dates";
+} from "../../lib/dates";
 
 export const revalidate = 600;
 
@@ -69,7 +73,7 @@ export default async function TxSenatorPage({
   const expectEmpty = Boolean(senator.scrape_config?.expect_empty);
   const districtPad = district ? String(district).padStart(2, "0") : "00";
 
-  const [releaseStats, items, weekly, chamberCount] = await Promise.all([
+  const [releaseStats, items, weekly, chamberCount, topicTrends, signatureTopics] = await Promise.all([
     sql`
       SELECT count(*)::int AS total,
              min(published_at) AS earliest,
@@ -107,6 +111,8 @@ export default async function TxSenatorPage({
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
     `,
+    getTxSenatorTopicTrends(id, 9),
+    getTxSenatorSignatureTopics(id, 9),
   ]);
   const releases = items as unknown as PressRelease[];
 
@@ -132,7 +138,7 @@ export default async function TxSenatorPage({
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
       <Link
-        href="/states/tx"
+        href="/texas"
         className="text-sm text-neutral-500 hover:text-neutral-900 transition-colors"
       >
         ← Back to Texas Senate
@@ -200,6 +206,120 @@ export default async function TxSenatorPage({
             Weekly volume since Jan 2025
           </p>
           <TxSenatorSparkline data={weeklyData} />
+        </section>
+      )}
+
+      {/* Topic trends — last 60 days vs prior 60 days. Only render if the
+          senator has at least one recent term that meets the >=2 threshold.
+          For TX volume that's a meaningful signal. */}
+      {topicTrends.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
+            What they&apos;re talking about lately
+          </h2>
+          <p className="text-xs text-neutral-500 mb-4">
+            Most-used title + body words in the last 60 days, vs the 60 days
+            before. Click any term to search the full Texas corpus.
+          </p>
+          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {topicTrends.map((t) => {
+              const delta = t.recent_count - t.prior_count;
+              const direction =
+                t.prior_count === 0 && t.recent_count >= 2
+                  ? "new"
+                  : delta > 0
+                    ? "up"
+                    : delta < 0
+                      ? "down"
+                      : "flat";
+              const arrow =
+                direction === "up" || direction === "new"
+                  ? "▲"
+                  : direction === "down"
+                    ? "▼"
+                    : "–";
+              const tone =
+                direction === "up"
+                  ? "text-emerald-600"
+                  : direction === "down"
+                    ? "text-rose-600"
+                    : direction === "new"
+                      ? "text-indigo-600"
+                      : "text-neutral-400";
+              return (
+                <li
+                  key={t.word}
+                  className="flex items-center justify-between border border-neutral-200 bg-white px-3 py-2 hover:border-neutral-400 transition-colors"
+                >
+                  <Link
+                    href={`/texas/search?q=${encodeURIComponent(t.word)}`}
+                    className="text-sm text-neutral-800 hover:underline"
+                  >
+                    {t.word}
+                  </Link>
+                  <span className="flex items-center gap-2 font-[family-name:var(--font-dm-mono)] tabular-nums text-xs">
+                    <span className="text-neutral-500">{t.recent_count}</span>
+                    <span
+                      className={tone}
+                      title={
+                        direction === "new"
+                          ? "New in the last 60 days"
+                          : `${delta >= 0 ? "+" : ""}${delta} vs prior 60 days`
+                      }
+                    >
+                      {arrow}
+                      {direction !== "flat" && direction !== "new" && (
+                        <span className="ml-0.5">{Math.abs(delta)}</span>
+                      )}
+                    </span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {/* Signature topics — words this senator uses disproportionately vs
+          the rest of the TX chamber. Only meaningful if they have ≥10
+          records (otherwise log-odds is statistically noisy). */}
+      {total >= 10 && signatureTopics.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
+            Topics they own
+          </h2>
+          <p className="text-xs text-neutral-500 mb-4">
+            Words this senator uses in release titles disproportionately
+            compared to the rest of the Texas Senate. Higher score = more
+            distinctive.
+          </p>
+          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {signatureTopics.map((t) => {
+              const odds = Number(t.log_odds);
+              return (
+                <li
+                  key={t.word}
+                  className="flex items-center justify-between border border-neutral-200 bg-white px-3 py-2 hover:border-neutral-400 transition-colors"
+                >
+                  <Link
+                    href={`/texas/search?q=${encodeURIComponent(t.word)}`}
+                    className="text-sm text-neutral-800 hover:underline"
+                  >
+                    {t.word}
+                  </Link>
+                  <span
+                    className="flex items-center gap-2 font-[family-name:var(--font-dm-mono)] tabular-nums text-xs text-neutral-500"
+                    title={`Appears ${t.self_count}× in this senator's titles vs ${t.rest_count}× across other TX senators`}
+                  >
+                    <span className="text-neutral-600">{t.self_count}</span>
+                    <span className="text-neutral-300">vs</span>
+                    <span>{t.rest_count}</span>
+                    <span className="ml-1 text-emerald-600">+{odds.toFixed(1)}</span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
         </section>
       )}
 
@@ -297,7 +417,7 @@ export default async function TxSenatorPage({
             <Pagination
               total={total}
               perPage={PER_PAGE}
-              basePath={`/states/tx/${id}`}
+              basePath={`/texas/${id}`}
               currentPage={page}
             />
           </Suspense>
@@ -385,7 +505,7 @@ function SilentEmptyState({
   return (
     <p className="text-sm text-neutral-500">
       No releases on this page.{" "}
-      <Link href={`/states/tx/${senator.id}`} className="underline hover:text-neutral-900">
+      <Link href={`/texas/${senator.id}`} className="underline hover:text-neutral-900">
         Back to first page
       </Link>
       .

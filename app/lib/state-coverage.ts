@@ -25,7 +25,7 @@ export const COVERAGE: StateRow[] = [
     releases: 314,
     since: "2025-01-14",
     status: "live",
-    href: "/states/tx",
+    href: "/texas",
     note: "30 of 31 districts (D4 vacant). Daily ingest from senate.texas.gov.",
   },
 ];

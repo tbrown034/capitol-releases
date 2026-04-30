@@ -29,7 +29,7 @@ export default async function StateCodePage({
 
   const row = getStateRow(upper);
 
-  // If the state has its own dedicated page (e.g. /states/tx), defer to it.
+  // If the state has its own dedicated page (e.g. /texas), defer to it.
   // The catch-all only handles planned states and unrecognized-but-valid codes.
   if (row?.href && row.href !== `/states/${code.toLowerCase()}`) {
     redirect(row.href);
@@ -91,7 +91,7 @@ export default async function StateCodePage({
           </ul>
 
           <Link
-            href="/states/tx"
+            href="/texas"
             className="inline-flex items-center gap-2 text-sm text-neutral-900 hover:underline"
           >
             See the Texas pilot →
@@ -113,7 +113,7 @@ export default async function StateCodePage({
               {name} U.S. senators →
             </Link>
             <Link
-              href="/states/tx"
+              href="/texas"
               className="text-sm text-neutral-900 underline hover:no-underline"
             >
               See the Texas pilot →

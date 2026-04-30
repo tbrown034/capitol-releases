@@ -51,6 +51,10 @@ export type FeedFilters = {
   from?: string;
   to?: string;
   sort?: "date" | "relevance";
+  // Chamber scope. Defaults to "senate" (US Senate). Set to "tx_senate" for
+  // the Texas Senate corpus. Single point of override so /texas/* feeds and
+  // searches reuse all the existing query logic.
+  chamber?: "senate" | "tx_senate";
 };
 
 export type SearchFeedItem = FeedItem & { snippet?: string | null };
@@ -59,19 +63,23 @@ function buildFeedPredicates(f: FeedFilters): {
   preds: string[];
   params: unknown[];
 } {
+  const chamber = f.chamber ?? "senate";
   const preds: string[] = [
     "pr.deleted_at IS NULL",
     "pr.content_type != 'photo_release'",
     "s.status = 'active'",
-    "s.chamber = 'senate'",
   ];
   const params: unknown[] = [];
   const push = (pred: string, value: unknown) => {
     params.push(value);
     preds.push(pred.replace("$?", `$${params.length}`));
   };
-  const ctype = normalizeType(f.type);
+  // Search MUST be pushed first so its parameter is $1 — getFeed builds a
+  // ts_headline snippet column referencing $1 by index. The chamber filter
+  // and any other facets follow.
   if (f.search) push("pr.fts @@ plainto_tsquery('english', $?)", f.search);
+  push("s.chamber = $?", chamber);
+  const ctype = normalizeType(f.type);
   if (f.party) push("s.party = $?", f.party);
   if (f.state) push("s.state = $?", f.state);
   if (f.senator) push("pr.senator_id = $?", f.senator);

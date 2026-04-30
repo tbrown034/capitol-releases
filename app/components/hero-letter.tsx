@@ -19,6 +19,16 @@ type HeroItem = {
   scraped_at?: string;
   content_type: ContentType;
   source_url: string;
+  // Optional pre-resolved photo URL. If unset, falls back to the bioguide
+  // map. Set this for TX state senators (whose photos live at
+  // /state-senators/tx/dXX.jpg, outside the bioguide).
+  photo_url?: string | null;
+  // Optional senator title prefix. Defaults to "Sen."; the TX hub uses
+  // "State Sen." to clarify state vs federal in the byline.
+  title_prefix?: string;
+  // Optional source domain shown in the card footer. Defaults to "senate.gov";
+  // TX uses "senate.texas.gov".
+  source_label?: string;
 };
 
 const ROTATION_MS = 8000;
@@ -57,7 +67,9 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
 
   if (items.length === 0) return null;
   const item = items[idx];
-  const photo = getSenatorPhotoUrl(item.senator_name, item.senator_id);
+  const photo = item.photo_url ?? getSenatorPhotoUrl(item.senator_name, item.senator_id);
+  const titlePrefix = item.title_prefix ?? "Sen.";
+  const sourceLabel = item.source_label ?? "senate.gov";
   const partyName =
     item.party === "D" ? "Democrat" : item.party === "R" ? "Republican" : "Independent";
   const partyAccent =
@@ -171,7 +183,7 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
               <div className="min-w-0 flex-1 leading-tight">
                 <div className="text-[10px] uppercase tracking-wider text-neutral-400">From</div>
                 <div className="text-sm text-neutral-900 font-[family-name:var(--font-source-serif)] font-semibold truncate">
-                  Sen. {item.senator_name}
+                  {titlePrefix} {item.senator_name}
                 </div>
                 <div className="text-[11px] text-neutral-500">
                   {partyName} · {item.state}
@@ -191,7 +203,7 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
 
             <div className="mt-4 flex items-center justify-between text-[10px] text-neutral-400">
               <span>
-                senate.gov
+                {sourceLabel}
                 {!hasPublishedTime && captured && (
                   <span className="ml-2 text-neutral-400">· captured {captured}</span>
                 )}

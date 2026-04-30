@@ -54,7 +54,7 @@ export function TxDistrictBars({ rows }: { rows: Row[] }) {
 
       const link = g
         .append("a")
-        .attr("href", `/states/tx/${r.id}`)
+        .attr("href", `/texas/${r.id}`)
         .attr("aria-label", `${r.full_name} (${r.party}, District ${r.district}), ${r.release_count} releases`)
         .style("cursor", "pointer");
 
@@ -149,7 +149,7 @@ export function TxDistrictBars({ rows }: { rows: Row[] }) {
       <ul className="sr-only">
         {sorted.map((r) => (
           <li key={r.id}>
-            <Link href={`/states/tx/${r.id}`}>
+            <Link href={`/texas/${r.id}`}>
               {r.full_name} (D{r.district}, {r.party}): {r.release_count} releases
             </Link>
           </li>
