@@ -84,3 +84,6 @@ pipeline/recon/output/
 # Local cache / research scratch
 .fallow/
 notebooks/
+
+# Claude Code session state (not project state)
+.claude/scheduled_tasks.lock
