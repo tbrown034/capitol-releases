@@ -86,10 +86,17 @@ export default async function TexasStatePage({
     return a.district - b.district;
   });
 
+  const TOTAL_SEATS = 31;
   const totalReleases = enriched.reduce((s, r) => s + r.release_count, 0);
   const publishing = enriched.filter((r) => r.release_count > 0).length;
   const dems = enriched.filter((r) => r.party === "D").length;
   const reps = enriched.filter((r) => r.party === "R").length;
+  const inds = enriched.filter((r) => r.party === "I").length;
+  const filledDistricts = new Set(enriched.map((r) => r.district));
+  const vacantDistricts = Array.from(
+    { length: TOTAL_SEATS },
+    (_, n) => n + 1
+  ).filter((d) => !filledDistricts.has(d));
   const latest = enriched
     .map((r) => r.latest_release)
     .filter((d): d is string => Boolean(d))
@@ -129,10 +136,17 @@ export default async function TexasStatePage({
         Texas Senate
       </h1>
       <p className="text-sm text-neutral-600 leading-relaxed mb-2 max-w-2xl">
-        31 seats. {enriched.length} currently filled — District 4 is vacant
-        pending a May 2026 special election. Republican majority. Lieutenant
-        Governor Dan Patrick presides. The chamber convenes in odd-numbered
-        years for the regular biennial session, plus called special sessions.
+        {TOTAL_SEATS} seats. {enriched.length} currently filled
+        {vacantDistricts.length > 0 && (
+          <>
+            {" "}— District{vacantDistricts.length === 1 ? " " : "s "}
+            {vacantDistricts.join(", ")}{" "}
+            {vacantDistricts.length === 1 ? "is" : "are"} vacant
+          </>
+        )}
+        . Republican majority. Lieutenant Governor Dan Patrick presides. The
+        chamber convenes in odd-numbered years for the regular biennial
+        session, plus called special sessions.
       </p>
       <p className="text-xs text-neutral-500 leading-relaxed mb-8 max-w-2xl">
         Press releases scraped daily from each member&apos;s pressroom on{" "}
@@ -158,8 +172,12 @@ export default async function TexasStatePage({
         <SortLink value="count" label="By volume" />
         <SortLink value="party" label="By party" />
         <SortLink value="name" label="A–Z" />
-        <span className="ml-auto text-neutral-500">
-          {dems} D · {reps} R · 1 vacant
+        <span className="ml-auto text-neutral-500 tabular-nums">
+          {dems} D · {reps} R
+          {inds > 0 && <> · {inds} I</>}
+          {vacantDistricts.length > 0 && (
+            <> · {vacantDistricts.length} vacant</>
+          )}
         </span>
       </div>
 
