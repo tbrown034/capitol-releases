@@ -343,7 +343,7 @@ export default async function TexasStatePage({
           </h2>
           <p className="text-xs text-neutral-500 leading-relaxed mb-4 max-w-2xl">
             These {silent.length} senators have published nothing on{" "}
-            <span translate="no">senate.texas.gov</span> since January 2025.
+            <span translate="no">senate.texas.gov</span>{" "}since January 2025.
             Each link below opens their actual pressroom &mdash; we&apos;re not
             missing the page; the page is empty.
           </p>

@@ -357,8 +357,9 @@ function SilentEmptyState({
         </p>
         <p className="text-sm text-neutral-700 leading-relaxed mb-2">
           {senator.full_name}&apos;s pressroom on{" "}
-          <span translate="no">senate.texas.gov</span> is live but empty.
-          We&apos;ve re-checked daily{sinceLabel ? ` since ${sinceLabel}` : ""}{" "}
+          <span translate="no">senate.texas.gov</span>
+          {" "}is live but empty. We&apos;ve re-checked daily
+          {sinceLabel ? ` since ${sinceLabel}` : ""}{" "}
           and {chamberTotal > 0
             ? `archived ${chamberTotal.toLocaleString()} releases from other Texas senators in that window`
             : "found no records yet"}{" "}
