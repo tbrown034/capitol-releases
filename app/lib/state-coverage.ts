@@ -1,5 +1,6 @@
 // Shared coverage data for /states and /states/[code]. Edit here to update
-// both surfaces.
+// both surfaces. `members` and `releases` are placeholders — /states overlays
+// live counts from the database for any chamber listed in STATE_CHAMBER.
 
 export type CoverageStatus = "live" | "in_progress" | "planned";
 

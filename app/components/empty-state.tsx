@@ -9,15 +9,19 @@ export function EmptyState({
   message,
   clearHref,
   suggestions = [],
+  showTrending = true,
 }: {
   message: string;
   clearHref?: string;
   suggestions?: Suggestion[];
+  // /trending is U.S. Senate-scoped. Pass false from non-Senate surfaces
+  // (state senates, executive) so we don't lead readers to an off-context feed.
+  showTrending?: boolean;
 }) {
   const links: Suggestion[] = [];
   if (clearHref) links.push({ label: "Clear filters", href: clearHref });
   for (const s of suggestions) links.push(s);
-  if (!links.some((l) => l.href === "/trending")) {
+  if (showTrending && !links.some((l) => l.href === "/trending")) {
     links.push({ label: "See what's trending", href: "/trending" });
   }
 

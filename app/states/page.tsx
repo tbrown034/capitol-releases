@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CoverageCartogram } from "../components/coverage-cartogram";
 import { COVERAGE, PLANNED, type StateRow } from "../lib/state-coverage";
+import { sql } from "../lib/db";
 
 export const metadata = {
   title: "States — Capitol Releases",
@@ -8,8 +9,35 @@ export const metadata = {
 
 export const revalidate = 600;
 
+const STATE_CHAMBER: Record<string, string> = { TX: "tx_senate" };
+
 export default async function StatesPage() {
-  const cartogramData = COVERAGE.map((s) => ({
+  // Live release counts and member counts for each covered state. Pulling
+  // from DB avoids drift when the static config falls out of sync with what
+  // the daily collector actually has on file.
+  const liveStats = (await sql`
+    SELECT s.chamber,
+           count(DISTINCT s.id)::int AS members,
+           count(pr.id)::int AS releases
+    FROM senators s
+    LEFT JOIN press_releases pr
+      ON pr.senator_id = s.id
+     AND pr.deleted_at IS NULL
+     AND pr.content_type != 'photo_release'
+    WHERE s.chamber IN ('tx_senate')
+    GROUP BY s.chamber
+  `) as { chamber: string; members: number; releases: number }[];
+  const byChamber = new Map(liveStats.map((r) => [r.chamber, r]));
+  const live = (code: string) => byChamber.get(STATE_CHAMBER[code] ?? "");
+
+  const enrichedCoverage = COVERAGE.map((s) => {
+    const stats = live(s.code);
+    return stats
+      ? { ...s, members: stats.members, releases: stats.releases }
+      : s;
+  });
+
+  const cartogramData = enrichedCoverage.map((s) => ({
     code: s.code,
     name: s.name,
     href: s.href ?? "#",
@@ -42,7 +70,7 @@ export default async function StatesPage() {
         Live
       </h2>
       <div className="space-y-3 mb-10">
-        {COVERAGE.map((s) => (
+        {enrichedCoverage.map((s) => (
           <StateCard key={s.code} row={s} />
         ))}
       </div>

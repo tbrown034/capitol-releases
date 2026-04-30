@@ -116,6 +116,7 @@ export default async function TxSenatorPage({
           width={72}
           height={72}
           className="h-[72px] w-[72px] object-cover object-top shrink-0"
+          priority
           unoptimized
         />
         <div>
@@ -136,6 +137,7 @@ export default async function TxSenatorPage({
               href={senator.official_url}
               target="_blank"
               rel="noopener noreferrer"
+              translate="no"
               className="font-[family-name:var(--font-dm-mono)] text-neutral-500 hover:text-neutral-900 transition-colors underline underline-offset-2"
             >
               {senator.official_url
@@ -152,8 +154,8 @@ export default async function TxSenatorPage({
           {total.toLocaleString()}
         </span>{" "}
         record{total !== 1 ? "s" : ""} archived
-        {sinceLabel && <> since {sinceLabel}</>}. Scraped daily from
-        senate.texas.gov.
+        {sinceLabel && <> since {sinceLabel}</>}. Scraped daily from{" "}
+        <span translate="no">senate.texas.gov</span>.
       </p>
 
       <div className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
@@ -185,6 +187,7 @@ export default async function TxSenatorPage({
             suggestions={[
               { label: "Browse Texas Senate directory", href: "/states/tx" },
             ]}
+            showTrending={false}
           />
         ) : total === 0 ? (
           <EmptyState
@@ -192,23 +195,28 @@ export default async function TxSenatorPage({
             suggestions={[
               { label: "Browse Texas Senate directory", href: "/states/tx" },
             ]}
+            showTrending={false}
           />
         ) : (
-          <EmptyState message="No releases on this page." />
+          <EmptyState message="No releases on this page." showTrending={false} />
         )
       ) : (
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-neutral-800 text-xs uppercase tracking-wider text-neutral-500">
-              <th className="pb-2 pr-4 text-left font-medium">Date</th>
-              <th className="pb-2 text-left font-medium">Title</th>
+              <th scope="col" className="pb-2 pr-4 text-left font-medium">
+                Date
+              </th>
+              <th scope="col" className="pb-2 text-left font-medium">
+                Title
+              </th>
             </tr>
           </thead>
           <tbody>
             {releases.map((pr, i) => (
               <tr
                 key={pr.id}
-                className={`border-b border-neutral-100 ${
+                className={`border-b border-neutral-100 transition-colors hover:bg-neutral-100/70 ${
                   i % 2 === 1 ? "bg-neutral-50/60" : ""
                 }`}
               >

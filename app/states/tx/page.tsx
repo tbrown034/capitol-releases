@@ -100,11 +100,13 @@ export default async function TexasStatePage({
     const params = new URLSearchParams();
     if (value !== "district") params.set("sort", value);
     const q = params.toString();
+    const active = sortKey === value;
     return (
       <Link
         href={q ? `/states/tx?${q}` : "/states/tx"}
+        aria-current={active ? "page" : undefined}
         className={`rounded-full border px-2.5 py-1 transition-colors ${
-          sortKey === value
+          active
             ? "border-neutral-900 bg-neutral-900 text-white"
             : "border-neutral-200 text-neutral-500 hover:border-neutral-400 hover:text-neutral-900"
         }`}
@@ -127,16 +129,17 @@ export default async function TexasStatePage({
         Texas Senate
       </h1>
       <p className="text-sm text-neutral-600 leading-relaxed mb-2 max-w-2xl">
-        31 districts. Republican majority. Lieutenant Governor Dan Patrick
-        presides. The chamber convenes in odd-numbered years for the regular
-        biennial session, plus called special sessions.
+        31 seats. {enriched.length} currently filled — District 4 is vacant
+        pending a May 2026 special election. Republican majority. Lieutenant
+        Governor Dan Patrick presides. The chamber convenes in odd-numbered
+        years for the regular biennial session, plus called special sessions.
       </p>
       <p className="text-xs text-neutral-500 leading-relaxed mb-8 max-w-2xl">
-        Press releases scraped daily from each member&apos;s pressroom on
-        senate.texas.gov. Backfilled to January 1, 2025. District 4 is vacant
-        pending a May 2026 special election; District 9 was sworn in February
-        2026 and has not begun publishing. Photos are official portraits from
-        senate.texas.gov.
+        Press releases scraped daily from each member&apos;s pressroom on{" "}
+        <span translate="no">senate.texas.gov</span>. Backfilled to January 1,
+        2025. District 9 was sworn in February 2026 and has not begun
+        publishing. Photos are official portraits from{" "}
+        <span translate="no">senate.texas.gov</span>.
       </p>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10 max-w-2xl">
@@ -165,11 +168,22 @@ export default async function TexasStatePage({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-neutral-800 text-xs uppercase tracking-wider text-neutral-500">
-            <th className="pb-2 pr-4 text-right font-medium w-12">District</th>
-            <th className="pb-2 pr-4 text-left font-medium">Senator</th>
-            <th className="pb-2 pr-4 text-left font-medium">Party</th>
-            <th className="pb-2 pr-4 text-right font-medium">Releases</th>
-            <th className="hidden sm:table-cell pb-2 text-right font-medium">
+            <th scope="col" className="pb-2 pr-4 text-right font-medium w-12">
+              District
+            </th>
+            <th scope="col" className="pb-2 pr-4 text-left font-medium">
+              Senator
+            </th>
+            <th scope="col" className="pb-2 pr-4 text-left font-medium">
+              Party
+            </th>
+            <th scope="col" className="pb-2 pr-4 text-right font-medium">
+              Releases
+            </th>
+            <th
+              scope="col"
+              className="hidden sm:table-cell pb-2 text-right font-medium"
+            >
               Latest
             </th>
           </tr>
@@ -180,7 +194,7 @@ export default async function TexasStatePage({
             return (
               <tr
                 key={r.id}
-                className={`border-b border-neutral-100 ${
+                className={`border-b border-neutral-100 transition-colors hover:bg-neutral-100/70 ${
                   i % 2 === 1 ? "bg-neutral-50/60" : ""
                 }`}
               >
@@ -216,7 +230,7 @@ export default async function TexasStatePage({
                   )}
                 </td>
                 <td className="hidden sm:table-cell py-2.5 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-400 whitespace-nowrap align-top">
-                  {r.latest_release ? formatShortDate(r.latest_release) : "---"}
+                  {r.latest_release ? formatShortDate(r.latest_release) : "—"}
                 </td>
               </tr>
             );
