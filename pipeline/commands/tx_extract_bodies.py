@@ -46,13 +46,6 @@ def _load_env():
                     os.environ.setdefault(k.strip(), v.strip())
 
 
-# Word-break artifact: pypdf often splits words across visual line breaks
-# in a PDF's column layout. "Stoc\nkton", "FOR IMM\nEDIATE RELEASE". The
-# heuristic: a newline between a lowercase letter and a lowercase letter
-# is almost always a wrap, not a sentence break. Same for upper+upper
-# inside obviously-capitalized phrases.
-_WORD_WRAP_LOWER = re.compile(r"([a-z])\s*\n\s*([a-z])")
-_WORD_WRAP_UPPER = re.compile(r"([A-Z]{2,})\s*\n\s*([A-Z])")
 _MULTI_WS = re.compile(r"[ \t]{2,}")
 _MULTI_NL = re.compile(r"\n{3,}")
 
@@ -101,13 +94,18 @@ def _rejoin_word_per_line(s: str) -> str:
 
 
 def clean_pdf_text(raw: str) -> str:
+    """Light cleanup of pdfplumber output.
+
+    Earlier versions had aggressive word-rejoin regexes — designed for
+    pypdf's mid-word breaks (Stoc\\nkton) — which smashed valid
+    line-wrapped pairs in pdfplumber output (member\\ncommittee →
+    membercommittee). Removed; pdfplumber preserves word boundaries
+    correctly so we only strip cosmetic whitespace.
+    """
     if not raw:
         return ""
-    # Join broken words at line boundaries (the common Stoc\\nkton case).
-    s = _WORD_WRAP_LOWER.sub(r"\1\2", raw)
-    s = _WORD_WRAP_UPPER.sub(r"\1\2", s)
     # Strip header whitespace runs
-    s = _MULTI_WS.sub(" ", s)
+    s = _MULTI_WS.sub(" ", raw)
     # Collapse big newline gaps to two
     s = _MULTI_NL.sub("\n\n", s)
     # Strip leading/trailing whitespace per line
@@ -117,6 +115,9 @@ def clean_pdf_text(raw: str) -> str:
     s = _rejoin_word_per_line(s)
     # Then collapse blank-line runs again post-strip
     s = _MULTI_NL.sub("\n\n", s)
+    # Strip ### / -30- end-of-release markers (PDF templates often append
+    # these to signal end-of-document; they don't add meaning).
+    s = _TRAILING_MARKERS.sub("", s)
     return s.strip()
 
 
@@ -126,16 +127,20 @@ def extract_pdf_text(content: bytes) -> str:
     pdfplumber handles inter-word spacing in PDFs where words are visually
     separated by x-coordinate position rather than space characters — a
     common case in TX press releases that pypdf concatenates as
-    "membercommitteeappointmentsforthe". Tolerances tuned to the typed
-    body text TX offices produce; bullets/headings remain on their own
-    lines.
+    "membercommitteeappointmentsforthe". x_tolerance=3 specifically fixes
+    headline-to-body boundaries ("ASSIGNMENTSAUSTIN" splits to
+    "ASSIGNMENTS\\nAUSTIN") that x_tolerance=2 missed.
     """
     pages: list[str] = []
     with pdfplumber.open(io.BytesIO(content)) as pdf:
         for page in pdf.pages:
-            t = page.extract_text(x_tolerance=2, y_tolerance=3) or ""
+            t = page.extract_text(x_tolerance=3, y_tolerance=3) or ""
             pages.append(t)
     return "\n\n".join(pages)
+
+
+# Common PDF end-of-document markers TX templates leave behind.
+_TRAILING_MARKERS = re.compile(r"\n+#{2,}\s*$|\n+-\s*30\s*-\s*$", re.MULTILINE)
 
 
 # Boilerplate that appears at the top of every senate.texas.gov press.php
