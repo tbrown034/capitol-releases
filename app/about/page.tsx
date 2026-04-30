@@ -464,9 +464,12 @@ export default async function AboutPage() {
           is failing but because the publishing pattern is different.
         </p>
         <p className="text-sm text-neutral-600 leading-relaxed max-w-2xl mb-3">
-          Texas releases are mostly published as linked PDFs rather than HTML
-          pages, so the archive captures the listing entry (title, date,
-          source URL) but defers the body text to the original PDF.
+          Texas releases are published as linked PDFs and HTML detail
+          pages. The collector captures the pressroom listing entry on the
+          first pass; a second pass downloads the linked content and
+          extracts the body text (pypdf for PDFs, BeautifulSoup for HTML).
+          Every record carries a SHA-256 content hash so future re-fetches
+          surface post-publication edits as edit history.
         </p>
         <p className="text-sm text-neutral-600 leading-relaxed max-w-2xl">
           The TX corpus is verified end-to-end against the live source by

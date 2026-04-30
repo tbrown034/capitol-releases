@@ -536,11 +536,14 @@ export default async function TexasHubPage({
           . Backfilled to January 1, 2025 and re-checked daily. District 4 is
           vacant pending the May 2026 special election. District 9 (Rehmet)
           was sworn in February 2026 and has not begun publishing. Photos are
-          official portraits from senate.texas.gov. Most Texas Senate
-          releases are published as linked PDFs; we archive the pressroom
-          listing entry (title + date + source URL) and defer the body to
-          the original PDF. The DB count for every senator was verified
-          against the live pressroom on April 29, 2026 (30/30 match).{" "}
+          official portraits from senate.texas.gov. Body text is extracted
+          from the linked PDF or HTML detail page on every record; videos
+          link out. The DB count for every senator was verified against the
+          live pressroom on April 29, 2026 (30/30 match).{" "}
+          <Link href="/texas/methodology" className="underline hover:text-neutral-900">
+            Full scraper methodology
+          </Link>
+          {" · "}
           <Link href="/about" className="underline hover:text-neutral-900">Methodology</Link>{" "}·{" "}
           <Link href="/" className="underline hover:text-neutral-900">Back to U.S. Senate archive</Link>
         </p>

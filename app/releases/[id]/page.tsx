@@ -220,13 +220,13 @@ export default async function ReleasePage({
       <div className="prose prose-neutral mt-6 max-w-none text-neutral-800 leading-relaxed">
         {release.body_text ? (
           <div className="text-base">{renderBody(release.body_text)}</div>
-        ) : isTexas ? (
+        ) : isTexas && release.source_url.includes("videoplayer.php") ? (
           <div className="rounded-md border border-neutral-200 bg-neutral-50 px-5 py-5 text-sm text-neutral-700 leading-relaxed">
             <p className="mb-3">
-              <span className="font-medium text-neutral-900">Body text not captured.</span>{" "}
-              Most Texas Senate releases are published as linked PDFs rather
-              than HTML pages; we archive the pressroom listing entry (title +
-              date) and link to the original PDF on senate.texas.gov.
+              <span className="font-medium text-neutral-900">Video press conference.</span>{" "}
+              This is a videoplayer.php item rather than a written press
+              release; the content lives off-platform. We archive the listing
+              entry and link out.
             </p>
             <a
               href={release.source_url}
@@ -234,7 +234,7 @@ export default async function ReleasePage({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 border border-neutral-700 px-3 py-1.5 text-xs text-neutral-700 hover:bg-neutral-900 hover:text-white transition-colors"
             >
-              Open the original PDF on senate.texas.gov
+              Watch on senate.texas.gov
               <span aria-hidden> ↗</span>
             </a>
           </div>

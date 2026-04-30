@@ -69,6 +69,10 @@ def main():
         from pipeline.commands.tx_truth_check import main as tx_main
         tx_main()
 
+    elif command in ("tx-extract", "tx-bodies"):
+        from pipeline.commands.tx_extract_bodies import main as tx_extract_main
+        tx_extract_main()
+
     elif command == "stats":
         _show_stats()
 

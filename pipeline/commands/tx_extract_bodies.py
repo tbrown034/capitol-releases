@@ -1,0 +1,214 @@
+"""Extract body text from each TX press-release PDF and store in body_text.
+
+The TX collector archives the listing entry but defers the body to the
+linked PDF. This command closes that gap by downloading the PDF and
+running pypdf text extraction. We also compute content_hash so future
+re-extractions can detect post-publication edits.
+
+Usage:
+    python -m pipeline tx-extract                  # process all unfilled
+    python -m pipeline tx-extract --senator <id>   # one senator
+    python -m pipeline tx-extract --limit 10       # cap for testing
+    python -m pipeline tx-extract --dry-run        # show what would change
+
+PDFs are typed-text (not scanned), so pypdf gets clean text. We normalize
+two common artifacts: word-breaks across visual lines (Stoc\\nkton) and
+runs of small-font header whitespace.
+"""
+import argparse
+import hashlib
+import io
+import os
+import re
+import sys
+import time
+from pathlib import Path
+
+import httpx
+import psycopg2
+from bs4 import BeautifulSoup
+
+try:
+    import pypdf  # type: ignore
+except ImportError:
+    print("Missing dependency: pip install pypdf", file=sys.stderr)
+    sys.exit(2)
+
+
+def _load_env():
+    if "DATABASE_URL" in os.environ:
+        return
+    for p in [Path(".env"), Path("pipeline/.env")]:
+        if p.exists():
+            for line in p.read_text().splitlines():
+                if line.strip() and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip())
+
+
+# Word-break artifact: pypdf often splits words across visual line breaks
+# in a PDF's column layout. "Stoc\nkton", "FOR IMM\nEDIATE RELEASE". The
+# heuristic: a newline between a lowercase letter and a lowercase letter
+# is almost always a wrap, not a sentence break. Same for upper+upper
+# inside obviously-capitalized phrases.
+_WORD_WRAP_LOWER = re.compile(r"([a-z])\s*\n\s*([a-z])")
+_WORD_WRAP_UPPER = re.compile(r"([A-Z]{2,})\s*\n\s*([A-Z])")
+_MULTI_WS = re.compile(r"[ \t]{2,}")
+_MULTI_NL = re.compile(r"\n{3,}")
+
+
+def clean_pdf_text(raw: str) -> str:
+    if not raw:
+        return ""
+    # Join broken words
+    s = _WORD_WRAP_LOWER.sub(r"\1\2", raw)
+    s = _WORD_WRAP_UPPER.sub(r"\1\2", s)
+    # Strip header whitespace runs
+    s = _MULTI_WS.sub(" ", s)
+    # Collapse big newline gaps to two
+    s = _MULTI_NL.sub("\n\n", s)
+    # Strip leading/trailing whitespace per line
+    s = "\n".join(line.strip() for line in s.split("\n"))
+    # Then collapse blank-line runs again post-strip
+    s = _MULTI_NL.sub("\n\n", s)
+    return s.strip()
+
+
+def extract_pdf_text(content: bytes) -> str:
+    reader = pypdf.PdfReader(io.BytesIO(content))
+    pages = [p.extract_text() or "" for p in reader.pages]
+    return "\n\n".join(pages)
+
+
+# Boilerplate that appears at the top of every senate.texas.gov press.php
+# page before the actual release content. Strip it so the body starts at
+# the headline.
+_PRESS_PHP_NAV = re.compile(
+    r"^.*?(?:« Return to the home page for Senator [^\n]+|printer-friendly)\s*",
+    re.DOTALL | re.IGNORECASE,
+)
+
+
+def extract_html_text(content: bytes, url: str) -> str:
+    """Extract body text from a senate.texas.gov press.php HTML page.
+
+    The page wraps the release in <main>; we get all text inside, then
+    strip the predictable navigation boilerplate at the top.
+    """
+    soup = BeautifulSoup(content, "lxml")
+    container = soup.select_one("main") or soup.body
+    if not container:
+        return ""
+    # Drop nav-only nodes
+    for sel in ["nav", "header", "footer", "script", "style", ".breadcrumb"]:
+        for n in container.select(sel):
+            n.decompose()
+    text = container.get_text(" ", strip=False)
+    # Strip the "« Return to the home page for Senator X printer-friendly"
+    # preamble; what follows is the actual release.
+    text = _PRESS_PHP_NAV.sub("", text)
+    return text
+
+
+def main():
+    _load_env()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--senator", help="senator_id to limit to")
+    parser.add_argument("--limit", type=int, help="cap on records to process")
+    parser.add_argument("--dry-run", action="store_true", help="don't write DB")
+    parser.add_argument("--reextract", action="store_true",
+                        help="redo records that already have body_text")
+    args = parser.parse_args()
+
+    conn = psycopg2.connect(os.environ["DATABASE_URL"])
+    cur = conn.cursor()
+
+    where = [
+        "s.chamber = 'tx_senate'",
+        "pr.deleted_at IS NULL",
+        "pr.content_type = 'press_release'",
+        # Both PDF and HTML press.php URLs are in scope; videoplayer.php is
+        # explicitly excluded (videos have no body to extract).
+        "(lower(pr.source_url) LIKE '%.pdf' OR pr.source_url LIKE '%press.php%')",
+    ]
+    if not args.reextract:
+        where.append("(pr.body_text IS NULL OR length(pr.body_text) < 50)")
+    if args.senator:
+        where.append(f"pr.senator_id = '{args.senator}'")
+
+    sql = f"""
+        SELECT pr.id, pr.senator_id, pr.title, pr.source_url
+        FROM press_releases pr
+        JOIN senators s ON s.id = pr.senator_id
+        WHERE {" AND ".join(where)}
+        ORDER BY pr.published_at DESC NULLS LAST
+    """
+    if args.limit:
+        sql += f" LIMIT {args.limit}"
+    cur.execute(sql)
+    rows = cur.fetchall()
+    print(f"Found {len(rows)} TX PDF records to process")
+
+    ua = "Mozilla/5.0 (compatible; CapitolReleases/1.0 body-extractor)"
+    client = httpx.Client(timeout=30.0, headers={"User-Agent": ua}, follow_redirects=True)
+
+    ok = 0
+    failed = []
+    for i, (rid, sid, title, source_url) in enumerate(rows, 1):
+        try:
+            time.sleep(0.6)  # polite
+            r = client.get(source_url)
+            if r.status_code != 200:
+                failed.append((rid, source_url, f"HTTP {r.status_code}"))
+                print(f"  [{i}/{len(rows)}] {sid:25} HTTP {r.status_code}  {title[:50]}")
+                continue
+            ct = r.headers.get("content-type", "")
+            url_lower = source_url.lower()
+            if url_lower.endswith(".pdf") or "pdf" in ct.lower():
+                raw = extract_pdf_text(r.content)
+            elif "press.php" in url_lower or "html" in ct.lower():
+                raw = extract_html_text(r.content, source_url)
+            else:
+                failed.append((rid, source_url, f"Unknown content-type: {ct}"))
+                print(f"  [{i}/{len(rows)}] {sid:25} unknown  {title[:50]}")
+                continue
+            cleaned = clean_pdf_text(raw)
+            if not cleaned or len(cleaned) < 50:
+                failed.append((rid, source_url, f"Empty/tiny extract ({len(cleaned)} chars)"))
+                print(f"  [{i}/{len(rows)}] {sid:25} short-text ({len(cleaned)})  {title[:50]}")
+                continue
+
+            content_hash = hashlib.sha256(cleaned.encode("utf-8")).hexdigest()
+
+            if args.dry_run:
+                print(f"  [{i}/{len(rows)}] DRY  {sid:25} {len(cleaned):>5} chars  {title[:50]}")
+            else:
+                cur.execute(
+                    """UPDATE press_releases
+                       SET body_text = %s, content_hash = %s, updated_at = NOW()
+                       WHERE id = %s""",
+                    (cleaned, content_hash, rid),
+                )
+                conn.commit()
+                print(f"  [{i}/{len(rows)}] OK   {sid:25} {len(cleaned):>5} chars  {title[:50]}")
+            ok += 1
+        except KeyboardInterrupt:
+            print("\nInterrupted")
+            break
+        except Exception as e:
+            failed.append((rid, source_url, f"{type(e).__name__}: {e}"))
+            print(f"  [{i}/{len(rows)}] ERR  {sid:25} {type(e).__name__}: {str(e)[:50]}")
+
+    print()
+    print(f"Summary: {ok}/{len(rows)} extracted")
+    if failed:
+        print(f"Failures: {len(failed)}")
+        for rid, url, err in failed[:10]:
+            print(f"  {rid} {url}: {err}")
+
+    cur.close()
+    conn.close()
+
+
+if __name__ == "__main__":
+    main()

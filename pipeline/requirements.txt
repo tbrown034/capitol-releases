@@ -7,3 +7,4 @@ structlog
 tenacity
 feedparser
 pytest
+pypdf
