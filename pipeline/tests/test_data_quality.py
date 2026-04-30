@@ -259,6 +259,11 @@ def test_no_suspicious_round_counts():
         "tillis-thom",       # 100 -- retiring, lower output, 15-month spread
         "baldwin-tammy",     # 350 -- healthy 14-35/mo across 16 months
         "moran-jerry",       # 250 -- post-backfill on 2026-04-25, 8-30/mo
+        # TX state senators verified live against senate.texas.gov on
+        # 2026-04-29 — 30/30 senator counts match the actual pressroom.
+        # Round counts are coincidence, not a collection cap.
+        "tx-d27-hinojosa-adam",   # 10 -- live count = 10
+        "tx-d14-eckhardt",         # 20 -- live count = 20
     }
     suspicious = [(sid, name, cnt) for sid, name, cnt in rows
                   if cnt in suspicious_exact and cnt < 500
@@ -376,25 +381,25 @@ def test_no_rss_rampup_signature():
 # ---- Per-senator activity-period checks ----
 
 def test_no_zero_volume_months():
-    """Each senator should have at least one record in every calendar month
+    """Each US senator should have at least one record in every calendar month
     between their first record and the last completed month.
 
-    A zero-volume month inside an active senator's window is a strong
-    signal of partial collection failure or pagination truncation.
-    The floor is the senator's first-record month (not Jan 2025) so we
-    don't false-flag late-start appointees -- a separate test
-    (test_back_coverage_not_truncated) checks that the floor itself
-    isn't suspiciously late.
+    Scoped to chamber='senate'. State senators publish in session bursts —
+    most TX senators have multi-month gaps that are real, not collection
+    failures. Per-test scoping keeps the test useful for the chamber where
+    monthly cadence is the right signal.
     """
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT senator_id,
-               to_char(date_trunc('month', published_at), 'YYYY-MM') AS m,
+        SELECT pr.senator_id,
+               to_char(date_trunc('month', pr.published_at), 'YYYY-MM') AS m,
                count(*)::int AS n
-        FROM press_releases
-        WHERE deleted_at IS NULL
-          AND published_at >= '2025-01-01'
+        FROM press_releases pr
+        JOIN senators s ON s.id = pr.senator_id
+        WHERE pr.deleted_at IS NULL
+          AND pr.published_at >= '2025-01-01'
+          AND s.chamber = 'senate'
         GROUP BY 1, 2
     """)
     rows = cur.fetchall()
@@ -444,20 +449,26 @@ def test_no_zero_volume_months():
 
 def test_no_long_publication_gaps():
     """Flag any consecutive-record gap longer than 45 days within an
-    active senator's 2025-now window. Catches partial collection failures
+    active US senator's 2025-now window. Catches partial collection failures
     where a contiguous span of dates is missing.
+
+    Scoped to chamber='senate' — TX senators have legitimate multi-month
+    gaps between session and interim periods, so a 45-day gap floor doesn't
+    apply.
     """
     conn = get_conn()
     cur = conn.cursor()
     # Compute per-senator max-gap using window functions
     cur.execute("""
         WITH ordered AS (
-            SELECT senator_id,
-                   published_at,
-                   lag(published_at) OVER (PARTITION BY senator_id ORDER BY published_at) AS prev_at
-            FROM press_releases
-            WHERE deleted_at IS NULL
-              AND published_at >= '2025-01-01'
+            SELECT pr.senator_id,
+                   pr.published_at,
+                   lag(pr.published_at) OVER (PARTITION BY pr.senator_id ORDER BY pr.published_at) AS prev_at
+            FROM press_releases pr
+            JOIN senators s ON s.id = pr.senator_id
+            WHERE pr.deleted_at IS NULL
+              AND pr.published_at >= '2025-01-01'
+              AND s.chamber = 'senate'
         )
         SELECT senator_id,
                max(extract(epoch FROM (published_at - prev_at)) / 86400)::int AS max_gap_days
@@ -619,17 +630,24 @@ def test_body_coverage_above_threshold():
 
 
 def test_no_anomalously_low_counts():
-    """No active senator should have less than 10% of the median release count.
+    """No active US senator should have less than 10% of the median release count.
 
     If a longstanding senator has single-digit releases while peers have hundreds,
     that indicates a collection failure, not inactivity.
+
+    Scoped to chamber='senate' — TX state senators publish on a fundamentally
+    different cadence (most fewer than 30 records since Jan 2025 even when
+    collection is healthy), so applying the federal-Senate median threshold
+    to the TX corpus would always fail.
     """
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
         SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY cnt) as median
         FROM (
-            SELECT COUNT(*) as cnt FROM press_releases WHERE deleted_at IS NULL
+            SELECT COUNT(*) as cnt FROM press_releases pr
+            JOIN senators s ON s.id = pr.senator_id
+            WHERE pr.deleted_at IS NULL AND s.chamber = 'senate'
             GROUP BY senator_id HAVING COUNT(*) > 0
         ) sub
     """)
@@ -640,7 +658,7 @@ def test_no_anomalously_low_counts():
         SELECT s.id, s.full_name, COUNT(pr.id) FILTER (WHERE pr.deleted_at IS NULL) as cnt
         FROM senators s
         LEFT JOIN press_releases pr ON s.id = pr.senator_id
-        WHERE s.collection_method IS NOT NULL
+        WHERE s.collection_method IS NOT NULL AND s.chamber = 'senate'
         GROUP BY s.id, s.full_name
         HAVING COUNT(pr.id) FILTER (WHERE pr.deleted_at IS NULL) < %s
     """, (threshold,))
@@ -657,14 +675,20 @@ def test_no_anomalously_low_counts():
 
 
 def test_no_stale_senators():
-    """Every active senator should have a release in the last 60 days."""
+    """Every active US senator should have a release in the last 60 days.
+
+    Scoped to chamber='senate' — TX state legislators publish in bursts
+    aligned with biennial sessions and many are legitimately silent for
+    half the year. A stale-detection floor that works for the federal
+    Senate doesn't apply to state chambers.
+    """
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
         SELECT s.id, s.full_name, MAX(pr.published_at) as last_release
         FROM senators s
         JOIN press_releases pr ON s.id = pr.senator_id
-        WHERE s.collection_method IS NOT NULL
+        WHERE s.collection_method IS NOT NULL AND s.chamber = 'senate'
         GROUP BY s.id, s.full_name
         HAVING MAX(pr.published_at) < NOW() - INTERVAL '60 days'
     """)
