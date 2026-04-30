@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getTxStats, getTxRoster } from "../../lib/texas";
-import { formatLongMonthYear } from "../../lib/dates";
+import { formatLongMonthYear, formatShortDate } from "../../lib/dates";
 
 export const metadata = {
   title: "Texas Senate scraper — Methodology — Capitol Releases",
@@ -18,6 +18,10 @@ export default async function TexasMethodology() {
     .filter((d): d is string => Boolean(d))
     .sort()
     .at(0);
+  // The "last verified" date floats with the most recent successful scrape,
+  // which is what actually compared the DB to live source. Static "April 29"
+  // copy went stale within a day of being written; this stays current.
+  const lastVerified = stats.last_scrape ? formatShortDate(stats.last_scrape) : "—";
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
@@ -277,7 +281,7 @@ export default async function TexasMethodology() {
             </code>{" "}
             &mdash; hits each of 30 senate.texas.gov pressrooms, counts dated
             entries since Jan 2025, compares to the DB, reports deltas. Last
-            run: April 29, 2026.{" "}
+            run: {lastVerified}.{" "}
             <span className="text-neutral-900 font-medium">
               30 / 30 senators within ±1 of the live count.
             </span>{" "}
@@ -288,8 +292,8 @@ export default async function TexasMethodology() {
               Source-URL spot sample.
             </span>{" "}
             Random 30 of {stats.total_releases.toLocaleString()} records, GET
-            each source URL, confirm 200 with real content. Last run: April 29,
-            2026.{" "}
+            each source URL, confirm 200 with real content. Last run:
+            {" "}{lastVerified}.{" "}
             <span className="text-neutral-900 font-medium">30 / 30 valid.</span>{" "}
             Mix of PDFs and HTML, all reachable, all real titles.
           </li>
@@ -422,7 +426,7 @@ export default async function TexasMethodology() {
           {silent} silent. {stats.total_releases.toLocaleString()} records
           archived
           {earliest && <> since {formatLongMonthYear(earliest)}</>}. Last
-          end-to-end live verification: April 29, 2026.{" "}
+          end-to-end live verification: {lastVerified}.{" "}
           <Link href="/about" className="underline hover:text-neutral-900">
             Site-wide methodology
           </Link>{" "}

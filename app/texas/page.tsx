@@ -241,15 +241,18 @@ export default async function TexasHubPage({
             search
           </Link>
           <span className="text-neutral-300">·</span>
-          {/* Verified-live badge: clickable to methodology so the reader can
-              see what was verified and re-run it themselves. */}
+          {/* Verified-live badge: dynamic from the most recent scrape
+              timestamp in the DB. Clickable to methodology so the reader
+              can see what was verified and re-run it themselves. */}
           <Link
             href="/texas/methodology#verification"
             className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-900 hover:bg-emerald-100 transition-colors"
             title="Re-run with python -m pipeline tx-truth"
           >
             <span aria-hidden>✓</span>
-            <span>Verified live · 30/30 · Apr 29</span>
+            <span>
+              Live: {stats.last_scrape ? formatShortDate(stats.last_scrape) : "—"}
+            </span>
           </Link>
         </p>
       </div>
@@ -554,7 +557,9 @@ export default async function TexasHubPage({
           official portraits from senate.texas.gov. Body text is extracted
           from the linked PDF or HTML detail page on every record; videos
           link out. The DB count for every senator was verified against the
-          live pressroom on April 29, 2026 (30/30 match).{" "}
+          live pressroom on{" "}
+          {stats.last_scrape ? formatShortDate(stats.last_scrape) : "—"}
+          {" "}(30/30 match).{" "}
           <Link href="/texas/methodology" className="underline hover:text-neutral-900">
             Full scraper methodology
           </Link>

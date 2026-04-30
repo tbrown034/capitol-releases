@@ -50,7 +50,8 @@ export async function getTxStats() {
       count(DISTINCT pr.senator_id)::int AS senators_with_releases,
       count(DISTINCT s.id)::int AS total_senators,
       min(pr.published_at) AS earliest,
-      max(pr.published_at) AS latest
+      max(pr.published_at) AS latest,
+      max(pr.scraped_at) AS last_scrape
     FROM senators s
     LEFT JOIN press_releases pr
       ON pr.senator_id = s.id
@@ -63,6 +64,7 @@ export async function getTxStats() {
     total_senators: number;
     earliest: string | null;
     latest: string | null;
+    last_scrape: string | null;
   }[];
   return rows[0];
 }
