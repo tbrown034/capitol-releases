@@ -322,7 +322,7 @@ export default async function SearchPage({
 
           {/* Results column */}
           <div className="min-w-0">
-            <p className="text-xs text-neutral-400 leading-relaxed mb-2">
+            <p className="text-xs text-neutral-500 leading-relaxed mb-2">
               <span className="font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-900 font-semibold">
                 {total.toLocaleString()}
               </span>{" "}
@@ -394,7 +394,7 @@ export default async function SearchPage({
               </Link>
             ))}
           </div>
-          <p className="mt-6 text-xs text-neutral-400 max-w-xl leading-relaxed">
+          <p className="mt-6 text-xs text-neutral-500 max-w-xl leading-relaxed">
             After running a search you can filter by party, state, content type,
             or date range, and sort by relevance instead of date.
           </p>

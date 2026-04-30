@@ -65,7 +65,7 @@ export default async function FeedPage({
         </Link>
         .
       </p>
-      <p className="text-xs text-neutral-400 leading-relaxed mb-6 max-w-2xl">
+      <p className="text-xs text-neutral-500 leading-relaxed mb-6 max-w-2xl">
         <span className="font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-900 font-semibold">
           {total.toLocaleString()}
         </span>{" "}

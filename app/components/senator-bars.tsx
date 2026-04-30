@@ -61,18 +61,22 @@ export function SenatorBars({ data }: { data: SenatorRow[] }) {
       d3.max(s.weeks, (w) => w.count)
     ) ?? 1;
 
-    // Week labels along top
-    const monthLabels = new Map<string, number>();
+    // Month-start labels along top. Key on year+month so the same month label
+    // across years (Jan 2025 / Jan 2026) doesn't collide and drop the second.
+    // Show year only on January (or the first label) to keep it readable.
+    const seenMonths = new Set<string>();
+    let firstLabel = true;
     for (const week of sortedWeeks) {
       const d = new Date(week);
-      const label = d3.timeFormat("%b")(d);
-      if (!monthLabels.has(label)) {
-        monthLabels.set(label, x(week)! + x.bandwidth() / 2);
-      }
-    }
-    for (const [label, xPos] of monthLabels) {
+      const key = `${d.getUTCFullYear()}-${d.getUTCMonth()}`;
+      if (seenMonths.has(key)) continue;
+      seenMonths.add(key);
+      const monthAbbr = d3.timeFormat("%b")(d);
+      const showYear = firstLabel || d.getUTCMonth() === 0;
+      const label = showYear ? `${monthAbbr} '${String(d.getUTCFullYear()).slice(2)}` : monthAbbr;
+      firstLabel = false;
       g.append("text")
-        .attr("x", xPos)
+        .attr("x", x(week)! + x.bandwidth() / 2)
         .attr("y", -8)
         .attr("text-anchor", "start")
         .attr("font-size", 9)
@@ -80,38 +84,54 @@ export function SenatorBars({ data }: { data: SenatorRow[] }) {
         .text(label);
     }
 
-    // Rows
+    // Rows — each row wrapped in an <a> so the entire band is a click target
+    // to the senator page.
     for (let i = 0; i < data.length; i++) {
       const senator = data[i];
       const yPos = i * rowHeight;
       const weekMap = new Map(senator.weeks.map((w) => [w.week, w.count]));
-
       const baseColor = partyColor[senator.party];
+      const isTopThree = i < 3;
 
-      // Alternating background
-      if (i % 2 === 0) {
-        g.append("rect")
-          .attr("x", -margin.left)
-          .attr("y", yPos)
-          .attr("width", svgWidth)
-          .attr("height", rowHeight)
-          .attr("fill", "#fafaf9");
-      }
+      const rowLink = g
+        .append("a")
+        .attr("href", `/senators/${senator.id}`)
+        .attr("aria-label", `${senator.full_name} — ${senator.total} releases`)
+        .style("cursor", "pointer");
 
-      // Senator label
-      g.append("text")
+      // Alternating background + hover band (a single rect; transitions on
+      // mouseover lift the row out of the alt stripe).
+      const bgRow = rowLink
+        .append("rect")
+        .attr("x", -margin.left)
+        .attr("y", yPos)
+        .attr("width", svgWidth)
+        .attr("height", rowHeight)
+        .attr("fill", i % 2 === 0 ? "#fafaf9" : "transparent")
+        .style("transition", "fill 120ms");
+      rowLink
+        .on("mouseenter", () => bgRow.attr("fill", "#f5f5f4"))
+        .on("mouseleave", () =>
+          bgRow.attr("fill", i % 2 === 0 ? "#fafaf9" : "transparent")
+        );
+
+      // Senator label — bolder for top three.
+      rowLink
+        .append("text")
         .attr("x", -8)
         .attr("y", yPos + rowHeight / 2)
         .attr("text-anchor", "end")
         .attr("dominant-baseline", "middle")
         .attr("font-size", 11)
-        .attr("fill", "#44403c")
+        .attr("font-weight", isTopThree ? 600 : 400)
+        .attr("fill", isTopThree ? "#171717" : "#44403c")
         .text(
           `${familyName(senator.full_name)} (${senator.party}-${senator.state})`
         );
 
       // Party dot
-      g.append("circle")
+      rowLink
+        .append("circle")
         .attr("cx", -margin.left + 8)
         .attr("cy", yPos + rowHeight / 2)
         .attr("r", 3.5)
@@ -121,31 +141,38 @@ export function SenatorBars({ data }: { data: SenatorRow[] }) {
       const colorScale = d3
         .scaleLinear<string>()
         .domain([0, 1, globalMax])
-        .range(["transparent", d3.color(baseColor)!.copy({ opacity: 0.2 }).formatRgb(), baseColor])
+        .range([
+          "transparent",
+          d3.color(baseColor)!.copy({ opacity: 0.2 }).formatRgb(),
+          baseColor,
+        ])
         .clamp(true);
 
       for (const week of sortedWeeks) {
         const count = weekMap.get(week) ?? 0;
         if (count === 0) continue;
-
-        g.append("rect")
+        rowLink
+          .append("rect")
           .attr("x", x(week)!)
           .attr("y", yPos + 3)
           .attr("width", x.bandwidth())
           .attr("height", rowHeight - 6)
           .attr("rx", 2)
           .attr("fill", colorScale(count))
-          .attr("opacity", 0.85);
+          .attr("opacity", 0.9);
       }
 
-      // Total label
-      g.append("text")
-        .attr("x", innerW + 8)
+      // Total label — heavier weight, darker; tabular-aligned.
+      rowLink
+        .append("text")
+        .attr("x", innerW + totalWidth - 4)
         .attr("y", yPos + rowHeight / 2)
+        .attr("text-anchor", "end")
         .attr("dominant-baseline", "middle")
-        .attr("font-size", 10)
+        .attr("font-size", 11)
+        .attr("font-weight", isTopThree ? 600 : 500)
         .attr("font-family", "monospace")
-        .attr("fill", "#a3a3a3")
+        .attr("fill", isTopThree ? "#171717" : "#525252")
         .text(senator.total);
     }
   }, [data, svgHeight]);

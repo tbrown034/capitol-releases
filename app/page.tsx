@@ -1,10 +1,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { getStats, getTopSenators, getLeastActiveSenators, getFeed, getLatestRun } from "./lib/queries";
-import { getChamberActivity, getDailyVolume, getSenatorActivity, getTopicTrends, getMailbag } from "./lib/analytics";
+import { getChamberActivity, getSenatorActivity, getTopicTrends, getMailbag } from "./lib/analytics";
 import { ReleaseCard } from "./components/release-card";
-import { SearchBox } from "./components/search-box";
-import { ActivityChart } from "./components/activity-chart";
 import { SenateChamber } from "./components/senate-chamber";
 import { SenatorBars } from "./components/senator-bars";
 import { SenatorActivity } from "./components/senator-activity";
@@ -41,7 +39,7 @@ function diversifyFeed(items: FeedItem[], maxRun: number): FeedItem[] {
 }
 
 export default async function Home() {
-  const [stats, topSenators, leastActive, { items: latestPool }, dailyVolume, senatorActivity, topicTrends, latestRun, chamber, mailbag] =
+  const [stats, topSenators, leastActive, { items: latestPool }, senatorActivity, topicTrends, latestRun, chamber, mailbag] =
     await Promise.all([
       getStats(),
       getTopSenators(10),
@@ -50,7 +48,6 @@ export default async function Home() {
       // more than 2 consecutive releases at the top (Apr 24 town-hall flood
       // had 8 Merkley posts in a row crowding everyone out).
       getFeed({ perPage: 36 }),
-      getDailyVolume(90),
       getSenatorActivity(),
       getTopicTrends(),
       getLatestRun(),
@@ -74,7 +71,7 @@ export default async function Home() {
       source_url: it.source_url,
     }));
 
-  const latest = diversifyFeed(latestPool, 2).slice(0, 12);
+  const latest = diversifyFeed(latestPool, 2).slice(0, 9);
 
   const senatorMap = new Map<
     string,
@@ -116,7 +113,7 @@ export default async function Home() {
   return (
     <div className="mx-auto max-w-5xl px-4">
       {/* Hero */}
-      <section className="pt-8 pb-6 md:pt-10 md:pb-8">
+      <section className="pt-6 pb-4 md:pt-8 md:pb-5">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-center">
           <div className="md:col-span-7">
             <h1 className="font-serif text-4xl sm:text-5xl md:text-[3.25rem] leading-[1.05] text-neutral-900 mb-3 md:mb-4">
@@ -130,8 +127,8 @@ export default async function Home() {
             </p>
             <p className="text-sm md:text-base text-neutral-500 max-w-2xl leading-relaxed">
               Every record each senator&rsquo;s office publishes on their own
-              senate.gov site. Normalized, searchable, updated four times a
-              day.
+              senate.gov site. Normalized, searchable, updated multiple
+              times daily.
             </p>
           </div>
           {heroItems.length > 0 && (
@@ -143,7 +140,7 @@ export default async function Home() {
       </section>
 
       {/* Stats */}
-      <div className="border-b border-neutral-200 pb-4 mb-8 md:mb-10">
+      <div className="border-b border-neutral-200 pb-3 mb-5 md:mb-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-8 sm:gap-y-2 text-sm text-neutral-500">
           <div>
             <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
@@ -183,9 +180,9 @@ export default async function Home() {
         </p>
       </div>
 
-      {/* Senate Chamber */}
-      <section className="mb-10 md:mb-16">
-        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
+      {/* Senate Chamber — lifted high; this is the visual anchor of the page. */}
+      <section className="mb-10 md:mb-14">
+        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3 md:mb-4">
           The Chamber
         </h2>
         <Suspense>
@@ -202,18 +199,29 @@ export default async function Home() {
         days={7}
       />
 
-      {/* Trending Topics */}
+      {/* Trending Topics — curated to ~10 chips so it fits one to two rows.
+          Senator surnames + procedural vocabulary are filtered server-side
+          (see analytics.ts). The "Explore all" link goes to the deeper
+          /trending view. */}
       <section className="mb-10 md:mb-16">
-        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
-          Trending Topics
-        </h2>
-        <p className="text-xs text-neutral-500 mb-4">
-          Most mentioned terms in release titles over the past 30 days. Click
-          a term to search the full text (title + body) of every release.
+        <div className="flex items-center justify-between border-b border-neutral-900 pb-2 mb-3 md:mb-4">
+          <h2 className="text-xs uppercase tracking-wider text-neutral-500">
+            Topics
+          </h2>
+          <Link
+            href="/trending"
+            className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+          >
+            Explore all →
+          </Link>
+        </div>
+        <p className="text-xs text-neutral-500 mb-3">
+          Most-mentioned terms in release titles, last 30 days. Click any term
+          to search every release.
         </p>
         <div className="flex flex-wrap gap-2">
           {(topicTrends as { word: string; count: number }[])
-            .slice(0, 24)
+            .slice(0, 10)
             .map((topic) => (
               <Link
                 key={topic.word}
@@ -221,43 +229,13 @@ export default async function Home() {
                 className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-700 hover:border-neutral-400 hover:text-neutral-900 transition-colors"
               >
                 {topic.word}
-                <span className="text-xs text-neutral-400 font-mono tabular-nums">
+                <span className="text-xs text-neutral-500 font-mono tabular-nums">
                   {topic.count}
                 </span>
               </Link>
             ))}
         </div>
       </section>
-
-      {/* Release Volume */}
-      <section className="mb-10 md:mb-16">
-        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4 md:mb-6">
-          Total Release Volume
-        </h2>
-        <p className="text-xs text-neutral-500 mb-4">
-          Daily press releases over the past 90 days
-        </p>
-        <div className="overflow-x-auto -mx-4 px-4">
-          <ActivityChart
-            data={dailyVolume as { day: string; count: number }[]}
-          />
-        </div>
-      </section>
-
-      {/* Search */}
-      <div className="mb-10 md:mb-16 md:max-w-lg">
-        <Suspense>
-          <SearchBox placeholder="Search release text — e.g. fentanyl, Ukraine, Medicaid" />
-        </Suspense>
-        <p className="mt-2 text-xs text-neutral-500">
-          Searches the full text of every press release. Looking for a
-          specific senator?{" "}
-          <Link href="/senators" className="underline hover:text-neutral-900">
-            Browse the directory
-          </Link>
-          .
-        </p>
-      </div>
 
       {/* Latest + Most active */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 mb-10 md:mb-16">
@@ -268,7 +246,7 @@ export default async function Home() {
             </h2>
             <Link
               href="/feed"
-              className="text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
+              className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
             >
               View all
             </Link>
@@ -284,7 +262,7 @@ export default async function Home() {
         />
       </div>
 
-      {/* Senator Rankings */}
+      {/* Senator Rankings — moved to bottom as the deep-dive view. */}
       <section className="mb-10 md:mb-16">
         <div className="flex items-center justify-between border-b border-neutral-900 pb-2 mb-4 md:mb-6">
           <h2 className="text-xs uppercase tracking-wider text-neutral-500">
@@ -292,7 +270,7 @@ export default async function Home() {
           </h2>
           <Link
             href="/senators"
-            className="text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
+            className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
           >
             View all 100
           </Link>

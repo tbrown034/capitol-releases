@@ -454,30 +454,6 @@ export async function getStats() {
   return result[0];
 }
 
-export async function getPartyBreakdown() {
-  return sql`
-    SELECT s.party, count(pr.id)::int as count
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.senator_id
-    WHERE pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
-    GROUP BY s.party
-    ORDER BY count DESC
-  `;
-}
-
-export async function getWeeklyVolume() {
-  return sql`
-    SELECT date_trunc('week', published_at)::date as week,
-           count(*)::int as count
-    FROM press_releases
-    WHERE published_at IS NOT NULL
-      AND deleted_at IS NULL
-      AND content_type != 'photo_release'
-    GROUP BY week
-    ORDER BY week
-  `;
-}
-
 export async function getTopSenators(limit = 10) {
   return sql`
     SELECT s.full_name, s.party, s.state, s.id,
@@ -502,20 +478,17 @@ export async function getLeastActiveSenators(limit = 10) {
     LEFT JOIN press_releases pr ON s.id = pr.senator_id AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
     WHERE s.collection_method IS NOT NULL
       AND s.status = 'active'
+      AND s.chamber = 'senate'
     GROUP BY s.id, s.full_name, s.party, s.state
     ORDER BY count ASC
     LIMIT ${limit}
   `;
 }
 
-// getStates moved to ./states.ts to avoid client-side neon() evaluation
-export { getStates } from "./states";
-
 // Content-type display metadata moved to ./content-types.ts so client
 // components can import without dragging in the DB runtime.
 export {
   CONTENT_TYPE_LABEL,
-  CONTENT_TYPE_LABEL_SHORT,
   CONTENT_TYPE_PLURAL,
   CONTENT_TYPE_ORDER,
 } from "./content-types";

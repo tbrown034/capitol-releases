@@ -38,7 +38,7 @@ export default async function StatusPage() {
           The pipeline runs four times a day on GitHub Actions. Each row is one
           invocation. Failures show as red and trigger an alert email.
         </p>
-        <p className="text-xs text-neutral-400 mt-3">
+        <p className="text-xs text-neutral-500 mt-3">
           Full logs, including per-senator output, live in{" "}
           <a
             href="https://github.com/tbrown034/capitol-releases/actions"
@@ -93,7 +93,7 @@ export default async function StatusPage() {
         </table>
       </div>
 
-      <p className="mt-8 mb-16 text-xs text-neutral-400">
+      <p className="mt-8 mb-16 text-xs text-neutral-500">
         Showing the last {runs.length} daily runs.{" "}
         <Link href="/" className="underline hover:text-neutral-900">
           Back to home

@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 const links = [
   { href: "/feed", label: "Feed" },
   { href: "/senators", label: "Directory" },
-  { href: "/states", label: "States" },
   { href: "/trending", label: "Topics" },
   { href: "/search", label: "Search" },
   { href: "/about", label: "Methodology" },
@@ -75,17 +74,38 @@ export function Nav() {
       </nav>
 
       {open && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-neutral-200 z-50">
-          <div className="mx-auto max-w-5xl px-4 py-3 flex flex-col gap-2">
+        <div
+          className="md:hidden fixed inset-0 z-50 bg-white"
+          onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
+        >
+          <div className="border-b border-neutral-200">
+            <div className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
+              <Link href="/" aria-label="Capitol Releases home" onClick={() => setOpen(false)}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo.svg" alt="Capitol Releases" className="h-8" />
+              </Link>
+              <button
+                onClick={() => setOpen(false)}
+                className="p-1.5 -mr-1.5 cursor-pointer"
+                aria-label="Close menu"
+              >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-neutral-700">
+                  <line x1="4" y1="4" x2="16" y2="16" />
+                  <line x1="16" y1="4" x2="4" y2="16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div className="mx-auto max-w-5xl px-4 py-6 flex flex-col gap-1">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className={`text-sm py-1.5 transition-colors ${
+                className={`text-base py-3 border-b border-neutral-100 transition-colors ${
                   pathname === link.href
                     ? "text-neutral-900 font-medium"
-                    : "text-neutral-500 hover:text-neutral-900"
+                    : "text-neutral-700 hover:text-neutral-900"
                 }`}
               >
                 {link.label}

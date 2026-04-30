@@ -84,7 +84,7 @@ export default async function StatesPage() {
         ))}
       </div>
 
-      <p className="text-xs text-neutral-400 mt-10 max-w-2xl leading-relaxed">
+      <p className="text-xs text-neutral-500 mt-10 max-w-2xl leading-relaxed">
         Roadmap: state senates first, then governors and cabinet, then state
         houses. Coverage horizon: January 1, 2025 forward.
       </p>

@@ -170,7 +170,7 @@ export default async function SenatorPage({
             )}
           </div>
           {bio?.left_reason && (
-            <p className="mt-1 text-xs text-neutral-400">
+            <p className="mt-1 text-xs text-neutral-500">
               Left: {bio.left_reason} ({bio.left_date ? formatReleaseDate(bio.left_date) : ""})
             </p>
           )}
@@ -292,7 +292,7 @@ export default async function SenatorPage({
           <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
             Release cadence
           </h2>
-          <p className="text-xs text-neutral-400 mb-3">
+          <p className="text-xs text-neutral-500 mb-3">
             Daily release count. Darker = more active.
           </p>
           <div className="overflow-x-auto -mx-4 px-4">
@@ -307,7 +307,7 @@ export default async function SenatorPage({
           <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
             What they&apos;re talking about lately
           </h2>
-          <p className="text-xs text-neutral-400 mb-4">
+          <p className="text-xs text-neutral-500 mb-4">
             Most-used words in release titles over the last 30 days, compared
             to the 30 days before. Arrows show the change. Click a word to
             search the full text (title + body) of every release.
@@ -374,7 +374,7 @@ export default async function SenatorPage({
           <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
             Topics they own
           </h2>
-          <p className="text-xs text-neutral-400 mb-4">
+          <p className="text-xs text-neutral-500 mb-4">
             Words this senator uses in release titles disproportionately
             compared to the rest of the Senate. Ranked by log-odds; higher
             score means more distinctive. Click a word to search the full
@@ -395,7 +395,7 @@ export default async function SenatorPage({
                     {t.word}
                   </Link>
                   <span
-                    className="flex items-center gap-2 font-[family-name:var(--font-dm-mono)] tabular-nums text-xs text-neutral-400"
+                    className="flex items-center gap-2 font-[family-name:var(--font-dm-mono)] tabular-nums text-xs text-neutral-500"
                     title={`Appears ${t.self_count}× in this senator's titles vs ${t.rest_count}× across the other 99 senators`}
                   >
                     <span className="text-neutral-600">{t.self_count}</span>

@@ -8,15 +8,23 @@ function sanitize(term: string): string {
   return term.trim().replace(/[^a-zA-Z0-9 \-']/g, "").slice(0, MAX_TERM_LEN);
 }
 
+type Scope = "recent" | "alltime" | "ytd";
+
 function buildChamberCountsQuery(
-  scope: "recent" | "alltime",
-  term: string
+  scope: Scope,
+  term: string,
+  days: number
 ): { text: string; params: unknown[] } {
-  const dateClause =
-    scope === "recent"
-      ? "pr.published_at >= NOW() - INTERVAL '30 days'"
-      : "pr.published_at >= $1::date";
-  const params: unknown[] = scope === "recent" ? [] : [ALLTIME_CUTOFF];
+  let dateClause: string;
+  const params: unknown[] = [];
+  if (scope === "recent") {
+    dateClause = `pr.published_at >= NOW() - make_interval(days => ${days})`;
+  } else if (scope === "ytd") {
+    dateClause = "pr.published_at >= date_trunc('year', NOW() AT TIME ZONE 'UTC')";
+  } else {
+    dateClause = "pr.published_at >= $1::date";
+    params.push(ALLTIME_CUTOFF);
+  }
 
   const joinPreds = [
     "pr.deleted_at IS NULL",
@@ -42,19 +50,26 @@ function buildChamberCountsQuery(
   return { text, params };
 }
 
+const ALLOWED_DAYS = new Set([7, 30, 90]);
+
 export async function GET(request: NextRequest) {
   const scopeParam = request.nextUrl.searchParams.get("scope") ?? "recent";
-  const scope = scopeParam === "alltime" ? "alltime" : "recent";
+  const scope: Scope =
+    scopeParam === "alltime" ? "alltime"
+      : scopeParam === "ytd" ? "ytd"
+      : "recent";
   const term = sanitize(request.nextUrl.searchParams.get("q") ?? "");
+  const daysParam = parseInt(request.nextUrl.searchParams.get("days") ?? "30", 10);
+  const days = ALLOWED_DAYS.has(daysParam) ? daysParam : 30;
 
-  const { text, params } = buildChamberCountsQuery(scope, term);
+  const { text, params } = buildChamberCountsQuery(scope, term, days);
   const rows = (await sql.query(text, params)) as { id: string; count: number }[];
 
   const counts: Record<string, number> = {};
   for (const r of rows) counts[r.id] = r.count;
 
   return NextResponse.json(
-    { scope, term, counts },
+    { scope, term, days, counts },
     { headers: { "Cache-Control": "public, max-age=600, s-maxage=600" } }
   );
 }

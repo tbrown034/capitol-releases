@@ -22,24 +22,44 @@ const RANGE_LABELS: { value: Range; label: string }[] = [
   { value: "week", label: "Week" },
 ];
 
+const PARTY_TINT: Record<string, string> = {
+  D: "rgba(59,130,246,0.10)",
+  R: "rgba(239,68,68,0.10)",
+  I: "rgba(245,158,11,0.10)",
+};
+
 function SenatorList({
   rows,
   startIndex = 1,
+  emphasizeTop = false,
 }: {
   rows: SenatorRow[];
   startIndex?: number;
+  emphasizeTop?: boolean;
 }) {
+  const max = rows.reduce((m, r) => Math.max(m, r.count), 0);
   return (
     <div className="space-y-0.5">
       {rows.map((row, i) => {
         const photoUrl = getSenatorPhotoUrl(row.full_name, row.id);
+        const isTopThree = emphasizeTop && i < 3;
+        const pct = max > 0 ? Math.max(2, (row.count / max) * 100) : 0;
+        const tint = PARTY_TINT[row.party] ?? "rgba(115,115,115,0.10)";
         return (
           <Link
             key={row.id}
             href={`/senators/${row.id}`}
-            className="flex items-center justify-between py-1.5 text-sm hover:bg-neutral-50 transition-colors -mx-2 px-2"
+            className="relative flex items-center justify-between py-1.5 text-sm hover:bg-neutral-50 transition-colors -mx-2 px-2 overflow-hidden"
           >
-            <span className="flex items-center gap-2">
+            {/* Magnitude bar — sits behind row content, party-tinted. */}
+            {row.count > 0 && (
+              <span
+                aria-hidden="true"
+                className="absolute inset-y-0 left-0 -z-0"
+                style={{ width: `${pct}%`, background: tint }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-2 min-w-0">
               <span className="font-mono text-xs text-neutral-300 w-4 text-right tabular-nums">
                 {startIndex + i}
               </span>
@@ -56,12 +76,24 @@ function SenatorList({
                   {getInitials(row.full_name)}
                 </span>
               )}
-              <span className="text-neutral-900">{row.full_name}</span>
-              <span className="text-neutral-400 hidden sm:inline">
+              <span
+                className={`truncate ${
+                  isTopThree
+                    ? "text-neutral-900 font-semibold"
+                    : "text-neutral-900"
+                }`}
+              >
+                {row.full_name}
+              </span>
+              <span className="text-neutral-400 hidden sm:inline shrink-0">
                 ({row.party}-{row.state})
               </span>
             </span>
-            <span className="font-mono text-neutral-500 tabular-nums">
+            <span
+              className={`relative z-10 font-mono tabular-nums shrink-0 ml-2 ${
+                isTopThree ? "text-neutral-900 font-semibold" : "text-neutral-500"
+              }`}
+            >
               {row.count.toLocaleString()}
             </span>
           </Link>
@@ -139,7 +171,7 @@ export function SenatorActivity({
       <h2 className="text-xs uppercase tracking-wider text-neutral-500 mb-3">
         Most Active
       </h2>
-      <SenatorList rows={top} />
+      <SenatorList rows={top} emphasizeTop />
 
       {/* Least Active */}
       <h2 className="text-xs uppercase tracking-wider text-neutral-500 mt-6 mb-3 border-t border-neutral-200 pt-4">

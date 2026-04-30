@@ -159,17 +159,18 @@ export default async function SenatorsPage({
 
       <div className="border-b border-neutral-200 mb-6" />
 
-      <table className="w-full text-sm">
+      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <table className="w-full min-w-[640px] text-sm">
         <thead>
           <tr className="border-b border-neutral-800 text-xs uppercase tracking-wider text-neutral-500">
             <th className="pb-2 pr-4 text-right font-medium w-12">#</th>
             <th className="pb-2 pr-4 text-left font-medium">Senator</th>
             <th className="pb-2 pr-4 text-left font-medium">State</th>
             <th className="pb-2 pr-4 text-left font-medium">Party</th>
-            <th className="hidden md:table-cell pb-2 pr-4 text-right font-medium">Yrs in office</th>
-            <th className="hidden md:table-cell pb-2 pr-4 text-right font-medium">Next election</th>
             <th className="pb-2 pr-4 text-right font-medium">Releases</th>
-            <th className="hidden sm:table-cell pb-2 text-right font-medium">Latest</th>
+            <th className="hidden sm:table-cell pb-2 pr-4 text-right font-medium">Latest</th>
+            <th className="hidden md:table-cell pb-2 pr-4 text-right font-medium">Next election</th>
+            <th className="hidden md:table-cell pb-2 text-right font-medium">Yrs in office</th>
           </tr>
         </thead>
         <tbody>
@@ -207,7 +208,7 @@ export default async function SenatorsPage({
                     <span className="text-neutral-900 font-medium">{s.full_name}</span>
                   </Link>
                   {breakdown && (
-                    <p className="mt-1 ml-11 text-[11px] text-neutral-400 leading-snug">
+                    <p className="mt-1 ml-11 text-[11px] text-neutral-500 leading-snug">
                       {breakdown}
                       {since && <span className="text-neutral-300"> · since {since}</span>}
                     </p>
@@ -221,25 +222,26 @@ export default async function SenatorsPage({
                     {s.party === "D" ? "Democrat" : s.party === "R" ? "Republican" : "Independent"}
                   </span>
                 </td>
-                <td className="hidden md:table-cell py-2.5 pr-4 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-500 align-top">
-                  {yearsInOffice(s.first_term_start)}
-                </td>
-                <td className="hidden md:table-cell py-2.5 pr-4 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-500 align-top">
-                  {nextElection(s.current_term_end)}
-                </td>
                 <td className="py-2.5 pr-4 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-600 align-top">
                   {s.release_count > 0 ? s.release_count.toLocaleString() : (
                     <span className="text-neutral-300">—</span>
                   )}
                 </td>
-                <td className="hidden sm:table-cell py-2.5 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-400 whitespace-nowrap align-top">
+                <td className="hidden sm:table-cell py-2.5 pr-4 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-400 whitespace-nowrap align-top">
                   {s.latest_release ? formatShortDate(s.latest_release) : "---"}
+                </td>
+                <td className="hidden md:table-cell py-2.5 pr-4 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-500 align-top">
+                  {nextElection(s.current_term_end)}
+                </td>
+                <td className="hidden md:table-cell py-2.5 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-500 align-top">
+                  {yearsInOffice(s.first_term_start)}
                 </td>
               </tr>
             );
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

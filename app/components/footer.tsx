@@ -12,7 +12,7 @@ export function Footer() {
               alt="Capitol Releases"
               className="h-6 opacity-60"
             />
-            <p className="text-xs text-neutral-400">
+            <p className="text-xs text-neutral-500">
               Senate press release archive
             </p>
           </div>
@@ -27,10 +27,10 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-neutral-200 text-[11px] text-neutral-400 leading-relaxed space-y-3">
+        <div className="mt-8 pt-6 border-t border-neutral-200 text-[11px] text-neutral-500 leading-relaxed space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <p>
-              Data scraped daily from official{" "}
+              Data scraped multiple times daily from official{" "}
               <a
                 href="https://www.senate.gov/senators/"
                 className="underline hover:text-neutral-600"

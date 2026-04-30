@@ -32,7 +32,20 @@ const SEAT_R = 10;
 const VIEW_W = 680;
 const VIEW_H = 380;
 
-const DEFAULT_TERMS = ["Trump", "Iran", "Ukraine", "fentanyl", "Medicaid"];
+const DEFAULT_TERM = "Trump";
+// Display-cased; FTS is case-insensitive so "Fentanyl" matches lowercase
+// occurrences. "Supreme Court" works via websearch_to_tsquery as a phrase
+// match. Mix of domestic + foreign policy + judicial to give the chamber
+// distinct heatmaps when toggled.
+const DEFAULT_TERMS = [
+  DEFAULT_TERM,
+  "Tariffs",
+  "Iran",
+  "Ukraine",
+  "Israel",
+  "Medicaid",
+  "Supreme Court",
+];
 const MAX_TERM_LEN = 40;
 
 type Seat = { row: number; idx: number; angle: number; x: number; y: number };
@@ -71,13 +84,29 @@ function intensity(count: number, max: number): number {
 function fillFor(party: "D" | "R" | "I", count: number, max: number) {
   if (count === 0) return { fill: "#f5f5f4", stroke: "#d6d3d1" };
   const t = Math.max(0.25, Math.min(1, intensity(count, max)));
-  return { fill: PARTY_COLOR[party], stroke: PARTY_COLOR[party], opacity: t };
+  // Round to 3 decimals so server and client serialize the float identically (avoids hydration mismatch).
+  const opacity = Math.round(t * 1000) / 1000;
+  return { fill: PARTY_COLOR[party], stroke: PARTY_COLOR[party], opacity };
 }
 
 type HoverState = { senator: Senator; x: number; y: number } | null;
 
-type TimeScope = "recent" | "alltime";
+type TimeScope = "recent" | "alltime" | "ytd";
 type Mode = { scope: TimeScope; term: string | null; loading: boolean };
+
+// Single source of truth for the time-window dropdown. Each option carries
+// its own prepositional phrase so the headline reads grammatically when the
+// dropdown is the entire trailing fragment ("...in their press releases
+// year-to-date.").
+const WINDOW_OPTIONS = [
+  { key: "7d", label: "in the last 7 days", short: "last 7d", scope: "recent" as TimeScope, days: 7 },
+  { key: "30d", label: "in the last 30 days", short: "last 30d", scope: "recent" as TimeScope, days: 30 },
+  { key: "90d", label: "in the last 90 days", short: "last 90d", scope: "recent" as TimeScope, days: 90 },
+  { key: "ytd", label: "year-to-date", short: "YTD", scope: "ytd" as TimeScope, days: 0 },
+  { key: "all", label: "since Jan 2025", short: "since Jan 2025", scope: "alltime" as TimeScope, days: 0 },
+] as const;
+type WindowKey = (typeof WINDOW_OPTIONS)[number]["key"];
+const DEFAULT_WINDOW: WindowKey = "30d";
 
 export function SenateChamber({
   senators,
@@ -90,16 +119,9 @@ export function SenateChamber({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Initialize from URL so views are shareable (?scope=alltime&q=Trump).
-  // Default landing state is `q=Trump` -- the unscoped "press release count"
-  // view is functionally just a senator productivity ranking; defaulting to
-  // Trump frames the chamber as a topic-attention map, which is what the
-  // viz is for.
-  const initialScope: TimeScope =
-    searchParams.get("scope") === "alltime" ? "alltime" : "recent";
   const initialTerm = (() => {
     const qParam = searchParams.get("q");
-    if (qParam === null) return "Trump";
+    if (qParam === null) return DEFAULT_TERM;
     const raw = qParam
       .trim()
       .replace(/[^a-zA-Z0-9 \-']/g, "")
@@ -107,9 +129,16 @@ export function SenateChamber({
     return raw || null;
   })();
 
+  const initialWindow: WindowKey = (() => {
+    const raw = searchParams.get("window") ?? DEFAULT_WINDOW;
+    return (WINDOW_OPTIONS.find((w) => w.key === raw)?.key ?? DEFAULT_WINDOW) as WindowKey;
+  })();
+
   const [hover, setHover] = useState<HoverState>(null);
+  const [windowKey, setWindowKey] = useState<WindowKey>(initialWindow);
+  const currentWindow = WINDOW_OPTIONS.find((w) => w.key === windowKey)!;
   const [mode, setMode] = useState<Mode>({
-    scope: initialScope,
+    scope: currentWindow.scope,
     term: initialTerm,
     loading: false,
   });
@@ -117,19 +146,30 @@ export function SenateChamber({
   const [input, setInput] = useState("");
   const [isTouch, setIsTouch] = useState(false);
 
+  // Keep mode.scope in sync with the active window option.
+  useEffect(() => {
+    setMode((m) =>
+      m.scope === currentWindow.scope ? m : { ...m, scope: currentWindow.scope }
+    );
+  }, [currentWindow.scope]);
+
   // Reflect mode → URL. Use `replace` so we don't pollute browser history on
   // every chip click; default state strips params entirely.
   useEffect(() => {
     const params = new URLSearchParams();
-    if (mode.scope !== "recent") params.set("scope", mode.scope);
-    if (mode.term) params.set("q", mode.term);
+    if (windowKey !== DEFAULT_WINDOW) params.set("window", windowKey);
+    // Only write q to URL when the user has changed it from the default.
+    // mode.term === null means "all press releases" (must be reflected with q=);
+    // mode.term === DEFAULT_TERM is the landing state and stays implicit.
+    if (mode.term === null) params.set("q", "");
+    else if (mode.term !== DEFAULT_TERM) params.set("q", mode.term);
     const qs = params.toString();
     const url = qs ? `${pathname}?${qs}` : pathname;
     if (typeof window !== "undefined") {
       const current = window.location.pathname + window.location.search;
       if (current !== url) router.replace(url, { scroll: false });
     }
-  }, [mode.scope, mode.term, pathname, router]);
+  }, [windowKey, mode.term, pathname, router]);
 
   useEffect(() => {
     setIsTouch(
@@ -153,7 +193,9 @@ export function SenateChamber({
     return () => window.removeEventListener("click", handler);
   }, [isTouch, hover]);
 
-  const isDefault = mode.scope === "recent" && mode.term === null;
+  // Default state = the server-rendered counts (recent / 30d / no term).
+  // Anything else needs a client-side fetch from /api/chamber/counts.
+  const isDefault = windowKey === DEFAULT_WINDOW && mode.term === null;
 
   useEffect(() => {
     if (isDefault) {
@@ -162,7 +204,10 @@ export function SenateChamber({
     }
     let cancelled = false;
     setMode((m) => ({ ...m, loading: true }));
-    const params = new URLSearchParams({ scope: mode.scope });
+    const params = new URLSearchParams({ scope: currentWindow.scope });
+    if (currentWindow.scope === "recent") {
+      params.set("days", String(currentWindow.days));
+    }
     if (mode.term) params.set("q", mode.term);
     fetch(`/api/chamber/counts?${params.toString()}`)
       .then((r) => r.json())
@@ -178,15 +223,11 @@ export function SenateChamber({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode.scope, mode.term]);
+  }, [windowKey, mode.term]);
 
   const sanitize = (s: string) =>
     s.trim().replace(/[^a-zA-Z0-9 \-']/g, "").slice(0, MAX_TERM_LEN);
 
-  const setScope = (scope: TimeScope) => {
-    setMode((m) => ({ ...m, scope }));
-    setHover(null);
-  };
   const setTerm = (raw: string | null) => {
     if (raw === null) {
       setMode((m) => ({ ...m, term: null }));
@@ -263,40 +304,36 @@ export function SenateChamber({
 
   const isTerm = mode.term !== null;
   const isLoading = mode.loading;
-  const scopePhrase =
-    mode.scope === "recent" ? `the last ${days} days` : "Jan 2025";
+  // "last 30d" / "YTD" / "since Jan 2025" — short label used in aria text and
+  // the Top 10 subtitle.
+  const scopePhrase = currentWindow.short;
+
+  // Pill-styled dropdown so it reads as obviously clickable rather than
+  // "underlined word in a sentence." Background fill, border, chevron, and
+  // hover state all telegraph "this is a control."
+  const WindowDropdown = (
+    <span className="relative inline-flex items-center align-baseline">
+      <select
+        value={windowKey}
+        onChange={(e) => setWindowKey(e.target.value as WindowKey)}
+        aria-label="Time window"
+        className="appearance-none cursor-pointer rounded-full border border-neutral-400 bg-neutral-100 hover:bg-neutral-200 hover:border-neutral-900 focus:outline-none focus-visible:border-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/20 transition-colors font-semibold text-neutral-900 pl-2.5 pr-8 py-0 text-[0.95em] leading-tight"
+      >
+        {WINDOW_OPTIONS.map((w) => (
+          <option key={w.key} value={w.key}>{w.label}</option>
+        ))}
+      </select>
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-neutral-900 text-lg leading-none font-bold"
+      >
+        ▾
+      </span>
+    </span>
+  );
 
   return (
     <div className="relative">
-      {/* Time scope selector */}
-      <div className="flex flex-wrap items-center gap-2 mb-2">
-        <span className="hidden sm:inline-block text-[10px] uppercase tracking-wider text-neutral-500 mr-1 w-32 sm:w-36">
-          Time scope:
-        </span>
-        <button
-          type="button"
-          onClick={() => setScope("recent")}
-          className={`text-xs rounded-full border px-2.5 py-0.5 transition-colors ${
-            mode.scope === "recent"
-              ? "border-neutral-900 bg-neutral-900 text-white"
-              : "border-neutral-300 text-neutral-600 hover:border-neutral-500"
-          }`}
-        >
-          Recent ({days}d)
-        </button>
-        <button
-          type="button"
-          onClick={() => setScope("alltime")}
-          className={`text-xs rounded-full border px-2.5 py-0.5 transition-colors ${
-            mode.scope === "alltime"
-              ? "border-neutral-900 bg-neutral-900 text-white"
-              : "border-neutral-300 text-neutral-600 hover:border-neutral-500"
-          }`}
-        >
-          Since Jan 1, 2025
-        </button>
-      </div>
-
       {/* Search term selector */}
       <div className="flex flex-wrap items-center gap-2 mb-3">
         <span className="hidden sm:inline-block text-[10px] uppercase tracking-wider text-neutral-500 mr-1 w-32 sm:w-36">
@@ -349,20 +386,22 @@ export function SenateChamber({
           />
         </form>
       </div>
-      <p className="text-[11px] text-neutral-400 mb-3 -mt-1">
+      <p className="text-[11px] text-neutral-500 mb-3 -mt-1">
         Searches the full text of every release (title + body), with stemming
         — e.g. &ldquo;Iran&rdquo; matches &ldquo;Iranian&rdquo;.
       </p>
 
-      {/* Headline */}
+      {/* Headline — "in the last [N days ▾]" is an inline dropdown. The
+          phrasing names the source ("press releases") so a screenshot of the
+          chamber alone reads as a complete claim. */}
       {isTerm ? (
         <p className="text-base text-neutral-700 mb-1">
           <span className="font-semibold text-neutral-900">{active}</span> of 100
-          senators have mentioned{" "}
+          senators mentioned{" "}
           <span className="font-semibold text-neutral-900">
             &ldquo;{mode.term}&rdquo;
           </span>{" "}
-          {mode.scope === "recent" ? `in ${scopePhrase}` : `since ${scopePhrase}`}.
+          in their press releases {WindowDropdown}
           {top && top.count > 0 && (
             <>
               {" "}
@@ -380,8 +419,7 @@ export function SenateChamber({
       ) : (
         <p className="text-base text-neutral-700 mb-1">
           <span className="font-semibold text-neutral-900">{active}</span> of 100
-          senators issued at least one release{" "}
-          {mode.scope === "recent" ? `in ${scopePhrase}` : `since ${scopePhrase}`}.
+          senators issued at least one press release {WindowDropdown}
           {top && top.count > 0 && (
             <>
               {" "}
@@ -397,22 +435,9 @@ export function SenateChamber({
           )}
         </p>
       )}
-      <p className="text-xs text-neutral-500 mb-4">
-        Each seat = one senator.{" "}
-        {isTerm
-          ? `Color intensity = releases mentioning "${mode.term}" (title or body, with stemming) ${mode.scope === "recent" ? `in ${scopePhrase}` : `since ${scopePhrase}`}.`
-          : `Color intensity = press releases ${mode.scope === "recent" ? `in ${scopePhrase}` : `since ${scopePhrase}`}.`}{" "}
-        Democrats left, Independents center, Republicans right.{" "}
-        <span className="text-neutral-400">
-          <span className="hidden sm:inline">
-            Hover a seat for the senator&rsquo;s name and count; click to open
-            their page.
-          </span>
-          <span className="sm:hidden">
-            Tap a seat to preview. Tap again to open the senator&rsquo;s
-            page. Tap elsewhere to close.
-          </span>
-        </span>
+      <p className="text-[11px] text-neutral-500 mb-3">
+        <span className="hidden sm:inline">Hover a seat for details, click to open.</span>
+        <span className="sm:hidden">Tap a seat for details.</span>
       </p>
 
       <div>
@@ -420,17 +445,17 @@ export function SenateChamber({
           role="img"
           aria-label={
             isTerm
-              ? `Senate chamber colored by mentions of "${mode.term}" (${mode.scope === "recent" ? `last ${days} days` : "since Jan 2025"})`
-              : `Senate chamber colored by press release activity (${mode.scope === "recent" ? `last ${days} days` : "since Jan 2025"})`
+              ? `Senate chamber colored by mentions of "${mode.term}" (${scopePhrase})`
+              : `Senate chamber colored by press release activity (${scopePhrase})`
           }
-          viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+          viewBox={`0 35 ${VIEW_W} ${VIEW_H - 30}`}
           preserveAspectRatio="xMidYMid meet"
-          className={`block w-full h-auto max-h-[460px] transition-opacity ${isLoading ? "opacity-60" : "opacity-100"}`}
+          className={`block w-full h-auto max-h-[420px] transition-opacity ${isLoading ? "opacity-60" : "opacity-100"}`}
         >
           <title>
             {isTerm
-              ? `Senate chamber — mentions of "${mode.term}", ${mode.scope === "recent" ? `last ${days} days` : "since Jan 2025"}`
-              : `Senate chamber — press release activity, ${mode.scope === "recent" ? `last ${days} days` : "since Jan 2025"}`}
+              ? `Senate chamber — mentions of "${mode.term}", ${scopePhrase}`
+              : `Senate chamber — press release activity, ${scopePhrase}`}
           </title>
 
           <path
@@ -463,7 +488,7 @@ export function SenateChamber({
                 key={senator.id}
                 href={`/senators/${senator.id}`}
                 onClick={handleSeatClick(senator)}
-                aria-label={`${senator.full_name} (${senator.party}-${senator.state}), ${senator.count} ${isTerm ? `mentions of ${mode.term}` : "releases"}${mode.scope === "recent" ? ` in last ${days} days` : " since Jan 2025"}`}
+                aria-label={`${senator.full_name} (${senator.party}-${senator.state}), ${senator.count} ${isTerm ? `mentions of ${mode.term}` : "releases"}${" "}${scopePhrase}`}
                 className="outline-none focus-visible:[outline:2px_solid_#0a0a0a] focus-visible:[outline-offset:2px]"
               >
                 <circle
@@ -483,10 +508,36 @@ export function SenateChamber({
               </a>
             );
           })}
+
+          {/* Source attribution baked into the SVG so it survives a
+              screenshot crop. r/dataisbeautiful mods remove charts where
+              source isn't visible on the image. */}
+          <text
+            x={VIEW_W - 8}
+            y={VIEW_H - 12}
+            textAnchor="end"
+            fontSize="11"
+            fill="#a3a3a3"
+            fontFamily="system-ui, -apple-system, sans-serif"
+          >
+            {isTerm
+              ? `Mentions of "${mode.term}" · ${scopePhrase} · n=${max}`
+              : `Press releases · ${scopePhrase} · n=${max}`}
+          </text>
+          <text
+            x={8}
+            y={VIEW_H - 12}
+            textAnchor="start"
+            fontSize="11"
+            fill="#a3a3a3"
+            fontFamily="system-ui, -apple-system, sans-serif"
+          >
+            Capitol Releases · capitolreleases.com
+          </text>
         </svg>
       </div>
 
-      {hover && <HoverCard hover={hover} mode={mode} days={days} />}
+      {hover && <HoverCard hover={hover} mode={mode} scopeLabel={scopePhrase} />}
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-xs text-neutral-500">
         <div className="flex items-center gap-x-4 gap-y-1 flex-wrap">
@@ -545,7 +596,7 @@ export function SenateChamber({
               ? `Top 10 by mentions of "${mode.term}"`
               : "Top 10 by release volume"}{" "}
             <span className="text-neutral-400">
-              ({mode.scope === "recent" ? `last ${days}d` : "since Jan 2025"})
+              ({scopePhrase})
             </span>
           </h3>
           <ol className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
@@ -606,11 +657,11 @@ export function SenateChamber({
 function HoverCard({
   hover,
   mode,
-  days,
+  scopeLabel,
 }: {
   hover: NonNullable<HoverState>;
   mode: Mode;
-  days: number;
+  scopeLabel: string;
 }) {
   const { senator, x, y } = hover;
   const photo = getSenatorPhotoUrl(senator.full_name, senator.id);
@@ -629,8 +680,6 @@ function HoverCard({
   const top = Math.max(8, y - CARD_H - GAP);
 
   const isTerm = mode.term !== null;
-  const scopeLabel =
-    mode.scope === "recent" ? `${days}d` : "since Jan 2025";
 
   return (
     <div

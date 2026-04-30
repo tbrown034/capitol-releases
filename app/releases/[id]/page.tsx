@@ -301,7 +301,7 @@ export default async function ReleasePage({
                     </div>
                   </details>
                 ) : (
-                  <span className="text-xs text-neutral-400 italic">
+                  <span className="text-xs text-neutral-500 italic">
                     Body text not preserved for this version.
                   </span>
                 )}

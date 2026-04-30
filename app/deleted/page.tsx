@@ -42,7 +42,7 @@ export default async function DeletedPage({
         </span>{" "}
         record{total !== 1 ? "s" : ""} confirmed deleted.
       </p>
-      <p className="text-xs text-neutral-400 leading-relaxed mb-8 max-w-2xl border-l-2 border-neutral-200 pl-3">
+      <p className="text-xs text-neutral-500 leading-relaxed mb-8 max-w-2xl border-l-2 border-neutral-200 pl-3">
         Note: the deletion detector requires three independent 404/410 hits
         spaced apart before tombstoning a record. Senate sites sit behind
         Akamai and occasionally return transient 404s that resolve within
@@ -86,7 +86,7 @@ export default async function DeletedPage({
                   >
                     {pr.senator_name}
                   </Link>
-                  <span className="ml-1.5 text-xs text-neutral-400">
+                  <span className="ml-1.5 text-xs text-neutral-500">
                     ({pr.party}-{pr.state})
                   </span>
                   <span className="sr-only">
@@ -106,7 +106,7 @@ export default async function DeletedPage({
                     </span>
                   )}
                   {pr.published_at && (
-                    <span className="ml-2 text-[11px] text-neutral-400 font-[family-name:var(--font-dm-mono)] tabular-nums">
+                    <span className="ml-2 text-[11px] text-neutral-500 font-[family-name:var(--font-dm-mono)] tabular-nums">
                       orig. {formatReleaseDate(pr.published_at)}
                     </span>
                   )}

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
 import { formatReleaseDate } from "../lib/dates";
+import { drawYGrid, drawTimeAxis } from "./chart-axes";
 
 const MAX_TERMS = 6;
 const PALETTE = [
@@ -77,7 +78,8 @@ export function TermChart({ initialTerms }: { initialTerms: string[] }) {
     svg.selectAll("*").remove();
     if (allWeeks.length === 0 || terms.length === 0) return;
 
-    const margin = { top: 12, right: 16, bottom: 28, left: 36 };
+    // Right margin widened so per-line end labels don't clip.
+    const margin = { top: 12, right: 64, bottom: 28, left: 36 };
     const width = 800;
     const height = 260;
     const innerW = width - margin.left - margin.right;
@@ -102,29 +104,8 @@ export function TermChart({ initialTerms }: { initialTerms: string[] }) {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    g.append("g")
-      .call(d3.axisLeft(y).ticks(4).tickSize(-innerW))
-      .call((sel) => sel.select(".domain").remove())
-      .call((sel) =>
-        sel.selectAll(".tick line").attr("stroke", "#e5e5e5").attr("stroke-dasharray", "2,2")
-      )
-      .call((sel) =>
-        sel.selectAll(".tick text").attr("fill", "#a3a3a3").attr("font-size", 10)
-      );
-
-    g.append("g")
-      .attr("transform", `translate(0,${innerH})`)
-      .call(
-        d3
-          .axisBottom(x)
-          .ticks(6)
-          .tickFormat((d) => d3.timeFormat("%b %Y")(d as Date))
-      )
-      .call((sel) => sel.select(".domain").remove())
-      .call((sel) => sel.selectAll(".tick line").remove())
-      .call((sel) =>
-        sel.selectAll(".tick text").attr("fill", "#a3a3a3").attr("font-size", 10)
-      );
+    drawYGrid(g, y, innerW);
+    drawTimeAxis(g, x, innerH);
 
     const line = d3
       .line<{ date: Date; count: number }>()
@@ -132,6 +113,10 @@ export function TermChart({ initialTerms }: { initialTerms: string[] }) {
       .y((d) => y(d.count))
       .curve(d3.curveMonotoneX);
 
+    // Render lines + collect end-of-line labels. Label y positions are
+    // de-overlapped greedily so two terms ending at the same value don't
+    // stomp each other.
+    const endLabels: { term: string; y: number; color: string; lastValue: number }[] = [];
     for (const term of terms) {
       const rows = (series[term] ?? []).map((r) => ({
         date: new Date(r.week),
@@ -144,16 +129,61 @@ export function TermChart({ initialTerms }: { initialTerms: string[] }) {
         .attr("stroke", colorFor(term))
         .attr("stroke-width", 1.75)
         .attr("stroke-linejoin", "round")
+        .attr("stroke-linecap", "round")
         .attr("d", line);
+
+      const last = rows[rows.length - 1];
+      endLabels.push({
+        term,
+        y: y(last.count),
+        color: colorFor(term),
+        lastValue: last.count,
+      });
     }
 
+    // De-overlap: sort by y, push down anything within 12px of the previous.
+    endLabels.sort((a, b) => a.y - b.y);
+    for (let i = 1; i < endLabels.length; i++) {
+      if (endLabels[i].y - endLabels[i - 1].y < 12) {
+        endLabels[i].y = endLabels[i - 1].y + 12;
+      }
+    }
+
+    const labelG = g
+      .append("g")
+      .attr("transform", `translate(${innerW + 6}, 0)`);
+    labelG
+      .selectAll("text.end-label")
+      .data(endLabels)
+      .join("text")
+      .attr("class", "end-label")
+      .attr("x", 0)
+      .attr("y", (d) => d.y)
+      .attr("dy", "0.32em")
+      .attr("font-size", 10)
+      .attr("font-weight", 500)
+      .attr("fill", (d) => d.color)
+      .text((d) => d.term);
+
+    // Focus crosshair + per-line dots at hovered week.
     const focus = g.append("g").style("display", "none");
     focus
       .append("line")
       .attr("y1", 0)
       .attr("y2", innerH)
       .attr("stroke", "#525252")
-      .attr("stroke-width", 1);
+      .attr("stroke-width", 1)
+      .attr("stroke-dasharray", "2,2");
+
+    const focusDots = focus
+      .append("g")
+      .selectAll("circle")
+      .data(terms)
+      .join("circle")
+      .attr("r", 3.5)
+      .attr("fill", "#fff")
+      .attr("stroke-width", 2)
+      .attr("stroke", (t) => colorFor(t));
 
     const overlay = g
       .append("rect")
@@ -183,8 +213,15 @@ export function TermChart({ initialTerms }: { initialTerms: string[] }) {
             : best;
         }, null);
         if (!nearest) return;
+        const nearestWeek = allWeeks[dates.indexOf(nearest)];
         focus.select("line").attr("transform", `translate(${x(nearest)},0)`);
-        setHover({ week: allWeeks[dates.indexOf(nearest)] });
+        focusDots
+          .attr("cx", x(nearest))
+          .attr("cy", (t) => {
+            const row = (series[t] ?? []).find((r) => r.week === nearestWeek);
+            return row ? y(row.count) : -100;
+          });
+        setHover({ week: nearestWeek });
       });
   }, [series, terms, colorFor, allWeeks]);
 
@@ -254,12 +291,12 @@ export function TermChart({ initialTerms }: { initialTerms: string[] }) {
           aria-label="Weekly mention frequency by term"
         />
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center text-xs text-neutral-400 bg-white/60">
+          <div className="absolute inset-0 flex items-center justify-center text-xs text-neutral-500 bg-white/60">
             Loading…
           </div>
         )}
         {!loading && allWeeks.length === 0 && terms.length > 0 && (
-          <div className="absolute inset-0 flex items-center justify-center text-xs text-neutral-400">
+          <div className="absolute inset-0 flex items-center justify-center text-xs text-neutral-500">
             No matches.
           </div>
         )}

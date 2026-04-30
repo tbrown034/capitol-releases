@@ -1,20 +1,5 @@
 import { sql } from "./db";
 
-export async function getWeeklyActivity() {
-  return sql`
-    SELECT to_char(date_trunc('week', published_at), 'YYYY-MM-DD') as week,
-           count(*)::int as count,
-           s.party
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.senator_id
-    WHERE published_at IS NOT NULL
-      AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
-      AND pr.published_at >= '2025-01-01'
-    GROUP BY week, s.party
-    ORDER BY week
-  `;
-}
-
 export async function getSenatorActivity() {
   return sql`
     SELECT s.id, s.full_name, s.party, s.state,
@@ -32,27 +17,21 @@ export async function getSenatorActivity() {
   `;
 }
 
-export async function getTopSenatorsByPeriod(days = 30) {
-  return sql`
-    SELECT s.id, s.full_name, s.party, s.state,
-           count(pr.id)::int as count
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.senator_id
-    WHERE pr.published_at >= NOW() - make_interval(days => ${days})
-      AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
-      AND s.chamber = 'senate'
-    GROUP BY s.id, s.full_name, s.party, s.state
-    ORDER BY count DESC
-    LIMIT 15
-  `;
-}
-
 export async function getTopicTrends() {
-  // Simple keyword-based topic extraction from titles. Strips a single trailing
-  // 's' so "trump"/"trumps" and "family"/"families"-style plurals collapse into
-  // one stem before counting.
+  // Title-only keyword extraction with stemming (trailing -s stripped). Two
+  // exclusion lists: a static stopword list (procedural/political vocabulary
+  // that's noise across the dataset), and a dynamic list of senator
+  // surnames pulled from the senators table — without it the rankings
+  // degrade into "who issued the most releases" since every senator's name
+  // appears in their own headlines.
   return sql`
-    WITH stemmed AS (
+    WITH senator_surnames AS (
+      SELECT DISTINCT
+        regexp_replace(lower(split_part(full_name, ' ', -1)), 's$', '') AS surname
+      FROM senators
+      WHERE chamber = 'senate' AND status = 'active'
+    ),
+    stemmed AS (
       SELECT DISTINCT pr.id,
         regexp_replace(
           lower(unnest(string_to_array(
@@ -61,23 +40,45 @@ export async function getTopicTrends() {
           's$', ''
         ) as word
       FROM press_releases pr
+      JOIN senators s ON s.id = pr.senator_id
       WHERE pr.published_at >= NOW() - interval '30 days'
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
+        AND s.status = 'active' AND s.chamber = 'senate'
     )
     SELECT word, count(*)::int as count
     FROM stemmed
     WHERE length(word) > 4
-      AND word NOT IN ('senator','senators','press','release','statement',
-        'announce','urge','call','join','lead','support','introduce',
-        'legislation','bipartisan','their','about','after','would','could',
-        'should','which','where','other','there','these','those','being',
-        'through','between','under','during','before','above','below',
-        'against','without','within','along','among','across','behind',
-        'beyond','since','until','while','around','inside','outside')
+      AND word NOT IN (SELECT surname FROM senator_surnames)
+      AND word NOT IN (
+        -- Procedural / political vocabulary
+        'senator','senators','press','release','statement','announce',
+        'urge','call','join','lead','support','introduce','legislation',
+        'bipartisan','administration','committee','hearing','secretary',
+        'demand','resolution','funding','budget','federal','american',
+        'republican','democrat','democratic','senate','house','congress',
+        'congressional','president','senatorial','colleague','colleagues',
+        'protect','funding','hearing','million','billion','trillion',
+        'secretary','power','demand','warning','officials',
+        -- Procedural verbs
+        'announces','urges','calls','joins','leads','supports','introduces',
+        'passes','passed','signed','reintroduces','reintroduce',
+        -- Function words
+        'their','about','after','would','could','should','which','where',
+        'other','there','these','those','being','through','between',
+        'under','during','before','above','below','against','without',
+        'within','along','among','across','behind','beyond','since',
+        'until','while','around','inside','outside','today','washington',
+        'office','united','state','members','member','following','every',
+        'first','again','including','continue','continues','important',
+        'provide','provides','letter','letters','floor','remark','remarks',
+        -- Meta / marketing / release-type artifacts
+        'icymi','familie','newsletter','weekly','video','watch',
+        'highlight','highlights','listen','photo','photos'
+      )
     GROUP BY word
     HAVING count(*) >= 3
     ORDER BY count DESC
-    LIMIT 30
+    LIMIT 20
   `;
 }
 
@@ -232,26 +233,30 @@ export async function getChamberActivity(days = 7) {
 
 export async function getMailbag(days = 7) {
   return sql`
-    SELECT content_type, count(*)::int as count
-    FROM press_releases
-    WHERE published_at >= NOW() - make_interval(days => ${days})
-      AND published_at IS NOT NULL
-      AND deleted_at IS NULL
-      AND content_type != 'photo_release'
-    GROUP BY content_type
+    SELECT pr.content_type, count(*)::int as count
+    FROM press_releases pr
+    JOIN senators s ON s.id = pr.senator_id
+    WHERE pr.published_at >= NOW() - make_interval(days => ${days})
+      AND pr.published_at IS NOT NULL
+      AND pr.deleted_at IS NULL
+      AND pr.content_type != 'photo_release'
+      AND s.status = 'active' AND s.chamber = 'senate'
+    GROUP BY pr.content_type
     ORDER BY count DESC
   `;
 }
 
 export async function getDailyVolume(days = 90) {
   return sql`
-    SELECT to_char(published_at, 'YYYY-MM-DD') as day,
+    SELECT to_char(pr.published_at, 'YYYY-MM-DD') as day,
            count(*)::int as count
-    FROM press_releases
-    WHERE published_at >= NOW() - make_interval(days => ${days})
-      AND published_at IS NOT NULL
-      AND deleted_at IS NULL
-      AND content_type != 'photo_release'
+    FROM press_releases pr
+    JOIN senators s ON s.id = pr.senator_id
+    WHERE pr.published_at >= NOW() - make_interval(days => ${days})
+      AND pr.published_at IS NOT NULL
+      AND pr.deleted_at IS NULL
+      AND pr.content_type != 'photo_release'
+      AND s.status = 'active' AND s.chamber = 'senate'
     GROUP BY day
     ORDER BY day
   `;

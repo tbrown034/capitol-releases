@@ -1,0 +1,15 @@
+{
+  "_meta": {
+    "description": "Senator → verified Bluesky handle mapping. Each entry must be confirmed against the senator's official .gov site or a confirmable DID before landing here. No parody accounts. No campaign-side. No staffer reposts.",
+    "verification_rule": "verified_via must be a senate.gov URL or 'did_proof' (the senator's DID published on their own infrastructure).",
+    "schema": {
+      "senator_id": "matches senators.id (e.g. 'sanders', 'aoc-equivalent', 'tx-d21-zaffirini')",
+      "handle": "Bluesky handle without @ (e.g. 'berniesanders.com')",
+      "did": "AT Protocol DID (did:plc:...) — populated on first resolution",
+      "verified_via": "URL or 'did_proof' marker showing how we confirmed this is the senator",
+      "verified_at": "ISO date of confirmation",
+      "notes": "free text — context, caveats, verification chain"
+    }
+  },
+  "handles": []
+}

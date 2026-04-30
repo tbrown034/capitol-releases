@@ -89,14 +89,15 @@ export function CoverageCartogram({
           }
 
           return (
-            <div
+            <Link
               key={code}
+              href={`/states/${code.toLowerCase()}`}
               title={`${code} — planned`}
               style={{ gridColumn: col, gridRow: row }}
-              className="flex items-center justify-center border text-[10px] font-[family-name:var(--font-dm-mono)] font-medium tabular-nums aspect-square bg-neutral-50 text-neutral-300 border-neutral-200 cursor-not-allowed"
+              className="flex items-center justify-center border text-[10px] font-[family-name:var(--font-dm-mono)] font-medium tabular-nums transition-colors aspect-square bg-neutral-50 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 hover:border-neutral-300 border-neutral-200"
             >
               {code}
-            </div>
+            </Link>
           );
         })}
       </div>

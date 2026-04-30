@@ -322,7 +322,7 @@
       "notes": "Fixed 2026-04-18: Wrong RSS URL (/press-releases/feed/ -> /category/news/press-releases/feed/). Switched to httpx with Divi selectors. 18/page.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx",
+      "collection_method": "rss",
       "rss_feed_url": "https://www.budd.senate.gov/category/news/press-releases/feed/"
     },
     {
@@ -1541,7 +1541,7 @@
       "notes": "Fixed 2026-04-18: Divi blog. RSS gives only 10 items. Older Entries pagination. Set Divi selectors. May need Playwright if httpx cannot render.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "httpx",
+      "collection_method": "rss",
       "rss_feed_url": "https://www.moody.senate.gov/press-releases/feed/"
     },
     {

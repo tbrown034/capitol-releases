@@ -73,7 +73,7 @@ export function Pagination({
           p === "…" ? (
             <span
               key={`ellipsis-${i}`}
-              className="px-1 text-xs text-neutral-400"
+              className="px-1 text-xs text-neutral-500"
             >
               …
             </span>
@@ -106,7 +106,7 @@ export function Pagination({
         <form onSubmit={onJump} className="ml-2 flex items-center gap-1">
           <label
             htmlFor="page-jump"
-            className="text-xs text-neutral-400"
+            className="text-xs text-neutral-500"
           >
             Go to
           </label>

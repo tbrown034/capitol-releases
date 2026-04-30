@@ -111,10 +111,16 @@ class HttpxCollector:
                         date_source = date_result.source
                         date_confidence = date_result.confidence
 
-                    # Check cutoff
-                    if since and pub_date and pub_date < since:
-                        stop = True
-                        break
+                    # Check cutoff. Compare on date boundaries because many
+                    # listing pages emit dates with no time component, so
+                    # parse_date_text returns midnight UTC. A timestamp-level
+                    # compare against `since` (the previous run's finished_at)
+                    # would always evaluate True and cause the loop to break
+                    # on item 0, silently truncating collection.
+                    # Use `continue` rather than `break` so out-of-order
+                    # listings don't cause us to miss later items.
+                    if since and pub_date and pub_date.date() < since.date():
+                        continue
 
                     # Classify content type
                     ctype = classify_content_type(title=title, url=detail_url)

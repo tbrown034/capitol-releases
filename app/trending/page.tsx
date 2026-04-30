@@ -81,7 +81,7 @@ export default async function TrendingPage({
         changing. Word stems pulled from release titles; trajectories use
         full text (title + body) with stemming.
       </p>
-      <p className="text-xs text-neutral-400 mb-10">
+      <p className="text-xs text-neutral-500 mb-10">
         Stems collapse simple plurals (e.g. <em>family</em>/<em>families</em>
         ). Numbers are release-count, not raw word frequency, so a single
         release that uses a word ten times still counts once.
@@ -235,7 +235,7 @@ export default async function TrendingPage({
                   {term}
                 </div>
                 {owners.length === 0 ? (
-                  <p className="text-xs text-neutral-400">No matches.</p>
+                  <p className="text-xs text-neutral-500">No matches.</p>
                 ) : (
                   <ol className="space-y-1.5">
                     {owners.map((o, i) => {

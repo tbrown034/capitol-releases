@@ -51,8 +51,36 @@ next-env.d.ts
 # internal docs and working notes
 /internal/
 /docs/
+/private/
 CLAUDE.md
 AGENTS.md
 
+# proprietary / sensitive (general patterns - applies anywhere in repo)
+*.private.md
+*.sensitive.md
+*.secret.md
+*.financials.md
+*.proprietary.*
+BUSINESS.md
+STRATEGY.md
+FINANCES.md
+ACQUISITION.md
+
+# recon research artifacts (output JSON / markdown reports)
+# Note: pipeline/recon/*.py is tracked - those are pipeline tooling.
+# Only output artifacts and research notes are ignored.
+pipeline/recon/*.json
+pipeline/recon/*.md
+pipeline/recon/results/
+pipeline/recon/output/
+
+# state legislature config seeds will eventually live here - track those
+# (uncomment once pipeline/seeds/states/ exists)
+# !pipeline/seeds/states/**.json
+
 # claude-code local settings (project skills ARE tracked; just not local overrides)
 .claude/settings.local.json
+
+# Local cache / research scratch
+.fallow/
+notebooks/

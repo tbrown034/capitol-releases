@@ -1,15 +1,22 @@
 import { sql } from "./db";
 
 export async function getDataQuality() {
+  // Scoped to active US senators only — without the join we'd surface
+  // tombstoned/former-senator carryover (e.g. Rubio→Moody, Vance→Husted),
+  // which inflates "senators with data" to 118/100 and reads as a math
+  // error on the methodology page.
   const result = await sql`
     SELECT
       count(*)::int as total,
-      count(*) FILTER (WHERE published_at IS NOT NULL)::int as has_date,
-      count(*) FILTER (WHERE published_at IS NULL)::int as null_date,
-      count(*) FILTER (WHERE body_text IS NOT NULL AND length(body_text) > 50)::int as has_body,
-      count(*) FILTER (WHERE body_text IS NULL OR length(body_text) <= 50)::int as no_body,
-      count(DISTINCT senator_id)::int as senators_with_data
-    FROM press_releases
+      count(*) FILTER (WHERE pr.published_at IS NOT NULL)::int as has_date,
+      count(*) FILTER (WHERE pr.published_at IS NULL)::int as null_date,
+      count(*) FILTER (WHERE pr.body_text IS NOT NULL AND length(pr.body_text) > 50)::int as has_body,
+      count(*) FILTER (WHERE pr.body_text IS NULL OR length(pr.body_text) <= 50)::int as no_body,
+      count(DISTINCT pr.senator_id)::int as senators_with_data
+    FROM press_releases pr
+    JOIN senators s ON s.id = pr.senator_id
+    WHERE s.chamber = 'senate' AND s.status = 'active'
+      AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
   `;
   return result[0];
 }

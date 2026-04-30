@@ -83,7 +83,7 @@ export default async function AboutPage() {
         publishes to its own site in its own format. This page documents how
         the archive is built, where the data comes from and what is missing.
       </p>
-      <p className="text-xs text-neutral-400 leading-relaxed max-w-2xl mb-10">
+      <p className="text-xs text-neutral-500 leading-relaxed max-w-2xl mb-10">
         All counts on this page update live from the database.
       </p>
 
@@ -283,8 +283,8 @@ export default async function AboutPage() {
           Date-parsing accuracy varies significantly by CMS. ColdFusion and
           generic sites lag; structured WordPress and Drupal are near-100%.
         </p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+          <table className="w-full min-w-[640px] text-sm">
             <thead>
               <tr className="border-b border-neutral-800 text-xs uppercase tracking-wider text-neutral-500">
                 <th className="pb-2 pr-4 text-left font-medium">Family</th>
@@ -346,8 +346,8 @@ export default async function AboutPage() {
           The ground truth of what we have. Every senator, their release
           count, date range and CMS type.
         </p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
+        <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+          <table className="w-full min-w-[720px] text-xs">
             <thead>
               <tr className="border-b border-neutral-800 text-[11px] uppercase tracking-wider text-neutral-500">
                 <th className="pb-2 pr-3 text-left font-medium">Senator</th>
@@ -565,7 +565,7 @@ function Stat({
       <p className="mt-1 font-[family-name:var(--font-dm-mono)] tabular-nums text-xl text-neutral-900">
         {typeof value === "number" ? value.toLocaleString() : value}
         {suffix && (
-          <span className="ml-1.5 text-xs text-neutral-400 font-normal">
+          <span className="ml-1.5 text-xs text-neutral-500 font-normal">
             {suffix}
           </span>
         )}

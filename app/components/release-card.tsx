@@ -104,7 +104,7 @@ export function ReleaseCard({
           )}
         </Link>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-1.5 text-xs text-neutral-400">
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-neutral-500">
             <span className="text-neutral-400 inline-flex items-center gap-1">
               <TypeIcon type={type} size={12} className="text-neutral-400" />
               <span className="text-[10px] uppercase tracking-wider text-neutral-400">From</span>
