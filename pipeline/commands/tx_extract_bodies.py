@@ -29,9 +29,9 @@ import psycopg2
 from bs4 import BeautifulSoup
 
 try:
-    import pypdf  # type: ignore
+    import pdfplumber  # type: ignore
 except ImportError:
-    print("Missing dependency: pip install pypdf", file=sys.stderr)
+    print("Missing dependency: pip install pdfplumber", file=sys.stderr)
     sys.exit(2)
 
 
@@ -57,10 +57,53 @@ _MULTI_WS = re.compile(r"[ \t]{2,}")
 _MULTI_NL = re.compile(r"\n{3,}")
 
 
+def _rejoin_word_per_line(s: str) -> str:
+    """Some TX PDFs lay every word in its own text box, so pypdf emits a
+    line per word with blank lines between. Detect runs of short single-
+    word lines (ignoring blanks within the run) and re-join them with
+    spaces. Defines a "fragment line" as <=3 words and <=24 chars. Three
+    or more in a near-contiguous run = per-word PDF; we collapse the run.
+    """
+    lines = s.split("\n")
+    out: list[str] = []
+    buf: list[str] = []
+
+    def is_fragment(line: str) -> bool:
+        line = line.strip()
+        if not line:
+            return False
+        if len(line) > 24:
+            return False
+        return len(line.split()) <= 3
+
+    def flush():
+        if len(buf) >= 3:
+            out.append(" ".join(buf))
+        else:
+            out.extend(buf)
+        buf.clear()
+
+    for line in lines:
+        stripped = line.strip()
+        if is_fragment(stripped):
+            buf.append(stripped)
+        elif not stripped and buf:
+            # Blank line inside a fragment run — keep buffering. The
+            # blank is consumed; we don't preserve it within a per-word
+            # PDF region because the original document's layout is the
+            # noise we're cleaning up.
+            continue
+        else:
+            flush()
+            out.append(line)
+    flush()
+    return "\n".join(out)
+
+
 def clean_pdf_text(raw: str) -> str:
     if not raw:
         return ""
-    # Join broken words
+    # Join broken words at line boundaries (the common Stoc\\nkton case).
     s = _WORD_WRAP_LOWER.sub(r"\1\2", raw)
     s = _WORD_WRAP_UPPER.sub(r"\1\2", s)
     # Strip header whitespace runs
@@ -69,14 +112,29 @@ def clean_pdf_text(raw: str) -> str:
     s = _MULTI_NL.sub("\n\n", s)
     # Strip leading/trailing whitespace per line
     s = "\n".join(line.strip() for line in s.split("\n"))
+    # Re-join word-per-line PDFs (every word in its own text box). Run
+    # after per-line strip so the fragment detector sees actual content.
+    s = _rejoin_word_per_line(s)
     # Then collapse blank-line runs again post-strip
     s = _MULTI_NL.sub("\n\n", s)
     return s.strip()
 
 
 def extract_pdf_text(content: bytes) -> str:
-    reader = pypdf.PdfReader(io.BytesIO(content))
-    pages = [p.extract_text() or "" for p in reader.pages]
+    """Extract text from a PDF byte stream using pdfplumber.
+
+    pdfplumber handles inter-word spacing in PDFs where words are visually
+    separated by x-coordinate position rather than space characters — a
+    common case in TX press releases that pypdf concatenates as
+    "membercommitteeappointmentsforthe". Tolerances tuned to the typed
+    body text TX offices produce; bullets/headings remain on their own
+    lines.
+    """
+    pages: list[str] = []
+    with pdfplumber.open(io.BytesIO(content)) as pdf:
+        for page in pdf.pages:
+            t = page.extract_text(x_tolerance=2, y_tolerance=3) or ""
+            pages.append(t)
     return "\n\n".join(pages)
 
 
