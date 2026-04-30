@@ -120,6 +120,32 @@ export default async function TexasFeedPage({
         (() => {
           const hasFilters = Boolean(type || party || senator);
           const suggestions: { label: string; href: string }[] = [];
+          // If the user filtered to a silent-caucus senator, give them the
+          // useful answer instead of a generic empty: link to the senator's
+          // own page (which explains the empty state) and to the senator's
+          // pressroom on senate.texas.gov.
+          if (senator) {
+            const s = roster.find((r) => r.id === senator);
+            if (s && s.release_count === 0) {
+              suggestions.push({
+                label: `${s.full_name}'s page`,
+                href: `/texas/${senator}`,
+              });
+              if (s.press_release_url) {
+                suggestions.push({
+                  label: "Verify the empty pressroom on senate.texas.gov",
+                  href: s.press_release_url,
+                });
+              }
+              return (
+                <EmptyState
+                  message={`${s.full_name} hasn't published a press release on senate.texas.gov since January 2025. The pressroom is live but empty.`}
+                  clearHref="/texas/feed"
+                  suggestions={suggestions}
+                />
+              );
+            }
+          }
           if (type && (party || senator)) {
             const keep = new URLSearchParams();
             if (party) keep.set("party", party);

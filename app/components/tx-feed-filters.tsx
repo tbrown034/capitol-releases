@@ -1,12 +1,16 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { CONTENT_TYPE_ORDER, CONTENT_TYPE_LABEL } from "../lib/content-types";
+import { CONTENT_TYPE_LABEL } from "../lib/content-types";
+import type { ContentType } from "../lib/db";
 
 // Filter row for /texas/feed and /texas/search. Drops the state selector
-// (TX is implied) and adds an optional district selector for the per-seat
-// archive filter. Districts are passed as senator_id values, not raw
-// district numbers, since some districts may have changed holders.
+// (TX is implied) and adds a senator selector. Content types in the
+// dropdown are restricted to ones present in the TX corpus — showing
+// "Presidential action" or "Floor statement" as filter options is
+// confusing when no record matches them.
+const TX_TYPES: ContentType[] = ["press_release", "other"];
+
 export function TxFeedFilters({
   basePath,
   senators,
@@ -44,9 +48,9 @@ export function TxFeedFilters({
         className="border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-700 hover:border-neutral-400 transition-colors focus:border-neutral-900 focus:outline-none"
       >
         <option value="">All types</option>
-        {CONTENT_TYPE_ORDER.map((t) => (
+        {TX_TYPES.map((t) => (
           <option key={t} value={t}>
-            {CONTENT_TYPE_LABEL[t]}
+            {t === "other" ? "Video / other" : CONTENT_TYPE_LABEL[t]}
           </option>
         ))}
       </select>

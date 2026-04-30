@@ -51,10 +51,32 @@ export default async function TexasHubPage({
   const [roster, stats, latestPool, monthly, topics] = await Promise.all([
     getTxRoster(),
     getTxStats(),
-    getTxLatestReleases(15),
+    // Larger pool so diversifyFeed has range; TX volume is concentrated
+    // (Blanco alone has 79 records since Jan 2025) so without diversification
+    // the Latest section becomes "Blanco × 6 in a row".
+    getTxLatestReleases(40),
     getTxMonthlyVolume(),
     getTxTopicTrends(10),
   ]);
+
+  // Reorder so no senator appears more than maxRun times in a row in the
+  // Latest section, preserving recency.
+  function diversify<T extends { senator_id: string }>(items: T[], maxRun: number): T[] {
+    const out: T[] = [];
+    const queue = [...items];
+    while (queue.length) {
+      const lastId = out[out.length - 1]?.senator_id;
+      let run = 0;
+      for (let i = out.length - 1; i >= 0 && out[i].senator_id === lastId; i--) run++;
+      let pickIdx = 0;
+      if (lastId && run >= maxRun) {
+        const alt = queue.findIndex((it) => it.senator_id !== lastId);
+        pickIdx = alt === -1 ? 0 : alt;
+      }
+      out.push(queue.splice(pickIdx, 1)[0]);
+    }
+    return out;
+  }
 
   const totalReleases = stats.total_releases;
   const publishing = stats.senators_with_releases;
@@ -99,7 +121,8 @@ export default async function TexasHubPage({
     };
   });
 
-  const latestForFeed = latestPool.slice(0, 6) as FeedItem[];
+  // Diversify with maxRun=2 so Blanco-flooded weeks don't fill the section.
+  const latestForFeed = diversify(latestPool, 2).slice(0, 6) as FeedItem[];
 
   const sortedTable = [...roster].sort((a, b) => {
     if (sortKey === "count") return b.release_count - a.release_count;
