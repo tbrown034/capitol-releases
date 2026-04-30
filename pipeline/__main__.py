@@ -9,6 +9,7 @@ Usage:
     python -m pipeline test                      # run data quality tests
     python -m pipeline back-coverage             # flag senators missing 2025 back-coverage
     python -m pipeline health-report             # write docs/data_health.{md,json}
+    python -m pipeline tx-truth                  # verify TX corpus against live senate.texas.gov
     python -m pipeline stats                     # show database stats
 """
 
@@ -63,6 +64,10 @@ def main():
     elif command in ("health-report", "report"):
         from pipeline.commands.health_report import main as hr_main
         hr_main()
+
+    elif command in ("tx-truth", "tx-verify"):
+        from pipeline.commands.tx_truth_check import main as tx_main
+        tx_main()
 
     elif command == "stats":
         _show_stats()

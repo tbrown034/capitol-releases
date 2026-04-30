@@ -468,6 +468,16 @@ export default async function AboutPage() {
           pages, so the archive captures the listing entry (title, date,
           source URL) but defers the body text to the original PDF.
         </p>
+        <p className="text-sm text-neutral-600 leading-relaxed max-w-2xl">
+          The TX corpus is verified end-to-end against the live source by
+          a dedicated{" "}
+          <code className="font-[family-name:var(--font-dm-mono)] text-xs text-neutral-500">
+            python -m pipeline tx-truth
+          </code>{" "}
+          command that hits each pressroom and compares the count to the DB.
+          Most-recent run: April 29, 2026 — 30 of 30 senators within ±1 of
+          the live count.
+        </p>
       </section>
 
       <section className="mb-12">

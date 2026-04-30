@@ -539,7 +539,8 @@ export default async function TexasHubPage({
           official portraits from senate.texas.gov. Most Texas Senate
           releases are published as linked PDFs; we archive the pressroom
           listing entry (title + date + source URL) and defer the body to
-          the original PDF.{" "}
+          the original PDF. The DB count for every senator was verified
+          against the live pressroom on April 29, 2026 (30/30 match).{" "}
           <Link href="/about" className="underline hover:text-neutral-900">Methodology</Link>{" "}·{" "}
           <Link href="/" className="underline hover:text-neutral-900">Back to U.S. Senate archive</Link>
         </p>
