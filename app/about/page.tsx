@@ -438,6 +438,38 @@ export default async function AboutPage() {
       </section>
 
       {/* Data sourcing */}
+      {/* State expansion — TX is the first non-federal corpus. */}
+      <section className="mb-12">
+        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4">
+          State expansion
+        </h2>
+        <p className="text-sm text-neutral-600 leading-relaxed max-w-2xl mb-3">
+          The same collection method extends to the{" "}
+          <a
+            href="/texas"
+            className="underline underline-offset-2 text-neutral-900 hover:text-neutral-600 transition-colors"
+          >
+            Texas State Senate
+          </a>
+          : 31 districts, daily-updated archive of every member&apos;s
+          pressroom on senate.texas.gov, scoped to January 2025 forward.
+        </p>
+        <p className="text-sm text-neutral-600 leading-relaxed max-w-2xl mb-3">
+          State legislatures publish on a fundamentally different cadence
+          than Congress &mdash; output spikes during session and falls off
+          in the interim, and many state senators don&apos;t publish online
+          at all. The TX directory makes that visible: 18 of 30 publish; the
+          other 12 maintain pressrooms but rarely or never post. Coverage
+          looks thin compared to the U.S. Senate not because the collector
+          is failing but because the publishing pattern is different.
+        </p>
+        <p className="text-sm text-neutral-600 leading-relaxed max-w-2xl mb-3">
+          Texas releases are mostly published as linked PDFs rather than HTML
+          pages, so the archive captures the listing entry (title, date,
+          source URL) but defers the body text to the original PDF.
+        </p>
+      </section>
+
       <section className="mb-12">
         <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-4">
           Data sourcing

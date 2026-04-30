@@ -144,8 +144,10 @@ export async function getTxTopicTrends(limit = 24) {
 
 export async function getTxSenatorTopicTrends(senatorId: string, limit = 12) {
   // For a single TX senator. Compares title-word frequency in the most
-  // recent 60 days vs prior 60 days. Only emits words appearing >=2 times in
-  // the recent window — at TX volume that's the floor for any signal.
+  // recent 90 days vs prior 90 days. The window is wider than the US
+  // version (60d) because TX senators publish much less frequently — most
+  // post fewer than 4 things per month even in session, and a 60d window
+  // would miss real signal for everyone except Blanco/Bettencourt.
   return (await sql`
     WITH word_releases AS (
       SELECT DISTINCT pr.id,
@@ -161,11 +163,11 @@ export async function getTxSenatorTopicTrends(senatorId: string, limit = 12) {
       WHERE pr.senator_id = ${senatorId}
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
-        AND pr.published_at >= NOW() - INTERVAL '120 days'
+        AND pr.published_at >= NOW() - INTERVAL '180 days'
     )
     SELECT word,
-           count(*) FILTER (WHERE published_at >= NOW() - interval '60 days')::int AS recent_count,
-           count(*) FILTER (WHERE published_at <  NOW() - interval '60 days')::int AS prior_count
+           count(*) FILTER (WHERE published_at >= NOW() - interval '90 days')::int AS recent_count,
+           count(*) FILTER (WHERE published_at <  NOW() - interval '90 days')::int AS prior_count
     FROM word_releases
     WHERE length(word) > 4
       AND word NOT IN (
@@ -183,7 +185,7 @@ export async function getTxSenatorTopicTrends(senatorId: string, limit = 12) {
         'campbell','menendez','schwertner','perry','hall','king','gutierrez'
       )
     GROUP BY word
-    HAVING count(*) FILTER (WHERE published_at >= NOW() - interval '60 days') >= 2
+    HAVING count(*) FILTER (WHERE published_at >= NOW() - interval '90 days') >= 2
     ORDER BY recent_count DESC, prior_count ASC
     LIMIT ${limit}
   `) as { word: string; recent_count: number; prior_count: number }[];

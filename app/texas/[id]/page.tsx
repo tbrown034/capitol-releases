@@ -218,7 +218,7 @@ export default async function TxSenatorPage({
             What they&apos;re talking about lately
           </h2>
           <p className="text-xs text-neutral-500 mb-4">
-            Most-used title + body words in the last 60 days, vs the 60 days
+            Most-used title words in the last 90 days, vs the 90 days
             before. Click any term to search the full Texas corpus.
           </p>
           <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
