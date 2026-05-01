@@ -16,6 +16,11 @@ _SEED_FILES = [
     ("senate.json", "senate"),
     ("executive.json", "executive"),
     ("tx_senate.json", "tx_senate"),
+    ("ne_unicameral.json", "ne_unicameral"),
+    ("ca_senate.json", "ca_senate"),
+    ("oh_senate.json", "oh_senate"),
+    ("mo_senate.json", "mo_senate"),
+    ("wv_legislature.json", "wv_legislature"),
 ]
 
 

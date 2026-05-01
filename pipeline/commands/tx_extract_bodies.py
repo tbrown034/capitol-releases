@@ -192,12 +192,14 @@ def main():
         "pr.content_type = 'press_release'",
         # Both PDF and HTML press.php URLs are in scope; videoplayer.php is
         # explicitly excluded (videos have no body to extract).
-        "(lower(pr.source_url) LIKE '%.pdf' OR pr.source_url LIKE '%press.php%')",
+        "(lower(pr.source_url) LIKE '%%.pdf' OR pr.source_url LIKE '%%press.php%%')",
     ]
     if not args.reextract:
         where.append("(pr.body_text IS NULL OR length(pr.body_text) < 50)")
+    params: list[object] = []
     if args.senator:
-        where.append(f"pr.senator_id = '{args.senator}'")
+        where.append("pr.senator_id = %s")
+        params.append(args.senator)
 
     sql = f"""
         SELECT pr.id, pr.senator_id, pr.title, pr.source_url
@@ -207,8 +209,9 @@ def main():
         ORDER BY pr.published_at DESC NULLS LAST
     """
     if args.limit:
-        sql += f" LIMIT {args.limit}"
-    cur.execute(sql)
+        sql += " LIMIT %s"
+        params.append(args.limit)
+    cur.execute(sql, params)
     rows = cur.fetchall()
     print(f"Found {len(rows)} TX PDF records to process")
 

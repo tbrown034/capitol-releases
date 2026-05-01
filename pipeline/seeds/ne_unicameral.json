@@ -1,0 +1,56 @@
+{
+  "_meta": {
+    "chamber": "ne_unicameral",
+    "level": "state",
+    "state": "NE",
+    "platform": "news.legislature.ne.gov",
+    "cms_family": "wordpress_multisite",
+    "url_scheme": "https://news.legislature.ne.gov/dist{district:02d}/",
+    "verified": "2026-05-01",
+    "notes": "Nebraska Unicameral senator news pages are WordPress-like multisite district blogs. Single-digit districts use zero-padded paths such as dist06. District 1 currently returns the shared WordPress 404, so this seed starts with verified live pages sufficient for collector dry-run testing."
+  },
+  "members": [
+    {
+      "senator_id": "ne-d02-clements",
+      "full_name": "Robert Clements",
+      "party": "R",
+      "state": "NE",
+      "district": 2,
+      "official_url": "https://nebraskalegislature.gov/senators/landing-pages/index.php?District=2",
+      "press_release_url": "https://news.legislature.ne.gov/dist02/",
+      "parser_family": "ne_unicameral_wordpress",
+      "collection_method": "ne_unicameral",
+      "requires_js": false,
+      "confidence": 0.9,
+      "expect_empty": false
+    },
+    {
+      "senator_id": "ne-d06-cavanaugh",
+      "full_name": "Machaela Cavanaugh",
+      "party": "D",
+      "state": "NE",
+      "district": 6,
+      "official_url": "https://nebraskalegislature.gov/senators/landing-pages/index.php?District=6",
+      "press_release_url": "https://news.legislature.ne.gov/dist06/",
+      "parser_family": "ne_unicameral_wordpress",
+      "collection_method": "ne_unicameral",
+      "requires_js": false,
+      "confidence": 0.9,
+      "expect_empty": false
+    },
+    {
+      "senator_id": "ne-d42-jacobson",
+      "full_name": "Mike Jacobson",
+      "party": "R",
+      "state": "NE",
+      "district": 42,
+      "official_url": "https://nebraskalegislature.gov/senators/landing-pages/index.php?District=42",
+      "press_release_url": "https://news.legislature.ne.gov/dist42/",
+      "parser_family": "ne_unicameral_wordpress",
+      "collection_method": "ne_unicameral",
+      "requires_js": false,
+      "confidence": 0.9,
+      "expect_empty": false
+    }
+  ]
+}

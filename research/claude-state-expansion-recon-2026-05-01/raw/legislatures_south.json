@@ -1,0 +1,965 @@
+{
+  "region": "south",
+  "generated_at": "2026-05-01",
+  "scope_note": "Southern state legislatures (14 states x 2 chambers). Texas excluded (already implemented). Per-chamber records reflect deterministic per-member press enumeration capability; many southern legislatures publish only at chamber/leadership/caucus level.",
+  "sources": [
+    {
+      "state": "AL",
+      "chamber": "senate",
+      "official_chamber_url": "https://www.legislature.state.al.us/aliswww/default.aspx",
+      "press_listing_url": null,
+      "roster_url": "https://www.legislature.state.al.us/aliswww/ISD/ALSenators.aspx",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "custom-aspnet",
+      "requires_js": "unknown",
+      "pagination": "unknown",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": [],
+      "post_frequency_estimate": "none",
+      "attribution_strategy": "ambiguous",
+      "scraping_strategy": "playwright",
+      "classification": "do_not_claim_member_coverage",
+      "confidence": 0.55,
+      "weird_risks": [
+        "Official AL Legislature site repeatedly TLS-cert-failed and timed out during recon",
+        "No state senate press listing surfaces in search; state senate publishes virtually nothing on legislature.state.al.us",
+        "No discoverable AL Senate caucus site (alsenategop unreachable / not registered as web)"
+      ],
+      "evidence": {
+        "http_status": "timeout/cert_error",
+        "checked_at": "2026-05-01",
+        "notes": "Multiple WebFetch attempts to legislature.state.al.us failed (cert + timeout). No Senate-side caucus site found via search. AL Senate appears to lack a web press operation; coverage will require post-hoc collection from individual senator personal/campaign sites or news media — out of scope for canonical state-source inventory."
+      }
+    },
+    {
+      "state": "AL",
+      "chamber": "house",
+      "official_chamber_url": "https://www.legislature.state.al.us/aliswww/default.aspx",
+      "press_listing_url": "https://alhousegop.org/news-and-updates/",
+      "roster_url": "https://alhousegop.org/representatives/",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://alhousegop.org/updates/house-gop-caucus-unveils-standing-tall-for-alabama-agenda/"
+      ],
+      "detail_url_pattern": "https://alhousegop.org/updates/{slug}/",
+      "cms_family": "wordpress",
+      "requires_js": false,
+      "pagination": "querystring",
+      "feed_rss": "https://alhousegop.org/feed/",
+      "feed_atom": null,
+      "feed_wp_json": "https://alhousegop.org/wp-json/wp/v2/posts",
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "low",
+      "attribution_strategy": "caucus_source",
+      "scraping_strategy": "wp_json",
+      "classification": "caucus_source",
+      "confidence": 0.7,
+      "weird_risks": [
+        "Republican-only caucus source — 29 House Democrats not represented",
+        "alabamahousedems.com WordPress exists but homepage shows no dedicated press section; member attribution unclear"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "alhousegop.org confirmed WordPress with /wp-json. alabamahousedems.com is WordPress (revolution slider, wp-admin paths) but lacks a clear /news listing — would need deeper crawl. Together they cover both parties but only at caucus level, not per-member."
+      }
+    },
+    {
+      "state": "AR",
+      "chamber": "senate",
+      "official_chamber_url": "https://senate.arkansas.gov/",
+      "press_listing_url": "https://senate.arkansas.gov/senate-news/",
+      "roster_url": "https://senate.arkansas.gov/senators/",
+      "member_press_url_pattern": "https://senate.arkansas.gov/senators/{member_id}/",
+      "sample_member_press_urls": [
+        "https://senate.arkansas.gov/senators/396/"
+      ],
+      "sample_release_urls": [
+        "https://senate.arkansas.gov/senate-news/posts/2026/april/fiscal-week-two/",
+        "https://senate.arkansas.gov/senate-news/posts/2026/april/media-release-from-senator-king-on-his-county-equalization-turnback-resolution/"
+      ],
+      "detail_url_pattern": "https://senate.arkansas.gov/senate-news/posts/{year}/{month}/{slug}/",
+      "cms_family": "wordpress",
+      "requires_js": false,
+      "pagination": "querystring",
+      "feed_rss": "https://senate.arkansas.gov/feed/",
+      "feed_atom": null,
+      "feed_wp_json": "https://senate.arkansas.gov/wp-json/wp/v2/posts",
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "weekly",
+      "attribution_strategy": "title_prefix",
+      "scraping_strategy": "wp_json",
+      "classification": "ready_first_wave",
+      "confidence": 0.9,
+      "weird_risks": [
+        "Member attribution is in title text (e.g. 'media release from senator king…'), not a structured author field — needs NER/regex",
+        "Senator profile pages don't appear to surface a per-senator press archive — chamber-wide listing only"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Confirmed WP with active /wp-json/wp/v2/posts returning Senate weekly updates and news releases (Feb–Apr 2026). Combined Weekly Updates + News Releases + Announcements tabs in /senate-news/ feed."
+      }
+    },
+    {
+      "state": "AR",
+      "chamber": "house",
+      "official_chamber_url": "https://www.arkansashouse.org/",
+      "press_listing_url": "https://www.arkansashouse.org/news",
+      "roster_url": "https://www.arkansashouse.org/representatives/members",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://www.arkansashouse.org/news/post/35156/daily-summary-for-wednesday-april-29-2026",
+        "https://www.arkansashouse.org/news/post/35155/daily-summary-for-tuesday-april-28-2026",
+        "https://www.arkansashouse.org/news/post/35153/2027-revenue-stabilization-schedule"
+      ],
+      "detail_url_pattern": "https://www.arkansashouse.org/news/post/{id}/{slug}",
+      "cms_family": "proprietary",
+      "requires_js": false,
+      "pagination": "querystring",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html", "pdf"],
+      "post_frequency_estimate": "daily-during-session",
+      "attribution_strategy": "single_chamber_source",
+      "scraping_strategy": "httpx_html",
+      "classification": "chamber_only",
+      "confidence": 0.85,
+      "weird_risks": [
+        "Content is mostly 'Daily Summaries' of session activity, not member-attributed press releases",
+        "/news/tagged/14/news-release narrows to actual press releases but still chamber-attributed",
+        "wp-json 404 — not WordPress despite Wordpress-like surface; custom CMS"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Pagination ?page=1..98 visible. Tagged path /news/tagged/14/news-release exists. No per-member press URL pattern."
+      }
+    },
+    {
+      "state": "FL",
+      "chamber": "senate",
+      "official_chamber_url": "https://www.flsenate.gov/",
+      "press_listing_url": "https://www.flsenate.gov/Media/PressReleases",
+      "roster_url": "https://www.flsenate.gov/Senators",
+      "member_press_url_pattern": "https://www.flsenate.gov/Senators/{district}",
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://www.flsenate.gov/Media/PressReleases/Show/1896",
+        "https://www.flsenate.gov/PublishedContent/Senators/2024-2026/5256/Documents/Press_Release_SENATOR_CARLOS_G__SMITH_AND_REPRESENTATIVE_JOHANNA_L__xd3;PEZ_docx.pdf"
+      ],
+      "detail_url_pattern": "https://www.flsenate.gov/Media/PressReleases/Show/{id}",
+      "cms_family": "custom-aspnet",
+      "requires_js": false,
+      "pagination": "querystring",
+      "feed_rss": "https://www.flsenate.gov/Tracker/RSS",
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html", "pdf"],
+      "post_frequency_estimate": "medium",
+      "attribution_strategy": "author_column",
+      "scraping_strategy": "httpx_html",
+      "classification": "ready_first_wave",
+      "confidence": 0.8,
+      "weird_risks": [
+        "PressReleases listing intermittently 404'd in recon — verify endpoint directly with curl before committing",
+        "Many releases are PDFs under /PublishedContent/Senators/{cycle}/{district}/Documents/ — needs PDF extraction pipeline",
+        "RSS feed scope is calendars/video, not press releases (Tracker/RSS)"
+      ],
+      "evidence": {
+        "http_status": "mixed (some 404 in recon, search confirms /Media/PressReleases/Show/{id} pattern lives)",
+        "checked_at": "2026-05-01",
+        "notes": "Custom ASP.NET CMS. PDF press releases organized under /PublishedContent/Senators/{2024-2026}/{member_id}/Documents/. Per-senator press dispersed across PDFs in member directories — discoverable via senator district pages."
+      }
+    },
+    {
+      "state": "FL",
+      "chamber": "house",
+      "official_chamber_url": "https://www.flhouse.gov/",
+      "press_listing_url": "https://www.flhouse.gov/Sections/HouseNews/pressreleases.aspx",
+      "roster_url": "https://www.flhouse.gov/Representatives/representatives.aspx",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://www.flhouse.gov/Sections/LeadershipOffices/HouseMinority/MinorityArchives.aspx?archiveType=Min_PressReleases&page=7"
+      ],
+      "detail_url_pattern": "https://www.flhouse.gov/api/document/house?listName=Press Releases&itemId={id}",
+      "cms_family": "custom-aspnet",
+      "requires_js": "partial",
+      "pagination": "querystring",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html", "pdf", "embed_doc"],
+      "post_frequency_estimate": "low-to-medium",
+      "attribution_strategy": "single_chamber_source",
+      "scraping_strategy": "httpx_html",
+      "classification": "chamber_only",
+      "confidence": 0.65,
+      "weird_risks": [
+        "Speaker's-Office-only press releases — not per-member",
+        "Two parallel archives: Speaker (/Sections/HouseNews/pressreleases.aspx) and Minority (/Sections/LeadershipOffices/HouseMinority/MinorityArchives.aspx)",
+        "Document delivery via API endpoint /api/document/house — needs handling for binary returns",
+        "myfloridahouse.gov 302->flhouse.gov; some legacy paths 404"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "FL House publishes Speaker-Office press releases and Minority press releases; no individual representative press archive surfaces. Member coverage impossible from official source."
+      }
+    },
+    {
+      "state": "GA",
+      "chamber": "senate",
+      "official_chamber_url": "https://www.legis.ga.gov/senate",
+      "press_listing_url": "https://www.legis.ga.gov/senate/press-releases",
+      "roster_url": "https://www.legis.ga.gov/senate/senators",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": "unknown (JS-rendered, content not in raw HTML)",
+      "cms_family": "proprietary",
+      "requires_js": true,
+      "pagination": "infinite-scroll",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html", "pdf"],
+      "post_frequency_estimate": "medium",
+      "attribution_strategy": "ambiguous",
+      "scraping_strategy": "playwright",
+      "classification": "needs_profile",
+      "confidence": 0.45,
+      "weird_risks": [
+        "Entire legis.ga.gov shell is a JS app — raw HTML returns 'Loading… This might take a few seconds.'",
+        "/api/document/* endpoints exist (e.g. doc PDFs) but undocumented",
+        "/api/press-releases returns 401 without auth — likely internal-only"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Press release pages exist at legis.ga.gov/senate/press-releases and /senate/press-office (per Google index) but require Playwright. Need rendered HTML probe to confirm URL pattern and per-member attribution."
+      }
+    },
+    {
+      "state": "GA",
+      "chamber": "house",
+      "official_chamber_url": "https://www.legis.ga.gov/house",
+      "press_listing_url": "https://www.legis.ga.gov/house/press-releases",
+      "roster_url": "https://www.legis.ga.gov/house/representatives",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": "unknown (JS-rendered)",
+      "cms_family": "proprietary",
+      "requires_js": true,
+      "pagination": "infinite-scroll",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html", "pdf"],
+      "post_frequency_estimate": "medium",
+      "attribution_strategy": "ambiguous",
+      "scraping_strategy": "playwright",
+      "classification": "needs_profile",
+      "confidence": 0.4,
+      "weird_risks": [
+        "Same JS-app shell as GA Senate — same Playwright requirement",
+        "House Budget Office publishes via /api/document/docs/default-source/... PDFs — separate stream from press"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Press release page surfaces in Google but raw HTML is loading-shell only. Implementation requires headless browser. Member-level attribution unverified — likely chamber/leadership/PIO press-office model."
+      }
+    },
+    {
+      "state": "KY",
+      "chamber": "senate",
+      "official_chamber_url": "https://legislature.ky.gov/Legislators/senate",
+      "press_listing_url": "https://apps.legislature.ky.gov/publicservices/pio/release.html",
+      "roster_url": "https://legislature.ky.gov/Legislators/senate",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": "unknown (PIO listing is bicameral, not member-keyed)",
+      "cms_family": "sharepoint",
+      "requires_js": false,
+      "pagination": "none",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html", "pdf", "image_only"],
+      "post_frequency_estimate": "weekly-during-session",
+      "attribution_strategy": "press_secretary_page",
+      "scraping_strategy": "httpx_html",
+      "classification": "chamber_only",
+      "confidence": 0.6,
+      "weird_risks": [
+        "Single PIO feed combines House + Senate — chamber separation requires content classification",
+        "kysenategop.com TLS cert fails; senatedems.ky.gov refused connection — caucus sites unreliable",
+        "Releases reference 'photo' downloads — image_only items mixed in"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Kentucky General Assembly PIO publishes weekly session summaries on apps.legislature.ky.gov. Static HTML, SharePoint-flavored. No per-member press URL. Caucus sites (kysenategop, senatedems.ky.gov) unreachable in recon."
+      }
+    },
+    {
+      "state": "KY",
+      "chamber": "house",
+      "official_chamber_url": "https://legislature.ky.gov/Legislators/house-of-representatives",
+      "press_listing_url": "https://apps.legislature.ky.gov/publicservices/pio/release.html",
+      "roster_url": "https://legislature.ky.gov/Legislators/house-of-representatives",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": "unknown",
+      "cms_family": "sharepoint",
+      "requires_js": false,
+      "pagination": "none",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html", "pdf", "image_only"],
+      "post_frequency_estimate": "weekly-during-session",
+      "attribution_strategy": "press_secretary_page",
+      "scraping_strategy": "httpx_html",
+      "classification": "chamber_only",
+      "confidence": 0.6,
+      "weird_risks": [
+        "Same shared PIO feed as Senate — must split by content",
+        "kyhousegop.com refused connection in recon — Republican caucus site possibly down or geo-fenced"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Bicameral PIO feed is the only reliable official Kentucky source. Caucus sites need separate verification round."
+      }
+    },
+    {
+      "state": "LA",
+      "chamber": "senate",
+      "official_chamber_url": "https://senate.la.gov/",
+      "press_listing_url": "https://senate.la.gov/PR.aspx",
+      "roster_url": "https://senate.la.gov/Senators",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://senate.la.gov/CommunicationOffice/NewsReleases/2024/WEPGPO122124.pdf",
+        "https://senate.la.gov/CommunicationOffice/NewsReleases/2023/06082023SINEDIE%20FINAL.pdf"
+      ],
+      "detail_url_pattern": "https://senate.la.gov/CommunicationOffice/NewsReleases/{year}/{filename}.pdf",
+      "cms_family": "custom-aspnet",
+      "requires_js": false,
+      "pagination": "none",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["pdf"],
+      "post_frequency_estimate": "low",
+      "attribution_strategy": "single_chamber_source",
+      "scraping_strategy": "httpx_html",
+      "classification": "chamber_only",
+      "confidence": 0.75,
+      "weird_risks": [
+        "100% PDF — every release is a binary; needs pdfplumber pipeline (matches TX Senate handling)",
+        "Filename convention is date-coded MMDDYYYY but inconsistent across years",
+        "Releases are leadership/joint-statement style ('PRESIDENT HENRY ANNOUNCES…') — no individual senator attribution in archive index"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "All-PDF archive going back to 2020. Subscribe option is a listserv (lcn-notify-subscribe-request@listserv.doa.la.gov) — could be ingested as email. No per-senator press pages."
+      }
+    },
+    {
+      "state": "LA",
+      "chamber": "house",
+      "official_chamber_url": "https://house.louisiana.gov/",
+      "press_listing_url": "https://house.louisiana.gov/H_Misc/Hse_Misc_PressRel.aspx",
+      "roster_url": "https://house.louisiana.gov/H_Reps/H_Reps_FullInfo.aspx",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://house.louisiana.gov/H_PR/PDF/2026/04302026%20joint%20statement.pdf"
+      ],
+      "detail_url_pattern": "https://house.louisiana.gov/H_PR/PDF/{year}/{date-slug}.pdf",
+      "cms_family": "custom-aspnet",
+      "requires_js": false,
+      "pagination": "none",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["pdf"],
+      "post_frequency_estimate": "low",
+      "attribution_strategy": "single_chamber_source",
+      "scraping_strategy": "httpx_html",
+      "classification": "chamber_only",
+      "confidence": 0.7,
+      "weird_risks": [
+        "All-PDF archive 2002-present, single chronological page with no pagination — fetch is a single GET but must parse 20+ years of links",
+        "Filenames contain spaces — must URL-encode",
+        "Sample URL above is constructed from pattern; not directly verified"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Releases are leadership statements + session announcements; no per-member attribution. ASP.NET surface, content lives at /H_PR/PDF/{year}/."
+      }
+    },
+    {
+      "state": "MS",
+      "chamber": "senate",
+      "official_chamber_url": "https://www.legislature.ms.gov/senate/",
+      "press_listing_url": null,
+      "roster_url": "https://www.legislature.ms.gov/senate/senate-members/",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "unknown",
+      "requires_js": "unknown",
+      "pagination": "none",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": [],
+      "post_frequency_estimate": "none",
+      "attribution_strategy": "ambiguous",
+      "scraping_strategy": "playwright",
+      "classification": "do_not_claim_member_coverage",
+      "confidence": 0.5,
+      "weird_risks": [
+        "Mississippi Legislature site failed TLS verification in recon (two distinct paths)",
+        "No discoverable press release section — coverage of MS legislative session relies almost entirely on press corps (Mississippi Today, MS Free Press)",
+        "No identifiable Mississippi Senate caucus website"
+      ],
+      "evidence": {
+        "http_status": "cert_error",
+        "checked_at": "2026-05-01",
+        "notes": "legislature.ms.gov fails certificate validation. Mississippi has the thinnest official press infrastructure of any Southern legislature; coverage will require third-party news ingest, not a state-source collector."
+      }
+    },
+    {
+      "state": "MS",
+      "chamber": "house",
+      "official_chamber_url": "https://www.legislature.ms.gov/house/",
+      "press_listing_url": null,
+      "roster_url": "https://www.legislature.ms.gov/house/house-members/",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "unknown",
+      "requires_js": "unknown",
+      "pagination": "none",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": [],
+      "post_frequency_estimate": "none",
+      "attribution_strategy": "ambiguous",
+      "scraping_strategy": "playwright",
+      "classification": "do_not_claim_member_coverage",
+      "confidence": 0.5,
+      "weird_risks": [
+        "Same TLS failure as Senate side",
+        "No house-side caucus press site identified"
+      ],
+      "evidence": {
+        "http_status": "cert_error",
+        "checked_at": "2026-05-01",
+        "notes": "Mississippi House lacks an identifiable web press operation. Member coverage impossible from official sources without manual outreach."
+      }
+    },
+    {
+      "state": "NC",
+      "chamber": "senate",
+      "official_chamber_url": "https://www.ncleg.gov/Senate",
+      "press_listing_url": "https://www.ncleg.gov/News",
+      "roster_url": "https://www.ncleg.gov/Members/MemberList/S",
+      "member_press_url_pattern": "https://www.ncleg.gov/Members/Biography/S/{member_id}",
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": "https://www.ncleg.gov/News/{year}",
+      "cms_family": "proprietary",
+      "requires_js": false,
+      "pagination": "querystring",
+      "feed_rss": "https://www.ncleg.gov/News/Rss",
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "medium",
+      "attribution_strategy": "ambiguous",
+      "scraping_strategy": "rss",
+      "classification": "chamber_only",
+      "confidence": 0.65,
+      "weird_risks": [
+        "/News listing is mixed (election candidate filings, public-comment portals, Bar grievance review) — needs filtering for press releases",
+        "NC publishes 'Press Conference' streaming events keyed to representatives — these are calendar items, not text releases",
+        "Member-level press URL pattern is a biography page, not a press archive — no deterministic per-member press list"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "ncleg.gov advertises 'News RSS' feed (URL inferred — verify). News archive year-organized 2003–present. Most session-level chamber-attributed; individual member press lives off-site (campaign / personal)."
+      }
+    },
+    {
+      "state": "NC",
+      "chamber": "house",
+      "official_chamber_url": "https://www.ncleg.gov/House",
+      "press_listing_url": "https://www.ncleg.gov/News",
+      "roster_url": "https://www.ncleg.gov/Members/MemberList/H",
+      "member_press_url_pattern": "https://www.ncleg.gov/Members/Biography/H/{member_id}",
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": "https://www.ncleg.gov/News/{year}",
+      "cms_family": "proprietary",
+      "requires_js": false,
+      "pagination": "querystring",
+      "feed_rss": "https://www.ncleg.gov/News/Rss",
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "medium",
+      "attribution_strategy": "ambiguous",
+      "scraping_strategy": "rss",
+      "classification": "chamber_only",
+      "confidence": 0.65,
+      "weird_risks": [
+        "Shared /News feed across both chambers — must filter by content",
+        "Same biography-page-as-member-page issue as Senate"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Same news pipeline as NC Senate. Member coverage requires per-member pages off ncleg.gov — likely campaign sites; out of state-source scope."
+      }
+    },
+    {
+      "state": "OK",
+      "chamber": "senate",
+      "official_chamber_url": "https://www.oksenate.gov/",
+      "press_listing_url": "https://www.oksenate.gov/press-releases",
+      "roster_url": "https://www.oksenate.gov/senators",
+      "member_press_url_pattern": "https://www.oksenate.gov/senators/{slug}",
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://www.oksenate.gov/press-releases/senate-democratic-leader-julia-kirt-week-13-media-avail-2026-session?back=/press-releases/2026-04"
+      ],
+      "detail_url_pattern": "https://www.oksenate.gov/press-releases/{slug}",
+      "cms_family": "drupal",
+      "requires_js": false,
+      "pagination": "querystring",
+      "feed_rss": "https://www.oksenate.gov/rss.xml",
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "weekly",
+      "attribution_strategy": "title_prefix",
+      "scraping_strategy": "httpx_html",
+      "classification": "ready_first_wave",
+      "confidence": 0.9,
+      "weird_risks": [
+        "Drupal /sites/default/files paths suggest standard Drupal 9/10 — verify /node/{id} canonical or just slug-based",
+        "Attribution lives in title text ('Sen. Regina Goodwin, D-Tulsa…'); regex extraction reliable",
+        "Archive runs 1996–2026; back-coverage is excellent"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Drupal CMS with monthly archive at /press-releases/{year}-{month}. RSS feed URL inferred — verify. Best Southern state-senate source after AR."
+      }
+    },
+    {
+      "state": "OK",
+      "chamber": "house",
+      "official_chamber_url": "https://www.okhouse.gov/",
+      "press_listing_url": "https://www.okhouse.gov/news",
+      "roster_url": "https://www.okhouse.gov/representatives",
+      "member_press_url_pattern": "https://www.okhouse.gov/members/{slug}",
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://www.okhouse.gov/posts/news-20260430_2"
+      ],
+      "detail_url_pattern": "https://www.okhouse.gov/posts/news-{YYYYMMDD}_{n}",
+      "cms_family": "proprietary",
+      "requires_js": false,
+      "pagination": "next-link",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "daily-during-session",
+      "attribution_strategy": "title_prefix",
+      "scraping_strategy": "httpx_html",
+      "classification": "ready_first_wave",
+      "confidence": 0.85,
+      "weird_risks": [
+        "Sequential same-day numbering (_1, _2, _3) means crawler must handle gap detection",
+        "/news category filter ('All Updates' vs 'Recent Posts') uses 'See More' expansion — verify whether truly stateless or needs cursor",
+        "Member attribution is in lead paragraph (Rep. Name, R-City) — same regex pattern as OK Senate"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Custom CMS with consistent /posts/news-{date}_{n} structure. Strong member attribution in body. Comparable quality to OK Senate."
+      }
+    },
+    {
+      "state": "SC",
+      "chamber": "senate",
+      "official_chamber_url": "https://www.scstatehouse.gov/senate.php",
+      "press_listing_url": "https://scsenategop.com/",
+      "roster_url": "https://www.scstatehouse.gov/member.php?chamber=S",
+      "member_press_url_pattern": "https://scsenategop.com/senators/{slug}/",
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://scsenategop.com/2025/03/27/{slug}/",
+        "https://scsenategop.com/2025/02/26/{slug}/"
+      ],
+      "detail_url_pattern": "https://scsenategop.com/{YYYY}/{MM}/{DD}/{slug}/",
+      "cms_family": "wordpress",
+      "requires_js": false,
+      "pagination": "querystring",
+      "feed_rss": "https://scsenategop.com/feed/",
+      "feed_atom": null,
+      "feed_wp_json": "https://scsenategop.com/wp-json/wp/v2/posts",
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "low-to-medium",
+      "attribution_strategy": "caucus_source",
+      "scraping_strategy": "wp_json",
+      "classification": "caucus_source",
+      "confidence": 0.75,
+      "weird_risks": [
+        "Official scstatehouse.gov has no press section — caucus sites are the only practical source",
+        "scsenategop.com (R) and scsenatedems.org (D, Wix) split by party; combining gives partial chamber coverage",
+        "scsenatedems.org Wix site has a Caucus Newsroom but newest visible items are 2023 — may be stale",
+        "Both caucus sites present releases as caucus-attributed, not member-attributed"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "scsenategop.com confirmed WP with /wp-json/wp/v2/posts active. scsenatedems.org Wix-built, no wp-json. Two-source consolidation required for SC Senate."
+      }
+    },
+    {
+      "state": "SC",
+      "chamber": "house",
+      "official_chamber_url": "https://www.scstatehouse.gov/house.php",
+      "press_listing_url": "https://schousedems.com/news-room/",
+      "roster_url": "https://www.scstatehouse.gov/member.php?chamber=H",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://schousedems.com/s-c-house-passes-the-clementa-c-pinkney-hate-crimes-act-in-bipartisan-effort/",
+        "https://schousedems.com/statement-from-rep-todd-rutherford-on-new-2-billion-electric-vehicle-factory-coming-to-richland-county/"
+      ],
+      "detail_url_pattern": "https://schousedems.com/{slug}/",
+      "cms_family": "wordpress",
+      "requires_js": false,
+      "pagination": "querystring",
+      "feed_rss": "https://schousedems.com/feed/",
+      "feed_atom": null,
+      "feed_wp_json": "https://schousedems.com/wp-json/wp/v2/posts",
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "low",
+      "attribution_strategy": "caucus_source",
+      "scraping_strategy": "wp_json",
+      "classification": "caucus_source",
+      "confidence": 0.7,
+      "weird_risks": [
+        "schousegop.com is Wix (no WP API) — Republican supermajority side requires HTML scrape via Wix rendering (often JS)",
+        "schousedems.com (Democratic minority) WordPress is healthy but represents <30% of chamber",
+        "Newsroom items reach back to 2021–2023 with gaps — coverage continuity uncertain"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Two-source split: schousedems.com (WP, easy) + schousegop.com (Wix, harder). Combined still caucus-only attribution."
+      }
+    },
+    {
+      "state": "TN",
+      "chamber": "senate",
+      "official_chamber_url": "https://capitol.tn.gov/senate/",
+      "press_listing_url": "https://www.tnsenategop.com/press-releases",
+      "roster_url": "https://capitol.tn.gov/senate/members/",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": "https://www.tnsenategop.com/press-releases/{slug}",
+      "cms_family": "proprietary",
+      "requires_js": "partial",
+      "pagination": "next-link",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "weekly",
+      "attribution_strategy": "caucus_source",
+      "scraping_strategy": "httpx_html",
+      "classification": "caucus_source",
+      "confidence": 0.65,
+      "weird_risks": [
+        "Squarespace-hosted; limited API access — no wp-json, RSS may be /press-releases?format=rss but unverified",
+        "Squarespace pages use partial JS rendering for filters — verify Playwright fallback",
+        "Republican supermajority site only; Democratic minority does not appear to have a comparable caucus press site"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Squarespace blog at tnsenategop.com. Posts organized by senator filter (managed by Todd Rapp). Squarespace exposes RSS at /blog?format=rss style endpoints — confirm."
+      }
+    },
+    {
+      "state": "TN",
+      "chamber": "house",
+      "official_chamber_url": "https://capitol.tn.gov/house/",
+      "press_listing_url": "https://tnhousegop.org/category/press-releases/",
+      "roster_url": "https://capitol.tn.gov/house/members/",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://tnhousegop.org/press-releases/2026/02/rep-clark-boyd-elected-house-majority-whip/",
+        "https://tnhousegop.org/member-newsroom/2026/04/state-rep-elaine-daviss-capitol-report-april-2-2026/"
+      ],
+      "detail_url_pattern": "https://tnhousegop.org/{category}/{YYYY}/{MM}/{slug}/",
+      "cms_family": "wordpress",
+      "requires_js": false,
+      "pagination": "querystring",
+      "feed_rss": "https://tnhousegop.org/feed/",
+      "feed_atom": null,
+      "feed_wp_json": "https://tnhousegop.org/wp-json/wp/v2/posts",
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "weekly",
+      "attribution_strategy": "title_prefix",
+      "scraping_strategy": "wp_json",
+      "classification": "caucus_source",
+      "confidence": 0.85,
+      "weird_risks": [
+        "Member Newsroom (/category/member-newsroom/) is a separate category from Press Releases — both must be ingested",
+        "Republican-only — Tennessee House Democrats minority caucus site not surfaced",
+        "WordPress 'Partheron Strategies' theme — confirm wp-json category endpoints"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Confirmed WP with /wp-json/wp/v2/posts returning member-attributed releases. Strong title-level attribution ('Rep. Name secures…'). 15+ pages of archives."
+      }
+    },
+    {
+      "state": "VA",
+      "chamber": "senate",
+      "official_chamber_url": "https://apps.senate.virginia.gov/",
+      "press_listing_url": "https://vasenatedems.com/news-room/",
+      "roster_url": "https://apps.senate.virginia.gov/Senator/",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": "https://vasenatedems.com/{YYYY}/{MM}/{DD}/{slug}/",
+      "cms_family": "wordpress",
+      "requires_js": "unknown",
+      "pagination": "querystring",
+      "feed_rss": "https://vasenatedems.com/feed/",
+      "feed_atom": null,
+      "feed_wp_json": "https://vasenatedems.com/wp-json/wp/v2/posts",
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "medium",
+      "attribution_strategy": "caucus_source",
+      "scraping_strategy": "wp_json",
+      "classification": "caucus_source",
+      "confidence": 0.6,
+      "weird_risks": [
+        "vasenatedems.com refused connection during recon — site availability uncertain",
+        "VA Senate Republican Caucus is at vsrc.gop (not vasenategop.com) — separate WordPress likely but unverified this round",
+        "Virginia GA official site (vga.virginia.gov) is WordPress but has no press release section — caucus sites are the only state-level press source"
+      ],
+      "evidence": {
+        "http_status": "ECONNREFUSED",
+        "checked_at": "2026-05-01",
+        "notes": "Newsroom URL surfaces in Google with WP-style permalinks; live fetch failed and needs retry. vsrc.gop (Republicans) needs second-round probe."
+      }
+    },
+    {
+      "state": "VA",
+      "chamber": "house",
+      "official_chamber_url": "https://virginiageneralassembly.gov/house/",
+      "press_listing_url": "https://vahousedems.org/category/pressreleases/",
+      "roster_url": "https://vahousedems.org/our-members/",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://vahousedems.org/2023/06/30/virginia-house-democratic-caucus-introduces-89-candidate-slate-on-path-to-the-majority/",
+        "https://vahousedems.org/2025/03/25/virginia-house-democratic-caucus-statement-on-vetoed-legislation/"
+      ],
+      "detail_url_pattern": "https://vahousedems.org/{YYYY}/{MM}/{DD}/{slug}/",
+      "cms_family": "wordpress",
+      "requires_js": false,
+      "pagination": "querystring",
+      "feed_rss": "https://vahousedems.org/feed/",
+      "feed_atom": null,
+      "feed_wp_json": "https://vahousedems.org/wp-json/wp/v2/posts",
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "medium",
+      "attribution_strategy": "caucus_source",
+      "scraping_strategy": "wp_json",
+      "classification": "caucus_source",
+      "confidence": 0.85,
+      "weird_risks": [
+        "virginiahouse.gop (Republicans) needs separate ingest — possible WP but unverified",
+        "Author is generic 'VA House Dems' on most posts — member attribution must be parsed from title/body",
+        "Two-party split: combine vahousedems.org (D) + virginiahouse.gop (R) for chamber coverage"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Confirmed WP with /wp-json/wp/v2/posts. Archive 2021–2026 with bipartisan sample of leadership and policy posts."
+      }
+    },
+    {
+      "state": "WV",
+      "chamber": "senate",
+      "official_chamber_url": "https://www.wvlegislature.gov/Senate1/",
+      "press_listing_url": "https://www.wvlegislature.gov/News_release/news.cfm",
+      "roster_url": "https://www.wvlegislature.gov/Senate1/roster.cfm",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": "https://www.wvlegislature.gov/News_release/news.cfm?nrid={id}",
+      "cms_family": "custom-coldfusion",
+      "requires_js": false,
+      "pagination": "querystring",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "medium-during-session",
+      "attribution_strategy": "ambiguous",
+      "scraping_strategy": "httpx_html",
+      "classification": "chamber_only",
+      "confidence": 0.7,
+      "weird_risks": [
+        "ColdFusion (.cfm) — same CMS family as US-Senate Moran/Boozman; reuse coldfusion_pager pattern from existing pipeline",
+        "Single bicameral feed — must split Senate vs House by content classification",
+        "Today in the Legislature blog (blog.wvlegislature.gov) is a parallel content stream — verify CMS",
+        "Detail URL pattern inferred (nrid query param) — verify"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Archive spans 2019–March 2026. ColdFusion-driven listing with date + author attribution per release. Bicameral feed."
+      }
+    },
+    {
+      "state": "WV",
+      "chamber": "house",
+      "official_chamber_url": "https://www.wvlegislature.gov/House/",
+      "press_listing_url": "https://www.wvlegislature.gov/News_release/news.cfm",
+      "roster_url": "https://www.wvlegislature.gov/House/roster.cfm",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": "https://www.wvlegislature.gov/News_release/news.cfm?nrid={id}",
+      "cms_family": "custom-coldfusion",
+      "requires_js": false,
+      "pagination": "querystring",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "medium-during-session",
+      "attribution_strategy": "ambiguous",
+      "scraping_strategy": "httpx_html",
+      "classification": "chamber_only",
+      "confidence": 0.7,
+      "weird_risks": [
+        "Same shared bicameral feed — chamber attribution must be parsed from content",
+        "No identifiable WV House caucus press site"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Same ColdFusion News_release feed serves House and Senate. Member attribution rare; mostly leadership/PIO releases."
+      }
+    },
+    {
+      "state": "MD",
+      "chamber": "senate",
+      "official_chamber_url": "https://mgaleg.maryland.gov/mgawebsite/",
+      "press_listing_url": "https://www.mdsenate.com/news/",
+      "roster_url": "https://msa.maryland.gov/msa/mdmanual/05sen/html/sen.html",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": "https://www.mdsenate.com/news/{slug}/",
+      "cms_family": "wordpress",
+      "requires_js": false,
+      "pagination": "querystring",
+      "feed_rss": "https://www.mdsenate.com/feed/",
+      "feed_atom": null,
+      "feed_wp_json": "https://www.mdsenate.com/wp-json/wp/v2/posts",
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "low",
+      "attribution_strategy": "caucus_source",
+      "scraping_strategy": "wp_json",
+      "classification": "caucus_source",
+      "confidence": 0.6,
+      "weird_risks": [
+        "MD General Assembly official site (mgaleg.maryland.gov) and MSA archive (msa.maryland.gov) have no press releases — only official records (journals, calendars, agendas)",
+        "Caucus sites: mdsenate.com (D) + mdsenategop.com (R) carry the press load",
+        "mdsenate.com news archive shows gaps (Dec 2025 newest item is leadership re-nomination; 2023 retrospectives below) — coverage continuity questionable",
+        "wp-json existence inferred from WordPress structure — verify before committing"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Maryland Senate publishes via the Democratic and Republican caucus committee sites. Both appear WordPress. No per-member attribution."
+      }
+    },
+    {
+      "state": "MD",
+      "chamber": "house",
+      "official_chamber_url": "https://mgaleg.maryland.gov/mgawebsite/",
+      "press_listing_url": "https://www.mdhousedems.com/",
+      "roster_url": "https://msa.maryland.gov/msa/mdmanual/06hse/html/hsedem.html",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "unknown",
+      "requires_js": "unknown",
+      "pagination": "unknown",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": [],
+      "post_frequency_estimate": "low",
+      "attribution_strategy": "caucus_source",
+      "scraping_strategy": "playwright",
+      "classification": "caucus_source",
+      "confidence": 0.4,
+      "weird_risks": [
+        "mdhousedems.com refused connection during recon — site availability uncertain",
+        "MD House Republican Caucus has no identified .com — only @MDhouseGOP social presence",
+        "May need to fall back to per-delegate official mgaleg.maryland.gov bio pages, but those have no press archives"
+      ],
+      "evidence": {
+        "http_status": "ECONNREFUSED",
+        "checked_at": "2026-05-01",
+        "notes": "Maryland House has the weakest caucus-press infrastructure of the four MD chambers/parties. Coverage will be patchy until both party sites are confirmed live and crawled. Worst-case: classify as do_not_claim_member_coverage and rely on Maryland Matters / Baltimore Sun for chamber coverage."
+      }
+    }
+  ]
+}

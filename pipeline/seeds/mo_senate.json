@@ -1,0 +1,25 @@
+{
+  "_meta": {
+    "chamber": "mo_senate",
+    "level": "state",
+    "state": "MO",
+    "platform": "senate.mo.gov central newsroom",
+    "verified": "2026-05-01",
+    "notes": "Starter central-feed source. Later work should map author/member names to individual Missouri senator IDs."
+  },
+  "members": [
+    {
+      "senator_id": "mo-senate-newsroom",
+      "full_name": "Missouri Senate Newsroom",
+      "party": "N",
+      "state": "MO",
+      "official_url": "https://www.senate.mo.gov/",
+      "press_release_url": "https://www.senate.mo.gov/media/newsroom",
+      "parser_family": "mo_senate_newsroom",
+      "collection_method": "mo_senate_newsroom",
+      "requires_js": false,
+      "confidence": 0.85,
+      "expect_empty": false
+    }
+  ]
+}

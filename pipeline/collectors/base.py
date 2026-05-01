@@ -52,12 +52,13 @@ class HealthCheckResult:
     selector_ok: bool = False
     items_found: int = 0
     date_parseable: bool = False
+    allow_empty: bool = False
     page_load_ms: int = 0
     error_message: str = ""
 
     @property
     def passed(self) -> bool:
-        return self.url_status == 200 and self.items_found > 0
+        return self.url_status == 200 and (self.items_found > 0 or self.allow_empty)
 
 
 class Collector(Protocol):

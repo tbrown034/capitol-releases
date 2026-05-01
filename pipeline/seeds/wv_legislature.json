@@ -1,0 +1,25 @@
+{
+  "_meta": {
+    "chamber": "wv_legislature",
+    "level": "state",
+    "state": "WV",
+    "platform": "wvlegislature.gov central news releases",
+    "verified": "2026-05-01",
+    "notes": "Starter central-feed source. Calendar/schedule rows are filtered out by the collector."
+  },
+  "members": [
+    {
+      "senator_id": "wv-legislature-news",
+      "full_name": "West Virginia Legislature News Releases",
+      "party": "N",
+      "state": "WV",
+      "official_url": "https://www.wvlegislature.gov/",
+      "press_release_url": "https://www.wvlegislature.gov/News_release/news.cfm",
+      "parser_family": "wv_legislature_coldfusion",
+      "collection_method": "wv_legislature_news",
+      "requires_js": false,
+      "confidence": 0.85,
+      "expect_empty": false
+    }
+  ]
+}

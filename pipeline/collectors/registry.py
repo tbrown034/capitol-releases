@@ -13,6 +13,13 @@ from pipeline.collectors.rss_collector import RSSCollector
 from pipeline.collectors.httpx_collector import HttpxCollector
 from pipeline.collectors.whitehouse_collector import WhitehouseCollector
 from pipeline.collectors.tx_senate_collector import TxSenateCollector
+from pipeline.collectors.state_legislature_collectors import (
+    CaliforniaSenateCollector,
+    MissouriSenateNewsroomCollector,
+    NebraskaUnicameralCollector,
+    OhioSenateCollector,
+    WVLegislatureNewsCollector,
+)
 
 log = logging.getLogger("capitol.registry")
 
@@ -25,6 +32,11 @@ class CollectorRegistry:
         self._httpx = HttpxCollector()
         self._whitehouse = WhitehouseCollector()
         self._tx_senate = TxSenateCollector()
+        self._ne_unicameral = NebraskaUnicameralCollector()
+        self._ca_senate = CaliforniaSenateCollector()
+        self._oh_senate = OhioSenateCollector()
+        self._mo_senate_newsroom = MissouriSenateNewsroomCollector()
+        self._wv_legislature_news = WVLegislatureNewsCollector()
 
     def get_collector(self, senator: dict) -> Collector:
         """Get the canonical collector for a senator based on config."""
@@ -36,6 +48,16 @@ class CollectorRegistry:
             return self._whitehouse
         elif method == "tx_senate":
             return self._tx_senate
+        elif method == "ne_unicameral":
+            return self._ne_unicameral
+        elif method == "ca_senate":
+            return self._ca_senate
+        elif method == "oh_senate":
+            return self._oh_senate
+        elif method == "mo_senate_newsroom":
+            return self._mo_senate_newsroom
+        elif method == "wv_legislature_news":
+            return self._wv_legislature_news
         elif method == "playwright":
             # Playwright collector not yet implemented.
             # Fall back to httpx (works for page 1 on most JS sites)

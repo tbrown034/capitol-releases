@@ -1,0 +1,26 @@
+{
+  "_meta": {
+    "chamber": "oh_senate",
+    "level": "state",
+    "state": "OH",
+    "platform": "ohiosenate.gov member news pages",
+    "verified": "2026-05-01",
+    "notes": "Starter seed for the Ohio Senate source-family collector. This is not full chamber coverage yet."
+  },
+  "members": [
+    {
+      "senator_id": "oh-senate-mccolley",
+      "full_name": "Rob McColley",
+      "party": "R",
+      "state": "OH",
+      "district": 1,
+      "official_url": "https://ohiosenate.gov/members/rob-mccolley",
+      "press_release_url": "https://ohiosenate.gov/members/rob-mccolley/news",
+      "parser_family": "oh_senate_search",
+      "collection_method": "oh_senate",
+      "requires_js": false,
+      "confidence": 0.9,
+      "expect_empty": false
+    }
+  ]
+}

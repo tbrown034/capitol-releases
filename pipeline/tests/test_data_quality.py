@@ -845,6 +845,67 @@ def test_per_type_not_date_clumped():
     assert not clumped, "per-type date clumping: " + ", ".join(clumped)
 
 
+# ---- Bluesky / social_posts tests ----
+#
+# Surface-specific aggregates. Mirror the press-release discipline: we
+# don't let one broken senator hide in the aggregate. Thresholds are
+# deliberately loose so a Bluesky outage on a given day doesn't redden
+# the suite — they're trip-wires, not SLAs.
+
+def test_social_posts_not_empty():
+    """Sanity: social_posts has rows from the verified-handle directory."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT count(*) FROM social_posts WHERE deleted_at IS NULL")
+    total = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    assert total >= 1000, f"social_posts has only {total} rows; backfill may have failed"
+
+
+def test_social_posts_within_window():
+    """Every captured post should be on or after our 2026-01-01 cutoff."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT count(*) FROM social_posts WHERE created_at < '2026-01-01'"
+    )
+    leak = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    assert leak == 0, f"{leak} social_posts predate 2026-01-01 — backfill cutoff broken"
+
+
+def test_social_posts_per_senator_floor():
+    """Every senator with a verified Bluesky handle should have at least
+    one post unless their account is dormant (no posts in 2026)."""
+    handles_path = Path(__file__).resolve().parent.parent / "seeds" / "bluesky_handles.json"
+    if not handles_path.exists():
+        return  # nothing to assert
+    handles = json.load(handles_path.open())["handles"]
+    expected = {h["senator_id"] for h in handles}
+
+    # Documented dormants — verified empty-2026 accounts. Update if their
+    # status changes.
+    DORMANT = {"fetterman-john", "padilla-alex", "schatz-brian"}
+
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT senator_id FROM social_posts WHERE deleted_at IS NULL "
+        "GROUP BY senator_id"
+    )
+    have = {row[0] for row in cur.fetchall()}
+    cur.close()
+    conn.close()
+
+    missing = (expected - have) - DORMANT
+    assert not missing, (
+        "verified senators with no social_posts (and not in DORMANT list): "
+        f"{sorted(missing)}"
+    )
+
+
 # ---- Run all tests ----
 
 def run_all():
@@ -876,6 +937,9 @@ def run_all():
         test_per_type_floors,
         test_per_type_back_coverage,
         test_per_type_not_date_clumped,
+        test_social_posts_not_empty,
+        test_social_posts_within_window,
+        test_social_posts_per_senator_floor,
     ]
 
     passed = 0

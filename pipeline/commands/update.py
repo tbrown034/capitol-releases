@@ -127,7 +127,8 @@ def upsert_release(conn, release: ReleaseRecord) -> tuple[bool, bool]:
         # If we have hashes on both sides and they differ, archive the old
         # version then update the main row. If either hash is missing we
         # cannot reliably detect an edit, so we treat this as a no-op.
-        if new_hash and existing_hash and new_hash != existing_hash:
+        incoming_body = release.body_text or None
+        if new_hash and existing_hash and new_hash != existing_hash and incoming_body:
             cur.execute(
                 """
                 INSERT INTO content_versions
@@ -148,7 +149,7 @@ def upsert_release(conn, release: ReleaseRecord) -> tuple[bool, bool]:
                 """,
                 (
                     release.title,
-                    release.body_text or None,
+                    incoming_body,
                     new_hash,
                     release.raw_html or None,
                     existing_id,
@@ -156,6 +157,24 @@ def upsert_release(conn, release: ReleaseRecord) -> tuple[bool, bool]:
             )
             conn.commit()
             return (False, True)
+
+        # Some collectors only archive listing metadata and defer body
+        # extraction to a later enrichment command. Do not let those runs
+        # overwrite an already-extracted body or body hash with empty text.
+        if not incoming_body:
+            cur.execute(
+                """
+                UPDATE press_releases
+                SET title = %s,
+                    raw_html = COALESCE(%s, raw_html),
+                    updated_at = NOW()
+                WHERE id = %s
+                  AND title IS DISTINCT FROM %s
+                """,
+                (release.title, release.raw_html or None, existing_id, release.title),
+            )
+            conn.commit()
+            return (False, cur.rowcount > 0)
 
         conn.commit()
         return (False, False)

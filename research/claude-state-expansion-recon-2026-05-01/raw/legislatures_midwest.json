@@ -1,0 +1,828 @@
+{
+  "region": "midwest",
+  "states": ["IL", "IN", "IA", "KS", "MI", "MN", "MO", "NE", "ND", "OH", "SD", "WI"],
+  "generated_at": "2026-05-01",
+  "agent": "claude-state-expansion-recon (midwest)",
+  "notes": "23 records. NE is unicameral (one source). Caucus dominance is the strongest signal in this region: IL, IN, IA, MI all push press through caucus WordPress sites (with /feed/) rather than official chamber sites. OH is the structural outlier — official chamber site exposes deterministic per-member /members/{slug}/news pages for both chambers. SD chamber site is JS-only (Angular SPA shell). MO has weakest infrastructure: no working caucus sites for Republicans, no working official news pages. KS official site is non-press; caucus sites largely dead/unreachable. WI has no chamber-level press infrastructure — each member maintains their own legis.wisconsin.gov staff page, no enumerable releases.",
+  "sources": [
+    {
+      "state": "IL",
+      "chamber": "senate",
+      "official_chamber_url": "https://www.ilga.gov/senate/",
+      "press_listing_url": "https://www.illinoissenatedemocrats.com/caucus-news/",
+      "roster_url": "https://www.ilga.gov/senate/Senators.asp",
+      "member_press_url_pattern": "https://www.illinoissenatedemocrats.com/caucus-news/{district}-senator-{firstname}-{lastname}-news",
+      "sample_member_press_urls": [
+        "https://www.illinoissenatedemocrats.com/caucus-news/27-senator-laura-ellman-news",
+        "https://www.illinoissenatedemocrats.com/caucus-news/68-senator-adriane-johnson-news",
+        "https://www.illinoissenatedemocrats.com/caucus-news/88-senator-lakesia-collins-news"
+      ],
+      "sample_release_urls": [
+        "https://www.illinoissenatedemocrats.com/caucus-news/27-senator-laura-ellman-news/6796-ellman-proposes-plan-to-ban-toxic-herbicide-linked-to-parkinsons-disease",
+        "https://www.illinoissenatedemocrats.com/caucus-news/68-senator-adriane-johnson-news/6797-johnson-privacy-in-health-care-is-not-optional",
+        "https://www.illinoissenatedemocrats.com/caucus-news/64-senator-celina-villanueva-news/6790-villanueva-measure-to-advance-illinois-environmental-justice-protections-one-step-closer-to-law"
+      ],
+      "detail_url_pattern": "https://www.illinoissenatedemocrats.com/caucus-news/{district}-senator-{slug}-news/{post_id}-{slug}",
+      "cms_family": "joomla_k2",
+      "requires_js": false,
+      "pagination": "?start={offset} (8 per page; 784+ pages confirmed)",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html", "image"],
+      "post_frequency_estimate": "high (multiple per day during session)",
+      "attribution_strategy": "deterministic_caucus_per_member",
+      "scraping_strategy": "httpx + BS4 against /caucus-news/{senator-slug}-news per-member listings; pagination via ?start=. Senate GOP caucus (senategop.state.il.us / illinoissenategop.com / ilsenategop.org) all unreachable as of 2026-05-01 — IL Senate Republican coverage requires re-recon or per-senator official ilga.gov pages.",
+      "classification": "caucus_source",
+      "confidence": 0.7,
+      "weird_risks": [
+        "Senate GOP caucus URL unverified — Republican senators NOT covered via this source",
+        "Joomla K2 component, post IDs are numeric and increment monotonically (good for deterministic pagination)",
+        "Per-member URL needs district number AND name slug — requires roster alignment before backfill"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Confirmed live with sample URLs from Apr 29-30 2026. ilga.gov /senate/ returns 404 on /senate/default.asp; main /senate/Senators.asp also 404. Use ilga.gov/senate/ as the chamber landing only. Republican caucus sites tested: senategop.state.il.us (ECONNREFUSED), illinoissenategop.com (ECONNREFUSED), ilsenategop.org (ECONNREFUSED)."
+      }
+    },
+    {
+      "state": "IL",
+      "chamber": "house",
+      "official_chamber_url": "https://www.ilga.gov/house/",
+      "press_listing_url": "https://ilhousedems.com/",
+      "roster_url": "https://ilhousedems.com/legislators/",
+      "member_press_url_pattern": "https://ilhousedems.com/category/{lastname}/",
+      "sample_member_press_urls": [
+        "https://ilhousedems.com/category/guzzardi/",
+        "https://ilhousedems.com/category/hoffman/",
+        "https://ilhousedems.com/category/turner/"
+      ],
+      "sample_release_urls": [
+        "https://ilhousedems.com/2017/05/23/b-or-better-gpa-gets-university-community-college-bound-students-free-tuition-debt-relief-under-house-dem-plan/"
+      ],
+      "detail_url_pattern": "https://ilhousedems.com/{YYYY}/{MM}/{DD}/{slug}/",
+      "cms_family": "wordpress",
+      "requires_js": false,
+      "pagination": "WordPress default + /feed/?paged=N",
+      "feed_rss": "https://ilhousedems.com/feed/",
+      "feed_atom": null,
+      "feed_wp_json": "https://ilhousedems.com/wp-json/wp/v2/posts (likely; not yet confirmed)",
+      "content_shapes": ["html", "image"],
+      "post_frequency_estimate": "high (multiple per day during session)",
+      "attribution_strategy": "deterministic_caucus_per_member_via_category",
+      "scraping_strategy": "Existing rss_collector pattern. RSS feed confirmed working WordPress 6.9.4. Per-member coverage via /category/{lastname}/ category archives. For full backfill, hit /category/{lastname}/feed/ which WP exposes for free.",
+      "classification": "caucus_source",
+      "confidence": 0.85,
+      "weird_risks": [
+        "House GOP caucus site (ilhousegop.org) returned 403; coverage of Republican reps not solved via this source",
+        "Last-name-only category slug breaks for collisions (Smith, Johnson) — verify against roster",
+        "Press URL is date-based not member-based; member attribution must come from category taxonomy"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "RSS confirmed live Apr 30 2026. WordPress 6.9.4 generator. ilhousegop.org returned 403 Forbidden — likely WAF blocking; needs Wayback or browser UA."
+      }
+    },
+    {
+      "state": "IN",
+      "chamber": "senate",
+      "official_chamber_url": "https://iga.in.gov/",
+      "press_listing_url": "https://www.indianasenaterepublicans.com/news",
+      "roster_url": "https://iga.in.gov/legislative/2026/legislators",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://www.indianasenaterepublicans.com/news"
+      ],
+      "detail_url_pattern": "https://www.indianasenaterepublicans.com/{slug-with-id}",
+      "cms_family": "custom (likely PHP/CMS)",
+      "requires_js": false,
+      "pagination": "unknown — appears to be aggregate news feed, not paginated by member",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html", "image"],
+      "post_frequency_estimate": "high during session, low between",
+      "attribution_strategy": "caucus_aggregate (per-member attribution requires parsing release headline + body)",
+      "scraping_strategy": "httpx + BS4 listing parse; no /feed/ endpoint (404); sitemap exists at /sitemap.xml but exposed only the /news-releases hub. Indiana Senate Democrats (indianasenatedemocrats.org) DOES have working /feed/ RSS, recommend that for D coverage.",
+      "classification": "caucus_source",
+      "confidence": 0.6,
+      "weird_risks": [
+        "Senate GOP has NO RSS feed — /feed/ returned 404. Sitemap is shallow.",
+        "Per-member enumeration not deterministic — releases attributed to senators only via headline parsing",
+        "Two separate caucus sites (R + D) with different CMS/feeds — must scrape both"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "indianasenatedemocrats.org/feed/ confirmed working with 20 recent items. indianasenaterepublicans.com/feed/ returned 404. Per-member URL pattern not visible from listing pages."
+      }
+    },
+    {
+      "state": "IN",
+      "chamber": "house",
+      "official_chamber_url": "https://iga.in.gov/",
+      "press_listing_url": "https://www.indianahousedemocrats.org/news",
+      "roster_url": "https://iga.in.gov/legislative/2026/legislators/house",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://www.indianahousedemocrats.org/news/novak-celebrates-ceremonial-signing-of-hea-1048-boosting-support-for-volunteer-firefighters",
+        "https://www.indianahousedemocrats.org/news/giaquinta-issues-statement-on-scotus-voting-rights-act-decision",
+        "https://www.indianahousedemocrats.org/news/porter-comments-on-attendant-care-audit"
+      ],
+      "detail_url_pattern": "https://www.indianahousedemocrats.org/news/{slug}",
+      "cms_family": "squarespace",
+      "requires_js": false,
+      "pagination": "/news?offset={timestamp_ms} (Squarespace native)",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html", "image"],
+      "post_frequency_estimate": "high during session",
+      "attribution_strategy": "caucus_aggregate (slugs prefix with senator surname — extractable)",
+      "scraping_strategy": "httpx + BS4. Sitemap at /sitemap.xml lists 500+ news article URLs going back to mid-2025. Slug pattern starts with surname (e.g. 'novak-...', 'giaquinta-...') so per-member attribution is feasible by slug parsing. House GOP (indianahouserepublicans.com) uses old PHP submenu URLs and has NO /feed/ — much harder.",
+      "classification": "caucus_source",
+      "confidence": 0.75,
+      "weird_risks": [
+        "Squarespace /news?offset= cursor uses millisecond epoch — not standard but stable",
+        "House GOP uses query-string PHP CMS (?submenu=Press_Releases&src=news&srctype=press_release_lister) — non-trivial",
+        "Two separate caucus codebases (R = legacy PHP, D = Squarespace)"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Squarespace sitemap.xml dump confirmed 500+ items. House GOP /feed/ returned 404. House GOP listing page format: /index.php?submenu=Press_Releases&src=news&srctype=press_release_lister."
+      }
+    },
+    {
+      "state": "IA",
+      "chamber": "senate",
+      "official_chamber_url": "https://www.legis.iowa.gov/",
+      "press_listing_url": "https://www.iowasenaterepublicans.com/category/blog/",
+      "roster_url": "https://www.legis.iowa.gov/legislators/senate",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": "https://www.iowasenaterepublicans.com/{slug}/",
+      "cms_family": "wordpress",
+      "requires_js": false,
+      "pagination": "WP default",
+      "feed_rss": "https://www.iowasenaterepublicans.com/feed/",
+      "feed_atom": null,
+      "feed_wp_json": "https://www.iowasenaterepublicans.com/wp-json/wp/v2/posts (presumed; not yet confirmed)",
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "low (last activity Jan 2023 visible on category/blog/, RSS shows Jan 2026 opening day)",
+      "attribution_strategy": "caucus_aggregate (mostly leadership-issued, not per-member)",
+      "scraping_strategy": "Existing rss_collector. iowasenatedemocrats.com had TLS cert error (ALTNAME_INVALID) — D coverage blocked or needs cert override. Iowa officials .legis.iowa.gov roster has no per-senator press subpages. Iowa Senate effectively has CHAMBER-LEVEL press only.",
+      "classification": "do_not_claim_member_coverage",
+      "confidence": 0.4,
+      "weird_risks": [
+        "iowasenatedemocrats.com TLS cert ALTNAME mismatch — cannot fetch without override",
+        "iowasenaterepublicans.com category/blog/ shows posts last from Jan 2023 — site may be stale or feed-only updates",
+        "No per-member press infrastructure visible on either caucus site — leadership-issued only",
+        "Volume genuinely low compared to other midwest states"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Confirmed RSS feed live. Visible blog posts cluster around session opening days. iowasenatedemocrats.com cert error verified. Real per-senator press lives on personal/campaign sites (off-scope)."
+      }
+    },
+    {
+      "state": "IA",
+      "chamber": "house",
+      "official_chamber_url": "https://www.legis.iowa.gov/",
+      "press_listing_url": "https://www.iowahouserepublicans.com/category/news/",
+      "roster_url": "https://www.legis.iowa.gov/legislators/house",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": "https://www.iowahouserepublicans.com/{slug}/",
+      "cms_family": "nationbuilder",
+      "requires_js": false,
+      "pagination": "26 pages on /news; NationBuilder paginated query params",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "low (~weekly during session, monthly otherwise)",
+      "attribution_strategy": "caucus_aggregate",
+      "scraping_strategy": "httpx + BS4 listing. NationBuilder doesn't expose /feed/ — confirmed 404. iowahousedems.com is a 'launching soon' splash page (no content). Iowa House effectively has Republican-only chamber-level press. House Democrats have NO public press infrastructure as of 2026-05-01.",
+      "classification": "do_not_claim_member_coverage",
+      "confidence": 0.35,
+      "weird_risks": [
+        "iowahousedems.com is pre-launch — no content, no press releases at all",
+        "Caucus content is leadership-issued, not per-member",
+        "NationBuilder CMS is non-standard — pagination via NationBuilder /admin paths"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "iowahousedems.com pre-launch splash confirmed. iowahouserepublicans.com NationBuilder confirmed (footer credit Ian Patrick Hines). 26 pages of news visible with Jan-Feb 2026 dates."
+      }
+    },
+    {
+      "state": "KS",
+      "chamber": "senate",
+      "official_chamber_url": "https://www.kslegislature.gov/li/b2025_26/chamber/senate/",
+      "press_listing_url": null,
+      "roster_url": "https://www.kslegislature.gov/li/b2025_26/members/",
+      "member_press_url_pattern": "https://www.kslegislature.gov/li/b2025_26/members/sen_{lastname}_{firstname}_1/",
+      "sample_member_press_urls": [
+        "https://www.kslegislature.gov/li/b2025_26/members/sen_alley_larry_1/"
+      ],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "static_html (custom)",
+      "requires_js": false,
+      "pagination": "n/a",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "n/a",
+      "attribution_strategy": "no_press_infrastructure",
+      "scraping_strategy": "Official site is bills/legislation only — no press releases. Senate caucus URLs (kssenate.org, kshousegop.com) BOTH ECONNREFUSED. kshousedems.com 301-redirected to anxietyheart.shop (DOMAIN HIJACKED — do not crawl). KS has no usable per-senator press infrastructure at the state level.",
+      "classification": "do_not_claim_member_coverage",
+      "confidence": 0.85,
+      "weird_risks": [
+        "kshousedems.com domain HIJACKED redirecting to spam (anxietyheart.shop) — flag for never-fetch list",
+        "kssenate.org refused connection",
+        "No caucus press sites exist for either party in usable form",
+        "Per-senator press would have to come from external sources (state party orgs, individual campaign sites)"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Member roster URL pattern confirmed via kslegislature.gov. Profile pages contain bio + committee assignments only — no press releases. Caucus sites all dead or hijacked."
+      }
+    },
+    {
+      "state": "KS",
+      "chamber": "house",
+      "official_chamber_url": "https://www.kslegislature.gov/li/b2025_26/chamber/house_of_representatives/",
+      "press_listing_url": null,
+      "roster_url": "https://www.kslegislature.gov/li/b2025_26/members/",
+      "member_press_url_pattern": "https://www.kslegislature.gov/li/b2025_26/members/rep_{lastname}_{firstname}_1/",
+      "sample_member_press_urls": [
+        "https://www.kslegislature.gov/li/b2025_26/members/rep_alcala_john_1/"
+      ],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "static_html (custom)",
+      "requires_js": false,
+      "pagination": "n/a",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "n/a",
+      "attribution_strategy": "no_press_infrastructure",
+      "scraping_strategy": "Same as KS senate — no chamber or caucus press infrastructure. kshousedems.com hijacked. kshousegop.com refused. Official member pages have NO press section.",
+      "classification": "do_not_claim_member_coverage",
+      "confidence": 0.85,
+      "weird_risks": [
+        "Same domain-hijack risk as KS senate (kshousedems.com → anxietyheart.shop)",
+        "No usable press source — state may require external scraping (KSNT/KCUR press releases, etc.) which is out of scope"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Confirmed identical structure to KS senate — official member pages have no news/press tabs."
+      }
+    },
+    {
+      "state": "MI",
+      "chamber": "senate",
+      "official_chamber_url": "https://senate.michigan.gov/",
+      "press_listing_url": "https://senatedems.com/news/",
+      "roster_url": "https://senate.michigan.gov/SenatorInfo/find-a-senator.htm",
+      "member_press_url_pattern": "https://senatedems.com/blog/{YYYY}/{MM}/{DD}/{slug}/ | https://www.misenategop.com/{slug}/",
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://senatedems.com/blog/2026/04/30/senate-democrats-pass-education-budget-proposal-investing-in-michigans-future/",
+        "https://senatedems.com/blog/2026/04/29/sen-hertel-champions-152-million-selfridge-investment-in-senate-budget-proposal/",
+        "https://www.misenategop.com/sen-albert-senate-democrats-state-budget-plan-is-unsustainable-and-unacceptable/"
+      ],
+      "detail_url_pattern": "WP: /blog/YYYY/MM/DD/slug/ (D) and /slug/ (R)",
+      "cms_family": "wordpress",
+      "requires_js": false,
+      "pagination": "WP default + /feed/?paged=N",
+      "feed_rss": "https://senatedems.com/feed/ (D); https://misenategop.com/feed/ (R)",
+      "feed_atom": null,
+      "feed_wp_json": "https://senatedems.com/wp-json/wp/v2/posts (presumed); https://misenategop.com/wp-json/wp/v2/posts (presumed)",
+      "content_shapes": ["html", "image"],
+      "post_frequency_estimate": "high (multiple per day during session, both caucuses)",
+      "attribution_strategy": "caucus_aggregate (slug prefix with sen-{lastname} extractable in many cases)",
+      "scraping_strategy": "Two parallel WP RSS sources; existing rss_collector pattern. Both /feed/ confirmed live Apr 30 2026 with current items. For per-member coverage, parse slugs (R) or /author/ taxonomy (D, if exposed). Strong source — second only to OH in this region.",
+      "classification": "caucus_source",
+      "confidence": 0.9,
+      "weird_risks": [
+        "Per-member attribution requires slug heuristics or WP author API — confirm /wp-json/wp/v2/users",
+        "Official senate.michigan.gov has NO press feed of its own — caucus sites are the canonical record",
+        "Slug formats differ slightly (D uses /blog/YYYY/, R uses bare slug)"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Both caucus RSS feeds confirmed live. Sample release URLs verified live. Official senate.michigan.gov is bills/info only."
+      }
+    },
+    {
+      "state": "MI",
+      "chamber": "house",
+      "official_chamber_url": "https://www.house.mi.gov/",
+      "press_listing_url": "https://housedems.com/",
+      "roster_url": "https://gophouse.org/members",
+      "member_press_url_pattern": "housedems.com: https://housedems.com/{slug}/ ; gophouse.org: https://gophouse.org/member/{username}/posts",
+      "sample_member_press_urls": [
+        "https://gophouse.org/member/repgregalexander/posts",
+        "https://gophouse.org/member/RepJosephAragona/posts",
+        "https://gophouse.org/member/repmatthall/posts"
+      ],
+      "sample_release_urls": [
+        "https://housedems.com/hope-reintroduces-worker-protection-legislation-to-promote-fair-scheduling-strengthen-temporary-worker-rights/",
+        "https://housedems.com/dievendorf-legislation-limiting-chemical-weapons/",
+        "https://housedems.com/rep-rogers-supreme-court-guts-core-protections-of-the-voting-rights-act/"
+      ],
+      "detail_url_pattern": "housedems: /{slug}/ ; gophouse: /member/{username}/posts/{post_id}",
+      "cms_family": "wordpress (housedems.com); nextjs (gophouse.org)",
+      "requires_js": "false (housedems); true_or_unknown (gophouse — Next.js client-side rendering possible)",
+      "pagination": "housedems: WP default; gophouse: /member/{slug}/posts paginated via Next.js",
+      "feed_rss": "https://housedems.com/feed/",
+      "feed_atom": null,
+      "feed_wp_json": "https://housedems.com/wp-json/wp/v2/posts (presumed)",
+      "content_shapes": ["html", "image"],
+      "post_frequency_estimate": "high during session",
+      "attribution_strategy": "deterministic_caucus_per_member (D via slug+category; R via /member/{username}/posts URL)",
+      "scraping_strategy": "Dems: existing rss_collector. RSS confirmed live Apr 30. GOP: gophouse.org is Next.js — /feed/ returns 404, /posts returns 404. Member directory at /members confirms /member/{username}/posts pattern — likely SSR'd HTML scrape, but may need Playwright if Next.js SSG misses. Test render-probe before claiming.",
+      "classification": "caucus_source",
+      "confidence": 0.75,
+      "weird_risks": [
+        "GOP house caucus on Next.js with NO RSS — needs render probe to determine if pages are SSR or CSR",
+        "GOP per-member URL slugs are inconsistent case (RepJosephAragona vs repmattmaddock)",
+        "House GOP previously called itself MIHR (Michigan House Republicans) — verify no legacy archive elsewhere"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "housedems.com /feed/ confirmed working WordPress. gophouse.org /members confirmed live with member URL pattern. gophouse.org/news 404, /feed/ 404, /posts/feed 404, /api/posts 404 — no machine-readable feed found."
+      }
+    },
+    {
+      "state": "MN",
+      "chamber": "senate",
+      "official_chamber_url": "https://www.senate.mn/",
+      "press_listing_url": "https://www.senate.mn/departments/?ls=&dept_id=39",
+      "roster_url": "https://www.senate.mn/members",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "custom (drupal-likely)",
+      "requires_js": "unknown",
+      "pagination": "unknown",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "unknown",
+      "attribution_strategy": "caucus_source_likely",
+      "scraping_strategy": "Official senate.mn Media Services dept page returned 403. Caucus sites tested: mnsenatedfl.com (ECONNREFUSED), mnsrc.org (301 → senatevictoryfund.com — campaign committee, not caucus). MN Senate currently HAS NO scrape-friendly press infrastructure visible. Needs deeper recon — likely DFL press lives at MN Senate DFL Caucus media services on senate.mn proper, but the dept_id=39 page is access-restricted.",
+      "classification": "needs_profile",
+      "confidence": 0.3,
+      "weird_risks": [
+        "Official MN Senate site returned 403 on the media services subpage — anti-bot WAF likely",
+        "DFL caucus site (mnsenatedfl.com) refused connections — verify URL or note as down",
+        "Senate GOP redirected to campaign committee — no press presence",
+        "MN historically has STRONG caucus comms but they're behind WAFs / not at obvious URLs"
+      ],
+      "evidence": {
+        "http_status": 403,
+        "checked_at": "2026-05-01",
+        "notes": "Direct senate.mn/departments/?dept_id=39 returned 403. Roster page returned minimal content. mnsenatedfl.com ECONNREFUSED. Needs render-probe + Wayback investigation."
+      }
+    },
+    {
+      "state": "MN",
+      "chamber": "house",
+      "official_chamber_url": "https://www.house.mn.gov/",
+      "press_listing_url": "https://www.house.mn.gov/sessiondaily/",
+      "roster_url": "https://www.house.mn.gov/members/Roster.asp?body=House",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [
+        "https://www.house.mn.gov/SessionDaily/Story/19138",
+        "https://www.house.mn.gov/SessionDaily/Story/19139"
+      ],
+      "detail_url_pattern": "https://www.house.mn.gov/SessionDaily/Story/{numeric_id}",
+      "cms_family": "custom_aspx",
+      "requires_js": false,
+      "pagination": "/SessionDaily/Archive/",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "high during session (daily journalist reporting, NOT member press)",
+      "attribution_strategy": "third_party_journalism (NOT member press — Session Daily is staff-written legislative reporting with bylines)",
+      "scraping_strategy": "Session Daily is journalist coverage written by House staff (Tim Walker, Lisa Kaczke, Margaret Stevens, etc.) — out of scope for THIS pipeline (we collect original member content only, per CLAUDE.md scope: 'Skip curated third-party clippings'). Caucus sites mnhousedems.org and mnhousegop.com both ECONNREFUSED. Per-member press infrastructure absent at chamber level.",
+      "classification": "do_not_claim_member_coverage",
+      "confidence": 0.5,
+      "weird_risks": [
+        "Session Daily is JOURNALISM not press releases — collecting it would violate content scope rules",
+        "mnhousedems.org and mnhousegop.com both refused connections — caucus press blackout",
+        "Roster page returns full member list with email pattern rep.firstname.lastname@house.mn.gov — useful for press email collection (separate JTBD)",
+        "Real member press in MN historically routes through individual member newsletters / personal sites"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Session Daily confirmed as journalism (bylines, reported features). Caucus sites inaccessible. 134 members confirmed via roster page."
+      }
+    },
+    {
+      "state": "MO",
+      "chamber": "senate",
+      "official_chamber_url": "https://www.senate.mo.gov/",
+      "press_listing_url": "https://senate.mo.gov/Newsroom/",
+      "roster_url": "https://www.senate.mo.gov/senators/",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "asp.net (default ASP welcome content seen on /media/)",
+      "requires_js": false,
+      "pagination": "unknown",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "unknown",
+      "attribution_strategy": "needs_profile",
+      "scraping_strategy": "Newsroom landing page confirmed exists (senate.mo.gov/Newsroom/) but exposes only a portal text linking to a Blogger blog (missourisenate.blogspot.com — returned 404 today). All other expected URLs (PressReleases.aspx, communications, /senators/, /senate-members/, mem01.htm, mem01/index.htm, blog) returned 404. Site is live but URL structure is opaque — needs browser session to navigate.",
+      "classification": "needs_profile",
+      "confidence": 0.25,
+      "weird_risks": [
+        "ASP.NET site that may require session/cookies to navigate — saw default ASP welcome content on /media/ subpath",
+        "Blogspot blog referenced but currently 404 — may have moved",
+        "No caucus sites found (mosenategop.com etc. not tested but unlikely to exist)",
+        "Per-senator press URL pattern UNKNOWN — needs render-probe"
+      ],
+      "evidence": {
+        "http_status": "varies (mostly 404 on guessed URLs)",
+        "checked_at": "2026-05-01",
+        "notes": "/Newsroom/ landing confirmed via crawl. /senators/ returned full senator listing. Per-senator URLs not derivable from listing. Newsroom portal references print/audio/video/photos/blog but no visible URL pattern for releases."
+      }
+    },
+    {
+      "state": "MO",
+      "chamber": "house",
+      "official_chamber_url": "https://www.house.mo.gov/",
+      "press_listing_url": null,
+      "roster_url": null,
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "asp.net (404s on every guess)",
+      "requires_js": "unknown",
+      "pagination": null,
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "unknown",
+      "attribution_strategy": "no_press_infrastructure_found",
+      "scraping_strategy": "house.mo.gov ROOT and Default.aspx and every common path (MemberRoster.aspx, PressRoom.aspx, News.aspx, news.aspx) returned 404 from WebFetch — likely WAF or required ASP session cookies. mohousedems.com is the Action Fund (campaign committee) NOT caucus. mohousegop.com ECONNREFUSED. MO House has NO accessible press infrastructure right now.",
+      "classification": "do_not_claim_member_coverage",
+      "confidence": 0.2,
+      "weird_risks": [
+        "house.mo.gov ENTIRE site appears to require session cookies or browser handshake — every URL guess 404'd",
+        "mohousedems.com is a fundraising/campaign committee site, NOT press",
+        "GOP caucus URL doesn't resolve",
+        "Likely needs Playwright recon to even list press URLs"
+      ],
+      "evidence": {
+        "http_status": 404,
+        "checked_at": "2026-05-01",
+        "notes": "Could not get past 404 on house.mo.gov via WebFetch; recommend Playwright for any future MO House recon."
+      }
+    },
+    {
+      "state": "NE",
+      "chamber": "unicameral",
+      "official_chamber_url": "https://nebraskalegislature.gov/",
+      "press_listing_url": "http://update.legislature.ne.gov/",
+      "roster_url": "https://nebraskalegislature.gov/senators/senator_list.php",
+      "member_press_url_pattern": "https://nebraskalegislature.gov/senators/landing-pages/index.php?District={N}",
+      "sample_member_press_urls": [
+        "https://nebraskalegislature.gov/senators/landing-pages/index.php?District=1",
+        "https://nebraskalegislature.gov/senators/landing-pages/index.php?District=2",
+        "https://nebraskalegislature.gov/senators/landing-pages/index.php?District=3"
+      ],
+      "sample_release_urls": [],
+      "detail_url_pattern": "Unicameral Update articles (URL not yet probed)",
+      "cms_family": "custom_php",
+      "requires_js": false,
+      "pagination": "monthly archive on update.legislature.ne.gov; PHP listings on senators",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "moderate (Unicameral Update is weekly during session)",
+      "attribution_strategy": "mixed (Update is staff-journalism, individual senator landing pages claim to host news releases but the District=1 sample showed NONE present)",
+      "scraping_strategy": "TWO sources: (1) Unicameral Update (update.legislature.ne.gov) is staff-written legislative news — borderline scope, similar to MN Session Daily — recommend EXCLUDE. (2) Per-senator landing pages at /senators/landing-pages/?District={N} CLAIM to include news releases per the directory page text but District=1 sample (Hallstrom) showed only contact + committees + bio + bills with no news section. Actual per-senator press output appears very low. Unicameral nature (49 nonpartisan senators) means no caucus alternative.",
+      "classification": "needs_profile",
+      "confidence": 0.4,
+      "weird_risks": [
+        "Unicameral, nonpartisan — NO caucus press structure exists by design",
+        "Stated infrastructure (per-senator news releases) does not match observed reality (District=1 had none)",
+        "Update.legislature.ne.gov is staff journalism, not member press — out of scope",
+        "May need to spot-check 5-10 districts to find which senators (if any) actually publish releases on the legislature.gov landing pages"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Roster URL confirms 49 senators with /landing-pages/?District= pattern. Sample District=1 page contained no news releases despite directory description. Unicameral Update site is journalism."
+      }
+    },
+    {
+      "state": "ND",
+      "chamber": "senate",
+      "official_chamber_url": "https://ndlegis.gov/",
+      "press_listing_url": null,
+      "roster_url": "https://ndlegis.gov/biographies/",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "custom",
+      "requires_js": "unknown",
+      "pagination": null,
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "low",
+      "attribution_strategy": "no_press_infrastructure_found",
+      "scraping_strategy": "ndlegis.gov is bills/legislation/biographies only — biographies page lists 165 senators historical alongside current, with photos but no news section. No caucus press sites surfaced for ND. State is part-time biennial legislature — 69th Legislative Assembly only meets briefly. Press output is genuinely minimal.",
+      "classification": "do_not_claim_member_coverage",
+      "confidence": 0.7,
+      "weird_risks": [
+        "ND legislature meets ~80 days every 2 years — extremely low press cadence by design",
+        "No party-caucus press sites surfaced in normal naming conventions",
+        "Biographies page mixes historical + current — needs filter on session=69 to extract current members",
+        "ndlegis.gov sometimes returns cert verification errors — may need cert override"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Confirmed legis.nd.gov 301-redirects to ndlegis.gov. Biographies page found but no /news, /press, or RSS endpoints discovered."
+      }
+    },
+    {
+      "state": "ND",
+      "chamber": "house",
+      "official_chamber_url": "https://ndlegis.gov/",
+      "press_listing_url": null,
+      "roster_url": "https://ndlegis.gov/biographies/",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "custom",
+      "requires_js": "unknown",
+      "pagination": null,
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "low",
+      "attribution_strategy": "no_press_infrastructure_found",
+      "scraping_strategy": "Same ndlegis.gov host. Biographies page filtered by chamber=House shows 331 historical + current. Same constraints as ND Senate: part-time biennial body, no chamber-level press infrastructure.",
+      "classification": "do_not_claim_member_coverage",
+      "confidence": 0.7,
+      "weird_risks": [
+        "Same risks as ND senate; House has 331 historical biographies — needs current-session filter",
+        "Press cadence genuinely near-zero outside session weeks"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Same as ND Senate row — single ndlegis.gov host serves both chambers."
+      }
+    },
+    {
+      "state": "OH",
+      "chamber": "senate",
+      "official_chamber_url": "https://ohiosenate.gov/",
+      "press_listing_url": "https://ohiosenate.gov/members/{slug}/news",
+      "roster_url": "https://ohiosenate.gov/members",
+      "member_press_url_pattern": "https://ohiosenate.gov/members/{firstname}-{lastname}/news",
+      "sample_member_press_urls": [
+        "https://ohiosenate.gov/members/rob-mccolley/news"
+      ],
+      "sample_release_urls": [
+        "https://ohiosenate.gov/members/rob-mccolley/news/senate-president-rob-mccolley-statement-following-completion-of-veto-override-on-critical-property-tax-reform",
+        "https://ohiosenate.gov/members/rob-mccolley/news/senate-approves-final-budget-reducing-tax-burden-by-1-billion-with-flat-tax-and-substantial-property-tax-relief"
+      ],
+      "detail_url_pattern": "https://ohiosenate.gov/members/{slug}/news/{slug}",
+      "cms_family": "custom_drupal_or_aspnet (Ohio Statehouse common platform)",
+      "requires_js": false,
+      "pagination": "Sort: New to Old / Old to New / Title; per-page count selectable up to 500",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html", "image"],
+      "post_frequency_estimate": "high (McColley page shows 142 items)",
+      "attribution_strategy": "deterministic_official_per_member",
+      "scraping_strategy": "BEST IN REGION. httpx + BS4 against /members/{slug}/news for all 33 senators. URL pattern confirmed. Listings paginate with selectable page-size up to 500 (so most members are 1-page fetch). Ohio = ready_first_wave.",
+      "classification": "ready_first_wave",
+      "confidence": 0.95,
+      "weird_risks": [
+        "Per-senator slug derivation needs roster slug list (not just name lowercase — handles middle initials inconsistently)",
+        "Need to confirm at scale that all 33 senators have /news subpages (likely yes — uniform Ohio Statehouse platform)",
+        "No RSS feed visible — may exist; recon /rss.xml not yet probed"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Member roster confirms all 33 senators with /members/{slug} pattern. Sample news subpage confirmed live with 142 items + sort/page controls."
+      }
+    },
+    {
+      "state": "OH",
+      "chamber": "house",
+      "official_chamber_url": "https://ohiohouse.gov/",
+      "press_listing_url": "https://ohiohouse.gov/members/{slug}/news",
+      "roster_url": "https://ohiohouse.gov/members",
+      "member_press_url_pattern": "https://ohiohouse.gov/members/{firstname}-{middle?}-{lastname}/news",
+      "sample_member_press_urls": [
+        "https://ohiohouse.gov/members/dontavius-l-jarrells/news"
+      ],
+      "sample_release_urls": [
+        "https://ohiohouse.gov/members/dontavius-l-jarrells/news/reps-jarrells-bipartisan-legislation-on-foster-students-success-passes-house-floor-142445",
+        "https://ohiohouse.gov/members/dontavius-l-jarrells/news/rep-jarrells-announces-nearly-1m-in-state-funding-to-columbus-state-142281",
+        "https://ohiohouse.gov/members/dontavius-l-jarrells/news/rep-jarrells-introduces-legislation-commemorating-dr-martin-luther-king-jr-on-his-birthday-141523"
+      ],
+      "detail_url_pattern": "https://ohiohouse.gov/members/{slug}/news/{title-slug}-{numeric_id}",
+      "cms_family": "custom_drupal_or_aspnet (same Ohio Statehouse platform as Senate)",
+      "requires_js": false,
+      "pagination": "10/25/50/100/500 per page; sortable; 22 pages × 10 items = 217 confirmed for Jarrells",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html", "image"],
+      "post_frequency_estimate": "high (per-member)",
+      "attribution_strategy": "deterministic_official_per_member",
+      "scraping_strategy": "Identical platform to OH Senate. Iterate /members/{slug}/news for all 99 representatives; aggregate caucus-level pages /news/republican (256 pages) and /news/democratic (206 pages) provide cross-validation. Detail URLs end with numeric ID — supports stable dedup/upsert. Ohio is gold-standard for this region.",
+      "classification": "ready_first_wave",
+      "confidence": 0.95,
+      "weird_risks": [
+        "Some members have middle-initial in slug (dontavius-l-jarrells) — slug roster must capture that",
+        "Aggregate caucus pages /news/republican and /news/democratic exist with their own pagination — useful as discovery cross-check",
+        "Numeric trailing ID (e.g. -142445) is global across all members — could enable ID-based crawl if range is known"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Both per-member and aggregate caucus listings confirmed live. /news/republican shows 256 pages; /news/democratic shows 206 pages."
+      }
+    },
+    {
+      "state": "SD",
+      "chamber": "senate",
+      "official_chamber_url": "https://www.sdlegislature.gov/",
+      "press_listing_url": null,
+      "roster_url": "https://sdlegislature.gov/Legislators",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "spa (angular/react — JS-only render)",
+      "requires_js": true,
+      "pagination": "n/a (SPA)",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "unknown",
+      "attribution_strategy": "needs_profile",
+      "scraping_strategy": "sdlegislature.gov returned 'Your browser is not supported' shell on every URL probed (root, /Legislators, /Legislators/Profile, /api/Legislators/Active, /api/PressReleases). This is an Angular/React SPA that requires JS execution — Playwright mandatory. Their internal JSON API exists (the SPA fetches from /api/...) but no documented endpoint and probed candidates 404'd or returned the SPA shell. Caucus sites (sdsenategop.com, sdgop.com) are state-party not legislative-press. Real per-senator press in SD likely lives on individual member contact pages.",
+      "classification": "needs_profile",
+      "confidence": 0.2,
+      "weird_risks": [
+        "JS-only SPA — every recon attempt without Playwright will fail",
+        "Internal API endpoints not documented; need DevTools network capture to find them",
+        "SD legislature is part-time (40 days/year) — press cadence inherently low",
+        "sdgop.com is state party, not caucus communications",
+        "sdsenategop.com refused connection"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "SPA shell ('Your browser is not supported') confirmed across 4 URL probes. Needs render-probe via Playwright + network inspection."
+      }
+    },
+    {
+      "state": "SD",
+      "chamber": "house",
+      "official_chamber_url": "https://www.sdlegislature.gov/",
+      "press_listing_url": null,
+      "roster_url": "https://sdlegislature.gov/Legislators",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "spa (angular/react)",
+      "requires_js": true,
+      "pagination": "n/a",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "unknown",
+      "attribution_strategy": "needs_profile",
+      "scraping_strategy": "Same SPA host as SD Senate. Same constraints. Use single Playwright recon to enumerate both chambers from the unified Legislators table.",
+      "classification": "needs_profile",
+      "confidence": 0.2,
+      "weird_risks": [
+        "Same SPA constraint as SD Senate",
+        "Both chambers share single SPA — one Playwright session covers both"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Identical infrastructure to SD Senate."
+      }
+    },
+    {
+      "state": "WI",
+      "chamber": "senate",
+      "official_chamber_url": "https://legis.wisconsin.gov/senate/",
+      "press_listing_url": null,
+      "roster_url": "https://docs.legis.wisconsin.gov/2025/legislators/senate",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "static (legis docs)",
+      "requires_js": false,
+      "pagination": "n/a",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "n/a (no chamber-level press)",
+      "attribution_strategy": "no_chamber_press_infrastructure",
+      "scraping_strategy": "WI legislature is unique in this region: NO chamber-level press infrastructure. legis.wisconsin.gov serves bills/votes/statutes only. Each member maintains a contact-info-only landing page on legis.wisconsin.gov. The WI Senate Republican Caucus / Democratic Caucus sites do exist as separate domains but were not surfaced via standard naming conventions in this recon pass — needs followup. wisgop.org is state party not caucus. Real WI press releases historically route through individual member personal/campaign sites OR through state-party sites — out of THIS pipeline's scope.",
+      "classification": "do_not_claim_member_coverage",
+      "confidence": 0.65,
+      "weird_risks": [
+        "WI is the only midwest state where I could not identify a usable senate caucus press URL — needs follow-up recon (try senatedems.wi.gov, wisenategop.com, etc.)",
+        "Per-member legis.wisconsin.gov landing pages have NO news/press section",
+        "Press output may genuinely route through individual member newsletters distributed via email"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Roster confirmed at docs.legis.wisconsin.gov/2025/legislators/senate. Per-member profile URL probed (.../senate/2058) returned 404 — slug pattern unknown. wisgop.org confirmed state-party not caucus."
+      }
+    },
+    {
+      "state": "WI",
+      "chamber": "assembly",
+      "official_chamber_url": "https://legis.wisconsin.gov/assembly/",
+      "press_listing_url": null,
+      "roster_url": "https://docs.legis.wisconsin.gov/2025/legislators/assembly",
+      "member_press_url_pattern": null,
+      "sample_member_press_urls": [],
+      "sample_release_urls": [],
+      "detail_url_pattern": null,
+      "cms_family": "static (legis docs)",
+      "requires_js": false,
+      "pagination": "n/a",
+      "feed_rss": null,
+      "feed_atom": null,
+      "feed_wp_json": null,
+      "content_shapes": ["html"],
+      "post_frequency_estimate": "n/a",
+      "attribution_strategy": "no_chamber_press_infrastructure",
+      "scraping_strategy": "Same as WI Senate. Roster of 99 representatives confirmed. No chamber-level press. Assembly Republican / Democratic caucus sites not surfaced via standard naming — needs follow-up.",
+      "classification": "do_not_claim_member_coverage",
+      "confidence": 0.6,
+      "weird_risks": [
+        "Same as WI Senate — caucus press URLs not located in this pass",
+        "99 members in lower chamber — coverage gap is large in absolute terms"
+      ],
+      "evidence": {
+        "http_status": 200,
+        "checked_at": "2026-05-01",
+        "notes": "Roster confirmed; no press infrastructure found at chamber level."
+      }
+    }
+  ]
+}

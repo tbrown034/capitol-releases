@@ -1,0 +1,169 @@
+{
+  "category": "first_wave_curated",
+  "checked_at": "2026-05-01",
+  "live_corroborated_at": "2026-05-01T01:30:00-04:00",
+  "note": "All 9 entries corroborated live with HTTP 200 + content from 2026-04-30 (one day pre-recon). Re-verify weekly.",
+  "sources": [
+    {
+      "rank": 1,
+      "source_id": "ca-governor",
+      "state": "CA",
+      "office": "governor",
+      "listing_url": "https://www.gov.ca.gov/newsroom/",
+      "api_endpoint": "https://www.gov.ca.gov/wp-json/wp/v2/posts",
+      "scraping_strategy": "wp_json",
+      "cms_family": "wordpress",
+      "live_status": 200,
+      "live_sample_date": "2026-04-30",
+      "confidence": 0.95
+    },
+    {
+      "rank": 2,
+      "source_id": "ca-ag",
+      "state": "CA",
+      "office": "ag",
+      "listing_url": "https://oag.ca.gov/news",
+      "rss": "https://oag.ca.gov/news/feed",
+      "detail_url_pattern": "https://oag.ca.gov/news/press-releases/{slug}",
+      "selectors": {
+        "list_item": ".views-row",
+        "title": ".views-row .views-field-title a",
+        "date": ".views-row .views-field-created time"
+      },
+      "scraping_strategy": "rss",
+      "cms_family": "drupal",
+      "live_status": 200,
+      "confidence": 0.95
+    },
+    {
+      "rank": 3,
+      "source_id": "ca-senate",
+      "state": "CA",
+      "office": "senate",
+      "roster_url": "https://www.senate.ca.gov/senators",
+      "member_press_url_pattern": "https://sd{NN}.senate.ca.gov/press-releases",
+      "selectors": {
+        "list_item": ".view-content.row .views-row (with stride-grouping fallback for unwrapped variant)",
+        "title": ".views-field-title a",
+        "date": ".views-field-field-pubdate time[datetime]"
+      },
+      "pagination": "?page=N",
+      "scraping_strategy": "httpx_html",
+      "cms_family": "ca_senate_drupal_custom",
+      "expected_member_count": 40,
+      "confidence": 0.85,
+      "weird_risks": "Two DOM modes: wrapped .views-row vs unwrapped sibling-stride. Capture both."
+    },
+    {
+      "rank": 4,
+      "source_id": "wa-governor",
+      "state": "WA",
+      "office": "governor",
+      "listing_url": "https://www.governor.wa.gov/news/news-releases",
+      "rss": "https://www.governor.wa.gov/rss/news.xml",
+      "scraping_strategy": "rss",
+      "cms_family": "sharepoint_govt",
+      "live_status": 200,
+      "confidence": 0.95
+    },
+    {
+      "rank": 5,
+      "source_id": "wa-ag",
+      "state": "WA",
+      "office": "ag",
+      "listing_url": "https://www.atg.wa.gov/news/news-releases",
+      "rss": "https://www.atg.wa.gov/news/news-releases-rss",
+      "scraping_strategy": "rss",
+      "cms_family": "drupal",
+      "live_status": 200,
+      "confidence": 0.90
+    },
+    {
+      "rank": 6,
+      "source_id": "wa-senate-democrats",
+      "state": "WA",
+      "office": "senate_D_caucus",
+      "party": "D",
+      "listing_url": "https://senatedemocrats.wa.gov/news/",
+      "api_endpoint": "https://senatedemocrats.wa.gov/wp-json/wp/v2/posts",
+      "rss": "https://senatedemocrats.wa.gov/feed/",
+      "member_press_url_pattern": "https://senatedemocrats.wa.gov/{senator-slug}/news/",
+      "detail_url_pattern": "/blog/{YYYY}/{MM}/{DD}/{slug}/",
+      "scraping_strategy": "wp_json",
+      "cms_family": "wordpress",
+      "attribution": "wp_json author field maps to senator slug",
+      "expected_member_count": 24,
+      "live_status": 200,
+      "live_sample_date": "2026-04-15",
+      "confidence": 0.95
+    },
+    {
+      "rank": 7,
+      "source_id": "tx-governor",
+      "state": "TX",
+      "office": "governor",
+      "listing_url": "https://gov.texas.gov/news",
+      "rss": "https://gov.texas.gov/news/rss",
+      "scraping_strategy": "rss",
+      "cms_family": "drupal_govt",
+      "live_status": 200,
+      "confidence": 0.95
+    },
+    {
+      "rank": 8,
+      "source_id": "nc-ag",
+      "state": "NC",
+      "office": "ag",
+      "listing_url": "https://ncdoj.gov/newsroom/",
+      "api_endpoint": "https://ncdoj.gov/wp-json/wp/v2/posts",
+      "scraping_strategy": "wp_json",
+      "cms_family": "wordpress",
+      "live_status": 200,
+      "live_sample_date": "2026-04-30",
+      "confidence": 0.98,
+      "notes": "Theme name still references former AG Stein (now Gov); current AG is Jeff Jackson"
+    },
+    {
+      "rank": 9,
+      "source_id": "oh-senate",
+      "state": "OH",
+      "office": "senate",
+      "roster_url": "https://ohiosenate.gov/members",
+      "member_press_url_pattern": "https://ohiosenate.gov/members/{slug}/news",
+      "pagination": "?per_page=500 supported",
+      "detail_url_pattern": "/news/press-releases/{slug}-{numeric_id}",
+      "scraping_strategy": "httpx_listing_walk",
+      "cms_family": "ohio_statehouse_custom",
+      "expected_member_count": 33,
+      "live_status": 200,
+      "confidence": 0.95
+    },
+    {
+      "rank": 10,
+      "source_id": "oh-house",
+      "state": "OH",
+      "office": "house",
+      "roster_url": "https://ohiohouse.gov/members",
+      "member_press_url_pattern": "https://ohiohouse.gov/members/{slug}/news",
+      "cross_validation_paths": [
+        "https://ohiohouse.gov/news/republican",
+        "https://ohiohouse.gov/news/democratic"
+      ],
+      "scraping_strategy": "httpx_listing_walk",
+      "cms_family": "ohio_statehouse_custom",
+      "expected_member_count": 99,
+      "live_status": 200,
+      "confidence": 0.95,
+      "notes": "Identical platform to OH Senate; reuse code path"
+    }
+  ],
+  "coverage_summary": {
+    "governors": 3,
+    "ags": 3,
+    "state_senators": 97,
+    "state_representatives": 99,
+    "caucus_sources": 1,
+    "distinct_member_principals": 199,
+    "states_touched": ["CA", "WA", "TX", "NC", "OH"]
+  }
+}

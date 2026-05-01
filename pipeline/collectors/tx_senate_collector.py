@@ -23,7 +23,7 @@ from bs4 import BeautifulSoup
 
 from pipeline.collectors.base import CollectorResult, ReleaseRecord, HealthCheckResult
 from pipeline.lib.http import create_client, fetch_with_retry
-from pipeline.lib.identity import normalize_url, content_hash
+from pipeline.lib.identity import normalize_url
 
 log = logging.getLogger("capitol.collector.tx_senate")
 
@@ -69,12 +69,15 @@ class TxSenateCollector:
             soup = BeautifulSoup(resp.text, "lxml")
             items = _extract_items(soup, pr_url)
 
-            if not items and not senator.get("scrape_config", {}).get("expect_empty"):
+            if not items and not _expect_empty(senator):
                 result.errors.append("No items found")
                 return result
 
             for item in items:
-                if since and item["published_at"] and item["published_at"] < since:
+                # Texas listings expose dates, not times. Compare on day
+                # boundaries so a release posted later today is not skipped
+                # just because its parsed timestamp is midnight UTC.
+                if since and item["published_at"] and item["published_at"].date() < since.date():
                     continue
                 rec = ReleaseRecord(
                     senator_id=sid,
@@ -86,7 +89,10 @@ class TxSenateCollector:
                     content_type=item["content_type"],
                     date_source="listing_text",
                     date_confidence=1.0 if item["published_at"] else 0.0,
-                    content_hash=content_hash(f"{item['title']}|{item['source_url']}"),
+                    # Body extraction is a later enrichment step. Leave this
+                    # empty so the updater does not compare a listing hash
+                    # against a body hash and blank an extracted body.
+                    content_hash="",
                 )
                 result.releases.append(rec)
 
@@ -122,7 +128,8 @@ class TxSenateCollector:
         soup = BeautifulSoup(resp.text, "lxml")
         items = _extract_items(soup, pr_url)
         result.items_found = len(items)
-        result.selector_ok = bool(items) or bool(senator.get("scrape_config", {}).get("expect_empty"))
+        result.allow_empty = _expect_empty(senator)
+        result.selector_ok = bool(items) or result.allow_empty
         result.date_parseable = any(it["published_at"] for it in items)
         return result
 
@@ -192,6 +199,12 @@ def _extract_items(soup: BeautifulSoup, base_url: str) -> list[dict]:
         content_type = "other" if is_video else "press_release"
         if is_video and not title.upper().startswith("VIDEO"):
             title = f"VIDEO: {title}"
+        if is_video and published_at:
+            # Texas occasionally reuses the same videoplayer.php URL for
+            # multiple dated pressroom rows. source_url is the natural DB key,
+            # so include listing_date for video rows to preserve each listing.
+            sep = "&" if "?" in full_url else "?"
+            full_url = normalize_url(f"{full_url}{sep}listing_date={published_at:%Y%m%d}")
 
         items.append({
             "title": title,
@@ -202,3 +215,11 @@ def _extract_items(soup: BeautifulSoup, base_url: str) -> list[dict]:
         })
 
     return items
+
+
+def _expect_empty(senator: dict) -> bool:
+    """Return true when a configured pressroom is expected to have no items."""
+    return bool(
+        senator.get("expect_empty")
+        or (senator.get("scrape_config") or {}).get("expect_empty")
+    )

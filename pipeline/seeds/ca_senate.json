@@ -1,0 +1,26 @@
+{
+  "_meta": {
+    "chamber": "ca_senate",
+    "level": "state",
+    "state": "CA",
+    "platform": "senate.ca.gov district Drupal sites",
+    "verified": "2026-05-01",
+    "notes": "Starter seed for the California Senate source-family collector. This is not full chamber coverage yet."
+  },
+  "members": [
+    {
+      "senator_id": "ca-sd24-allen",
+      "full_name": "Ben Allen",
+      "party": "D",
+      "state": "CA",
+      "district": 24,
+      "official_url": "https://sd24.senate.ca.gov/",
+      "press_release_url": "https://sd24.senate.ca.gov/press-releases",
+      "parser_family": "ca_senate_drupal",
+      "collection_method": "ca_senate",
+      "requires_js": false,
+      "confidence": 0.9,
+      "expect_empty": false
+    }
+  ]
+}
