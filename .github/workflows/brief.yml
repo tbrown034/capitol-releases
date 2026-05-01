@@ -1,0 +1,72 @@
+name: Daily brief
+
+# Generates the AI-synthesized daily brief at the end of the East Coast
+# business day, after the 21:00 UTC (5pm ET) collector run has captured the
+# afternoon's releases. The brief is stored as 'draft' by default so a human
+# can promote it to 'published' before it's surfaced on /brief; flip --publish
+# on once we trust the output.
+
+on:
+  schedule:
+    # 22:30 UTC = 6:30pm ET (5:30pm during DST shoulder), ~90 min after the
+    # 21:00 UTC collector. Tuesday-Saturday so we don't burn API spend on
+    # quiet weekend days; Monday's brief covers Sat-Sun rollup later.
+    - cron: "30 22 * * 2-6"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Brief date (ET, YYYY-MM-DD). Blank = today ET."
+        required: false
+      publish:
+        description: "Promote to published instead of draft"
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: pipeline-brief
+  cancel-in-progress: false
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: pipeline/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r pipeline/requirements.txt
+
+      - name: Verify recent collector run
+        # Refuse to brief if no successful daily run finished in the last 6h.
+        # A stale collector means the brief would misrepresent the day.
+        run: |
+          python -c "
+          import os, sys, psycopg2
+          from datetime import datetime, timezone, timedelta
+          conn = psycopg2.connect(os.environ['DATABASE_URL'])
+          cur = conn.cursor()
+          cur.execute(\"SELECT MAX(finished_at) FROM scrape_runs WHERE run_type='daily' AND finished_at IS NOT NULL\")
+          last = cur.fetchone()[0]
+          if not last or (datetime.now(timezone.utc) - last) > timedelta(hours=6):
+              print(f'Last collector finish: {last}. Refusing to brief.')
+              sys.exit(1)
+          print(f'Collector OK: last run {last}')
+          "
+
+      - name: Generate brief
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.date }}" ]; then ARGS="$ARGS --date ${{ inputs.date }}"; fi
+          if [ "${{ inputs.publish }}" = "true" ]; then ARGS="$ARGS --publish"; fi
+          python -m pipeline brief $ARGS
