@@ -10,6 +10,8 @@ Usage:
     python -m pipeline back-coverage             # flag senators missing 2025 back-coverage
     python -m pipeline health-report             # write docs/data_health.{md,json}
     python -m pipeline tx-truth                  # verify TX corpus against live senate.texas.gov
+    python -m pipeline brief                     # generate daily AI brief (Sonnet)
+    python -m pipeline brief --dry-run           # preview inputs without API call
     python -m pipeline stats                     # show database stats
 """
 
@@ -72,6 +74,10 @@ def main():
     elif command in ("tx-extract", "tx-bodies"):
         from pipeline.commands.tx_extract_bodies import main as tx_extract_main
         tx_extract_main()
+
+    elif command == "brief":
+        from pipeline.commands.brief import main as brief_main
+        brief_main()
 
     elif command == "stats":
         _show_stats()
