@@ -103,3 +103,34 @@ CREATE TABLE IF NOT EXISTS content_versions (
   captured_at       TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_cv_release ON content_versions(press_release_id, captured_at DESC);
+
+-- Daily AI brief (derivative product; canonical record stays in press_releases)
+CREATE TABLE IF NOT EXISTS briefs (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  brief_date          DATE NOT NULL,
+  edition             TEXT NOT NULL DEFAULT 'daily',
+  status              TEXT NOT NULL DEFAULT 'draft',
+  model_version       TEXT NOT NULL,
+  prompt_hash         TEXT NOT NULL,
+  headline            TEXT NOT NULL,
+  dek                 TEXT,
+  lede                TEXT NOT NULL,
+  sections            JSONB NOT NULL,
+  signals             JSONB,
+  silent              JSONB,
+  external_context    JSONB,
+  source_release_ids  UUID[] NOT NULL,
+  cited_release_ids   UUID[] NOT NULL,
+  input_tokens        INTEGER,
+  output_tokens       INTEGER,
+  cost_usd            NUMERIC(10,6),
+  generated_at        TIMESTAMPTZ DEFAULT NOW(),
+  published_at        TIMESTAMPTZ,
+  retracted_at        TIMESTAMPTZ,
+  retracted_reason    TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_briefs_date_edition ON briefs(brief_date DESC, edition);
+CREATE INDEX IF NOT EXISTS idx_briefs_status_date ON briefs(status, brief_date DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_briefs_published_unique
+  ON briefs(brief_date, edition)
+  WHERE status = 'published';
