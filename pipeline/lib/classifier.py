@@ -178,9 +178,15 @@ def is_external_content(url: str, title: str = "") -> bool:
 # page itself got captured as a "release". Match the path as a leaf so that
 # /press-releases/some-actual-release is preserved.
 _LISTING_PATH_RE = re.compile(
-    r"/(press-releases|news-releases|newsroom|news|media|press)(/?(\?.*)?$)",
+    r"/(press-releases|news-releases|newsroom|news|media|press)/?$",
     re.IGNORECASE,
 )
+
+# ColdFusion + similar legacy CMSes share a path with their listing
+# (e.g. /public/index.cfm/news-releases?ID=GUID is a detail page, not a
+# listing). When the path matches the listing pattern but a record-id
+# query param is present, treat it as a detail page.
+_DETAIL_QUERY_RE = re.compile(r"\b(id|record|p|article|story|item)=", re.IGNORECASE)
 
 
 def is_listing_url(url: str) -> bool:
@@ -189,7 +195,11 @@ def is_listing_url(url: str) -> bool:
         return False
     try:
         from urllib.parse import urlparse
-        path = urlparse(url).path
+        parsed = urlparse(url)
+        path = parsed.path
+        query = parsed.query
     except Exception:
-        path = url
+        return False
+    if query and _DETAIL_QUERY_RE.search(query):
+        return False
     return bool(_LISTING_PATH_RE.search(path))
