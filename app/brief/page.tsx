@@ -4,13 +4,15 @@ import {
   getLatestBrief,
   getRecentBriefs,
   getBriefCitations,
+  getThemeSparkline,
 } from "../lib/queries";
-import { BriefBody } from "../components/brief-body";
+import { BriefBody, type ThemeSeries } from "../components/brief-body";
+import { BriefSignup } from "../components/brief-signup";
 
 export const metadata = {
   title: "Daily Brief — Capitol Releases",
   description:
-    "An AI-generated daily brief summarizing every U.S. senator's official communications.",
+    "An AI-generated daily brief summarizing every U.S. senator's official communications, with every claim grounded in source records.",
 };
 
 function fmtDate(d: string): string {
@@ -24,55 +26,76 @@ function fmtDate(d: string): string {
 
 export default async function BriefIndexPage() {
   const brief = await getLatestBrief();
-  if (!brief) notFound();
+  if (!brief) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-16">
+        <h1 className="font-[family-name:var(--font-source-serif)] text-3xl text-neutral-900 mb-3">
+          The brief is on the way.
+        </h1>
+        <p className="text-neutral-700 leading-relaxed mb-6">
+          We haven&apos;t published the first daily brief yet. The pipeline
+          generates one each evening (Tuesday through Saturday), summarizing
+          that day&apos;s senate.gov releases.
+        </p>
+        <BriefSignup source="brief-empty" />
+      </div>
+    );
+  }
 
-  const [recent, citations] = await Promise.all([
+  const [recent, citations, sparklines] = await Promise.all([
     getRecentBriefs(14),
     getBriefCitations(brief.cited_release_ids ?? []),
+    Promise.all(
+      brief.sections.map<Promise<ThemeSeries>>((sec) =>
+        sec.keywords && sec.keywords.length > 0
+          ? getThemeSparkline({
+              keywords: sec.keywords,
+              endDate: brief.brief_date,
+              days: 30,
+            })
+          : Promise.resolve([])
+      )
+    ),
   ]);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
-      <div className="mb-2 flex items-center gap-2 text-xs font-[family-name:var(--font-dm-mono)] uppercase tracking-wide text-neutral-500">
-        <span>Daily brief</span>
-        <span aria-hidden>·</span>
+      <div className="mb-3 flex items-center gap-2 text-[0.7rem] font-[family-name:var(--font-dm-mono)] uppercase tracking-[0.18em] text-neutral-500">
+        <span className="text-neutral-900">Capitol Brief</span>
+        <span aria-hidden className="text-neutral-300">
+          /
+        </span>
         <span>{fmtDate(brief.brief_date)}</span>
       </div>
 
-      <h1 className="font-[family-name:var(--font-source-serif)] text-4xl leading-tight text-neutral-900 mb-4">
+      <h1 className="font-[family-name:var(--font-source-serif)] text-[2.5rem] leading-[1.15] text-neutral-900 mb-6">
         {brief.headline}
       </h1>
 
-      <div className="mb-8 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-        <strong>AI-generated.</strong> This brief is synthesized by Claude
-        Sonnet 4.6 from the day's collected releases. Every claim links to a
-        source record. The canonical archive lives at{" "}
-        <Link href="/feed" className="underline">
-          /feed
-        </Link>
-        .
-      </div>
+      <BriefBody brief={brief} citations={citations} sparklines={sparklines} />
 
-      <BriefBody brief={brief} citations={citations} />
+      <div className="mt-12">
+        <BriefSignup />
+      </div>
 
       {recent.length > 1 && (
         <section className="mt-12 border-t border-neutral-200 pt-6">
-          <h2 className="font-[family-name:var(--font-source-serif)] text-lg text-neutral-900 mb-3">
+          <h2 className="font-[family-name:var(--font-source-serif)] text-xl text-neutral-900 mb-4">
             Earlier briefs
           </h2>
-          <ul className="space-y-1 text-sm">
+          <ul className="space-y-2 text-sm">
             {recent
               .filter((r) => r.brief_date !== brief.brief_date)
               .map((r) => (
                 <li key={r.id}>
                   <Link
                     href={`/brief/${r.brief_date}`}
-                    className="text-neutral-700 hover:text-neutral-900 hover:underline"
+                    className="group flex items-baseline gap-3 text-neutral-700 hover:text-neutral-900"
                   >
-                    <span className="font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-500 mr-3">
+                    <span className="font-[family-name:var(--font-dm-mono)] tabular-nums text-xs text-neutral-500 shrink-0 w-20">
                       {r.brief_date}
                     </span>
-                    {r.headline}
+                    <span className="group-hover:underline">{r.headline}</span>
                   </Link>
                 </li>
               ))}

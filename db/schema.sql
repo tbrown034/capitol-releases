@@ -134,3 +134,19 @@ CREATE INDEX IF NOT EXISTS idx_briefs_status_date ON briefs(status, brief_date D
 CREATE UNIQUE INDEX IF NOT EXISTS idx_briefs_published_unique
   ON briefs(brief_date, edition)
   WHERE status = 'published';
+
+-- Newsletter subscribers (daily brief email distribution)
+CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email               TEXT NOT NULL UNIQUE,
+  status              TEXT NOT NULL DEFAULT 'active',
+  unsubscribe_token   UUID NOT NULL DEFAULT gen_random_uuid() UNIQUE,
+  subscribed_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  unsubscribed_at     TIMESTAMPTZ,
+  last_sent_brief_id  UUID REFERENCES briefs(id),
+  last_sent_at        TIMESTAMPTZ,
+  source              TEXT,
+  CONSTRAINT subscribers_status_check CHECK (status IN ('active', 'unsubscribed', 'bounced'))
+);
+CREATE INDEX IF NOT EXISTS idx_subscribers_status ON newsletter_subscribers(status) WHERE status = 'active';
+CREATE INDEX IF NOT EXISTS idx_subscribers_token ON newsletter_subscribers(unsubscribe_token);
