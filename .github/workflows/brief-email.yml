@@ -1,0 +1,56 @@
+name: Daily brief email
+
+# Sends the latest published brief to all active newsletter subscribers.
+# 10:30 UTC = 6:30am ET in DST (most of the year), 5:30am EST in winter.
+# Lands in inboxes alongside Axios AM / Punchbowl AM / Politico Playbook,
+# before the news cycle kicks off. Wed-Sun matches the brief generation
+# cadence (Tue-Sat evening -> next morning).
+
+on:
+  schedule:
+    - cron: "30 10 * * 3-7"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Brief date (YYYY-MM-DD). Blank = latest published."
+        required: false
+      limit:
+        description: "Cap recipients (staging only)"
+        required: false
+
+concurrency:
+  group: pipeline-brief-email
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASS: ${{ secrets.SMTP_PASS }}
+      BRIEF_FROM_NAME: ${{ secrets.BRIEF_FROM_NAME }}
+      BRIEF_FROM_ADDR: ${{ secrets.BRIEF_FROM_ADDR }}
+      SITE_URL: ${{ secrets.SITE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: pipeline/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r pipeline/requirements.txt
+
+      - name: Send brief email
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.date }}" ]; then ARGS="$ARGS --date ${{ inputs.date }}"; fi
+          if [ -n "${{ inputs.limit }}" ]; then ARGS="$ARGS --limit ${{ inputs.limit }}"; fi
+          python -m pipeline brief-send $ARGS

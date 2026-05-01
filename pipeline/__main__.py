@@ -79,6 +79,10 @@ def main():
         from pipeline.commands.brief import main as brief_main
         brief_main()
 
+    elif command == "brief-send":
+        from pipeline.commands.brief_send import main as brief_send_main
+        brief_send_main()
+
     elif command == "stats":
         _show_stats()
 
