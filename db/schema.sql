@@ -17,9 +17,12 @@ CREATE TABLE IF NOT EXISTS senators (
   rss_feed_url    TEXT,                    -- RSS feed URL if available
   collection_method TEXT,                  -- rss, httpx, playwright, whitehouse
   chamber         TEXT NOT NULL DEFAULT 'senate', -- senate, house, executive
+  bioguide_id     TEXT,                    -- bioguide.congress.gov ID; joins floor_speeches
   created_at      TIMESTAMPTZ DEFAULT NOW(),
   updated_at      TIMESTAMPTZ DEFAULT NOW()
 );
+CREATE UNIQUE INDEX IF NOT EXISTS uq_senators_bioguide_id
+  ON senators(bioguide_id) WHERE bioguide_id IS NOT NULL;
 
 -- Press releases (all original senator communications)
 CREATE TABLE IF NOT EXISTS press_releases (
@@ -151,3 +154,73 @@ CREATE TABLE IF NOT EXISTS newsletter_subscribers (
 );
 CREATE INDEX IF NOT EXISTS idx_subscribers_status ON newsletter_subscribers(status) WHERE status = 'active';
 CREATE INDEX IF NOT EXISTS idx_subscribers_token ON newsletter_subscribers(unsubscribe_token);
+
+-- Senator social posts (Bluesky for now). Kept separate from press_releases.
+CREATE TABLE IF NOT EXISTS social_posts (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  senator_id        TEXT NOT NULL REFERENCES senators(id),
+  source            TEXT NOT NULL,
+  platform_post_id  TEXT NOT NULL,
+  cid               TEXT,
+  did               TEXT NOT NULL,
+  handle            TEXT NOT NULL,
+  text              TEXT NOT NULL,
+  created_at        TIMESTAMPTZ NOT NULL,
+  is_reply          BOOLEAN NOT NULL DEFAULT FALSE,
+  reply_parent_uri  TEXT,
+  is_repost         BOOLEAN NOT NULL DEFAULT FALSE,
+  embed_kind        TEXT,
+  embed_summary     TEXT,
+  lang              TEXT,
+  raw               JSONB NOT NULL,
+  scraped_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  scrape_run        TEXT,
+  deleted_at        TIMESTAMPTZ,
+  CONSTRAINT social_posts_source_check CHECK (source IN ('bluesky')),
+  CONSTRAINT social_posts_natural_uniq UNIQUE (source, platform_post_id)
+);
+CREATE INDEX IF NOT EXISTS idx_social_senator_created ON social_posts (senator_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_social_created ON social_posts (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_social_did ON social_posts (did);
+CREATE INDEX IF NOT EXISTS idx_social_live ON social_posts (created_at DESC) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_social_reply ON social_posts (senator_id, created_at DESC) WHERE is_reply = FALSE AND deleted_at IS NULL;
+
+-- Senate floor speeches from the Congressional Record (govinfo). Kept
+-- separate from press_releases because granule -> speech is one-to-many
+-- (multi-speaker debates) and provenance is govinfo, not senator.gov.
+CREATE TABLE IF NOT EXISTS floor_speeches (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  granule_id          TEXT NOT NULL,
+  bioguide_id         TEXT NOT NULL,
+  senator_id          TEXT REFERENCES senators(id),
+  turn_index          INTEGER NOT NULL DEFAULT 0,
+  speech_date         DATE NOT NULL,
+  title               TEXT NOT NULL,
+  sub_granule_class   TEXT,
+  speaker_marker      TEXT NOT NULL,
+  party               CHAR(1),
+  state               CHAR(2),
+  word_count          INTEGER NOT NULL,
+  body_text           TEXT NOT NULL,
+  is_solo             BOOLEAN NOT NULL,
+  detail_url          TEXT NOT NULL,
+  html_url            TEXT NOT NULL,
+  congress            INTEGER NOT NULL,
+  scrape_run          TEXT,
+  scraped_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT floor_speeches_natural_uniq
+    UNIQUE (granule_id, bioguide_id, turn_index)
+);
+CREATE INDEX IF NOT EXISTS idx_floor_senator_date   ON floor_speeches (senator_id, speech_date DESC);
+CREATE INDEX IF NOT EXISTS idx_floor_bioguide_date  ON floor_speeches (bioguide_id, speech_date DESC);
+CREATE INDEX IF NOT EXISTS idx_floor_date           ON floor_speeches (speech_date DESC);
+CREATE INDEX IF NOT EXISTS idx_floor_granule        ON floor_speeches (granule_id);
+CREATE INDEX IF NOT EXISTS idx_floor_subclass       ON floor_speeches (sub_granule_class);
+
+ALTER TABLE floor_speeches ADD COLUMN IF NOT EXISTS fts tsvector
+  GENERATED ALWAYS AS (
+    to_tsvector('english', coalesce(title,'') || ' ' || coalesce(body_text,''))
+  ) STORED;
+CREATE INDEX IF NOT EXISTS idx_floor_fts ON floor_speeches USING GIN(fts);

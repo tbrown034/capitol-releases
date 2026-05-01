@@ -54,6 +54,23 @@ jobs:
           dedicated listing URLs not covered by /press-releases/)
         run: python -m pipeline.scripts.backfill_silos --max-pages 3
 
+      - name: Update Bluesky social posts
+        # Walks the verified-handle directory and pulls anything posted
+        # since each senator's most recent already-captured post. Lives in
+        # the social_posts table, not press_releases — see /social.
+        # continue-on-error so a transient Bluesky outage doesn't take
+        # the whole daily run down with it.
+        continue-on-error: true
+        run: python -m pipeline.scripts.update_bluesky
+
+      - name: Update Senate floor speeches
+        # Pulls the daily Congressional Record from govinfo.gov, splits
+        # each granule into per-speaker rows, and writes to floor_speeches.
+        # No external API key needed (uses unauthenticated content URLs).
+        # continue-on-error so a govinfo outage doesn't fail the run.
+        continue-on-error: true
+        run: python -m pipeline floor-speeches update
+
       - name: Run data-quality tests
         run: python -m pipeline test
 

@@ -14,6 +14,9 @@ Usage:
     python -m pipeline brief --weekly            # generate weekly brief (Thu-evening cycle)
     python -m pipeline brief --dry-run           # preview inputs without API call
     python -m pipeline brief-send                # email latest brief to subscribers
+    python -m pipeline source-profiles           # validate state source-profile registry
+    python -m pipeline floor-speeches update     # daily Senate floor speeches collector (Congressional Record)
+    python -m pipeline floor-speeches backfill --since 2025-01-01
     python -m pipeline stats                     # show database stats
 """
 
@@ -84,6 +87,14 @@ def main():
     elif command == "brief-send":
         from pipeline.commands.brief_send import main as brief_send_main
         brief_send_main()
+
+    elif command == "source-profiles":
+        from pipeline.commands.source_profiles import main as source_profiles_main
+        source_profiles_main()
+
+    elif command == "floor-speeches":
+        from pipeline.commands.floor_speeches import main as floor_main
+        sys.exit(floor_main())
 
     elif command == "stats":
         _show_stats()
