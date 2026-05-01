@@ -127,7 +127,8 @@ CREATE TABLE IF NOT EXISTS briefs (
   generated_at        TIMESTAMPTZ DEFAULT NOW(),
   published_at        TIMESTAMPTZ,
   retracted_at        TIMESTAMPTZ,
-  retracted_reason    TEXT
+  retracted_reason    TEXT,
+  quotes              JSONB
 );
 CREATE INDEX IF NOT EXISTS idx_briefs_date_edition ON briefs(brief_date DESC, edition);
 CREATE INDEX IF NOT EXISTS idx_briefs_status_date ON briefs(status, brief_date DESC);

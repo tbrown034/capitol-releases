@@ -11,7 +11,9 @@ Usage:
     python -m pipeline health-report             # write docs/data_health.{md,json}
     python -m pipeline tx-truth                  # verify TX corpus against live senate.texas.gov
     python -m pipeline brief                     # generate daily AI brief (Sonnet)
+    python -m pipeline brief --weekly            # generate weekly brief (Thu-evening cycle)
     python -m pipeline brief --dry-run           # preview inputs without API call
+    python -m pipeline brief-send                # email latest brief to subscribers
     python -m pipeline stats                     # show database stats
 """
 

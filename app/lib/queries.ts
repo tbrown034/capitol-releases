@@ -557,31 +557,37 @@ export async function getRecentRuns(limit = 30): Promise<LatestRun[]> {
 // --- Briefs --------------------------------------------------------------
 
 export async function getLatestBrief(): Promise<Brief | null> {
+  // Latest of either edition. Weekly often comes Thursday-night and should
+  // surface as the homepage of /brief until the next daily lands.
   const rows = (await sql`
     SELECT id::text, brief_date::text, edition, status, model_version,
-           headline, dek, lede, sections, signals, silent,
+           headline, dek, lede, sections, signals, silent, quotes,
            source_release_ids::text[] AS source_release_ids,
            cited_release_ids::text[] AS cited_release_ids,
            generated_at, published_at
     FROM briefs
-    WHERE status = 'published' AND edition = 'daily'
-    ORDER BY brief_date DESC
+    WHERE status = 'published'
+    ORDER BY brief_date DESC,
+             CASE edition WHEN 'weekly' THEN 0 ELSE 1 END
     LIMIT 1
   `) as Brief[];
   return rows[0] ?? null;
 }
 
-export async function getBriefByDate(briefDate: string): Promise<Brief | null> {
+export async function getBriefByDate(
+  briefDate: string,
+  edition: "daily" | "weekly" = "daily"
+): Promise<Brief | null> {
   const rows = (await sql`
     SELECT id::text, brief_date::text, edition, status, model_version,
-           headline, dek, lede, sections, signals, silent,
+           headline, dek, lede, sections, signals, silent, quotes,
            source_release_ids::text[] AS source_release_ids,
            cited_release_ids::text[] AS cited_release_ids,
            generated_at, published_at
     FROM briefs
     WHERE brief_date = ${briefDate}::date
       AND status = 'published'
-      AND edition = 'daily'
+      AND edition = ${edition}
     LIMIT 1
   `) as Brief[];
   return rows[0] ?? null;
@@ -590,14 +596,43 @@ export async function getBriefByDate(briefDate: string): Promise<Brief | null> {
 export async function getRecentBriefs(limit = 14): Promise<Brief[]> {
   return (await sql`
     SELECT id::text, brief_date::text, edition, status, model_version,
-           headline, dek, lede, sections, signals, silent,
+           headline, dek, lede, sections, signals, silent, quotes,
            source_release_ids::text[] AS source_release_ids,
            cited_release_ids::text[] AS cited_release_ids,
            generated_at, published_at
     FROM briefs
-    WHERE status = 'published' AND edition = 'daily'
-    ORDER BY brief_date DESC
+    WHERE status = 'published'
+    ORDER BY brief_date DESC,
+             CASE edition WHEN 'weekly' THEN 0 ELSE 1 END
     LIMIT ${limit}
+  `) as Brief[];
+}
+
+export async function getAllBriefs(
+  edition?: "daily" | "weekly"
+): Promise<Brief[]> {
+  if (edition) {
+    return (await sql`
+      SELECT id::text, brief_date::text, edition, status, model_version,
+             headline, dek, lede, sections, signals, silent, quotes,
+             source_release_ids::text[] AS source_release_ids,
+             cited_release_ids::text[] AS cited_release_ids,
+             generated_at, published_at
+      FROM briefs
+      WHERE status = 'published' AND edition = ${edition}
+      ORDER BY brief_date DESC
+    `) as Brief[];
+  }
+  return (await sql`
+    SELECT id::text, brief_date::text, edition, status, model_version,
+           headline, dek, lede, sections, signals, silent, quotes,
+           source_release_ids::text[] AS source_release_ids,
+           cited_release_ids::text[] AS cited_release_ids,
+           generated_at, published_at
+    FROM briefs
+    WHERE status = 'published'
+    ORDER BY brief_date DESC,
+             CASE edition WHEN 'weekly' THEN 0 ELSE 1 END
   `) as Brief[];
 }
 

@@ -175,26 +175,71 @@ export function BriefBody({
         </section>
       )}
 
+      {brief.quotes && brief.quotes.length > 0 && (
+        <section className="border-t border-neutral-200 pt-7 mb-9">
+          <h2 className="font-[family-name:var(--font-source-serif)] text-2xl text-neutral-900 mb-4">
+            Five quotes that defined the week
+          </h2>
+          <ul className="space-y-5">
+            {brief.quotes.map((q, i) => {
+              const cite = q.release_id ? citations.get(q.release_id) : null;
+              return (
+                <li key={i} className="border-l-2 border-neutral-900 pl-4">
+                  <p className="font-[family-name:var(--font-source-serif)] text-lg italic leading-snug text-neutral-900">
+                    &ldquo;{q.text}&rdquo;
+                  </p>
+                  <p className="mt-2 text-sm text-neutral-700">
+                    — {q.speaker}
+                    {q.context && (
+                      <span className="text-neutral-500"> · {q.context}</span>
+                    )}
+                  </p>
+                  {cite && (
+                    <Link
+                      href={`/releases/${cite.id}`}
+                      className="mt-1 inline-block text-xs text-neutral-500 hover:text-neutral-900 hover:underline"
+                    >
+                      Source: {cite.title}
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
       {brief.silent.length > 0 && (
         <section className="border-t border-neutral-200 pt-7 mb-9">
           <h2 className="font-[family-name:var(--font-source-serif)] text-2xl text-neutral-900 mb-2">
-            Quiet desks
+            {brief.edition === "weekly" ? "Quiet weeks" : "Quiet desks"}
           </h2>
           <p className="text-xs text-neutral-500 mb-4">
-            Senators with no release in two weeks or more.
+            {brief.edition === "weekly"
+              ? "Senators with zero releases in this seven-day window."
+              : "Senators with no release in two weeks or more."}
           </p>
           <ul className="grid gap-1 text-sm text-neutral-700 sm:grid-cols-2">
-            {brief.silent.map((s, i) => (
-              <li
-                key={i}
-                className="flex items-baseline justify-between gap-3 border-b border-neutral-100 py-1"
-              >
-                <span>{s.senator}</span>
-                <span className="font-[family-name:var(--font-dm-mono)] tabular-nums text-xs text-neutral-500">
-                  {s.days_quiet >= 999 ? "—" : `${s.days_quiet}d`}
-                </span>
-              </li>
-            ))}
+            {brief.silent.map((s, i) => {
+              type SilentLike = {
+                senator: string;
+                days_quiet?: number;
+                days_quiet_in_window?: number;
+              };
+              const sl = s as SilentLike;
+              const days = sl.days_quiet_in_window ?? sl.days_quiet ?? 0;
+              return (
+                <li
+                  key={i}
+                  className="flex items-baseline justify-between gap-3 border-b border-neutral-100 py-1"
+                >
+                  <span>{sl.senator}</span>
+                  <span className="font-[family-name:var(--font-dm-mono)] tabular-nums text-xs text-neutral-500">
+                    {days >= 999 ? "—" : `${days}d`}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}

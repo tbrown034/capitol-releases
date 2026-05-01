@@ -1,0 +1,56 @@
+name: Weekly brief
+
+# Synthesizes the seven-day Senate work cycle (Friday previous through
+# Thursday this week) on Thursday night ET. Reads the week's daily briefs
+# as primary input plus a slim release index, then generates a
+# retrospective weekly brief with five defining quotes, drowned-out
+# items, and quiet-week senators.
+#
+# 02:00 UTC Friday = 9:00pm ET Thursday (DST), 10:00pm ET Thursday (EST).
+# Lands in the Friday-morning email send (10:30 UTC Friday).
+
+on:
+  schedule:
+    - cron: "0 2 * * 5"
+  workflow_dispatch:
+    inputs:
+      week_ending:
+        description: "Thursday date (ET) ending the window. Blank = most recent Thursday."
+        required: false
+      publish:
+        description: "Promote to published instead of draft"
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: pipeline-brief-weekly
+  cancel-in-progress: false
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CONGRESS_API_KEY: ${{ secrets.CONGRESS_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: pipeline/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r pipeline/requirements.txt
+
+      - name: Generate weekly brief
+        run: |
+          ARGS="--weekly"
+          if [ -n "${{ inputs.week_ending }}" ]; then ARGS="$ARGS --week-ending ${{ inputs.week_ending }}"; fi
+          if [ "${{ inputs.publish }}" = "true" ]; then ARGS="$ARGS --publish"; fi
+          python -m pipeline brief $ARGS

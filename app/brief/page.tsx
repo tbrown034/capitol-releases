@@ -65,7 +65,25 @@ export default async function BriefIndexPage() {
         <span aria-hidden className="text-neutral-300">
           /
         </span>
+        <span
+          className={`rounded px-1.5 py-0.5 ${
+            brief.edition === "weekly"
+              ? "bg-amber-900 text-amber-50"
+              : "bg-neutral-200 text-neutral-700"
+          }`}
+        >
+          {brief.edition}
+        </span>
+        <span aria-hidden className="text-neutral-300">
+          /
+        </span>
         <span>{fmtDate(brief.brief_date)}</span>
+        <Link
+          href="/brief/archive"
+          className="ml-auto rounded border border-neutral-200 px-2 py-0.5 text-neutral-700 hover:border-neutral-400 hover:text-neutral-900"
+        >
+          Archive
+        </Link>
       </div>
 
       <h1 className="font-[family-name:var(--font-source-serif)] text-[2.5rem] leading-[1.15] text-neutral-900 mb-6">
@@ -85,21 +103,39 @@ export default async function BriefIndexPage() {
           </h2>
           <ul className="space-y-2 text-sm">
             {recent
-              .filter((r) => r.brief_date !== brief.brief_date)
+              .filter(
+                (r) =>
+                  !(r.brief_date === brief.brief_date && r.edition === brief.edition)
+              )
               .map((r) => (
                 <li key={r.id}>
                   <Link
-                    href={`/brief/${r.brief_date}`}
+                    href={`/brief/${r.brief_date}${r.edition === "weekly" ? "?edition=weekly" : ""}`}
                     className="group flex items-baseline gap-3 text-neutral-700 hover:text-neutral-900"
                   >
                     <span className="font-[family-name:var(--font-dm-mono)] tabular-nums text-xs text-neutral-500 shrink-0 w-20">
                       {r.brief_date}
+                    </span>
+                    <span
+                      className={`shrink-0 inline-block rounded px-1.5 py-0.5 font-[family-name:var(--font-dm-mono)] text-[0.6rem] uppercase tracking-wide ${
+                        r.edition === "weekly"
+                          ? "bg-amber-900 text-amber-50"
+                          : "bg-neutral-200 text-neutral-700"
+                      }`}
+                    >
+                      {r.edition}
                     </span>
                     <span className="group-hover:underline">{r.headline}</span>
                   </Link>
                 </li>
               ))}
           </ul>
+          <Link
+            href="/brief/archive"
+            className="mt-4 inline-block text-xs text-neutral-500 hover:text-neutral-900 hover:underline"
+          >
+            View full archive →
+          </Link>
         </section>
       )}
     </div>

@@ -113,6 +113,14 @@ export type BriefSilent = {
   days_quiet: number;
 };
 
+export type BriefQuote = {
+  text: string;
+  speaker: string;
+  context?: string;
+  release_id?: string;
+  daily_brief_id?: string;
+};
+
 export type Brief = {
   id: string;
   brief_date: string;
@@ -125,6 +133,7 @@ export type Brief = {
   sections: BriefSection[];
   signals: BriefSignal[];
   silent: BriefSilent[];
+  quotes: BriefQuote[] | null;
   source_release_ids: string[];
   cited_release_ids: string[];
   generated_at: string;
