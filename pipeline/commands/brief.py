@@ -400,7 +400,7 @@ def call_claude(system: str, user: str) -> tuple[dict, dict]:
     final_message = None
     with client.messages.stream(
         model=MODEL,
-        max_tokens=8000,
+        max_tokens=12000,
         system=[
             {
                 "type": "text",
@@ -420,6 +420,15 @@ def call_claude(system: str, user: str) -> tuple[dict, dict]:
         if text.startswith("json"):
             text = text[4:]
         text = text.rsplit("```", 1)[0]
+
+    # If the model hit max_tokens, the JSON will be truncated mid-string.
+    # Surface a clear error with the stop_reason so we can bump the cap.
+    stop_reason = getattr(final_message, "stop_reason", None)
+    if stop_reason and stop_reason != "end_turn":
+        raise RuntimeError(
+            f"Model stopped on {stop_reason!r} (likely max_tokens hit). "
+            f"Output was {len(text)} chars; bump max_tokens and retry."
+        )
     parsed = json.loads(text)
 
     usage = {
