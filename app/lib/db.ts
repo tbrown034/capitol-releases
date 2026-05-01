@@ -99,6 +99,7 @@ export type BriefSection = {
   theme: string;
   body: string;
   release_ids: string[];
+  keywords?: string[];
 };
 
 export type BriefSignal = {

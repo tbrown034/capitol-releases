@@ -1,0 +1,28 @@
+{
+  "source": "https://www.senate.gov/legislative/2026_schedule.htm",
+  "fetched_at": "2026-05-01",
+  "session": "119th Congress, 2nd Session",
+  "recesses": [
+    {"label": "January state work period", "start": "2026-01-19", "end": "2026-01-23"},
+    {"label": "Easter / spring state work period", "start": "2026-03-30", "end": "2026-04-10"},
+    {"label": "Early May state work period", "start": "2026-05-04", "end": "2026-05-08"},
+    {"label": "Memorial Day state work period", "start": "2026-05-25", "end": "2026-05-29"},
+    {"label": "Independence Day state work period", "start": "2026-06-29", "end": "2026-07-10"},
+    {"label": "August state work period", "start": "2026-08-10", "end": "2026-09-11"},
+    {"label": "Pre-election state work period", "start": "2026-10-05", "end": "2026-11-06"},
+    {"label": "Thanksgiving state work period", "start": "2026-11-23", "end": "2026-11-27"},
+    {"label": "Year-end state work period", "start": "2026-12-21", "end": "2026-12-31"}
+  ],
+  "holidays": [
+    {"name": "New Year's Day", "date": "2026-01-01"},
+    {"name": "Presidents' Day", "date": "2026-02-16"},
+    {"name": "Memorial Day", "date": "2026-05-25"},
+    {"name": "Juneteenth", "date": "2026-06-19"},
+    {"name": "Independence Day", "date": "2026-07-04"},
+    {"name": "Labor Day", "date": "2026-09-07"},
+    {"name": "Columbus Day", "date": "2026-10-12"},
+    {"name": "Veterans Day", "date": "2026-11-11"},
+    {"name": "Thanksgiving", "date": "2026-11-26"},
+    {"name": "Christmas Day", "date": "2026-12-25"}
+  ]
+}

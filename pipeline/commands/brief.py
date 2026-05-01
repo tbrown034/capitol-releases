@@ -188,15 +188,50 @@ def fetch_silent_senators(conn, brief_day: date, threshold_days: int = 14) -> li
 
 
 def calendar_context_for(brief_day: date) -> dict:
-    """Senate calendar context. Hardcoded 2026 milestones; expand via JSON later."""
-    # Stub. Wire to a real calendar JSON in pipeline/seeds/senate_calendar_2026.json
-    # once we have the source-of-truth file. For now return the structure so the
-    # prompt has a stable shape.
+    """Senate calendar context, sourced from senate.gov 2026 schedule JSON."""
+    cal_path = Path(__file__).resolve().parent.parent / "seeds" / f"senate_calendar_{brief_day.year}.json"
+    if not cal_path.exists():
+        return {"is_recess": False, "recess_label": None, "scheduled_votes": []}
+
+    cal = json.loads(cal_path.read_text())
+    is_recess = False
+    recess_label = None
+    days_until_recess = None
+    next_recess_label = None
+    is_first_day_of_recess = False
+    is_last_day_of_recess = False
+
+    for r in cal.get("recesses", []):
+        start = date.fromisoformat(r["start"])
+        end = date.fromisoformat(r["end"])
+        if start <= brief_day <= end:
+            is_recess = True
+            recess_label = r["label"]
+            is_first_day_of_recess = brief_day == start
+            is_last_day_of_recess = brief_day == end
+            break
+        if brief_day < start and (days_until_recess is None or (start - brief_day).days < days_until_recess):
+            days_until_recess = (start - brief_day).days
+            next_recess_label = r["label"]
+
+    holiday = next((h["name"] for h in cal.get("holidays", []) if h["date"] == brief_day.isoformat()), None)
+
+    try:
+        from pipeline.lib.congress_votes import fetch_senate_votes_for_day
+        votes = fetch_senate_votes_for_day(brief_day)
+    except Exception as e:
+        log.warning("Vote lookup raised: %s", e)
+        votes = []
+
     return {
-        "is_recess": False,
-        "recess_label": None,
-        "scheduled_votes": [],
-        "note": "Calendar data not yet wired; treat as no-op context.",
+        "is_recess": is_recess,
+        "recess_label": recess_label,
+        "is_first_day_of_recess": is_first_day_of_recess,
+        "is_last_day_of_recess": is_last_day_of_recess,
+        "days_until_next_recess": days_until_recess,
+        "next_recess_label": next_recess_label,
+        "holiday": holiday,
+        "scheduled_votes": votes,
     }
 
 
@@ -296,6 +331,20 @@ def store_brief(
     publish: bool,
 ) -> str:
     cur = conn.cursor()
+    if publish:
+        # Retract any prior published brief for this date so the unique
+        # partial index doesn't reject the new row. Replaces in place;
+        # the prior row stays in the table for audit (status='retracted').
+        cur.execute(
+            """
+            UPDATE briefs
+            SET status = 'retracted',
+                retracted_at = NOW(),
+                retracted_reason = 'replaced by regeneration'
+            WHERE brief_date = %s AND edition = 'daily' AND status = 'published'
+            """,
+            (brief_day,),
+        )
     cur.execute(
         """
         INSERT INTO briefs (

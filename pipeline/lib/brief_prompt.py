@@ -55,7 +55,8 @@ You return STRICT JSON matching this schema. No markdown, no preamble, no traili
     {
       "theme": "string — short label, sentence-case (e.g. 'Push to extend SNAP funding')",
       "body": "string — 2-4 paragraphs of plain text, \\n\\n between grafs. Verbatim quotes only, attributed AP style. Never paraphrase a senator.",
-      "release_ids": ["uuid", "uuid"]
+      "release_ids": ["uuid", "uuid"],
+      "keywords": ["3-6 lowercase phrases that capture this theme for full-text search across the past 30 days. Pick concrete nouns / proper nouns that would appear in related releases (e.g. 'snap funding', 'food stamps', 'agriculture committee'). Avoid generic single words like 'bill' or 'senate'."]
     }
   ],
   "signals": [

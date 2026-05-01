@@ -601,6 +601,62 @@ export async function getRecentBriefs(limit = 14): Promise<Brief[]> {
   `) as Brief[];
 }
 
+// 30-day daily release counts matching any of the given keywords against
+// the press_releases.fts tsvector. Returns array length = days, oldest first.
+// Used to draw a per-theme sparkline alongside each brief section.
+export async function getThemeSparkline({
+  keywords,
+  endDate,
+  days = 30,
+}: {
+  keywords: string[];
+  endDate: string; // YYYY-MM-DD (ET, the brief_date)
+  days?: number;
+}): Promise<{ date: string; count: number }[]> {
+  if (!keywords || keywords.length === 0) return [];
+  const tsquery = keywords
+    .map((k) => k.trim().toLowerCase())
+    .filter(Boolean)
+    .map((k) =>
+      k
+        .split(/\s+/)
+        .map((w) => w.replace(/[^a-z0-9]/g, ""))
+        .filter(Boolean)
+        .join(" & ")
+    )
+    .filter(Boolean)
+    .map((q) => `(${q})`)
+    .join(" | ");
+  if (!tsquery) return [];
+
+  const rows = (await sql`
+    WITH window_days AS (
+      SELECT generate_series(0, ${days - 1})::int AS offset_days
+    ),
+    day_table AS (
+      SELECT (${endDate}::date - offset_days) AS d FROM window_days
+    ),
+    counts AS (
+      SELECT (pr.published_at AT TIME ZONE 'America/New_York')::date AS d,
+             count(*)::int AS c
+      FROM press_releases pr
+      JOIN senators s ON s.id = pr.senator_id
+      WHERE pr.published_at >= (${endDate}::date - ${days}::int)
+        AND pr.published_at < (${endDate}::date + 1)
+        AND pr.deleted_at IS NULL
+        AND s.status = 'active' AND s.chamber = 'senate'
+        AND pr.fts @@ to_tsquery('english', ${tsquery})
+      GROUP BY 1
+    )
+    SELECT to_char(day_table.d, 'YYYY-MM-DD') AS date,
+           COALESCE(counts.c, 0) AS count
+    FROM day_table
+    LEFT JOIN counts ON counts.d = day_table.d
+    ORDER BY day_table.d ASC
+  `) as { date: string; count: number }[];
+  return rows;
+}
+
 // Resolve cited release UUIDs into card-ready records for the brief route.
 export async function getBriefCitations(
   ids: string[]
