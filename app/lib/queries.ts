@@ -8,6 +8,7 @@ import type {
   TypeBreakdown,
   Brief,
   BriefCitation,
+  SocialFeedItem,
 } from "./db";
 
 // Photo releases are classified and stored, but excluded from every user-facing
@@ -709,3 +710,156 @@ export async function getBriefCitations(
   return map;
 }
 
+
+// --- Social posts (Bluesky) ---------------------------------------------
+//
+// Read from `social_posts`. Default surface excludes replies — feed shows
+// senator-authored top-level posts only, mirroring the press_releases
+// "primary surface" rule. Replies are still in the database and queryable.
+
+export type SocialFeedFilters = {
+  page?: number;
+  perPage?: number;
+  party?: string;
+  state?: string;
+  senatorId?: string;
+  includeReplies?: boolean;
+};
+
+export async function getSocialFeed(
+  f: SocialFeedFilters = {}
+): Promise<{ items: SocialFeedItem[]; total: number }> {
+  const page = f.page ?? 1;
+  const perPage = f.perPage ?? 50;
+  const offset = (page - 1) * perPage;
+
+  const preds: string[] = ["sp.deleted_at IS NULL"];
+  const params: unknown[] = [];
+  if (!f.includeReplies) preds.push("sp.is_reply = FALSE");
+  if (f.party) {
+    params.push(f.party);
+    preds.push(`s.party = $${params.length}`);
+  }
+  if (f.state) {
+    params.push(f.state);
+    preds.push(`s.state = $${params.length}`);
+  }
+  if (f.senatorId) {
+    params.push(f.senatorId);
+    preds.push(`sp.senator_id = $${params.length}`);
+  }
+
+  const where = preds.join(" AND ");
+  params.push(perPage);
+  const limitIdx = `$${params.length}`;
+  params.push(offset);
+  const offsetIdx = `$${params.length}`;
+
+  const cols = `
+    sp.id, sp.senator_id, sp.source, sp.platform_post_id, sp.did, sp.handle,
+    sp.text, sp.created_at, sp.is_reply, sp.reply_parent_uri,
+    sp.embed_kind, sp.embed_summary,
+    s.full_name AS senator_name, s.party, s.state
+  `;
+  const countText = `SELECT count(*)::int AS total FROM social_posts sp JOIN senators s ON s.id = sp.senator_id WHERE ${where}`;
+  const itemsText = `SELECT ${cols} FROM social_posts sp JOIN senators s ON s.id = sp.senator_id WHERE ${where} ORDER BY sp.created_at DESC LIMIT ${limitIdx} OFFSET ${offsetIdx}`;
+  const countParams = params.slice(0, params.length - 2);
+  const [countResult, items] = await Promise.all([
+    sql.query(countText, countParams),
+    sql.query(itemsText, params),
+  ]);
+  return {
+    items: items as SocialFeedItem[],
+    total: Number((countResult as { total: number }[])[0].total),
+  };
+}
+
+export type SocialStats = {
+  total: number;
+  senators_active: number;
+  earliest: string | null;
+  latest: string | null;
+  party: { D: number; R: number; I: number };
+};
+
+export async function getSocialStats(
+  f: SocialFeedFilters = {}
+): Promise<SocialStats> {
+  // Stats reflect the same filters as the feed they're describing — when
+  // the user narrows to ?party=R, the summary should match what's below.
+  // Party breakdown intentionally ignores `f.party` so the D/R/I split
+  // stays useful even when one party is selected.
+  const preds: string[] = ["sp.deleted_at IS NULL"];
+  const params: unknown[] = [];
+  if (!f.includeReplies) preds.push("sp.is_reply = FALSE");
+  if (f.state) {
+    params.push(f.state);
+    preds.push(`s.state = $${params.length}`);
+  }
+  if (f.senatorId) {
+    params.push(f.senatorId);
+    preds.push(`sp.senator_id = $${params.length}`);
+  }
+  const partyPreds = preds.slice();
+  const partyParams = params.slice();
+  if (f.party) {
+    params.push(f.party);
+    preds.push(`s.party = $${params.length}`);
+  }
+
+  const where = preds.join(" AND ");
+  const partyWhere = partyPreds.join(" AND ");
+  const overallText = `
+    SELECT count(*)::int                              AS total,
+           count(DISTINCT sp.senator_id)::int         AS senators_active,
+           min(sp.created_at)::text                   AS earliest,
+           max(sp.created_at)::text                   AS latest
+      FROM social_posts sp
+      JOIN senators s ON s.id = sp.senator_id
+      WHERE ${where}
+  `;
+  const partyText = `
+    SELECT s.party AS party, count(*)::int AS count
+      FROM social_posts sp
+      JOIN senators s ON s.id = sp.senator_id
+      WHERE ${partyWhere}
+      GROUP BY s.party
+  `;
+
+  const [overall, byParty] = await Promise.all([
+    sql.query(overallText, params),
+    sql.query(partyText, partyParams),
+  ]);
+  const r = (overall as { total: number; senators_active: number; earliest: string | null; latest: string | null }[])[0];
+  const party = { D: 0, R: 0, I: 0 };
+  for (const row of byParty as { party: string; count: number }[]) {
+    if (row.party === "D" || row.party === "R" || row.party === "I") {
+      party[row.party] = row.count;
+    }
+  }
+  return {
+    total: r.total,
+    senators_active: r.senators_active,
+    earliest: r.earliest,
+    latest: r.latest,
+    party,
+  };
+}
+
+export async function getSocialActiveSenators(): Promise<
+  { senator_id: string; full_name: string; party: "D" | "R" | "I"; state: string; post_count: number; latest: string }[]
+> {
+  return (await sql`
+    SELECT sp.senator_id,
+           s.full_name,
+           s.party,
+           s.state,
+           count(*)::int AS post_count,
+           max(sp.created_at)::text AS latest
+      FROM social_posts sp
+      JOIN senators s ON s.id = sp.senator_id
+      WHERE sp.deleted_at IS NULL AND sp.is_reply = FALSE
+      GROUP BY sp.senator_id, s.full_name, s.party, s.state
+      ORDER BY post_count DESC
+  `) as { senator_id: string; full_name: string; party: "D" | "R" | "I"; state: string; post_count: number; latest: string }[];
+}

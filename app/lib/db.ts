@@ -86,6 +86,27 @@ export type FeedItem = PressRelease & {
   state: string;
 };
 
+export type SocialPost = {
+  id: string;
+  senator_id: string;
+  source: "bluesky";
+  platform_post_id: string;
+  did: string;
+  handle: string;
+  text: string;
+  created_at: string;
+  is_reply: boolean;
+  reply_parent_uri: string | null;
+  embed_kind: string | null;
+  embed_summary: string | null;
+};
+
+export type SocialFeedItem = SocialPost & {
+  senator_name: string;
+  party: "D" | "R" | "I";
+  state: string;
+};
+
 export type TypeBreakdown = Partial<Record<ContentType, number>>;
 
 export type SenatorWithCount = Senator & {

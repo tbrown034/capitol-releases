@@ -34,19 +34,23 @@ export default function BlueskyPage() {
       </section>
 
       <section className="mb-12 md:mb-16">
-        <div className="border border-amber-200 bg-amber-50 rounded-md px-5 py-4 max-w-2xl">
-          <p className="text-[11px] uppercase tracking-wider text-amber-900 mb-1.5 font-semibold">
-            In development
+        <div className="border border-emerald-200 bg-emerald-50 rounded-md px-5 py-4 max-w-2xl">
+          <p className="text-[11px] uppercase tracking-wider text-emerald-900 mb-1.5 font-semibold">
+            Now live (beta)
           </p>
-          <p className="text-sm text-amber-900 leading-relaxed mb-2">
-            Handle directory in recon. Collector in development. Schema landing
-            with the next migration.
+          <p className="text-sm text-emerald-900 leading-relaxed mb-2">
+            44 verified senator handles, archived since January 1, 2026.
+            Browse the live feed at{" "}
+            <Link href="/social" className="underline font-medium">
+              /social
+            </Link>
+            . Kept separate from the press-release feed for now.
           </p>
-          <p className="text-xs text-amber-900/80 leading-relaxed">
-            We&rsquo;re committing to verified handles only &mdash; no parody
-            accounts, no campaign-side, no staffer reposts. Each handle is
-            confirmed against the senator&rsquo;s official site or DID
-            registry before it lands in the index.
+          <p className="text-xs text-emerald-900/80 leading-relaxed">
+            Verified handles only &mdash; no parody accounts, no campaign-side,
+            no staffer reposts. Each handle is confirmed against the
+            senator&rsquo;s senate.gov site, a senate.gov-domain handle, or
+            consensus across two or more independent curated starter packs.
           </p>
         </div>
       </section>
