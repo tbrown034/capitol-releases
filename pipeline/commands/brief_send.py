@@ -45,31 +45,34 @@ FROM_ADDR = os.environ.get("BRIEF_FROM_ADDR") or os.environ.get("SMTP_USER", "")
 log = logging.getLogger("capitol.brief.send")
 
 
-def fetch_brief(conn, brief_date: str | None) -> dict | None:
+def fetch_brief(conn, brief_date: str | None, edition: str) -> dict | None:
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     if brief_date:
         cur.execute(
             """
-            SELECT id::text, brief_date::text, headline, dek, lede, sections,
-                   signals, silent, source_release_ids::text[] AS source_release_ids,
+            SELECT id::text, brief_date::text, edition, headline, dek, lede, sections,
+                   signals, silent, quotes,
+                   source_release_ids::text[] AS source_release_ids,
                    cited_release_ids::text[] AS cited_release_ids
             FROM briefs
-            WHERE brief_date = %s::date AND status = 'published' AND edition = 'daily'
+            WHERE brief_date = %s::date AND status = 'published' AND edition = %s
             LIMIT 1
             """,
-            (brief_date,),
+            (brief_date, edition),
         )
     else:
         cur.execute(
             """
-            SELECT id::text, brief_date::text, headline, dek, lede, sections,
-                   signals, silent, source_release_ids::text[] AS source_release_ids,
+            SELECT id::text, brief_date::text, edition, headline, dek, lede, sections,
+                   signals, silent, quotes,
+                   source_release_ids::text[] AS source_release_ids,
                    cited_release_ids::text[] AS cited_release_ids
             FROM briefs
-            WHERE status = 'published' AND edition = 'daily'
+            WHERE status = 'published' AND edition = %s
             ORDER BY brief_date DESC
             LIMIT 1
-            """
+            """,
+            (edition,),
         )
     row = cur.fetchone()
     cur.close()
@@ -166,8 +169,10 @@ def build_message(
 
 
 def main():
-    p = argparse.ArgumentParser(description="Send the daily brief email.")
+    p = argparse.ArgumentParser(description="Send the brief email (daily or weekly).")
     p.add_argument("--date", help="Brief date YYYY-MM-DD; default = latest published")
+    p.add_argument("--edition", choices=["daily", "weekly"], default="daily",
+                   help="Which edition to send (default daily)")
     p.add_argument("--dry-run", action="store_true", help="Render but don't send")
     p.add_argument("--limit", type=int, help="Cap recipients (staging)")
     args = p.parse_args()
@@ -180,12 +185,12 @@ def main():
 
     conn = psycopg2.connect(DB_URL)
     try:
-        brief = fetch_brief(conn, args.date)
+        brief = fetch_brief(conn, args.date, args.edition)
         if not brief:
-            log.error("No published brief found for %s", args.date or "latest")
+            log.error("No published %s brief found for %s", args.edition, args.date or "latest")
             sys.exit(2)
 
-        log.info("Brief %s — %s", brief["brief_date"], brief["headline"])
+        log.info("Brief %s [%s] — %s", brief["brief_date"], brief["edition"], brief["headline"])
         citations = fetch_citations_map(conn, brief["cited_release_ids"] or [])
         subs = fetch_subscribers(conn, brief["id"], args.limit)
         log.info("Recipients: %d", len(subs))

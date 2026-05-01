@@ -1,33 +1,25 @@
-name: Daily brief email
+name: Weekly brief email
 
-# Sends the latest published brief to all active newsletter subscribers.
-# 10:30 UTC = 6:30am ET in DST (most of the year), 5:30am EST in winter.
-# Lands in inboxes alongside Axios AM / Punchbowl AM / Politico Playbook,
-# before the news cycle kicks off. Wed-Sun matches the brief generation
-# cadence (Tue-Sat evening -> next morning).
+# Sends the latest published weekly brief to all active subscribers on
+# Thursday night ET, after the brief-weekly cron generates it. Cadence:
+# brief-weekly fires 02:00 UTC Friday (9pm ET Thu DST) -> brief-weekly-email
+# fires 03:00 UTC Friday (10pm ET Thu DST). One-hour buffer for slow runs
+# and SMTP rate-limit headroom.
 
 on:
   schedule:
-    - cron: "30 10 * * 3-7"
+    - cron: "0 3 * * 5"
   workflow_dispatch:
     inputs:
       date:
-        description: "Brief date (YYYY-MM-DD). Blank = latest published."
+        description: "Brief date (Thursday, YYYY-MM-DD). Blank = latest published weekly."
         required: false
-      edition:
-        description: "Edition to send"
-        required: false
-        default: "daily"
-        type: choice
-        options:
-          - daily
-          - weekly
       limit:
         description: "Cap recipients (staging only)"
         required: false
 
 concurrency:
-  group: pipeline-brief-email
+  group: pipeline-brief-weekly-email
   cancel-in-progress: false
 
 jobs:
@@ -56,9 +48,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r pipeline/requirements.txt
 
-      - name: Send brief email
+      - name: Send weekly brief
         run: |
-          ARGS="--edition ${{ inputs.edition || 'daily' }}"
+          ARGS="--edition weekly"
           if [ -n "${{ inputs.date }}" ]; then ARGS="$ARGS --date ${{ inputs.date }}"; fi
           if [ -n "${{ inputs.limit }}" ]; then ARGS="$ARGS --limit ${{ inputs.limit }}"; fi
           python -m pipeline brief-send $ARGS

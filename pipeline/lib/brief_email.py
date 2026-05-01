@@ -109,6 +109,31 @@ def render_html(
 
         out.append("</td></tr>")
 
+    # Quotes (weekly edition)
+    if brief.get("quotes"):
+        out.append(
+            '<tr><td style="padding:18px 32px 8px 32px;border-top:1px solid #e5e5e5;">'
+            '<h2 style="margin:0 0 14px 0;font-size:20px;line-height:1.25;color:#171717;font-weight:normal;">Five quotes that defined the week</h2>'
+        )
+        for q in brief["quotes"]:
+            cite = citations_by_id.get(q.get("release_id") or "")
+            out.append(
+                '<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:16px;border-left:2px solid #171717;">'
+                '<tr><td style="padding:2px 0 2px 14px;">'
+                f'<p style="margin:0 0 8px 0;font-size:17px;line-height:1.4;color:#171717;font-style:italic;font-family:Georgia,serif;">&ldquo;{_esc(q.get("text", ""))}&rdquo;</p>'
+                f'<p style="margin:0;font-size:13px;color:#404040;">— {_esc(q.get("speaker", ""))}'
+            )
+            if q.get("context"):
+                out.append(f'<span style="color:#737373;"> &middot; {_esc(q["context"])}</span>')
+            out.append("</p>")
+            if cite:
+                href = f"{site_url}/releases/{cite['id']}"
+                out.append(
+                    f'<p style="margin:4px 0 0 0;font-size:11px;"><a href="{_esc(href)}" style="color:#737373;">Source: {_esc(cite["title"])}</a></p>'
+                )
+            out.append("</td></tr></table>")
+        out.append("</td></tr>")
+
     # Signals
     if brief.get("signals"):
         out.append(
@@ -191,6 +216,21 @@ def render_text(
                 )
                 lines.append(f"    {site_url}/releases/{c['id']}")
         lines.append("")
+
+    if brief.get("quotes"):
+        lines.append("-" * 60)
+        lines.append("FIVE QUOTES THAT DEFINED THE WEEK")
+        lines.append("")
+        for q in brief["quotes"]:
+            text = q.get("text", "")
+            speaker = q.get("speaker", "")
+            ctx = q.get("context")
+            lines.append(f'  "{text}"')
+            lines.append(f'    — {speaker}{(" · " + ctx) if ctx else ""}')
+            cite = citations_by_id.get(q.get("release_id") or "")
+            if cite:
+                lines.append(f"    Source: {site_url}/releases/{cite['id']}")
+            lines.append("")
 
     if brief.get("signals"):
         lines.append("-" * 60)
