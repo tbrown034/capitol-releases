@@ -94,3 +94,48 @@ export type SenatorWithCount = Senator & {
   earliest_release: string | null;
   type_breakdown: TypeBreakdown;
 };
+
+export type BriefSection = {
+  theme: string;
+  body: string;
+  release_ids: string[];
+};
+
+export type BriefSignal = {
+  kind: string;
+  note: string;
+  release_ids?: string[];
+};
+
+export type BriefSilent = {
+  senator: string;
+  days_quiet: number;
+};
+
+export type Brief = {
+  id: string;
+  brief_date: string;
+  edition: string;
+  status: "draft" | "published" | "retracted";
+  model_version: string;
+  headline: string;
+  dek: string | null;
+  lede: string;
+  sections: BriefSection[];
+  signals: BriefSignal[];
+  silent: BriefSilent[];
+  source_release_ids: string[];
+  cited_release_ids: string[];
+  generated_at: string;
+  published_at: string | null;
+};
+
+export type BriefCitation = {
+  id: string;
+  title: string;
+  senator_name: string;
+  party: "D" | "R" | "I";
+  state: string;
+  source_url: string;
+  published_at: string | null;
+};

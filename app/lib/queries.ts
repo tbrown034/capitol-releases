@@ -6,6 +6,8 @@ import type {
   Senator,
   ContentType,
   TypeBreakdown,
+  Brief,
+  BriefCitation,
 } from "./db";
 
 // Photo releases are classified and stored, but excluded from every user-facing
@@ -550,5 +552,69 @@ export async function getRecentRuns(limit = 30): Promise<LatestRun[]> {
     ORDER BY started_at DESC
     LIMIT ${limit}
   `) as LatestRun[];
+}
+
+// --- Briefs --------------------------------------------------------------
+
+export async function getLatestBrief(): Promise<Brief | null> {
+  const rows = (await sql`
+    SELECT id::text, brief_date::text, edition, status, model_version,
+           headline, dek, lede, sections, signals, silent,
+           source_release_ids::text[] AS source_release_ids,
+           cited_release_ids::text[] AS cited_release_ids,
+           generated_at, published_at
+    FROM briefs
+    WHERE status = 'published' AND edition = 'daily'
+    ORDER BY brief_date DESC
+    LIMIT 1
+  `) as Brief[];
+  return rows[0] ?? null;
+}
+
+export async function getBriefByDate(briefDate: string): Promise<Brief | null> {
+  const rows = (await sql`
+    SELECT id::text, brief_date::text, edition, status, model_version,
+           headline, dek, lede, sections, signals, silent,
+           source_release_ids::text[] AS source_release_ids,
+           cited_release_ids::text[] AS cited_release_ids,
+           generated_at, published_at
+    FROM briefs
+    WHERE brief_date = ${briefDate}::date
+      AND status = 'published'
+      AND edition = 'daily'
+    LIMIT 1
+  `) as Brief[];
+  return rows[0] ?? null;
+}
+
+export async function getRecentBriefs(limit = 14): Promise<Brief[]> {
+  return (await sql`
+    SELECT id::text, brief_date::text, edition, status, model_version,
+           headline, dek, lede, sections, signals, silent,
+           source_release_ids::text[] AS source_release_ids,
+           cited_release_ids::text[] AS cited_release_ids,
+           generated_at, published_at
+    FROM briefs
+    WHERE status = 'published' AND edition = 'daily'
+    ORDER BY brief_date DESC
+    LIMIT ${limit}
+  `) as Brief[];
+}
+
+// Resolve cited release UUIDs into card-ready records for the brief route.
+export async function getBriefCitations(
+  ids: string[]
+): Promise<Map<string, BriefCitation>> {
+  if (ids.length === 0) return new Map();
+  const rows = (await sql`
+    SELECT pr.id::text AS id, pr.title, pr.source_url, pr.published_at,
+           s.full_name AS senator_name, s.party, s.state
+    FROM press_releases pr
+    JOIN senators s ON s.id = pr.senator_id
+    WHERE pr.id = ANY(${ids}::uuid[])
+  `) as BriefCitation[];
+  const map = new Map<string, BriefCitation>();
+  for (const r of rows) map.set(r.id, r);
+  return map;
 }
 
