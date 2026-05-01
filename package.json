@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3003",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -12,7 +12,9 @@
     "@neondatabase/serverless": "^1.0.2",
     "@types/d3": "^7.4.3",
     "@vercel/analytics": "^2.0.1",
+    "better-auth": "^1.6.9",
     "d3": "^7.9.0",
+    "drizzle-orm": "^0.45.2",
     "next": "16.2.3",
     "react": "19.2.4",
     "react-dom": "19.2.4"
