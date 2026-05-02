@@ -356,22 +356,30 @@ def test_no_rss_rampup_signature():
 
     Flags any senator where last-30-day volume is >= 4x the average
     monthly volume across Jan-Mar 2025, AND total < 500.
+
+    Scoped to chamber='senate'. House members were onboarded 2026-05-02
+    via wave-2 backfill; their Q1-2025 baseline is dominated by feed
+    truncation rather than collector behavior, so the ramp-up
+    comparison doesn't apply for ~12 months. Re-evaluate House
+    eligibility once a year of post-onboarding data accrues.
     """
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT senator_id,
+        SELECT pr.senator_id,
                count(*) FILTER (
-                   WHERE published_at >= '2025-01-01'
-                   AND published_at < '2025-04-01'
+                   WHERE pr.published_at >= '2025-01-01'
+                   AND pr.published_at < '2025-04-01'
                )::float / 3.0 AS q1_monthly,
                count(*) FILTER (
-                   WHERE published_at >= NOW() - INTERVAL '30 days'
+                   WHERE pr.published_at >= NOW() - INTERVAL '30 days'
                )::int AS last_30,
                count(*)::int AS total
-        FROM press_releases
-        WHERE deleted_at IS NULL
-        GROUP BY senator_id
+        FROM press_releases pr
+        JOIN senators s ON s.id = pr.senator_id
+        WHERE pr.deleted_at IS NULL
+          AND s.chamber = 'senate'
+        GROUP BY pr.senator_id
     """)
     rows = cur.fetchall()
     cur.close()
