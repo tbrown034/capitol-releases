@@ -366,22 +366,23 @@
       "party": "R",
       "state": "AZ",
       "official_url": "https://schweikert.house.gov",
-      "press_release_url": "https://schweikert.house.gov/2011/11/24/press-releases/",
+      "press_release_url": "https://schweikert.house.gov/category/congress_press_release",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "link_follow",
+        "next_selector": "a[rel=\"next\"]"
       },
       "selectors": {
-        "list_item": null,
-        "title": null,
+        "list_item": ".item",
+        "title": "h2 a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.3,
       "notes": "",
       "last_verified": "2026-05-02",
-      "recon_status": "needs_attention",
+      "recon_status": "verified",
       "district": 1,
       "collection_method": "rss",
       "rss_feed_url": "https://schweikert.house.gov/feed/",
@@ -1238,7 +1239,7 @@
       "party": "D",
       "state": "CA",
       "official_url": "https://juliabrownley.house.gov",
-      "press_release_url": "https://juliabrownley.house.gov/category/press-releases",
+      "press_release_url": "https://juliabrownley.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -1265,7 +1266,7 @@
       "party": "D",
       "state": "CA",
       "official_url": "https://whitesides.house.gov",
-      "press_release_url": "https://whitesides.house.gov/category/press-releases",
+      "press_release_url": "https://whitesides.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -1433,24 +1434,23 @@
       "party": "D",
       "state": "CA",
       "official_url": "https://aguilar.house.gov",
-      "press_release_url": "https://aguilar.house.gov/press/",
+      "press_release_url": "https://aguilar.house.gov/category/congress_press_release",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
-        "type": "path_segment",
-        "pattern": "/page/{n}",
-        "starts_at": 1
+        "type": "link_follow",
+        "next_selector": "a[rel=\"next\"]"
       },
       "selectors": {
-        "list_item": "div.item",
+        "list_item": ".item",
         "title": "h2 a",
-        "date": ".date",
-        "detail_link": "h2 a[href]"
+        "date": null,
+        "detail_link": "a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 10 items on listing page. ",
       "last_verified": "2026-05-02",
-      "recon_status": "needs_attention",
+      "recon_status": "verified",
       "district": 33,
       "collection_method": "rss",
       "rss_feed_url": "https://aguilar.house.gov/feed/",
@@ -1617,7 +1617,7 @@
       "party": "R",
       "state": "CA",
       "official_url": "https://youngkim.house.gov",
-      "press_release_url": "https://youngkim.house.gov/media/press-releases",
+      "press_release_url": "https://youngkim.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -2795,22 +2795,23 @@
       "party": "R",
       "state": "FL",
       "official_url": "https://buchanan.house.gov",
-      "press_release_url": "https://buchanan.house.gov/press-releases",
+      "press_release_url": "https://buchanan.house.gov/category/press-releases/",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "link_follow",
+        "next_selector": "a[rel=\"next\"]"
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": "article",
+        "title": "h3 a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 111 items on listing page. ",
       "last_verified": "2026-05-02",
-      "recon_status": "needs_attention",
+      "recon_status": "verified",
       "district": 16,
       "collection_method": "rss",
       "rss_feed_url": "https://buchanan.house.gov/feed/",
@@ -2822,7 +2823,7 @@
       "party": "R",
       "state": "FL",
       "official_url": "https://steube.house.gov",
-      "press_release_url": "https://steube.house.gov/category/press-releases",
+      "press_release_url": "https://steube.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -2877,24 +2878,25 @@
       "party": "R",
       "state": "FL",
       "official_url": "https://donalds.house.gov",
-      "press_release_url": "https://donalds.house.gov/news/",
+      "press_release_url": "https://donalds.house.gov/news",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "article.newsblocker",
+        "list_item": "article",
         "title": "h2 a",
-        "date": "time",
-        "detail_link": "h2 a[href]"
+        "date": null,
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 15 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 19,
-      "bioguide_id": "D000032"
+      "bioguide_id": "D000032",
+      "collection_method": "httpx"
     },
     {
       "member_id": "cherfilusmccormick-sheila",
@@ -3391,7 +3393,7 @@
       "party": "R",
       "state": "GA",
       "official_url": "https://loudermilk.house.gov",
-      "press_release_url": "https://loudermilk.house.gov/category/press-releases",
+      "press_release_url": "https://loudermilk.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -3634,7 +3636,7 @@
       "party": "R",
       "state": "IA",
       "official_url": "https://nunn.house.gov",
-      "press_release_url": "https://nunn.house.gov/media/press-releases",
+      "press_release_url": "https://nunn.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -3690,7 +3692,7 @@
       "party": "R",
       "state": "ID",
       "official_url": "https://fulcher.house.gov",
-      "press_release_url": "https://fulcher.house.gov/category/press-releases",
+      "press_release_url": "https://fulcher.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -4775,7 +4777,7 @@
       "party": "R",
       "state": "LA",
       "official_url": "https://clayhiggins.house.gov",
-      "press_release_url": "https://clayhiggins.house.gov/newsroom",
+      "press_release_url": "https://clayhiggins.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -4885,7 +4887,7 @@
       "party": "D",
       "state": "MA",
       "official_url": "https://neal.house.gov",
-      "press_release_url": "https://neal.house.gov/category/press-releases",
+      "press_release_url": "https://neal.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -4939,24 +4941,25 @@
       "party": "D",
       "state": "MA",
       "official_url": "https://trahan.house.gov",
-      "press_release_url": "https://trahan.house.gov/news/",
+      "press_release_url": "https://trahan.house.gov/news",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "article.newsblocker",
+        "list_item": "article",
         "title": "h2 a",
-        "date": "time",
-        "detail_link": "h2 a[href]"
+        "date": null,
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 15 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 3,
-      "bioguide_id": "T000482"
+      "bioguide_id": "T000482",
+      "collection_method": "httpx"
     },
     {
       "member_id": "auchincloss-jake",
@@ -5345,24 +5348,25 @@
       "party": "D",
       "state": "ME",
       "official_url": "https://pingree.house.gov",
-      "press_release_url": "https://pingree.house.gov/news/",
+      "press_release_url": "https://pingree.house.gov/news",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "article.newsblocker",
+        "list_item": "article",
         "title": "h2 a",
-        "date": "time",
-        "detail_link": "h2 a[href]"
+        "date": null,
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 15 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 1,
-      "bioguide_id": "P000597"
+      "bioguide_id": "P000597",
+      "collection_method": "httpx"
     },
     {
       "member_id": "golden-jared",
@@ -5737,7 +5741,7 @@
       "party": "R",
       "state": "MN",
       "official_url": "https://finstad.house.gov",
-      "press_release_url": "https://finstad.house.gov/category/press-releases",
+      "press_release_url": "https://finstad.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -7894,7 +7898,7 @@
       "party": "D",
       "state": "NY",
       "official_url": "https://riley.house.gov",
-      "press_release_url": "https://riley.house.gov/news",
+      "press_release_url": "https://riley.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -7903,7 +7907,7 @@
       },
       "selectors": {
         "list_item": "article",
-        "title": "h3 a",
+        "title": "a",
         "date": null,
         "detail_link": "a[href]"
       },
@@ -8246,7 +8250,7 @@
       "party": "R",
       "state": "OH",
       "official_url": "https://rulli.house.gov",
-      "press_release_url": "https://rulli.house.gov/newsroom",
+      "press_release_url": "https://rulli.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -8477,7 +8481,7 @@
       "party": "R",
       "state": "OH",
       "official_url": "https://carey.house.gov",
-      "press_release_url": "https://carey.house.gov/press-releases",
+      "press_release_url": "https://carey.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -9482,7 +9486,7 @@
       "party": "D",
       "state": "SC",
       "official_url": "https://clyburn.house.gov",
-      "press_release_url": "https://clyburn.house.gov/media/press-releases",
+      "press_release_url": "https://clyburn.house.gov/category/press-release/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
@@ -9490,7 +9494,7 @@
       },
       "selectors": {
         "list_item": "article",
-        "title": "h2 a",
+        "title": "h3 a",
         "date": null,
         "detail_link": "a[href]"
       },
@@ -11084,7 +11088,7 @@
       "party": "D",
       "state": "VA",
       "official_url": "https://vindman.house.gov",
-      "press_release_url": "https://vindman.house.gov/category/press-releases",
+      "press_release_url": "https://vindman.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
