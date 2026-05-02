@@ -8,3 +8,4 @@ tenacity
 feedparser
 pytest
 pdfplumber
+anthropic
