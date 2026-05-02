@@ -195,7 +195,7 @@ export async function getSenators(): Promise<SenatorWithCount[]> {
            min(pr.published_at) as earliest_release
     FROM officials s
     LEFT JOIN official_site_items pr ON pr.official_id = s.id AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
-    WHERE s.status = 'active' AND s.chamber = 'senate'
+    WHERE s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
     GROUP BY s.id
     ORDER BY s.state, s.full_name
   `) as (SenatorWithCount & { type_breakdown: never })[];
@@ -206,7 +206,7 @@ export async function getSenators(): Promise<SenatorWithCount[]> {
     JOIN officials s ON s.id = pr.official_id
     WHERE pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       AND s.status = 'active'
-      AND s.chamber = 'senate'
+      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
     GROUP BY pr.official_id, pr.content_type
   `) as { official_id: string; content_type: ContentType; count: number }[];
 
@@ -231,7 +231,7 @@ export async function getSenator(id: string): Promise<Senator | null> {
   const rows = await sql`
     SELECT * FROM officials
     WHERE id = ${id}
-      AND chamber = 'senate'
+      AND chamber = 'senate' AND jurisdiction = 'us'
       AND jurisdiction = 'us'
   `;
   return (rows[0] as Senator) ?? null;
@@ -388,7 +388,7 @@ export async function getReleaseIdsForSitemap(
     WHERE pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
-      AND s.chamber = 'senate'
+      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
     ORDER BY pr.published_at DESC NULLS LAST
     LIMIT ${limit} OFFSET ${offset}
   `;
@@ -403,7 +403,7 @@ export async function getReleaseCountForSitemap(): Promise<number> {
     WHERE pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
-      AND s.chamber = 'senate'
+      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
   `;
   return Number((rows[0] as { total: number }).total);
 }
@@ -443,7 +443,7 @@ export async function getDeletedReleases(
     WHERE pr.deleted_at IS NOT NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
-      AND s.chamber = 'senate'
+      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
   `;
   const items = await sql`
     SELECT pr.id, pr.official_id, pr.title, pr.published_at, pr.body_text,
@@ -456,7 +456,7 @@ export async function getDeletedReleases(
     WHERE pr.deleted_at IS NOT NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
-      AND s.chamber = 'senate'
+      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
     ORDER BY pr.deleted_at DESC
     LIMIT ${perPage} OFFSET ${offset}
   `;
@@ -554,7 +554,7 @@ export async function getStats() {
       max(pr.published_at) as latest
     FROM officials s
     LEFT JOIN official_site_items pr ON pr.official_id = s.id AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
-    WHERE s.status = 'active' AND s.chamber = 'senate'
+    WHERE s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
   `;
   return result[0];
 }
@@ -567,7 +567,7 @@ export async function getTopSenators(limit = 10) {
     JOIN officials s ON s.id = pr.official_id
     WHERE pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       AND s.status = 'active'
-      AND s.chamber = 'senate'
+      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
     GROUP BY s.id, s.full_name, s.party, s.state
     ORDER BY count DESC
     LIMIT ${limit}
@@ -583,7 +583,7 @@ export async function getLeastActiveSenators(limit = 10) {
     LEFT JOIN official_site_items pr ON s.id = pr.official_id AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
     WHERE s.collection_method IS NOT NULL
       AND s.status = 'active'
-      AND s.chamber = 'senate'
+      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
     GROUP BY s.id, s.full_name, s.party, s.state
     ORDER BY count ASC
     LIMIT ${limit}
@@ -766,7 +766,7 @@ export async function getThemeSparkline({
       WHERE pr.published_at >= (${endDate}::date - ${days}::int)
         AND pr.published_at < (${endDate}::date + 1)
         AND pr.deleted_at IS NULL
-        AND s.status = 'active' AND s.chamber = 'senate'
+        AND s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         AND pr.fts @@ to_tsquery('english', ${tsquery})
       GROUP BY 1
     )

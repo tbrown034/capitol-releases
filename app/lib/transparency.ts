@@ -15,7 +15,7 @@ export async function getDataQuality() {
       count(DISTINCT pr.official_id)::int as senators_with_data
     FROM official_site_items pr
     JOIN officials s ON s.id = pr.official_id
-    WHERE s.chamber = 'senate' AND s.status = 'active'
+    WHERE s.chamber = 'senate' AND s.jurisdiction = 'us' AND s.status = 'active'
       AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
   `;
   return result[0];
@@ -31,7 +31,7 @@ export async function getCoverageByFamily() {
            count(*) FILTER (WHERE pr.body_text IS NOT NULL AND length(pr.body_text) > 50)::int as has_body
     FROM officials s
     LEFT JOIN official_site_items pr ON pr.official_id = s.id
-    WHERE s.chamber = 'senate'
+    WHERE s.chamber = 'senate' AND s.jurisdiction = 'us'
     GROUP BY s.parser_family
     ORDER BY release_count DESC
   `;
@@ -42,7 +42,7 @@ export async function getCollectionMethodBreakdown() {
     SELECT collection_method,
            count(*)::int as senator_count
     FROM officials
-    WHERE chamber = 'senate' AND status = 'active' AND collection_method IS NOT NULL
+    WHERE chamber = 'senate' AND jurisdiction = 'us' AND status = 'active' AND collection_method IS NOT NULL
     GROUP BY collection_method
     ORDER BY senator_count DESC
   `;
@@ -54,7 +54,7 @@ export async function getContentTypeBreakdown() {
            count(*)::int as count
     FROM official_site_items pr
     JOIN officials s ON s.id = pr.official_id
-    WHERE s.chamber = 'senate' AND pr.deleted_at IS NULL
+    WHERE s.chamber = 'senate' AND s.jurisdiction = 'us' AND pr.deleted_at IS NULL
     GROUP BY pr.content_type
     ORDER BY count DESC
   `;
@@ -65,7 +65,7 @@ export async function getDeletionCount() {
     SELECT count(*)::int as count
     FROM official_site_items pr
     JOIN officials s ON s.id = pr.official_id
-    WHERE s.chamber = 'senate' AND pr.deleted_at IS NOT NULL
+    WHERE s.chamber = 'senate' AND s.jurisdiction = 'us' AND pr.deleted_at IS NOT NULL
   `;
   return Number(result[0]?.count ?? 0);
 }
@@ -85,7 +85,7 @@ export async function getCoverageDepth() {
            END as coverage
     FROM officials s
     LEFT JOIN official_site_items pr ON pr.official_id = s.id
-    WHERE s.chamber = 'senate'
+    WHERE s.chamber = 'senate' AND s.jurisdiction = 'us'
     GROUP BY s.id, s.full_name, s.party, s.state, s.parser_family
     ORDER BY s.state, s.full_name
   `;

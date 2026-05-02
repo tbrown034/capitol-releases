@@ -182,7 +182,7 @@ export async function getTopicOwnership(terms: string[]) {
         FROM officials s
         JOIN official_site_items pr ON pr.official_id = s.id
         WHERE s.status = 'active'
-          AND s.chamber = 'senate'
+          AND s.chamber = 'senate' AND s.jurisdiction = 'us'
           AND pr.deleted_at IS NULL
           AND pr.content_type != 'photo_release'
           AND pr.published_at IS NOT NULL
@@ -227,7 +227,7 @@ export async function getPartySkew(limit = 12) {
         AND pr.content_type != 'photo_release'
         AND pr.published_at >= '2025-01-01'
         AND s.status = 'active'
-        AND s.chamber = 'senate'
+        AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         AND s.party IN ('D','R')
     ),
     cleaned AS (

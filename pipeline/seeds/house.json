@@ -624,7 +624,8 @@
       "last_verified": "2026-05-02",
       "recon_status": "needs_attention",
       "collection_method": "rss",
-      "rss_feed_url": "https://kiley.house.gov/feed"
+      "rss_feed_url": "https://kiley.house.gov/feed",
+      "district": "3"
     },
     {
       "member_id": "thompson-mike",
@@ -2884,7 +2885,8 @@
       "last_verified": "2026-05-02",
       "recon_status": "needs_attention",
       "collection_method": "rss",
-      "rss_feed_url": "https://moskowitz.house.gov/feed"
+      "rss_feed_url": "https://moskowitz.house.gov/feed",
+      "district": "23"
     },
     {
       "member_id": "wilson-frederica",
@@ -6785,7 +6787,8 @@
       "last_verified": "2026-05-02",
       "recon_status": "needs_attention",
       "collection_method": "rss",
-      "rss_feed_url": "https://gottheimer.house.gov/feed"
+      "rss_feed_url": "https://gottheimer.house.gov/feed",
+      "district": "5"
     },
     {
       "member_id": "pallone-frank",
@@ -7977,7 +7980,8 @@
       "last_verified": "2026-05-02",
       "recon_status": "needs_attention",
       "collection_method": "rss",
-      "rss_feed_url": "https://maxmiller.house.gov/feed"
+      "rss_feed_url": "https://maxmiller.house.gov/feed",
+      "district": "7"
     },
     {
       "member_id": "davidson-warren",
@@ -10111,7 +10115,8 @@
       "last_verified": "2026-05-02",
       "recon_status": "needs_attention",
       "collection_method": "rss",
-      "rss_feed_url": "https://cloud.house.gov/feed"
+      "rss_feed_url": "https://cloud.house.gov/feed",
+      "district": "27"
     },
     {
       "member_id": "cuellar-henry",

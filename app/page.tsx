@@ -117,18 +117,18 @@ export default async function Home() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-center">
           <div className="md:col-span-7">
             <h1 className="font-serif text-4xl sm:text-5xl md:text-[3.25rem] leading-[1.05] text-neutral-900 mb-3 md:mb-4">
-              100 Senators.
+              Every member of Congress.
               <br />
-              One Archive.
+              One archive.
             </h1>
             <p className="text-base md:text-lg text-neutral-700 max-w-2xl leading-snug mb-3">
-              See who&rsquo;s posting most, on what topics, and how the Senate&rsquo;s
+              See who&rsquo;s posting most, on what topics, and how Congress&rsquo;s
               press machine moves day to day.
             </p>
             <p className="text-sm md:text-base text-neutral-500 max-w-2xl leading-relaxed">
-              Every record each senator&rsquo;s office publishes on their own
-              senate.gov site. Normalized, searchable, updated multiple
-              times daily.
+              Every record each member&rsquo;s office publishes on their own
+              .gov site — all 100 senators and 437 House representatives.
+              Normalized, searchable, updated multiple times daily.
             </p>
           </div>
           {heroItems.length > 0 && (

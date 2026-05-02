@@ -11,7 +11,7 @@ export async function getSenatorActivity() {
       AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       AND pr.published_at >= '2025-01-01'
       AND s.status = 'active'
-      AND s.chamber = 'senate'
+      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
     GROUP BY s.id, s.full_name, s.party, s.state, week
     ORDER BY s.full_name, week
   `;
@@ -29,7 +29,7 @@ export async function getTopicTrends() {
       SELECT DISTINCT
         regexp_replace(lower(split_part(full_name, ' ', -1)), 's$', '') AS surname
       FROM officials
-      WHERE chamber = 'senate' AND status = 'active'
+      WHERE chamber = 'senate' AND jurisdiction = 'us' AND status = 'active'
     ),
     stemmed AS (
       SELECT DISTINCT pr.id,
@@ -43,7 +43,7 @@ export async function getTopicTrends() {
       JOIN officials s ON s.id = pr.official_id
       WHERE pr.published_at >= NOW() - interval '30 days'
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
-        AND s.status = 'active' AND s.chamber = 'senate'
+        AND s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
     )
     SELECT word, count(*)::int as count
     FROM stemmed
@@ -120,7 +120,7 @@ export async function getSenatorSignatureTopics(
       WHERE pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
         AND pr.published_at >= '2025-01-01'
         AND s.status = 'active'
-        AND s.chamber = 'senate'
+        AND s.chamber = 'senate' AND s.jurisdiction = 'us'
     ),
     name_filtered AS (
       SELECT word, is_self FROM all_words
@@ -226,7 +226,7 @@ export async function getChamberActivity(days = 7) {
       GROUP BY official_id
     ) rc ON rc.official_id = s.id
     WHERE s.status = 'active'
-      AND s.chamber = 'senate'
+      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
     ORDER BY s.party, s.state, s.full_name
   `;
 }
@@ -240,7 +240,7 @@ export async function getMailbag(days = 7) {
       AND pr.published_at IS NOT NULL
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
-      AND s.status = 'active' AND s.chamber = 'senate'
+      AND s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
     GROUP BY pr.content_type
     ORDER BY count DESC
   `;
@@ -256,7 +256,7 @@ export async function getDailyVolume(days = 90) {
       AND pr.published_at IS NOT NULL
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
-      AND s.status = 'active' AND s.chamber = 'senate'
+      AND s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
     GROUP BY day
     ORDER BY day
   `;

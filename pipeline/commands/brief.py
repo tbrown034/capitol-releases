@@ -87,7 +87,7 @@ def fetch_day_releases(conn, brief_day: date) -> list[dict]:
           AND pr.published_at < %s
           AND pr.deleted_at IS NULL
           AND s.status = 'active'
-          AND s.chamber = 'senate'
+          AND s.chamber = 'senate' AND s.jurisdiction = 'us'
           AND pr.content_type IN ('press_release', 'statement', 'floor_statement', 'op_ed')
         ORDER BY pr.published_at ASC
         """,
@@ -124,7 +124,7 @@ def compute_volume_baseline(conn, brief_day: date) -> dict:
         SELECT COUNT(*) FROM official_site_items pr
         JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= %s AND pr.published_at < %s
-          AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate'
+          AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         """,
         (today_start, today_end),
     )
@@ -139,7 +139,7 @@ def compute_volume_baseline(conn, brief_day: date) -> dict:
             SELECT COUNT(*) FROM official_site_items pr
             JOIN officials s ON s.id = pr.official_id
             WHERE pr.published_at >= %s AND pr.published_at < %s
-              AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate'
+              AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
             """,
             (s, e),
         )
@@ -179,7 +179,7 @@ def fetch_silent_senators(conn, brief_day: date, threshold_days: int = 14) -> li
         FROM officials s
         LEFT JOIN official_site_items pr
           ON pr.official_id = s.id AND pr.deleted_at IS NULL
-        WHERE s.status = 'active' AND s.chamber = 'senate'
+        WHERE s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.id, s.full_name, s.party, s.state
         HAVING MAX(pr.published_at) FILTER (WHERE pr.published_at < %s) IS NULL
             OR MAX(pr.published_at) FILTER (WHERE pr.published_at < %s) < %s
@@ -213,7 +213,7 @@ def fetch_quiet_week_senators(conn, week_start: date, week_end: date) -> list[di
                ) AS week_count
         FROM officials s
         LEFT JOIN official_site_items pr ON pr.official_id = s.id
-        WHERE s.status = 'active' AND s.chamber = 'senate'
+        WHERE s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.id, s.full_name, s.party, s.state
         HAVING COUNT(pr.id) FILTER (
                  WHERE pr.published_at >= %s AND pr.published_at < %s AND pr.deleted_at IS NULL
@@ -265,7 +265,7 @@ def fetch_week_release_index(conn, week_start: date, week_end: date) -> list[dic
         JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= %s AND pr.published_at < %s
           AND pr.deleted_at IS NULL
-          AND s.status = 'active' AND s.chamber = 'senate'
+          AND s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
           AND pr.content_type IN ('press_release', 'statement', 'floor_statement', 'op_ed')
         ORDER BY pr.published_at ASC
         """,
@@ -297,7 +297,7 @@ def compute_weekly_volume(conn, week_start: date, week_end: date) -> dict:
         SELECT s.party, COUNT(*) FROM official_site_items pr
         JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= %s AND pr.published_at < %s
-          AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate'
+          AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.party
         """,
         (s_utc, e_utc),
@@ -319,7 +319,7 @@ def compute_weekly_volume(conn, week_start: date, week_end: date) -> dict:
             SELECT COUNT(*) FROM official_site_items pr
             JOIN officials s ON s.id = pr.official_id
             WHERE pr.published_at >= %s AND pr.published_at < %s
-              AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate'
+              AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
             """,
             (ws_utc, we_utc),
         )
