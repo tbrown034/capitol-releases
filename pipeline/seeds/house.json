@@ -15,10 +15,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h5 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h5 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 13 items on listing page. ",
@@ -126,10 +126,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 20 items on listing page. ",
@@ -206,20 +206,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 216 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 7,
-      "bioguide_id": "S001185"
+      "bioguide_id": "S001185",
+      "collection_method": "httpx"
     },
     {
       "member_id": "crawford-eric",
@@ -426,20 +429,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 3,
-      "bioguide_id": "A000381"
+      "bioguide_id": "A000381",
+      "collection_method": "httpx"
     },
     {
       "member_id": "stanton-greg",
@@ -451,20 +455,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 112 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 4,
-      "bioguide_id": "S001211"
+      "bioguide_id": "S001211",
+      "collection_method": "httpx"
     },
     {
       "member_id": "biggs-andy",
@@ -481,10 +488,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
@@ -538,10 +545,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
@@ -615,20 +622,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
-        "list_item": "h2.media__title.title",
+        "list_item": "h2.media__title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 2,
-      "bioguide_id": "H001068"
+      "bioguide_id": "H001068",
+      "collection_method": "httpx"
     },
     {
       "member_id": "kiley-kevin",
@@ -865,10 +873,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 12 items on listing page. ",
@@ -916,16 +924,24 @@
       "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
-      "selectors": {},
+      "selectors": {
+        "list_item": ".views-row",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
       "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 13,
       "website_url": "https://gray.house.gov",
-      "bioguide_id": "G000605"
+      "bioguide_id": "G000605",
+      "collection_method": "httpx"
     },
     {
       "member_id": "mullin-kevin",
@@ -998,10 +1014,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 14 items on listing page. ",
@@ -1026,17 +1042,18 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
+        "list_item": "div.h3",
         "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 16 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 18,
-      "bioguide_id": "L000397"
+      "bioguide_id": "L000397",
+      "collection_method": "httpx"
     },
     {
       "member_id": "panetta-jimmy",
@@ -1165,10 +1182,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 10 items on listing page. ",
@@ -1494,20 +1511,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 35,
-      "bioguide_id": "T000474"
+      "bioguide_id": "T000474",
+      "collection_method": "httpx"
     },
     {
       "member_id": "lieu-ted",
@@ -1524,10 +1542,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
@@ -1575,15 +1593,23 @@
       "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
-      "selectors": {},
+      "selectors": {
+        "list_item": ".views-row",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
       "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 38,
-      "bioguide_id": "S001156"
+      "bioguide_id": "S001156",
+      "collection_method": "httpx"
     },
     {
       "member_id": "takano-mark",
@@ -1596,20 +1622,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 39,
-      "bioguide_id": "T000472"
+      "bioguide_id": "T000472",
+      "collection_method": "httpx"
     },
     {
       "member_id": "kim-young",
@@ -1709,10 +1736,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 14 items on listing page. ",
@@ -1783,20 +1810,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 46,
-      "bioguide_id": "C001110"
+      "bioguide_id": "C001110",
+      "collection_method": "httpx"
     },
     {
       "member_id": "min-dave",
@@ -1841,10 +1869,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 10 items on listing page. ",
@@ -1870,14 +1898,15 @@
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.85,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 49,
-      "bioguide_id": "L000593"
+      "bioguide_id": "L000593",
+      "collection_method": "httpx"
     },
     {
       "member_id": "peters-scott",
@@ -1919,20 +1948,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 51,
-      "bioguide_id": "J000305"
+      "bioguide_id": "J000305",
+      "collection_method": "httpx"
     },
     {
       "member_id": "vargas-juan",
@@ -2005,10 +2035,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 18 items on listing page. ",
@@ -2062,10 +2092,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 10 items on listing page. ",
@@ -2118,10 +2148,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 14 items on listing page. ",
@@ -2201,10 +2231,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 12 items on listing page. ",
@@ -2257,10 +2287,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
@@ -2280,20 +2310,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "list_item": "div.media-digest-body",
+        "title": "a",
+        "date": ".post-media-digest-date",
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 238 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 4,
-      "bioguide_id": "H001047"
+      "bioguide_id": "H001047",
+      "collection_method": "httpx"
     },
     {
       "member_id": "hayes-jahana",
@@ -2305,20 +2338,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "list_item": "div.media-digest-body",
+        "title": "a",
+        "date": ".post-media-digest-date",
+        "detail_link": "a[href]"
       },
       "confidence": 0.6,
       "notes": "Found 126 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 5,
-      "bioguide_id": "H001081"
+      "bioguide_id": "H001081",
+      "collection_method": "httpx"
     },
     {
       "member_id": "norton-eleanor",
@@ -2363,10 +2399,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
@@ -2446,10 +2482,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
@@ -2614,10 +2650,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 13 items on listing page. ",
@@ -2638,20 +2674,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 10,
-      "bioguide_id": "F000476"
+      "bioguide_id": "F000476",
+      "collection_method": "httpx"
     },
     {
       "member_id": "webster-daniel",
@@ -2663,20 +2700,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 110 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 11,
-      "bioguide_id": "W000806"
+      "bioguide_id": "W000806",
+      "collection_method": "httpx"
     },
     {
       "member_id": "bilirakis-gus",
@@ -2936,20 +2976,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 161 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 21,
-      "bioguide_id": "M001199"
+      "bioguide_id": "M001199",
+      "collection_method": "httpx"
     },
     {
       "member_id": "frankel-lois",
@@ -3121,20 +3164,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 94 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 28,
-      "bioguide_id": "G000593"
+      "bioguide_id": "G000593",
+      "collection_method": "httpx"
     },
     {
       "member_id": "carter-earl",
@@ -3229,15 +3275,23 @@
       "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
-      "selectors": {},
+      "selectors": {
+        "list_item": ".views-row",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
       "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 4,
-      "bioguide_id": "J000288"
+      "bioguide_id": "J000288",
+      "collection_method": "httpx"
     },
     {
       "member_id": "williams-nikema",
@@ -3271,20 +3325,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 118 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 6,
-      "bioguide_id": "M001208"
+      "bioguide_id": "M001208",
+      "collection_method": "httpx"
     },
     {
       "member_id": "mccormick-richard",
@@ -3301,10 +3358,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 12 items on listing page. ",
@@ -3324,20 +3381,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "list_item": "div.media-digest-body",
+        "title": "a",
+        "date": ".post-media-digest-date",
+        "detail_link": "a[href]"
       },
       "confidence": 0.6,
       "notes": "Found 104 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 8,
-      "bioguide_id": "S001189"
+      "bioguide_id": "S001189",
+      "collection_method": "httpx"
     },
     {
       "member_id": "clyde-andrew",
@@ -3376,16 +3436,24 @@
       "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
-      "selectors": {},
+      "selectors": {
+        "list_item": ".views-row",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
       "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 10,
       "website_url": "https://collins.house.gov",
-      "bioguide_id": "C001129"
+      "bioguide_id": "C001129",
+      "collection_method": "httpx"
     },
     {
       "member_id": "loudermilk-barry",
@@ -3559,20 +3627,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 2,
-      "bioguide_id": "T000487"
+      "bioguide_id": "T000487",
+      "collection_method": "httpx"
     },
     {
       "member_id": "millermeeks-mariannette",
@@ -3589,10 +3658,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 10 items on listing page. ",
@@ -3893,20 +3962,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 6,
-      "bioguide_id": "C001117"
+      "bioguide_id": "C001117",
+      "collection_method": "httpx"
     },
     {
       "member_id": "davis-danny",
@@ -4059,20 +4129,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 130 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 12,
-      "bioguide_id": "B001295"
+      "bioguide_id": "B001295",
+      "collection_method": "httpx"
     },
     {
       "member_id": "budzinski-nikki",
@@ -4162,20 +4235,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 137 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 16,
-      "bioguide_id": "L000585"
+      "bioguide_id": "L000585",
+      "collection_method": "httpx"
     },
     {
       "member_id": "sorensen-eric",
@@ -4521,10 +4597,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 12 items on listing page. ",
@@ -4567,24 +4643,27 @@
       "party": "R",
       "state": "KY",
       "official_url": "https://comer.house.gov",
-      "press_release_url": "https://comer.house.gov/media",
+      "press_release_url": "https://comer.house.gov/press-release",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 113 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 1,
-      "bioguide_id": "C001108"
+      "bioguide_id": "C001108",
+      "collection_method": "httpx"
     },
     {
       "member_id": "guthrie-brett",
@@ -4623,20 +4702,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 3,
-      "bioguide_id": "M001220"
+      "bioguide_id": "M001220",
+      "collection_method": "httpx"
     },
     {
       "member_id": "massie-thomas",
@@ -4675,20 +4755,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 208 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 5,
-      "bioguide_id": "R000395"
+      "bioguide_id": "R000395",
+      "collection_method": "httpx"
     },
     {
       "member_id": "barr-andy",
@@ -4700,20 +4783,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 154 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 6,
-      "bioguide_id": "B001282"
+      "bioguide_id": "B001282",
+      "collection_method": "httpx"
     },
     {
       "member_id": "scalise-steve",
@@ -4972,20 +5058,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 4,
-      "bioguide_id": "A000148"
+      "bioguide_id": "A000148",
+      "collection_method": "httpx"
     },
     {
       "member_id": "clark-katherine",
@@ -4997,20 +5084,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 120 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 5,
-      "bioguide_id": "C001101"
+      "bioguide_id": "C001101",
+      "collection_method": "httpx"
     },
     {
       "member_id": "moulton-seth",
@@ -5046,22 +5136,22 @@
       "party": "D",
       "state": "MA",
       "official_url": "https://pressley.house.gov",
-      "press_release_url": "https://pressley.house.gov/press-kit/",
+      "press_release_url": "https://pressley.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {
-        "list_item": null,
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "list_item": "article.post, article.hentry, .post",
+        "title": "h2.entry-title a, h3.entry-title a, h2 a",
+        "date": "time.entry-date, .entry-date, time",
+        "detail_link": "h2.entry-title a[href], h2 a[href]"
       },
       "confidence": 0.3,
       "notes": "",
       "last_verified": "2026-05-02",
-      "recon_status": "needs_attention",
+      "recon_status": "verified",
       "district": 7,
       "collection_method": "rss",
       "rss_feed_url": "https://pressley.house.gov/feed/",
@@ -5077,20 +5167,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 149 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 8,
-      "bioguide_id": "L000562"
+      "bioguide_id": "L000562",
+      "collection_method": "httpx"
     },
     {
       "member_id": "keating-william",
@@ -5304,10 +5397,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 10 items on listing page. ",
@@ -5327,20 +5420,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 267 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 8,
-      "bioguide_id": "R000606"
+      "bioguide_id": "R000606",
+      "collection_method": "httpx"
     },
     {
       "member_id": "pingree-chellie",
@@ -5574,15 +5670,23 @@
       "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
-      "selectors": {},
+      "selectors": {
+        "list_item": ".views-row",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
       "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 7,
-      "bioguide_id": "B001321"
+      "bioguide_id": "B001321",
+      "collection_method": "httpx"
     },
     {
       "member_id": "rivet-kristen",
@@ -5622,20 +5726,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 80 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 9,
-      "bioguide_id": "M001136"
+      "bioguide_id": "M001136",
+      "collection_method": "httpx"
     },
     {
       "member_id": "james-john",
@@ -5647,16 +5754,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "link_follow",
+        "next_selector": "a.next, a.older"
       },
-      "selectors": {},
+      "selectors": {
+        "list_item": "article",
+        "title": "h2 a",
+        "date": "time",
+        "detail_link": "a[href]"
+      },
       "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 10,
       "website_url": "https://james.house.gov",
-      "bioguide_id": "J000307"
+      "bioguide_id": "J000307",
+      "collection_method": "httpx"
     },
     {
       "member_id": "stevens-haley",
@@ -5720,20 +5834,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
-        "list_item": "li",
-        "title": "a",
+        "list_item": "h2.title",
+        "title": "h2 a",
         "date": null,
         "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 138 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 13,
-      "bioguide_id": "T000488"
+      "bioguide_id": "T000488",
+      "collection_method": "httpx"
     },
     {
       "member_id": "finstad-brad",
@@ -5915,20 +6030,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 79 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 7,
-      "bioguide_id": "F000470"
+      "bioguide_id": "F000470",
+      "collection_method": "httpx"
     },
     {
       "member_id": "stauber-pete",
@@ -6160,24 +6278,26 @@
       "party": "R",
       "state": "MO",
       "official_url": "https://jasonsmith.house.gov",
-      "press_release_url": "https://jasonsmith.house.gov/2016/09/07/news-delta-regional-authority-state-and-local-partners-invest-more-than-7-million-into-the-missouri-bootheel-economy/",
+      "press_release_url": "https://jasonsmith.house.gov/category/press_release/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "link_follow",
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
-        "list_item": null,
-        "title": null,
+        "list_item": ".item",
+        "title": "h3",
         "date": null,
         "detail_link": null
       },
       "confidence": 0.35,
       "notes": "",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 8,
-      "bioguide_id": "S001195"
+      "bioguide_id": "S001195",
+      "collection_method": "httpx"
     },
     {
       "member_id": "kinghinds-kimberlyn",
@@ -6385,16 +6505,24 @@
       "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
-      "selectors": {},
+      "selectors": {
+        "list_item": ".views-row",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
       "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 1,
       "website_url": "https://dondavis.house.gov",
-      "bioguide_id": "D000230"
+      "bioguide_id": "D000230",
+      "collection_method": "httpx"
     },
     {
       "member_id": "ross-deborah",
@@ -6406,20 +6534,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 118 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 2,
-      "bioguide_id": "R000305"
+      "bioguide_id": "R000305",
+      "collection_method": "httpx"
     },
     {
       "member_id": "murphy-gregory",
@@ -6460,20 +6591,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 4,
-      "bioguide_id": "F000477"
+      "bioguide_id": "F000477",
+      "collection_method": "httpx"
     },
     {
       "member_id": "foxx-virginia",
@@ -6937,20 +7069,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "list_item": "div.media-digest-body",
+        "title": "a",
+        "date": ".post-media-digest-date",
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 162 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 1,
-      "bioguide_id": "N000188"
+      "bioguide_id": "N000188",
+      "collection_method": "httpx"
     },
     {
       "member_id": "drew-jefferson",
@@ -7020,17 +7155,18 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "li.noborder",
+        "list_item": "div.box",
         "title": "a",
-        "date": null,
+        "date": ".date",
         "detail_link": "a[href]"
       },
       "confidence": 0.85,
       "notes": "Found 6 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 4,
-      "bioguide_id": "S000522"
+      "bioguide_id": "S000522",
+      "collection_method": "httpx"
     },
     {
       "member_id": "gottheimer-josh",
@@ -7097,10 +7233,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 10 items on listing page. ",
@@ -7121,20 +7257,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 8,
-      "bioguide_id": "M001226"
+      "bioguide_id": "M001226",
+      "collection_method": "httpx"
     },
     {
       "member_id": "pou-nellie",
@@ -7176,20 +7313,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 10,
-      "bioguide_id": "M001229"
+      "bioguide_id": "M001229",
+      "collection_method": "httpx"
     },
     {
       "member_id": "coleman-bonnie",
@@ -7202,20 +7340,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 12,
-      "bioguide_id": "W000822"
+      "bioguide_id": "W000822",
+      "collection_method": "httpx"
     },
     {
       "member_id": "stansbury-melanie",
@@ -7283,15 +7422,22 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "link_follow",
+        "next_selector": "a.next, a.older"
       },
-      "selectors": {},
+      "selectors": {
+        "list_item": "article",
+        "title": "h2 a",
+        "date": "time",
+        "detail_link": "a[href]"
+      },
       "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 3,
-      "bioguide_id": "L000273"
+      "bioguide_id": "L000273",
+      "collection_method": "httpx"
     },
     {
       "member_id": "titus-dina",
@@ -7426,10 +7572,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 16 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 1,
-      "bioguide_id": "L000598"
+      "bioguide_id": "L000598",
+      "collection_method": "httpx"
     },
     {
       "member_id": "garbarino-andrew",
@@ -7582,15 +7729,23 @@
       "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
-      "selectors": {},
+      "selectors": {
+        "list_item": ".views-row",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
       "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 7,
-      "bioguide_id": "V000081"
+      "bioguide_id": "V000081",
+      "collection_method": "httpx"
     },
     {
       "member_id": "jeffries-hakeem",
@@ -7782,10 +7937,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 10 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 14,
-      "bioguide_id": "O000172"
+      "bioguide_id": "O000172",
+      "collection_method": "httpx"
     },
     {
       "member_id": "torres-ritchie",
@@ -7957,20 +8113,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 158 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 21,
-      "bioguide_id": "S001196"
+      "bioguide_id": "S001196",
+      "collection_method": "httpx"
     },
     {
       "member_id": "mannion-john",
@@ -8071,10 +8230,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 14 items on listing page. ",
@@ -8204,10 +8363,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
@@ -8303,20 +8462,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 96 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 8,
-      "bioguide_id": "D000626"
+      "bioguide_id": "D000626",
+      "collection_method": "httpx"
     },
     {
       "member_id": "kaptur-marcy",
@@ -8356,20 +8518,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 200 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 10,
-      "bioguide_id": "T000463"
+      "bioguide_id": "T000463",
+      "collection_method": "httpx"
     },
     {
       "member_id": "brown-shontel",
@@ -8438,20 +8603,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "tr",
         "title": "a",
-        "date": "time",
+        "date": null,
         "detail_link": "a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 22 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 13,
-      "bioguide_id": "S001223"
+      "bioguide_id": "S001223",
+      "collection_method": "httpx"
     },
     {
       "member_id": "joyce-david",
@@ -8732,20 +8898,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 4,
-      "bioguide_id": "H001094"
+      "bioguide_id": "H001094",
+      "collection_method": "httpx"
     },
     {
       "member_id": "bynum-janelle",
@@ -8762,10 +8929,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 12 items on listing page. ",
@@ -8814,20 +8981,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 175 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 1,
-      "bioguide_id": "F000466"
+      "bioguide_id": "F000466",
+      "collection_method": "httpx"
     },
     {
       "member_id": "boyle-brendan",
@@ -8851,10 +9021,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 15 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 2,
-      "bioguide_id": "B001296"
+      "bioguide_id": "B001296",
+      "collection_method": "httpx"
     },
     {
       "member_id": "evans-dwight",
@@ -8895,20 +9066,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 97 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 4,
-      "bioguide_id": "D000631"
+      "bioguide_id": "D000631",
+      "collection_method": "httpx"
     },
     {
       "member_id": "scanlon-mary",
@@ -8950,17 +9124,18 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": "strong.title",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 132 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 6,
-      "bioguide_id": "H001085"
+      "bioguide_id": "H001085",
+      "collection_method": "httpx"
     },
     {
       "member_id": "mackenzie-ryan",
@@ -9123,10 +9298,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 17 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 12,
-      "bioguide_id": "L000602"
+      "bioguide_id": "L000602",
+      "collection_method": "httpx"
     },
     {
       "member_id": "joyce-john",
@@ -9167,20 +9343,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 14,
-      "bioguide_id": "R000610"
+      "bioguide_id": "R000610",
+      "collection_method": "httpx"
     },
     {
       "member_id": "thompson-glenn",
@@ -9260,10 +9437,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 17,
-      "bioguide_id": "D000530"
+      "bioguide_id": "D000530",
+      "collection_method": "httpx"
     },
     {
       "member_id": "hernndez-pablo",
@@ -9275,15 +9453,23 @@
       "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
-      "selectors": {},
+      "selectors": {
+        "list_item": ".views-row",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
       "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": "At-Large",
-      "bioguide_id": "H001103"
+      "bioguide_id": "H001103",
+      "collection_method": "httpx"
     },
     {
       "member_id": "amo-gabe",
@@ -9657,20 +9843,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "list_item": "div.media-digest-body",
+        "title": "a",
+        "date": ".post-media-digest-date",
+        "detail_link": "a[href]"
       },
       "confidence": 0.6,
       "notes": "Found 79 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 4,
-      "bioguide_id": "D000616"
+      "bioguide_id": "D000616",
+      "collection_method": "httpx"
     },
     {
       "member_id": "ogles-andrew",
@@ -9851,20 +10040,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 82 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 2,
-      "bioguide_id": "C001120"
+      "bioguide_id": "C001120",
+      "collection_method": "httpx"
     },
     {
       "member_id": "self-keith",
@@ -9931,20 +10123,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "list_item": "div.media-digest-body",
+        "title": "a",
+        "date": ".post-media-digest-date",
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 77 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 5,
-      "bioguide_id": "G000589"
+      "bioguide_id": "G000589",
+      "collection_method": "httpx"
     },
     {
       "member_id": "ellzey-jake",
@@ -9956,20 +10151,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 57 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 6,
-      "bioguide_id": "E000071"
+      "bioguide_id": "E000071",
+      "collection_method": "httpx"
     },
     {
       "member_id": "fletcher-lizzie",
@@ -10255,20 +10453,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 48 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 17,
-      "bioguide_id": "S000250"
+      "bioguide_id": "S000250",
+      "collection_method": "httpx"
     },
     {
       "member_id": "menefee-christian",
@@ -10336,20 +10537,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 20,
-      "bioguide_id": "C001091"
+      "bioguide_id": "C001091",
+      "collection_method": "httpx"
     },
     {
       "member_id": "roy-chip",
@@ -10417,20 +10619,23 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "li",
-        "title": null,
+        "list_item": ".recordList tr",
+        "title": "a",
         "date": null,
-        "detail_link": null
+        "detail_link": "a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 75 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 24,
-      "bioguide_id": "V000134"
+      "bioguide_id": "V000134",
+      "collection_method": "httpx"
     },
     {
       "member_id": "williams-roger",
@@ -10475,10 +10680,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
@@ -10635,10 +10840,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 12 items on listing page. ",
@@ -10719,10 +10924,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 13 items on listing page. ",
@@ -10809,10 +11014,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 38,
-      "bioguide_id": "H001095"
+      "bioguide_id": "H001095",
+      "collection_method": "httpx"
     },
     {
       "member_id": "moore-blake",
@@ -10825,20 +11031,21 @@
       "requires_js": false,
       "pagination": {
         "type": "link_follow",
-        "next_selector": "a.next"
+        "next_selector": "a.next, a.older"
       },
       "selectors": {
         "list_item": "h2.title",
         "title": "h2 a",
         "date": null,
-        "detail_link": "h2 a[href]"
+        "detail_link": "a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 1,
-      "bioguide_id": "M001213"
+      "bioguide_id": "M001213",
+      "collection_method": "httpx"
     },
     {
       "member_id": "maloy-celeste",
@@ -11384,22 +11591,22 @@
       "party": "R",
       "state": "WA",
       "official_url": "https://baumgartner.house.gov",
-      "press_release_url": "https://baumgartner.house.gov/contact/newsletter-subscribe/",
+      "press_release_url": "https://baumgartner.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {
-        "list_item": null,
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "list_item": "article.post, article.hentry, .post",
+        "title": "h2.entry-title a, h3.entry-title a, h2 a",
+        "date": "time.entry-date, .entry-date, time",
+        "detail_link": "h2.entry-title a[href], h2 a[href]"
       },
       "confidence": 0.3,
       "notes": "",
       "last_verified": "2026-05-02",
-      "recon_status": "needs_attention",
+      "recon_status": "verified",
       "district": 5,
       "collection_method": "rss",
       "rss_feed_url": "https://baumgartner.house.gov/feed/",
@@ -11439,24 +11646,26 @@
       "party": "D",
       "state": "WA",
       "official_url": "https://jayapal.house.gov",
-      "press_release_url": "https://jayapal.house.gov/media/press-releases/",
+      "press_release_url": "https://jayapal.house.gov/category/press-releases/",
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "link_follow",
+        "next_selector": "a[rel=\"next\"]"
       },
       "selectors": {
-        "list_item": null,
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "list_item": "div.post-content",
+        "title": "a",
+        "date": ".time-cat",
+        "detail_link": "a[href]"
       },
       "confidence": 0.3,
       "notes": "",
-      "last_verified": "2026-04-16",
-      "recon_status": "needs_attention",
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
       "district": 7,
-      "bioguide_id": "J000298"
+      "bioguide_id": "J000298",
+      "collection_method": "httpx"
     },
     {
       "member_id": "schrier-kim",
@@ -11668,10 +11877,10 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a",
+        "date": ".media-body .row .col-auto:first-child",
+        "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 0.8,
       "notes": "Found 10 items on listing page. ",

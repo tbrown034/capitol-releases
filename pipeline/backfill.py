@@ -199,6 +199,43 @@ def extract_item_data(item, base_url, selectors):
 
     item_classes = " ".join(item.get("class", []))
 
+    # Honor seed-provided selectors first — added 2026-05-02 wave-3 after
+    # finding that 30+ House EvoGov-Drupal sites had title selectors of
+    # `.media-body .h3 a` (matching div class .h3) that none of the
+    # hand-tuned CMS branches below pick up. The legacy generic fallback
+    # at the bottom tries CSS `h3 a` (an actual <h3> element) which misses.
+    # If the seed provides explicit title + detail_link selectors, use
+    # them and skip the heuristic chain entirely. Date selector is
+    # honored when provided, otherwise fall back to the heuristic.
+    seed_title_sel = selectors.get("title")
+    seed_detail_sel = selectors.get("detail_link")
+    seed_date_sel = selectors.get("date")
+    if seed_title_sel and seed_detail_sel:
+        title_el = item.select_one(seed_title_sel)
+        link_el = item.select_one(seed_detail_sel)
+        if title_el and len(title_el.get_text(strip=True)) > 5:
+            title = title_el.get_text(strip=True)
+            href = (link_el.get("href", "") if link_el else "") or (
+                title_el.get("href", "") if title_el.name == "a" else ""
+            )
+            if href:
+                detail_url = urljoin(base_url, href)
+        if seed_date_sel:
+            date_el = item.select_one(seed_date_sel)
+            if date_el:
+                date_text = date_el.get_text(strip=True)
+        if not date_text:
+            block = item.get_text(" ", strip=True)
+            for pat, _ in DATE_PATTERNS:
+                m = pat.search(block)
+                if m:
+                    date_text = m.group(0)
+                    break
+        # Only return if we got a title AND link — otherwise let the
+        # heuristic branches below take a shot too.
+        if title and detail_url:
+            return title, date_text, detail_url
+
     # Grassley: PressBlock
     if "PressBlock" in item_classes:
         link = item.select_one(".PressBlock__content a, a")
