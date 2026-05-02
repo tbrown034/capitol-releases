@@ -95,10 +95,20 @@ def test_minimum_total_records():
 
 
 def test_no_empty_titles():
-    """Every record should have a non-empty title."""
+    """Every record should have a non-empty title.
+
+    Threshold relaxed from <5 to <3 chars on 2026-05-02 after House e-newsletter
+    items surfaced legitimate one-word titles like "Iran" (graves-sam). The
+    original cutoff was Senate-tuned; full press-release headlines typically
+    run 30+ chars. House Drupal newsletters use single-word topic titles.
+    """
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT count(*) FROM press_releases WHERE deleted_at IS NULL AND title IS NULL OR length(trim(title)) < 5")
+    cur.execute("""
+        SELECT count(*) FROM press_releases
+        WHERE deleted_at IS NULL
+          AND (title IS NULL OR length(trim(title)) < 3)
+    """)
     bad = cur.fetchone()[0]
     cur.close()
     conn.close()
