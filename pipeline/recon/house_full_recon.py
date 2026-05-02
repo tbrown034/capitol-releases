@@ -168,6 +168,23 @@ URL_GUESSES = [
     "/blog",
     "/news/blog",
     "/media/letters",
+    # WordPress House sites use category archives; added 2026-05-02
+    # wave-3 to recover schweikert / crane / barragan / similar WP
+    # members the original recon missed.
+    "/category/press-releases",
+    "/category/press-releases/",
+    "/category/press-release",
+    "/category/press-release/",
+    "/category/news",
+    "/category/news/",
+    "/category/op-eds",
+    "/category/op-eds/",
+    "/category/columns",
+    "/category/columns/",
+    "/category/blog",
+    "/category/floor-speeches",
+    "/category/congress_press_release",
+    "/news",
 ]
 
 
@@ -235,6 +252,18 @@ def looks_like_listing(soup: BeautifulSoup) -> tuple[bool, dict]:
         "h2.title",
         "h3.title",
         "div.row",
+        # WordPress House sites: standard hentry / post / item shapes.
+        # Added 2026-05-02 wave-3 after schweikert + barragan WP probes
+        # showed listings using .item and .post selectors that the
+        # earlier candidates list under-matched.
+        ".item",
+        "article.hentry",
+        "article.post",
+        "article.type-post",
+        "li.post-item",
+        "div.post-item",
+        ".loop-item",
+        "main article",
     ]
     for sel in candidates:
         rows = soup.select(sel)
