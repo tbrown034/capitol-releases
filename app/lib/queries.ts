@@ -219,7 +219,12 @@ export async function getSenators(): Promise<SenatorWithCount[]> {
 }
 
 export async function getSenator(id: string): Promise<Senator | null> {
-  const rows = await sql`SELECT * FROM senators WHERE id = ${id}`;
+  // Hard-scope to chamber='senate' so /senators/[id] cannot render a House,
+  // executive, or state-chamber member as a US senator. Other chambers have
+  // their own routes (e.g. /texas/[id]); this loader is US-Senate-only.
+  const rows = await sql`
+    SELECT * FROM senators WHERE id = ${id} AND chamber = 'senate'
+  `;
   return (rows[0] as Senator) ?? null;
 }
 
