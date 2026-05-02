@@ -12,6 +12,20 @@ import { formatLongMonthYear, formatReleaseDate } from "../../lib/dates";
 
 export const revalidate = 600;
 
+// House bioguides whose photo is genuinely absent from the upstream
+// Library-of-Congress mirror at bioguide.congress.gov/bioguide/photo/...
+// AND from congress.gov/img/member/... — confirmed 2026-05-02 wave-3
+// during the bulk download of 437 photos. Treat these as photo-less
+// at render time so the page renders the initials placeholder rather
+// than a broken-image icon. Hand-source replacements in a follow-up
+// pass and remove from this set as they become available.
+const MISSING_PHOTOS = new Set([
+  "B001306", // Troy Balderson (R-OH-12)
+  "C001115", // Michael Cloud (R-TX-27)
+  "G000583", // Josh Gottheimer (D-NJ-5)
+  "S001200", // Darren Soto (D-FL-9)
+]);
+
 const VALID_TYPES = new Set<ContentType>([
   "press_release",
   "statement",
@@ -105,7 +119,7 @@ export default async function HouseMemberPage({
 
       {/* Profile header */}
       <div className="mt-6 flex items-start gap-4">
-        {bioguideId ? (
+        {bioguideId && !MISSING_PHOTOS.has(bioguideId) ? (
           <Image
             src={`/house/${bioguideId}.jpg`}
             alt={member.full_name}
