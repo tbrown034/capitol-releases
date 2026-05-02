@@ -16,13 +16,16 @@ CREATE TABLE IF NOT EXISTS senators (
   last_verified   TIMESTAMPTZ,
   rss_feed_url    TEXT,                    -- RSS feed URL if available
   collection_method TEXT,                  -- rss, httpx, playwright, whitehouse
-  chamber         TEXT NOT NULL DEFAULT 'senate', -- senate, house, executive
+  chamber         TEXT NOT NULL DEFAULT 'senate', -- senate, house, executive, tx_senate, ...
+  district        TEXT,                    -- House district number / 'At-Large'; null for Senate + executive
   bioguide_id     TEXT,                    -- bioguide.congress.gov ID; joins floor_speeches
   created_at      TIMESTAMPTZ DEFAULT NOW(),
   updated_at      TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE UNIQUE INDEX IF NOT EXISTS uq_senators_bioguide_id
   ON senators(bioguide_id) WHERE bioguide_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_senators_state_chamber_district
+  ON senators(state, chamber, district);
 
 -- Press releases (all original senator communications)
 CREATE TABLE IF NOT EXISTS press_releases (

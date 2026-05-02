@@ -176,9 +176,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 16 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 6
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 6,
+      "collection_method": "rss",
+      "rss_feed_url": "https://palmer.house.gov/rss.xml"
     },
     {
       "member_id": "sewell-terri",
@@ -300,9 +302,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 15 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 4
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 4,
+      "collection_method": "rss",
+      "rss_feed_url": "https://westerman.house.gov/rss.xml"
     },
     {
       "member_id": "radewagen-aumua",
@@ -350,9 +354,11 @@
       },
       "confidence": 0.3,
       "notes": "",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 1
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 1,
+      "collection_method": "rss",
+      "rss_feed_url": "https://schweikert.house.gov/feed/"
     },
     {
       "member_id": "crane-elijah",
@@ -374,9 +380,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 10 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 2
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 2,
+      "collection_method": "rss",
+      "rss_feed_url": "https://crane.house.gov/feed/"
     },
     {
       "member_id": "ansari-yassamin",
@@ -475,9 +483,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 16 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 6
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 6,
+      "collection_method": "rss",
+      "rss_feed_url": "https://ciscomani.house.gov/rss.xml"
     },
     {
       "member_id": "grijalva-adelita",
@@ -593,8 +603,10 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mb-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\ndiv.mt-6.mb-3.last:mb-0\n                  ^",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered"
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "collection_method": "rss",
+      "rss_feed_url": "https://kiley.house.gov/feed"
     },
     {
       "member_id": "thompson-mike",
@@ -644,9 +656,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 5
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 5,
+      "collection_method": "rss",
+      "rss_feed_url": "https://mcclintock.house.gov/rss.xml"
     },
     {
       "member_id": "bera-ami",
@@ -774,9 +788,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 10
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 10,
+      "collection_method": "rss",
+      "rss_feed_url": "https://desaulnier.house.gov/rss.xml"
     },
     {
       "member_id": "pelosi-nancy",
@@ -870,9 +886,11 @@
       },
       "confidence": 0.3,
       "notes": "",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 15
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 15,
+      "collection_method": "rss",
+      "rss_feed_url": "https://kevinmullin.house.gov/feed/"
     },
     {
       "member_id": "liccardo-sam",
@@ -1000,9 +1018,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 20
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 20,
+      "collection_method": "rss",
+      "rss_feed_url": "https://fong.house.gov/rss.xml"
     },
     {
       "member_id": "costa-jim",
@@ -1150,9 +1170,11 @@
       },
       "confidence": 0.55,
       "notes": "Timeout/error on /media-center/press-releases. Found 29 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 26
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 26,
+      "collection_method": "rss",
+      "rss_feed_url": "https://juliabrownley.house.gov/feed/"
     },
     {
       "member_id": "whitesides-george",
@@ -1176,9 +1198,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 27
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 27,
+      "collection_method": "rss",
+      "rss_feed_url": "https://whitesides.house.gov/feed/"
     },
     {
       "member_id": "chu-judy",
@@ -1332,9 +1356,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 10 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 33
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 33,
+      "collection_method": "rss",
+      "rss_feed_url": "https://aguilar.house.gov/feed/"
     },
     {
       "member_id": "gomez-jimmy",
@@ -1501,9 +1527,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 40
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 40,
+      "collection_method": "rss",
+      "rss_feed_url": "https://youngkim.house.gov/feed/"
     },
     {
       "member_id": "calvert-ken",
@@ -1598,9 +1626,11 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 44
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 44,
+      "collection_method": "rss",
+      "rss_feed_url": "https://barragan.house.gov/category/press-releases/feed/"
     },
     {
       "member_id": "tran-derek",
@@ -1751,9 +1781,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 10 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 50
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 50,
+      "collection_method": "rss",
+      "rss_feed_url": "https://scottpeters.house.gov/rss.xml"
     },
     {
       "member_id": "jacobs-sara",
@@ -1880,9 +1912,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 3
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 3,
+      "collection_method": "rss",
+      "rss_feed_url": "https://hurd.house.gov/rss.xml"
     },
     {
       "member_id": "boebert-lauren",
@@ -2390,9 +2424,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 8
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 8,
+      "collection_method": "rss",
+      "rss_feed_url": "https://haridopolos.house.gov/rss.xml"
     },
     {
       "member_id": "soto-darren",
@@ -2491,9 +2527,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 12
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 12,
+      "collection_method": "rss",
+      "rss_feed_url": "https://bilirakis.house.gov/rss.xml"
     },
     {
       "member_id": "luna-anna",
@@ -2515,9 +2553,11 @@
       },
       "confidence": 0.3,
       "notes": "",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 13
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 13,
+      "collection_method": "rss",
+      "rss_feed_url": "https://luna.house.gov/feed"
     },
     {
       "member_id": "castor-kathy",
@@ -2589,9 +2629,11 @@
       },
       "confidence": 0.55,
       "notes": "Found 111 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 16
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 16,
+      "collection_method": "rss",
+      "rss_feed_url": "https://buchanan.house.gov/feed/"
     },
     {
       "member_id": "steube-w",
@@ -2615,9 +2657,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 17
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 17,
+      "collection_method": "rss",
+      "rss_feed_url": "https://steube.house.gov/feed/"
     },
     {
       "member_id": "franklin-scott",
@@ -2756,8 +2800,10 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mr-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\narticle.flex-1.last-card.last:mr-0.mr-4.xl:max-w-[50%].xl:box-content.utility-font.w-full.min-h-[48px].min-w-[48px]\n                             ^",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered"
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "collection_method": "rss",
+      "rss_feed_url": "https://moskowitz.house.gov/feed"
     },
     {
       "member_id": "wilson-frederica",
@@ -2995,9 +3041,11 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 5
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 5,
+      "collection_method": "rss",
+      "rss_feed_url": "https://nikemawilliams.house.gov/feed"
     },
     {
       "member_id": "mcbath-lucy",
@@ -3360,9 +3408,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 3
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 3,
+      "collection_method": "rss",
+      "rss_feed_url": "https://nunn.house.gov/category/news/press-releases/feed/"
     },
     {
       "member_id": "feenstra-randy",
@@ -3386,9 +3436,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 10 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 4
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 4,
+      "collection_method": "rss",
+      "rss_feed_url": "https://feenstra.house.gov/rss.xml"
     },
     {
       "member_id": "fulcher-russ",
@@ -3410,9 +3462,11 @@
       },
       "confidence": 0.55,
       "notes": "Found 42 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 1
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 1,
+      "collection_method": "rss",
+      "rss_feed_url": "https://fulcher.house.gov/feed/"
     },
     {
       "member_id": "simpson-michael",
@@ -3486,9 +3540,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 18 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 2
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 2,
+      "collection_method": "rss",
+      "rss_feed_url": "https://robinkelly.house.gov/rss.xml"
     },
     {
       "member_id": "ramirez-delia",
@@ -3693,9 +3749,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 10
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 10,
+      "collection_method": "rss",
+      "rss_feed_url": "https://schneider.house.gov/rss.xml"
     },
     {
       "member_id": "foster-bill",
@@ -3762,9 +3820,11 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 13
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 13,
+      "collection_method": "rss",
+      "rss_feed_url": "https://budzinski.house.gov/feed"
     },
     {
       "member_id": "underwood-lauren",
@@ -3909,9 +3969,11 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 2
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 2,
+      "collection_method": "rss",
+      "rss_feed_url": "https://yakym.house.gov/feed"
     },
     {
       "member_id": "stutzman-marlin",
@@ -4037,9 +4099,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 7
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 7,
+      "collection_method": "rss",
+      "rss_feed_url": "https://carson.house.gov/rss.xml"
     },
     {
       "member_id": "messmer-mark",
@@ -4410,9 +4474,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 3
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 3,
+      "collection_method": "rss",
+      "rss_feed_url": "https://clayhiggins.house.gov/feed/"
     },
     {
       "member_id": "johnson-mike",
@@ -4510,9 +4576,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 1
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 1,
+      "collection_method": "rss",
+      "rss_feed_url": "https://neal.house.gov/feed/"
     },
     {
       "member_id": "mcgovern-james",
@@ -4657,9 +4725,11 @@
       },
       "confidence": 0.3,
       "notes": "",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 7
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 7,
+      "collection_method": "rss",
+      "rss_feed_url": "https://pressley.house.gov/feed/"
     },
     {
       "member_id": "lynch-stephen",
@@ -4785,9 +4855,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 3
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 3,
+      "collection_method": "rss",
+      "rss_feed_url": "https://elfreth.house.gov/rss.xml"
     },
     {
       "member_id": "ivey-glenn",
@@ -4963,9 +5035,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 2
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 2,
+      "collection_method": "rss",
+      "rss_feed_url": "https://golden.house.gov/rss.xml"
     },
     {
       "member_id": "bergman-jack",
@@ -5039,9 +5113,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 3
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 3,
+      "collection_method": "rss",
+      "rss_feed_url": "https://scholten.house.gov/rss.xml"
     },
     {
       "member_id": "huizenga-bill",
@@ -5089,9 +5165,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 10 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 5
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 5,
+      "collection_method": "rss",
+      "rss_feed_url": "https://walberg.house.gov/rss.xml"
     },
     {
       "member_id": "dingell-debbie",
@@ -5228,9 +5306,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 11
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 11,
+      "collection_method": "rss",
+      "rss_feed_url": "https://stevens.house.gov/rss.xml"
     },
     {
       "member_id": "tlaib-rashida",
@@ -5247,9 +5327,11 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 12
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 12,
+      "collection_method": "rss",
+      "rss_feed_url": "https://tlaib.house.gov/feed"
     },
     {
       "member_id": "thanedar-shri",
@@ -5296,9 +5378,11 @@
       },
       "confidence": 0.3,
       "notes": "",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 1
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 1,
+      "collection_method": "rss",
+      "rss_feed_url": "https://finstad.house.gov/feed/"
     },
     {
       "member_id": "craig-angie",
@@ -5374,9 +5458,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 4
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 4,
+      "collection_method": "rss",
+      "rss_feed_url": "https://mccollum.house.gov/rss.xml"
     },
     {
       "member_id": "omar-ilhan",
@@ -5426,9 +5512,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 6
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 6,
+      "collection_method": "rss",
+      "rss_feed_url": "https://emmer.house.gov/rss.xml"
     },
     {
       "member_id": "fischbach-michelle",
@@ -5630,9 +5718,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 15 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 6
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 6,
+      "collection_method": "rss",
+      "rss_feed_url": "https://graves.house.gov/rss.xml"
     },
     {
       "member_id": "burlison-eric",
@@ -5756,9 +5846,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 17 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 2
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 2,
+      "collection_method": "rss",
+      "rss_feed_url": "https://benniethompson.house.gov/rss.xml"
     },
     {
       "member_id": "guest-michael",
@@ -5832,9 +5924,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 1
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 1,
+      "collection_method": "rss",
+      "rss_feed_url": "https://zinke.house.gov/rss.xml"
     },
     {
       "member_id": "downing-troy",
@@ -6079,9 +6173,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 9
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 9,
+      "collection_method": "rss",
+      "rss_feed_url": "https://hudson.house.gov/rss.xml"
     },
     {
       "member_id": "harrigan-pat",
@@ -6131,9 +6227,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 11
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 11,
+      "collection_method": "rss",
+      "rss_feed_url": "https://edwards.house.gov/rss.xml"
     },
     {
       "member_id": "adams-alma",
@@ -6183,9 +6281,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 13
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 13,
+      "collection_method": "rss",
+      "rss_feed_url": "https://knott.house.gov/rss.xml"
     },
     {
       "member_id": "moore-tim",
@@ -6235,9 +6335,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": "At-Large"
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": "At-Large",
+      "collection_method": "rss",
+      "rss_feed_url": "https://fedorchak.house.gov/rss.xml"
     },
     {
       "member_id": "flood-mike",
@@ -6261,9 +6363,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 1
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 1,
+      "collection_method": "rss",
+      "rss_feed_url": "https://flood.house.gov/rss.xml"
     },
     {
       "member_id": "bacon-don",
@@ -6311,9 +6415,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 3
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 3,
+      "collection_method": "rss",
+      "rss_feed_url": "https://adriansmith.house.gov/rss.xml"
     },
     {
       "member_id": "pappas-chris",
@@ -6363,9 +6469,11 @@
       },
       "confidence": 0.9,
       "notes": "Found 46 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 2
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 2,
+      "collection_method": "rss",
+      "rss_feed_url": "https://goodlander.house.gov/feed/"
     },
     {
       "member_id": "norcross-donald",
@@ -6480,8 +6588,10 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mr-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\narticle.flex-1.last-card.last:mr-0.mr-4.xl:max-w-[50%].xl:box-content.utility-font.w-full.min-h-[48px].min-w-[48px]\n                             ^",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered"
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "collection_method": "rss",
+      "rss_feed_url": "https://gottheimer.house.gov/feed"
     },
     {
       "member_id": "pallone-frank",
@@ -6582,9 +6692,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 9
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 9,
+      "collection_method": "rss",
+      "rss_feed_url": "https://pou.house.gov/rss.xml"
     },
     {
       "member_id": "mciver-lamonica",
@@ -6857,9 +6969,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 2
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 2,
+      "collection_method": "rss",
+      "rss_feed_url": "https://garbarino.house.gov/rss.xml"
     },
     {
       "member_id": "suozzi-thomas",
@@ -7004,9 +7118,11 @@
       },
       "confidence": 0.3,
       "notes": "",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 8
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 8,
+      "collection_method": "rss",
+      "rss_feed_url": "https://jeffries.house.gov/feed/"
     },
     {
       "member_id": "clarke-yvette",
@@ -7030,9 +7146,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 9
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 9,
+      "collection_method": "rss",
+      "rss_feed_url": "https://clarke.house.gov/feed/"
     },
     {
       "member_id": "goldman-daniel",
@@ -7082,9 +7200,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 11
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 11,
+      "collection_method": "rss",
+      "rss_feed_url": "https://malliotakis.house.gov/rss.xml"
     },
     {
       "member_id": "nadler-jerrold",
@@ -7177,9 +7297,11 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 15
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 15,
+      "collection_method": "rss",
+      "rss_feed_url": "https://ritchietorres.house.gov/feed"
     },
     {
       "member_id": "latimer-george",
@@ -7279,9 +7401,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 19
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 19,
+      "collection_method": "rss",
+      "rss_feed_url": "https://riley.house.gov/feed/"
     },
     {
       "member_id": "tonko-paul",
@@ -7474,9 +7598,11 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 1
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 1,
+      "collection_method": "rss",
+      "rss_feed_url": "https://landsman.house.gov/feed"
     },
     {
       "member_id": "taylor-david",
@@ -7600,9 +7726,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 6
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 6,
+      "collection_method": "rss",
+      "rss_feed_url": "https://rulli.house.gov/feed/"
     },
     {
       "member_id": "miller-max",
@@ -7619,8 +7747,10 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mr-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\narticle.flex-1.last-card.last:mr-0.mr-4.xl:max-w-[50%].xl:box-content.utility-font.w-full.min-h-[48px].min-w-[48px]\n                             ^",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered"
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "collection_method": "rss",
+      "rss_feed_url": "https://maxmiller.house.gov/feed"
     },
     {
       "member_id": "davidson-warren",
@@ -7718,9 +7848,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 10 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 11
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 11,
+      "collection_method": "rss",
+      "rss_feed_url": "https://shontelbrown.house.gov/rss.xml"
     },
     {
       "member_id": "balderson-troy",
@@ -7786,9 +7918,11 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 14
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 14,
+      "collection_method": "rss",
+      "rss_feed_url": "https://joyce.house.gov/feed"
     },
     {
       "member_id": "carey-mike",
@@ -7810,9 +7944,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 15
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 15,
+      "collection_method": "rss",
+      "rss_feed_url": "https://carey.house.gov/feed/"
     },
     {
       "member_id": "hern-kevin",
@@ -7877,9 +8013,11 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 3
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 3,
+      "collection_method": "rss",
+      "rss_feed_url": "https://lucas.house.gov/feed"
     },
     {
       "member_id": "cole-tom",
@@ -7903,9 +8041,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 22 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 4
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 4,
+      "collection_method": "rss",
+      "rss_feed_url": "https://cole.house.gov/rss.xml"
     },
     {
       "member_id": "bice-stephanie",
@@ -7929,9 +8069,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 10 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 5
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 5,
+      "collection_method": "rss",
+      "rss_feed_url": "https://bice.house.gov/rss.xml"
     },
     {
       "member_id": "bonamici-suzanne",
@@ -7981,9 +8123,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 2
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 2,
+      "collection_method": "rss",
+      "rss_feed_url": "https://bentz.house.gov/rss.xml"
     },
     {
       "member_id": "dexter-maxine",
@@ -8084,9 +8228,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 6
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 6,
+      "collection_method": "rss",
+      "rss_feed_url": "https://salinas.house.gov/rss.xml"
     },
     {
       "member_id": "fitzpatrick-brian",
@@ -8160,9 +8306,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 3
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 3,
+      "collection_method": "rss",
+      "rss_feed_url": "https://evans.house.gov/rss.xml"
     },
     {
       "member_id": "dean-madeleine",
@@ -8612,9 +8760,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 1
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 1,
+      "collection_method": "rss",
+      "rss_feed_url": "https://mace.house.gov/rss.xml"
     },
     {
       "member_id": "wilson-joe",
@@ -8736,9 +8886,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 6 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 6
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 6,
+      "collection_method": "rss",
+      "rss_feed_url": "https://clyburn.house.gov/category/press-release/feed/"
     },
     {
       "member_id": "fry-russell",
@@ -8786,9 +8938,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": "At-Large"
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": "At-Large",
+      "collection_method": "rss",
+      "rss_feed_url": "https://dustyjohnson.house.gov/rss.xml"
     },
     {
       "member_id": "harshbarger-diana",
@@ -8966,9 +9120,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 7
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 7,
+      "collection_method": "rss",
+      "rss_feed_url": "https://vanepps.house.gov/rss.xml"
     },
     {
       "member_id": "kustoff-david",
@@ -9018,9 +9174,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 9
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 9,
+      "collection_method": "rss",
+      "rss_feed_url": "https://cohen.house.gov/rss.xml"
     },
     {
       "member_id": "moran-nathaniel",
@@ -9656,8 +9814,10 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mr-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\narticle.flex-1.last-card.last:mr-0.mr-4.xl:max-w-[50%].xl:box-content.utility-font.w-full.min-h-[48px].min-w-[48px]\n                             ^",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered"
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "collection_method": "rss",
+      "rss_feed_url": "https://cloud.house.gov/feed"
     },
     {
       "member_id": "cuellar-henry",
@@ -10034,9 +10194,11 @@
       },
       "confidence": 0.3,
       "notes": "",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 4
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 4,
+      "collection_method": "rss",
+      "rss_feed_url": "https://owens.house.gov/feed"
     },
     {
       "member_id": "wittman-robert",
@@ -10077,9 +10239,11 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 2
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 2,
+      "collection_method": "rss",
+      "rss_feed_url": "https://kiggans.house.gov/feed/"
     },
     {
       "member_id": "scott-robert",
@@ -10205,9 +10369,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 10 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 7
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 7,
+      "collection_method": "rss",
+      "rss_feed_url": "https://vindman.house.gov/feed/"
     },
     {
       "member_id": "beyer-donald",
@@ -10418,9 +10584,11 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 3
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 3,
+      "collection_method": "rss",
+      "rss_feed_url": "https://gluesenkampperez.house.gov/feed"
     },
     {
       "member_id": "newhouse-dan",
@@ -10444,9 +10612,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 4
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 4,
+      "collection_method": "rss",
+      "rss_feed_url": "https://newhouse.house.gov/rss.xml"
     },
     {
       "member_id": "baumgartner-michael",
@@ -10468,9 +10638,11 @@
       },
       "confidence": 0.3,
       "notes": "",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 5
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 5,
+      "collection_method": "rss",
+      "rss_feed_url": "https://baumgartner.house.gov/feed/"
     },
     {
       "member_id": "randall-emily",
@@ -10594,9 +10766,11 @@
       },
       "confidence": 0.8,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 10
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 10,
+      "collection_method": "rss",
+      "rss_feed_url": "https://strickland.house.gov/feed/"
     },
     {
       "member_id": "steil-bryan",
@@ -10772,9 +10946,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": 7
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": 7,
+      "collection_method": "rss",
+      "rss_feed_url": "https://tiffany.house.gov/rss.xml"
     },
     {
       "member_id": "wied-tony",
@@ -10876,9 +11052,11 @@
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-16",
-      "recon_status": "discovered",
-      "district": "At-Large"
+      "last_verified": "2026-05-02",
+      "recon_status": "verified",
+      "district": "At-Large",
+      "collection_method": "rss",
+      "rss_feed_url": "https://hageman.house.gov/rss.xml"
     }
   ],
   "generated_at": "2026-04-16T13:58:39.971117+00:00"
