@@ -37,11 +37,24 @@ jobs:
       - name: Install dependencies
         run: pip install -r pipeline/requirements.txt
 
+      - name: Pre-scrape health check
+        # Per-member canary: GET each official's listing URL, verify selectors
+        # find items, verify dates parse. Writes to the health_checks table
+        # so the data-health report and /admin dashboard reflect today's
+        # state. Added 2026-05-02 wave-3 after surfacing that 0/437 House
+        # members had ever been checked since the chamber was added.
+        # continue-on-error so a flaky probe doesn't fail the whole run —
+        # the daily update below is the canonical collector and surfaces
+        # any actual breakage.
+        continue-on-error: true
+        run: python -m pipeline health
+
       - name: Run daily update
         # Loads every chamber from pipeline/seeds/*.json via load_members().
-        # That includes senate.json (US), executive.json, and tx_senate.json
-        # (Texas state senate, 30 districts). Adding a new chamber is just
-        # dropping a new seed file and registering it in pipeline/lib/seeds.py.
+        # That includes senate.json (US), house.json (US, 437 members),
+        # executive.json, tx_senate.json (Texas state senate, 30 districts),
+        # and the smaller state seeds. Adding a new chamber is just dropping
+        # a new seed file and registering it in pipeline/lib/seeds.py.
         run: python -m pipeline update
 
       - name: Refresh op-ed silos (WP custom post type)
