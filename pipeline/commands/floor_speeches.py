@@ -364,7 +364,7 @@ def get_last_speech_date(conn) -> date | None:
     return row[0] if row and row[0] else None
 
 
-def get_senator_id_by_bioguide(conn) -> dict[str, str]:
+def get_official_id_by_bioguide(conn) -> dict[str, str]:
     cur = conn.cursor()
     cur.execute("SELECT bioguide_id, id FROM senators WHERE bioguide_id IS NOT NULL")
     out = {bid: sid for bid, sid in cur.fetchall()}
@@ -376,23 +376,23 @@ def upsert_speeches(conn, rows: list[dict], scrape_run: str) -> tuple[int, int]:
     """Insert with ON CONFLICT DO NOTHING. Returns (inserted, skipped)."""
     if not rows:
         return 0, 0
-    bioguide_to_senator = get_senator_id_by_bioguide(conn)
+    bioguide_to_senator = get_official_id_by_bioguide(conn)
     cur = conn.cursor()
     inserted = 0
     skipped = 0
     sql = """
     INSERT INTO floor_speeches
-      (granule_id, bioguide_id, senator_id, turn_index, speech_date, title,
+      (granule_id, bioguide_id, official_id, turn_index, speech_date, title,
        sub_granule_class, speaker_marker, party, state, word_count, body_text,
        is_solo, detail_url, html_url, congress, scrape_run)
     VALUES
-      (%(granule_id)s, %(bioguide_id)s, %(senator_id)s, %(turn_index)s, %(speech_date)s, %(title)s,
+      (%(granule_id)s, %(bioguide_id)s, %(official_id)s, %(turn_index)s, %(speech_date)s, %(title)s,
        %(sub_granule_class)s, %(speaker_marker)s, %(party)s, %(state)s, %(word_count)s, %(body_text)s,
        %(is_solo)s, %(detail_url)s, %(html_url)s, %(congress)s, %(scrape_run)s)
     ON CONFLICT (granule_id, bioguide_id, turn_index) DO NOTHING
     """
     for r in rows:
-        r["senator_id"] = bioguide_to_senator.get(r["bioguide_id"])
+        r["official_id"] = bioguide_to_senator.get(r["bioguide_id"])
         r["scrape_run"] = scrape_run
         cur.execute(sql, r)
         if cur.rowcount:

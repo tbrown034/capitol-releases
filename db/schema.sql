@@ -1,12 +1,19 @@
 -- Capitol Releases database schema
 -- Neon Postgres (via Vercel)
+--
+-- Renamed from `senators` -> `officials` and `press_releases` ->
+-- `official_site_items` on 2026-05-02 (migrations 012, 013, 014, 015) so
+-- the schema fits the realized goal — every elected official at federal
+-- and state level, multiple content streams each. Compat views named
+-- `senators` and `press_releases` exist temporarily for unswept callers
+-- and are dropped in a follow-up migration once the codebase is clean.
 
--- Senators reference table
-CREATE TABLE IF NOT EXISTS senators (
-  id              TEXT PRIMARY KEY,        -- 'warren-elizabeth'
+-- Officials reference table — every person we cover, legislator or executive
+CREATE TABLE IF NOT EXISTS officials (
+  id              TEXT PRIMARY KEY,        -- 'warren-elizabeth' / 'tx-d27-hinojosa-adam' / 'whitehouse'
   full_name       TEXT NOT NULL,
   party           TEXT NOT NULL,           -- 'D', 'R', 'I'
-  state           CHAR(2) NOT NULL,
+  state           CHAR(2) NOT NULL,        -- state they represent (or operate in for execs)
   official_url    TEXT NOT NULL,
   press_release_url TEXT,
   parser_family   TEXT,
@@ -15,32 +22,54 @@ CREATE TABLE IF NOT EXISTS senators (
   confidence      REAL,
   last_verified   TIMESTAMPTZ,
   rss_feed_url    TEXT,                    -- RSS feed URL if available
-  collection_method TEXT,                  -- rss, httpx, playwright, whitehouse
-  chamber         TEXT NOT NULL DEFAULT 'senate', -- senate, house, executive, tx_senate, ...
-  district        TEXT,                    -- House district number / 'At-Large'; null for Senate + executive
-  bioguide_id     TEXT,                    -- bioguide.congress.gov ID; joins floor_speeches
+  collection_method TEXT,                  -- rss, httpx, playwright, whitehouse, tx_senate, ne_unicameral
+  -- Structural columns (added 2026-05-02 migration 012). Together they
+  -- describe what kind of official this is:
+  branch          TEXT NOT NULL,           -- 'legislative' | 'executive'
+  jurisdiction    TEXT NOT NULL,           -- 'us' | 'tx' | 'ca' | ... (state codes for state members)
+  office_type     TEXT NOT NULL,           -- 'senator' | 'representative' | 'state_senator' | 'executive_office' | (later) 'governor' | ...
+  chamber         TEXT,                    -- 'senate' | 'house' | 'unicameral' | NULL (executives)
+  district        TEXT,                    -- House district number / 'At-Large'; NULL for senators + executives
+  bioguide_id     TEXT,                    -- bioguide.congress.gov ID (federal members only)
+  openstates_id   TEXT,                    -- Open States ID (state legislators)
+  external_ids    JSONB,                   -- catch-all for future ID systems (FEC, state-specific, etc.)
   created_at      TIMESTAMPTZ DEFAULT NOW(),
   updated_at      TIMESTAMPTZ DEFAULT NOW()
 );
-CREATE UNIQUE INDEX IF NOT EXISTS uq_senators_bioguide_id
-  ON senators(bioguide_id) WHERE bioguide_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_senators_state_chamber_district
-  ON senators(state, chamber, district);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_officials_bioguide_id
+  ON officials(bioguide_id) WHERE bioguide_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_officials_state_chamber_district
+  ON officials(state, chamber, district);
+CREATE INDEX IF NOT EXISTS idx_officials_jurisdiction_chamber
+  ON officials(jurisdiction, chamber, status);
+CREATE INDEX IF NOT EXISTS idx_officials_branch_jurisdiction
+  ON officials(branch, jurisdiction);
+CREATE INDEX IF NOT EXISTS idx_officials_office_type
+  ON officials(office_type);
 
--- Press releases (all original senator communications)
-CREATE TABLE IF NOT EXISTS press_releases (
+-- Compat views maintained during the codemod sweep. Drop in a follow-up
+-- migration once all callers reference officials / official_site_items
+-- directly. The press_releases view exposes both official_id (canonical)
+-- and senator_id (legacy alias) so unswept SELECTs keep returning data.
+CREATE OR REPLACE VIEW senators AS SELECT * FROM officials;
+
+-- Original content scraped from official .gov sites: press releases,
+-- statements, op-eds, blogs, newsletters, floor statements, letters.
+-- Social posts (Bluesky) and floor-speech transcripts (Congressional
+-- Record) live in their own tables because they have different shapes.
+CREATE TABLE IF NOT EXISTS official_site_items (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  senator_id      TEXT NOT NULL REFERENCES senators(id),
+  official_id     TEXT NOT NULL REFERENCES officials(id),
   title           TEXT NOT NULL,
   published_at    TIMESTAMPTZ,
   body_text       TEXT,
   source_url      TEXT NOT NULL UNIQUE,     -- natural dedup key
   raw_html        TEXT,                     -- for re-parsing later
-  content_type    TEXT DEFAULT 'press_release', -- press_release, statement, op_ed, letter, photo_release, floor_statement, other
-  date_source     TEXT,                    -- feed, meta_tag, json_ld, url_path, page_text, unknown
+  content_type    TEXT DEFAULT 'press_release', -- press_release | statement | op_ed | blog | newsletter | floor_statement | letter | photo_release | other
+  date_source     TEXT,                    -- feed | meta_tag | json_ld | url_path | page_text | silo_backfill | unknown
   date_confidence REAL,                    -- 0.0-1.0 extraction confidence
   content_hash    TEXT,                    -- SHA-256 of body_text for change detection
-  deleted_at      TIMESTAMPTZ,            -- tombstone: when we detected deletion at source
+  deleted_at      TIMESTAMPTZ,            -- tombstone: set when we detect deletion at source
   last_seen_live  TIMESTAMPTZ,            -- last time source URL returned 200
   scrape_run      TEXT,                    -- identifies which crawl produced this
   scraped_at      TIMESTAMPTZ DEFAULT NOW(),
@@ -49,18 +78,25 @@ CREATE TABLE IF NOT EXISTS press_releases (
 );
 
 -- Query indexes
-CREATE INDEX IF NOT EXISTS idx_pr_senator    ON press_releases(senator_id);
-CREATE INDEX IF NOT EXISTS idx_pr_published  ON press_releases(published_at DESC);
-CREATE INDEX IF NOT EXISTS idx_pr_source     ON press_releases(source_url);
-CREATE INDEX IF NOT EXISTS idx_pr_content_type ON press_releases(content_type);
-CREATE INDEX IF NOT EXISTS idx_pr_senator_published ON press_releases(senator_id, published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_osi_official    ON official_site_items(official_id);
+CREATE INDEX IF NOT EXISTS idx_osi_published   ON official_site_items(published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_osi_source      ON official_site_items(source_url);
+CREATE INDEX IF NOT EXISTS idx_osi_content_type ON official_site_items(content_type);
+CREATE INDEX IF NOT EXISTS idx_osi_official_published
+  ON official_site_items(official_id, published_at DESC);
 
 -- Full-text search
-ALTER TABLE press_releases ADD COLUMN IF NOT EXISTS fts tsvector
+ALTER TABLE official_site_items ADD COLUMN IF NOT EXISTS fts tsvector
   GENERATED ALWAYS AS (
     to_tsvector('english', coalesce(title,'') || ' ' || coalesce(body_text,''))
   ) STORED;
-CREATE INDEX IF NOT EXISTS idx_pr_fts ON press_releases USING GIN(fts);
+CREATE INDEX IF NOT EXISTS idx_osi_fts ON official_site_items USING GIN(fts);
+
+-- Compat view: press_releases aliases official_site_items and exposes
+-- official_id under both its canonical name and the legacy senator_id
+-- name. Drop in a follow-up migration once code is clean.
+CREATE OR REPLACE VIEW press_releases AS
+  SELECT *, official_id AS senator_id FROM official_site_items;
 
 -- Scrape runs for pipeline health tracking
 CREATE TABLE IF NOT EXISTS scrape_runs (
@@ -74,7 +110,7 @@ CREATE TABLE IF NOT EXISTS scrape_runs (
 -- Health checks (pre-scrape canary results)
 CREATE TABLE IF NOT EXISTS health_checks (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  senator_id    TEXT NOT NULL REFERENCES senators(id),
+  official_id    TEXT NOT NULL REFERENCES officials(id),
   checked_at    TIMESTAMPTZ DEFAULT NOW(),
   url_status    INTEGER,              -- HTTP status code
   selector_ok   BOOLEAN,
@@ -84,14 +120,14 @@ CREATE TABLE IF NOT EXISTS health_checks (
   error_message TEXT,
   passed        BOOLEAN NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_hc_senator ON health_checks(senator_id, checked_at DESC);
+CREATE INDEX IF NOT EXISTS idx_hc_senator ON health_checks(official_id, checked_at DESC);
 
 -- Alerts for pipeline monitoring
 CREATE TABLE IF NOT EXISTS alerts (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at    TIMESTAMPTZ DEFAULT NOW(),
   alert_type    TEXT NOT NULL,         -- scrape_failure, selector_broken, cms_changed, deletion_detected
-  senator_id    TEXT REFERENCES senators(id),
+  official_id    TEXT REFERENCES officials(id),
   severity      TEXT NOT NULL,         -- info, warning, error, critical
   message       TEXT NOT NULL,
   details       JSONB,
@@ -103,14 +139,14 @@ CREATE INDEX IF NOT EXISTS idx_alerts_type ON alerts(alert_type, created_at DESC
 -- Content versions (track body text changes over time)
 CREATE TABLE IF NOT EXISTS content_versions (
   id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  press_release_id  UUID NOT NULL REFERENCES press_releases(id),
+  official_site_item_id  UUID NOT NULL REFERENCES official_site_items(id),
   body_text         TEXT,
   content_hash      TEXT,
   captured_at       TIMESTAMPTZ DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_cv_release ON content_versions(press_release_id, captured_at DESC);
+CREATE INDEX IF NOT EXISTS idx_cv_release ON content_versions(official_site_item_id, captured_at DESC);
 
--- Daily AI brief (derivative product; canonical record stays in press_releases)
+-- Daily AI brief (derivative product; canonical record stays in official_site_items)
 CREATE TABLE IF NOT EXISTS briefs (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   brief_date          DATE NOT NULL,
@@ -158,10 +194,10 @@ CREATE TABLE IF NOT EXISTS newsletter_subscribers (
 CREATE INDEX IF NOT EXISTS idx_subscribers_status ON newsletter_subscribers(status) WHERE status = 'active';
 CREATE INDEX IF NOT EXISTS idx_subscribers_token ON newsletter_subscribers(unsubscribe_token);
 
--- Senator social posts (Bluesky for now). Kept separate from press_releases.
+-- Senator social posts (Bluesky for now). Kept separate from official_site_items.
 CREATE TABLE IF NOT EXISTS social_posts (
   id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  senator_id        TEXT NOT NULL REFERENCES senators(id),
+  official_id        TEXT NOT NULL REFERENCES officials(id),
   source            TEXT NOT NULL,
   platform_post_id  TEXT NOT NULL,
   cid               TEXT,
@@ -182,20 +218,20 @@ CREATE TABLE IF NOT EXISTS social_posts (
   CONSTRAINT social_posts_source_check CHECK (source IN ('bluesky')),
   CONSTRAINT social_posts_natural_uniq UNIQUE (source, platform_post_id)
 );
-CREATE INDEX IF NOT EXISTS idx_social_senator_created ON social_posts (senator_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_social_senator_created ON social_posts (official_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_social_created ON social_posts (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_social_did ON social_posts (did);
 CREATE INDEX IF NOT EXISTS idx_social_live ON social_posts (created_at DESC) WHERE deleted_at IS NULL;
-CREATE INDEX IF NOT EXISTS idx_social_reply ON social_posts (senator_id, created_at DESC) WHERE is_reply = FALSE AND deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_social_reply ON social_posts (official_id, created_at DESC) WHERE is_reply = FALSE AND deleted_at IS NULL;
 
 -- Senate floor speeches from the Congressional Record (govinfo). Kept
--- separate from press_releases because granule -> speech is one-to-many
+-- separate from official_site_items because granule -> speech is one-to-many
 -- (multi-speaker debates) and provenance is govinfo, not senator.gov.
 CREATE TABLE IF NOT EXISTS floor_speeches (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   granule_id          TEXT NOT NULL,
   bioguide_id         TEXT NOT NULL,
-  senator_id          TEXT REFERENCES senators(id),
+  official_id          TEXT REFERENCES officials(id),
   turn_index          INTEGER NOT NULL DEFAULT 0,
   speech_date         DATE NOT NULL,
   title               TEXT NOT NULL,
@@ -216,7 +252,7 @@ CREATE TABLE IF NOT EXISTS floor_speeches (
   CONSTRAINT floor_speeches_natural_uniq
     UNIQUE (granule_id, bioguide_id, turn_index)
 );
-CREATE INDEX IF NOT EXISTS idx_floor_senator_date   ON floor_speeches (senator_id, speech_date DESC);
+CREATE INDEX IF NOT EXISTS idx_floor_senator_date   ON floor_speeches (official_id, speech_date DESC);
 CREATE INDEX IF NOT EXISTS idx_floor_bioguide_date  ON floor_speeches (bioguide_id, speech_date DESC);
 CREATE INDEX IF NOT EXISTS idx_floor_date           ON floor_speeches (speech_date DESC);
 CREATE INDEX IF NOT EXISTS idx_floor_granule        ON floor_speeches (granule_id);

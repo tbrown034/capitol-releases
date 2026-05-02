@@ -57,7 +57,7 @@ def candidate_senators() -> list[dict]:
                     continue
                 total = int(r.headers.get("x-wp-total", "0") or 0)
                 if total > 0:
-                    hits.append({"senator_id": s["senator_id"], "base": base, "total": total})
+                    hits.append({"official_id": s["official_id"], "base": base, "total": total})
             except Exception:
                 continue
     return hits
@@ -76,15 +76,15 @@ def is_migration_stamped(rec: dict, prefix: str) -> bool:
     return abs((m - d).total_seconds()) < 120
 
 
-def collect_for(conn, senator_id: str, base_url: str, dry_run: bool) -> dict:
-    migration_prefix = MIGRATION_WINDOWS.get(senator_id)
-    print(f"\n[{senator_id}] fetching op-eds from {base_url}")
+def collect_for(conn, official_id: str, base_url: str, dry_run: bool) -> dict:
+    migration_prefix = MIGRATION_WINDOWS.get(official_id)
+    print(f"\n[{official_id}] fetching op-eds from {base_url}")
     records = fetch_all(
         base_url, "op_eds", extra_params={"after": "2025-01-01T00:00:00"}
     )
     print(f"  fetched {len(records)} in-window records")
 
-    run_id = f"oped-{senator_id}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+    run_id = f"oped-{official_id}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
     if not dry_run:
         cur = conn.cursor()
         cur.execute(
@@ -148,13 +148,13 @@ def collect_for(conn, senator_id: str, base_url: str, dry_run: bool) -> dict:
             cur.execute(
                 """
                 INSERT INTO press_releases
-                  (senator_id, title, published_at, body_text, source_url,
+                  (official_id, title, published_at, body_text, source_url,
                    scrape_run, content_type, date_source, date_confidence)
                 VALUES (%s, %s, %s, %s, %s, %s, 'op_ed', %s, %s)
                 ON CONFLICT (source_url) DO NOTHING
                 """,
                 (
-                    senator_id,
+                    official_id,
                     title,
                     pub_dt,
                     body_text or None,
@@ -190,7 +190,7 @@ def collect_for(conn, senator_id: str, base_url: str, dry_run: bool) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--senator", help="Run only for one senator_id")
+    ap.add_argument("--senator", help="Run only for one official_id")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -202,7 +202,7 @@ def main() -> None:
     print(f"  {len(senators)} senators expose /wp/v2/op_eds")
 
     if args.senator:
-        senators = [s for s in senators if s["senator_id"] == args.senator]
+        senators = [s for s in senators if s["official_id"] == args.senator]
         if not senators:
             print(f"  {args.senator} does not expose /wp/v2/op_eds")
             return
@@ -215,7 +215,7 @@ def main() -> None:
         "skipped_pre_cutoff": 0,
     }
     for s in senators:
-        c = collect_for(conn, s["senator_id"], s["base"], args.dry_run)
+        c = collect_for(conn, s["official_id"], s["base"], args.dry_run)
         for k in grand:
             grand[k] += c[k]
 

@@ -24,7 +24,7 @@ class Alert:
     alert_type: str      # scrape_failure, selector_broken, cms_changed, deletion_detected, anomaly
     severity: str        # info, warning, error, critical
     message: str
-    senator_id: str = ""
+    official_id: str = ""
     details: dict = field(default_factory=dict)
 
 
@@ -33,11 +33,11 @@ def store_alert(conn, alert: Alert):
     cur = conn.cursor()
     try:
         cur.execute("""
-            INSERT INTO alerts (alert_type, senator_id, severity, message, details)
+            INSERT INTO alerts (alert_type, official_id, severity, message, details)
             VALUES (%s, %s, %s, %s, %s)
         """, (
             alert.alert_type,
-            alert.senator_id or None,
+            alert.official_id or None,
             alert.severity,
             alert.message,
             json.dumps(alert.details) if alert.details else None,
@@ -69,24 +69,24 @@ def check_anomalies(conn) -> list[Alert]:
     # (recess, between PR drops).
     cur.execute("""
         WITH recent AS (
-            SELECT senator_id, COUNT(*) as cnt
+            SELECT official_id, COUNT(*) as cnt
             FROM press_releases
             WHERE published_at > NOW() - INTERVAL '14 days'
               AND deleted_at IS NULL
-            GROUP BY senator_id
+            GROUP BY official_id
         ),
         historical AS (
-            SELECT senator_id, COUNT(*) as total,
+            SELECT official_id, COUNT(*) as total,
                    COUNT(*) FILTER (WHERE published_at > NOW() - INTERVAL '90 days') as last_90,
                    COUNT(*) FILTER (WHERE published_at > NOW() - INTERVAL '30 days') as last_30
             FROM press_releases
             WHERE deleted_at IS NULL
-            GROUP BY senator_id
+            GROUP BY official_id
             HAVING COUNT(*) > 20
         )
-        SELECT h.senator_id, h.total, h.last_90, COALESCE(r.cnt, 0) as recent_count
+        SELECT h.official_id, h.total, h.last_90, COALESCE(r.cnt, 0) as recent_count
         FROM historical h
-        LEFT JOIN recent r ON h.senator_id = r.senator_id
+        LEFT JOIN recent r ON h.official_id = r.official_id
         WHERE COALESCE(r.cnt, 0) = 0
         AND h.last_90 >= 30
         AND h.last_30 >= 5
@@ -97,18 +97,18 @@ def check_anomalies(conn) -> list[Alert]:
             alert_type="anomaly",
             severity="warning",
             message=f"{sid}: 0 releases in last 14 days but {last_90} in last 90 days. Possible collection issue.",
-            senator_id=sid,
+            official_id=sid,
             details={"total": total, "last_90": last_90, "last_7": recent},
         ))
 
     # 2. Senators with high null-date ratio in recent records
     cur.execute("""
-        SELECT senator_id,
+        SELECT official_id,
                COUNT(*) as total,
                COUNT(*) FILTER (WHERE published_at IS NULL) as null_count
         FROM press_releases
         WHERE scraped_at > NOW() - INTERVAL '3 days'
-        GROUP BY senator_id
+        GROUP BY official_id
         HAVING COUNT(*) > 3
         AND COUNT(*) FILTER (WHERE published_at IS NULL) > COUNT(*) * 0.5
     """)
@@ -118,7 +118,7 @@ def check_anomalies(conn) -> list[Alert]:
             alert_type="anomaly",
             severity="warning",
             message=f"{sid}: {null_count}/{total} recent records have null dates. Date parsing may be broken.",
-            senator_id=sid,
+            official_id=sid,
             details={"total_recent": total, "null_dates": null_count},
         ))
 
@@ -127,7 +127,7 @@ def check_anomalies(conn) -> list[Alert]:
         SELECT s.id, s.full_name,
                MAX(pr.published_at) as last_release
         FROM senators s
-        JOIN press_releases pr ON s.id = pr.senator_id
+        JOIN press_releases pr ON s.id = pr.official_id
         WHERE s.collection_method IS NOT NULL
         GROUP BY s.id, s.full_name
         HAVING MAX(pr.published_at) < NOW() - INTERVAL '30 days'
@@ -138,7 +138,7 @@ def check_anomalies(conn) -> list[Alert]:
             alert_type="anomaly",
             severity="info",
             message=f"{sid}: last release was {last_release.date()}. May need attention.",
-            senator_id=sid,
+            official_id=sid,
             details={"last_release": str(last_release.date())},
         ))
 
@@ -149,7 +149,7 @@ def check_anomalies(conn) -> list[Alert]:
     # error). Window of 1-60 days catches typos but excludes obvious parser
     # bugs (those go through test_dates_in_valid_range as failures).
     cur.execute("""
-        SELECT senator_id, source_url, published_at, scraped_at
+        SELECT official_id, source_url, published_at, scraped_at
         FROM press_releases
         WHERE deleted_at IS NULL
           AND published_at > NOW() + INTERVAL '1 day'
@@ -166,7 +166,7 @@ def check_anomalies(conn) -> list[Alert]:
                 f"{pub_at.strftime('%Y-%m-%d')} (future). Likely typo on "
                 f"senator's senate.gov page."
             ),
-            senator_id=sid,
+            official_id=sid,
             details={
                 "source_url": source_url,
                 "published_at": str(pub_at),
@@ -198,8 +198,8 @@ def send_email_alerts(alerts: list[Alert]):
     body_lines = [f"Capitol Releases Pipeline: {len(critical)} alert(s)\n"]
     for a in critical:
         body_lines.append(f"[{a.severity.upper()}] {a.alert_type}")
-        if a.senator_id:
-            body_lines.append(f"  Senator: {a.senator_id}")
+        if a.official_id:
+            body_lines.append(f"  Senator: {a.official_id}")
         body_lines.append(f"  {a.message}")
         body_lines.append("")
 

@@ -1,7 +1,7 @@
 {
   "found": [
     {
-      "senator_id": "bennet-michael",
+      "official_id": "bennet-michael",
       "feed_url": "https://www.bennet.senate.gov/news/feed/",
       "feed_type": "rss",
       "item_count": 10,
@@ -9,7 +9,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "barrasso-john",
+      "official_id": "barrasso-john",
       "feed_url": "https://www.barrasso.senate.gov/newsroom/news-releases/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -17,7 +17,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "armstrong-alan",
+      "official_id": "armstrong-alan",
       "feed_url": "https://www.armstrong.senate.gov/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -25,7 +25,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "alsobrooks-angela",
+      "official_id": "alsobrooks-angela",
       "feed_url": "https://www.alsobrooks.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 1,
@@ -33,7 +33,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "banks-jim",
+      "official_id": "banks-jim",
       "feed_url": "https://www.banks.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 1,
@@ -41,7 +41,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "britt-katie",
+      "official_id": "britt-katie",
       "feed_url": "https://www.britt.senate.gov/media/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -49,7 +49,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "budd-ted",
+      "official_id": "budd-ted",
       "feed_url": "https://www.budd.senate.gov/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 10,
@@ -57,7 +57,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "boozman-john",
+      "official_id": "boozman-john",
       "feed_url": "https://www.boozman.senate.gov/public/?a=RSS.Feed",
       "feed_type": "rss",
       "item_count": 20,
@@ -65,7 +65,7 @@
       "probe_method": "link_tag"
     },
     {
-      "senator_id": "cornyn-john",
+      "official_id": "cornyn-john",
       "feed_url": "https://www.cornyn.senate.gov/news/feed/",
       "feed_type": "rss",
       "item_count": 10,
@@ -73,7 +73,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "masto-catherine",
+      "official_id": "masto-catherine",
       "feed_url": "https://www.cortezmasto.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -81,7 +81,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "rochester-lisa",
+      "official_id": "rochester-lisa",
       "feed_url": "https://www.bluntrochester.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 1,
@@ -89,7 +89,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "fetterman-john",
+      "official_id": "fetterman-john",
       "feed_url": "https://www.fetterman.senate.gov/press-release/feed/",
       "feed_type": "rss",
       "item_count": 10,
@@ -97,7 +97,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "curtis-john",
+      "official_id": "curtis-john",
       "feed_url": "https://www.curtis.senate.gov/media/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -105,7 +105,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "gillibrand-kirsten",
+      "official_id": "gillibrand-kirsten",
       "feed_url": "https://www.gillibrand.senate.gov/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -113,7 +113,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "hagerty-bill",
+      "official_id": "hagerty-bill",
       "feed_url": "https://www.hagerty.senate.gov/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 10,
@@ -121,7 +121,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "hawley-josh",
+      "official_id": "hawley-josh",
       "feed_url": "https://www.hawley.senate.gov/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -129,7 +129,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "cassidy-bill",
+      "official_id": "cassidy-bill",
       "feed_url": "https://www.cassidy.senate.gov/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.cassidy.senate.gov%2Fnewsroom%2Fpress-releases%2F&format=xml",
       "feed_type": "rss",
       "item_count": 0,
@@ -137,7 +137,7 @@
       "probe_method": "link_tag"
     },
     {
-      "senator_id": "hickenlooper-john",
+      "official_id": "hickenlooper-john",
       "feed_url": "https://www.hickenlooper.senate.gov/press/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -145,7 +145,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "gallego-ruben",
+      "official_id": "gallego-ruben",
       "feed_url": "https://www.gallego.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -153,7 +153,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "husted-jon",
+      "official_id": "husted-jon",
       "feed_url": "https://www.husted.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -161,7 +161,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "justice-james",
+      "official_id": "justice-james",
       "feed_url": "https://www.justice.senate.gov/media/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -169,7 +169,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "kim-andy",
+      "official_id": "kim-andy",
       "feed_url": "https://www.kim.senate.gov/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -177,7 +177,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "lummis-cynthia",
+      "official_id": "lummis-cynthia",
       "feed_url": "https://www.lummis.senate.gov/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 6,
@@ -185,7 +185,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "kennedy-john",
+      "official_id": "kennedy-john",
       "feed_url": "https://www.kennedy.senate.gov/public/?a=RSS.Feed",
       "feed_type": "rss",
       "item_count": 20,
@@ -193,7 +193,7 @@
       "probe_method": "link_tag"
     },
     {
-      "senator_id": "moody-ashley",
+      "official_id": "moody-ashley",
       "feed_url": "https://www.moody.senate.gov/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 10,
@@ -201,7 +201,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "lankford-james",
+      "official_id": "lankford-james",
       "feed_url": "https://www.lankford.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -209,7 +209,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "merkley-jeff",
+      "official_id": "merkley-jeff",
       "feed_url": "https://www.merkley.senate.gov/news/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -217,7 +217,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "moreno-bernie",
+      "official_id": "moreno-bernie",
       "feed_url": "https://www.moreno.senate.gov/media/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -225,7 +225,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "murray-patty",
+      "official_id": "murray-patty",
       "feed_url": "https://www.murray.senate.gov/press-kit/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -233,7 +233,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "mccormick-david",
+      "official_id": "mccormick-david",
       "feed_url": "https://www.mccormick.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 1,
@@ -241,7 +241,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "ossoff-jon",
+      "official_id": "ossoff-jon",
       "feed_url": "https://www.ossoff.senate.gov/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 10,
@@ -249,7 +249,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "marshall-roger",
+      "official_id": "marshall-roger",
       "feed_url": "https://www.marshall.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 5,
@@ -257,7 +257,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "lujan-ben",
+      "official_id": "lujan-ben",
       "feed_url": "https://www.lujan.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 2,
@@ -265,7 +265,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "paul-rand",
+      "official_id": "paul-rand",
       "feed_url": "https://www.paul.senate.gov/news/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -273,7 +273,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "moran-jerry",
+      "official_id": "moran-jerry",
       "feed_url": "https://www.moran.senate.gov/public/?a=RSS.Feed",
       "feed_type": "rss",
       "item_count": 20,
@@ -281,7 +281,7 @@
       "probe_method": "link_tag"
     },
     {
-      "senator_id": "rosen-jacky",
+      "official_id": "rosen-jacky",
       "feed_url": "https://www.rosen.senate.gov/category/press_release/feed/",
       "feed_type": "rss",
       "item_count": 10,
@@ -289,7 +289,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "padilla-alex",
+      "official_id": "padilla-alex",
       "feed_url": "https://www.padilla.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 6,
@@ -297,7 +297,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "ricketts-pete",
+      "official_id": "ricketts-pete",
       "feed_url": "https://www.ricketts.senate.gov/newsroom/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -305,7 +305,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "schmitt-eric",
+      "official_id": "schmitt-eric",
       "feed_url": "https://www.schmitt.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -313,7 +313,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "smith-tina",
+      "official_id": "smith-tina",
       "feed_url": "https://www.smith.senate.gov/press-releases/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -321,7 +321,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "slotkin-elissa",
+      "official_id": "slotkin-elissa",
       "feed_url": "https://www.slotkin.senate.gov/newsroom/feed/",
       "feed_type": "rss",
       "item_count": 10,
@@ -329,7 +329,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "scott-tim",
+      "official_id": "scott-tim",
       "feed_url": "https://www.scott.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -337,7 +337,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "tuberville-tommy",
+      "official_id": "tuberville-tommy",
       "feed_url": "https://www.tuberville.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -345,7 +345,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "sheehy-tim",
+      "official_id": "sheehy-tim",
       "feed_url": "https://www.sheehy.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -353,7 +353,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "welch-peter",
+      "official_id": "welch-peter",
       "feed_url": "https://www.welch.senate.gov/category/press-release/feed/",
       "feed_type": "rss",
       "item_count": 10,
@@ -361,7 +361,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "whitehouse-sheldon",
+      "official_id": "whitehouse-sheldon",
       "feed_url": "https://www.whitehouse.senate.gov/news/press-releases-test-sorting/feed/",
       "feed_type": "rss",
       "item_count": 0,
@@ -369,7 +369,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "warnock-raphael",
+      "official_id": "warnock-raphael",
       "feed_url": "https://www.warnock.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 4,
@@ -377,7 +377,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "schiff-adam",
+      "official_id": "schiff-adam",
       "feed_url": "https://www.schiff.senate.gov/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.schiff.senate.gov%2Fnewsroom%2Fpress-releases%2F&format=xml",
       "feed_type": "rss",
       "item_count": 0,
@@ -385,7 +385,7 @@
       "probe_method": "link_tag"
     },
     {
-      "senator_id": "warren-elizabeth",
+      "official_id": "warren-elizabeth",
       "feed_url": "https://www.warren.senate.gov/rss/",
       "feed_type": "rss",
       "item_count": 50,
@@ -393,7 +393,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "risch-james",
+      "official_id": "risch-james",
       "feed_url": "https://www.risch.senate.gov/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.risch.senate.gov%2Fnewsroom%2Fpress-releases%2F&format=xml",
       "feed_type": "rss",
       "item_count": 0,
@@ -401,7 +401,7 @@
       "probe_method": "link_tag"
     },
     {
-      "senator_id": "young-todd",
+      "official_id": "young-todd",
       "feed_url": "https://www.young.senate.gov/feed/",
       "feed_type": "rss",
       "item_count": 1,
@@ -409,7 +409,7 @@
       "probe_method": "url_probe"
     },
     {
-      "senator_id": "warner-mark",
+      "official_id": "warner-mark",
       "feed_url": "https://www.warner.senate.gov/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.warner.senate.gov%2Fnews%2Fpress-releases%2F&format=xml",
       "feed_type": "rss",
       "item_count": 0,

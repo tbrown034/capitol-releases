@@ -68,10 +68,10 @@ def _build_lookup(rows: list[dict], include_historical: bool) -> dict[tuple[str,
 
 
 def _resolve_db_senator(
-    senator_id: str, state: str, full_name: str, current: dict, historical: dict
+    official_id: str, state: str, full_name: str, current: dict, historical: dict
 ) -> str | None:
     """Return bioguide_id for this row, preferring current over historical."""
-    parts = senator_id.split("-")
+    parts = official_id.split("-")
     last_token = _norm(parts[0])
     last_word = _norm(full_name.split()[-1].rstrip(","))
     for source in (current, historical):

@@ -37,7 +37,7 @@ def show_alerts():
     conn = psycopg2.connect(DB_URL)
     cur = conn.cursor()
     cur.execute("""
-        SELECT created_at, alert_type, severity, senator_id, message
+        SELECT created_at, alert_type, severity, official_id, message
         FROM alerts
         WHERE acknowledged = FALSE
         ORDER BY created_at DESC
@@ -68,11 +68,11 @@ def show_health():
     conn = psycopg2.connect(DB_URL)
     cur = conn.cursor()
     cur.execute("""
-        SELECT DISTINCT ON (senator_id)
-            senator_id, checked_at, passed, url_status, items_found,
+        SELECT DISTINCT ON (official_id)
+            official_id, checked_at, passed, url_status, items_found,
             page_load_ms, error_message
         FROM health_checks
-        ORDER BY senator_id, checked_at DESC
+        ORDER BY official_id, checked_at DESC
     """)
     rows = cur.fetchall()
     cur.close()
@@ -106,7 +106,7 @@ def show_stale():
                MAX(pr.published_at) as last_release,
                COUNT(*) as total
         FROM senators s
-        LEFT JOIN press_releases pr ON s.id = pr.senator_id
+        LEFT JOIN press_releases pr ON s.id = pr.official_id
         GROUP BY s.id, s.full_name, s.collection_method
         ORDER BY MAX(pr.published_at) ASC NULLS FIRST
         LIMIT 20

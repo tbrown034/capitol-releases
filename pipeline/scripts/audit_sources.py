@@ -74,7 +74,7 @@ def _section_from_url(url: str) -> str | None:
     return f"/{parts[0]}/{parts[1]}/"
 
 
-# (senator_id, section_path) pairs that backfill_silos covers.
+# (official_id, section_path) pairs that backfill_silos covers.
 # Their canonical sitemap section is "covered" via the silo crawler even
 # when the inserted URLs end up under a different path (e.g. Crapo's
 # /media/columns/ links resolve to /news/in-the-news/ aliases).
@@ -344,7 +344,7 @@ BROWSER_HEADERS = {
 }
 
 
-def pull_db_state(conn_url: str, senator_id: str) -> dict:
+def pull_db_state(conn_url: str, official_id: str) -> dict:
     conn = psycopg2.connect(conn_url)
     cur = conn.cursor()
     cur.execute("""
@@ -352,8 +352,8 @@ def pull_db_state(conn_url: str, senator_id: str) -> dict:
              count(*) FILTER (WHERE deleted_at IS NULL AND content_type='press_release'),
              max(scraped_at) FILTER (WHERE deleted_at IS NULL),
              max(published_at) FILTER (WHERE deleted_at IS NULL)
-        FROM press_releases WHERE senator_id = %s
-    """, (senator_id,))
+        FROM press_releases WHERE official_id = %s
+    """, (official_id,))
     total, n_pr, last_scrape, last_pub = cur.fetchone()
 
     cur.execute("""
@@ -361,12 +361,12 @@ def pull_db_state(conn_url: str, senator_id: str) -> dict:
         SELECT regexp_replace(source_url,
             '^https?://[^/]+(/[^/]+(?:/[^/]+)?/).*$', '\\1') AS section
         FROM press_releases
-        WHERE senator_id = %s AND deleted_at IS NULL
+        WHERE official_id = %s AND deleted_at IS NULL
       )
       SELECT section, count(*) FROM paths
       WHERE section LIKE '/%%'
       GROUP BY section
-    """, (senator_id,))
+    """, (official_id,))
     db_sections = {r[0]: r[1] for r in cur.fetchall()}
     cur.close(); conn.close()
     return {
@@ -399,7 +399,7 @@ def httpx_probe(official: str) -> dict:
 
 def classify(senator: dict, db_state: dict, probe: dict) -> dict:
     """Combine seed + DB + probe into final audit row."""
-    sid = senator["senator_id"]
+    sid = senator["official_id"]
     name = senator.get("full_name", sid)
     state = senator.get("state", "")
     official = (senator.get("official_url") or "").rstrip("/")
@@ -517,7 +517,7 @@ def classify(senator: dict, db_state: dict, probe: dict) -> dict:
             issues.append(f"unclassified WP post types: {', '.join(unknown_pt[:5])}")
 
     return {
-        "senator_id": sid,
+        "official_id": sid,
         "name": name,
         "state": state,
         "n_total": db_state["n_total"],
@@ -541,7 +541,7 @@ def classify(senator: dict, db_state: dict, probe: dict) -> dict:
 
 def audit_senator(senator: dict, conn_url: str) -> dict:
     """httpx-only audit (the parallel-fast path)."""
-    sid = senator["senator_id"]
+    sid = senator["official_id"]
     official = (senator.get("official_url") or "").rstrip("/")
     db_state = pull_db_state(conn_url, sid)
     probe = httpx_probe(official)
@@ -741,7 +741,7 @@ def playwright_probe_batch(senators: list[dict], per_senator_delay: float = 8.0)
         browser = p.chromium.launch(headless=True)
         try:
             for i, s in enumerate(senators):
-                sid = s["senator_id"]
+                sid = s["official_id"]
                 official = (s.get("official_url") or "").rstrip("/")
                 if not official:
                     out[sid] = {
@@ -890,7 +890,7 @@ def render(rows: list[dict]) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--senator", help="Audit only one senator_id")
+    ap.add_argument("--senator", help="Audit only one official_id")
     ap.add_argument("--write", help="Write the report to this path")
     ap.add_argument("--workers", type=int, default=2,
                     help="httpx parallelism (low default to avoid tripping Akamai)")
@@ -904,18 +904,18 @@ def main() -> None:
     seeds_path = Path(__file__).resolve().parents[1] / "seeds" / "senate.json"
     seeds = json.load(open(seeds_path))["members"]
     if args.senator:
-        seeds = [s for s in seeds if s["senator_id"] == args.senator]
+        seeds = [s for s in seeds if s["official_id"] == args.senator]
         if not seeds:
             print(f"No senator matched: {args.senator}", file=sys.stderr)
             sys.exit(1)
 
     db_url = os.environ["DATABASE_URL"]
-    seed_by_id = {s["senator_id"]: s for s in seeds}
+    seed_by_id = {s["official_id"]: s for s in seeds}
 
     print(f"Pass 1 (httpx): {len(seeds)} senators...", file=sys.stderr)
     rows: list[dict] = []
     with ThreadPoolExecutor(max_workers=args.workers) as ex:
-        futures = {ex.submit(audit_senator, s, db_url): s["senator_id"] for s in seeds}
+        futures = {ex.submit(audit_senator, s, db_url): s["official_id"] for s in seeds}
         for fut in as_completed(futures):
             sid = futures[fut]
             try:
@@ -931,9 +931,9 @@ def main() -> None:
     blocked = [r for r in rows if r["check_sitemap"] == "WAF"]
     if blocked:
         print(f"Pass 2 (wayback): {len(blocked)} senators...", file=sys.stderr)
-        row_by_id = {r["senator_id"]: r for r in rows}
+        row_by_id = {r["official_id"]: r for r in rows}
         with ThreadPoolExecutor(max_workers=min(args.workers, 4)) as ex:
-            futs = {ex.submit(wayback_probe, (seed_by_id[r["senator_id"]].get("official_url") or "").rstrip("/")): r["senator_id"] for r in blocked}
+            futs = {ex.submit(wayback_probe, (seed_by_id[r["official_id"]].get("official_url") or "").rstrip("/")): r["official_id"] for r in blocked}
             for fut in as_completed(futs):
                 sid = futs[fut]
                 try:
@@ -958,10 +958,10 @@ def main() -> None:
         if still_blocked:
             print(f"Pass 3 (playwright): {len(still_blocked)} senators...",
                   file=sys.stderr)
-            blocked_seeds = [seed_by_id[r["senator_id"]] for r in still_blocked]
+            blocked_seeds = [seed_by_id[r["official_id"]] for r in still_blocked]
             pw_results = playwright_probe_batch(blocked_seeds, per_senator_delay=args.pw_delay)
             print("", file=sys.stderr)
-            row_by_id = {r["senator_id"]: r for r in rows}
+            row_by_id = {r["official_id"]: r for r in rows}
             for sid, probe in pw_results.items():
                 if probe["sitemap_status"] != "ok" and probe["wp_status"] != "ok":
                     continue

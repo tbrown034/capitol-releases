@@ -78,7 +78,7 @@ export default async function ReleasePage({
     release.version_count > 0 ? getReleaseVersions(release.id) : Promise.resolve([]),
   ]);
 
-  const photo = getSenatorPhotoUrl(release.senator_name, release.senator_id);
+  const photo = getSenatorPhotoUrl(release.senator_name, release.official_id);
   const partyLabel =
     release.party === "D"
       ? "Democrat"
@@ -101,8 +101,8 @@ export default async function ReleasePage({
   const isDeleted = release.deleted_at !== null;
   const isFuture = isFutureDated(release.published_at, release.scraped_at);
   const title = normalizeTitle(release.title);
-  // Detect chamber from senator_id prefix so back-link and copy match.
-  const isTexas = release.senator_id.startsWith("tx-");
+  // Detect chamber from official_id prefix so back-link and copy match.
+  const isTexas = release.official_id.startsWith("tx-");
   const backHref = isTexas ? "/texas/feed" : "/feed";
   const backLabel = isTexas ? "← Back to Texas feed" : "← Back to feed";
 
@@ -173,7 +173,7 @@ export default async function ReleasePage({
         )}
         <div className="text-sm">
           <Link
-            href={getSenatorHref(release.senator_id)}
+            href={getSenatorHref(release.official_id)}
             className="font-[family-name:var(--font-source-serif)] text-base text-neutral-900 hover:underline"
           >
             {release.senator_name}

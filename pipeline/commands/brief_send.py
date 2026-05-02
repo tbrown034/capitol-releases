@@ -88,7 +88,7 @@ def fetch_citations_map(conn, ids: list[str]) -> dict[str, dict]:
         SELECT pr.id::text AS id, pr.title, pr.source_url,
                s.full_name AS senator_name, s.party, s.state
         FROM press_releases pr
-        JOIN senators s ON s.id = pr.senator_id
+        JOIN senators s ON s.id = pr.official_id
         WHERE pr.id = ANY(%s::uuid[])
         """,
         (ids,),

@@ -88,13 +88,13 @@ def extract_published(page):
     return None, None, None
 
 
-def process_senator(browser, senator_id: str, conn, dry_run: bool, delay_ms: int):
+def process_senator(browser, official_id: str, conn, dry_run: bool, delay_ms: int):
     cur = conn.cursor()
     cur.execute(
         """
         SELECT id, source_url, published_at, date_source, date_confidence
         FROM press_releases
-        WHERE senator_id = %s
+        WHERE official_id = %s
           AND deleted_at IS NULL
           AND published_at >= '2025-01-01'
           AND (
@@ -104,16 +104,16 @@ def process_senator(browser, senator_id: str, conn, dry_run: bool, delay_ms: int
           )
         ORDER BY published_at
         """,
-        (senator_id,),
+        (official_id,),
     )
     rows = cur.fetchall()
     cur.close()
 
     if not rows:
-        log.info("%s: no candidates", senator_id)
-        return {"senator": senator_id, "candidates": 0, "updated": 0, "errors": 0, "unchanged": 0}
+        log.info("%s: no candidates", official_id)
+        return {"senator": official_id, "candidates": 0, "updated": 0, "errors": 0, "unchanged": 0}
 
-    log.info("%s: %d candidates", senator_id, len(rows))
+    log.info("%s: %d candidates", official_id, len(rows))
     context = browser.new_context(
         user_agent=(
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -126,17 +126,17 @@ def process_senator(browser, senator_id: str, conn, dry_run: bool, delay_ms: int
 
     # Warm up with the listing page so WAF sees a natural session
     cur = conn.cursor()
-    cur.execute("SELECT press_release_url FROM senators WHERE id = %s", (senator_id,))
+    cur.execute("SELECT press_release_url FROM senators WHERE id = %s", (official_id,))
     pr_url = cur.fetchone()[0]
     cur.close()
     try:
         page.goto(pr_url, wait_until="domcontentloaded", timeout=30000)
         page.wait_for_timeout(2000)
     except Exception as e:
-        log.warning("%s warmup failed: %s", senator_id, e)
+        log.warning("%s warmup failed: %s", official_id, e)
 
     stats = {
-        "senator": senator_id, "candidates": len(rows),
+        "senator": official_id, "candidates": len(rows),
         "updated": 0, "unchanged": 0, "errors": 0, "start": time.monotonic(),
     }
 
@@ -148,7 +148,7 @@ def process_senator(browser, senator_id: str, conn, dry_run: bool, delay_ms: int
             if resp is None or resp.status != 200:
                 stats["errors"] += 1
                 if stats["errors"] <= 3:
-                    log.warning("%s: HTTP %s for %s", senator_id,
+                    log.warning("%s: HTTP %s for %s", official_id,
                                 resp.status if resp else "?", url)
                 continue
             dt, source, conf = extract_published(page)
@@ -183,11 +183,11 @@ def process_senator(browser, senator_id: str, conn, dry_run: bool, delay_ms: int
                 if i % 25 == 0:
                     conn.commit()
                     log.info("%s: committed through record %d/%d (updated=%d errors=%d)",
-                             senator_id, i, len(rows), stats["updated"], stats["errors"])
+                             official_id, i, len(rows), stats["updated"], stats["errors"])
         except Exception as e:
             stats["errors"] += 1
             if stats["errors"] <= 3:
-                log.warning("%s exception: %s — %s", senator_id, url, e)
+                log.warning("%s exception: %s — %s", official_id, url, e)
 
         page.wait_for_timeout(delay_ms)
 
@@ -199,7 +199,7 @@ def process_senator(browser, senator_id: str, conn, dry_run: bool, delay_ms: int
     stats["elapsed"] = time.monotonic() - stats["start"]
     log.info(
         "%s done: candidates=%d updated=%d unchanged=%d errors=%d (%.1fs)",
-        senator_id, stats["candidates"], stats["updated"],
+        official_id, stats["candidates"], stats["updated"],
         stats["unchanged"], stats["errors"], stats["elapsed"],
     )
     return stats

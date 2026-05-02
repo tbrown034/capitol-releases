@@ -121,31 +121,31 @@ def fetch_all(
     return out
 
 
-def get_senator(conn, senator_id: str) -> dict:
+def get_senator(conn, official_id: str) -> dict:
     cur = conn.cursor()
     cur.execute(
         "SELECT id, full_name, official_url, press_release_url FROM senators WHERE id = %s",
-        (senator_id,),
+        (official_id,),
     )
     row = cur.fetchone()
     cur.close()
     if not row:
-        raise SystemExit(f"unknown senator_id: {senator_id}")
+        raise SystemExit(f"unknown official_id: {official_id}")
     return {"id": row[0], "full_name": row[1], "official_url": row[2], "press_release_url": row[3]}
 
 
 def run(
-    senator_id: str,
+    official_id: str,
     endpoint: str,
     categories: str | None = None,
     after: str | None = None,
 ) -> None:
     load_env()
     conn = psycopg2.connect(os.environ["DATABASE_URL"])
-    senator = get_senator(conn, senator_id)
+    senator = get_senator(conn, official_id)
     base_url = senator["official_url"] or re.sub(r"/[^/]+/?$", "/", senator["press_release_url"] or "")
 
-    run_id = f"wpjson-{senator_id}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+    run_id = f"wpjson-{official_id}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
     cur = conn.cursor()
     cur.execute("INSERT INTO scrape_runs (id, run_type) VALUES (%s, 'backfill')", (run_id,))
     conn.commit()
@@ -200,11 +200,11 @@ def run(
         try:
             cur.execute(
                 """
-                INSERT INTO press_releases (senator_id, title, published_at, body_text, source_url, scrape_run)
+                INSERT INTO press_releases (official_id, title, published_at, body_text, source_url, scrape_run)
                 VALUES (%s, %s, %s, %s, %s, %s)
                 ON CONFLICT (source_url) DO NOTHING
                 """,
-                (senator_id, title, pub_dt, body_text or None, source_url, run_id),
+                (official_id, title, pub_dt, body_text or None, source_url, run_id),
             )
             conn.commit()
             if cur.rowcount > 0:
@@ -237,7 +237,7 @@ def run(
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--senator", required=True, help="senator_id, e.g. risch-james")
+    ap.add_argument("--senator", required=True, help="official_id, e.g. risch-james")
     ap.add_argument("--endpoint", default="press_releases", help="WP REST collection name")
     ap.add_argument("--categories", default=None,
                     help="Comma-separated category IDs to filter (e.g. 24)")

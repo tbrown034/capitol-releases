@@ -118,7 +118,7 @@ async def fetch_page(
 
 
 def build_row(
-    senator_id: str, handle: str, did: str, post: dict, scrape_run: str
+    official_id: str, handle: str, did: str, post: dict, scrape_run: str
 ) -> dict | None:
     """Convert a feed `post` payload to a social_posts row dict.
 
@@ -133,7 +133,7 @@ def build_row(
     parent_uri = (reply.get("parent") or {}).get("uri") if reply else None
     embed_kind, embed_summary = summarize_embed(post.get("embed"))
     return {
-        "senator_id": senator_id,
+        "official_id": official_id,
         "source": "bluesky",
         "platform_post_id": at_uri,
         "cid": post.get("cid"),
@@ -157,11 +157,11 @@ def insert_rows(conn, rows: list[dict]) -> int:
         return 0
     sql = """
         INSERT INTO social_posts (
-            senator_id, source, platform_post_id, cid, did, handle, text,
+            official_id, source, platform_post_id, cid, did, handle, text,
             created_at, is_reply, reply_parent_uri, is_repost,
             embed_kind, embed_summary, lang, raw, scrape_run
         ) VALUES (
-            %(senator_id)s, %(source)s, %(platform_post_id)s, %(cid)s, %(did)s,
+            %(official_id)s, %(source)s, %(platform_post_id)s, %(cid)s, %(did)s,
             %(handle)s, %(text)s, %(created_at)s, %(is_reply)s,
             %(reply_parent_uri)s, %(is_repost)s, %(embed_kind)s,
             %(embed_summary)s, %(lang)s, %(raw)s, %(scrape_run)s
@@ -187,13 +187,13 @@ async def backfill_handle(
     scrape_run: str,
     dry_run: bool,
 ) -> dict:
-    senator_id = entry["senator_id"]
+    official_id = entry["official_id"]
     handle = entry["handle"]
     did = entry.get("did")
     if not did:
         did = await resolve_did(client, handle)
         if not did:
-            return {"senator_id": senator_id, "handle": handle, "error": "did_resolve_failed"}
+            return {"official_id": official_id, "handle": handle, "error": "did_resolve_failed"}
 
     cursor: str | None = None
     seen = 0
@@ -219,7 +219,7 @@ async def backfill_handle(
                 skipped_reposts += 1
                 continue
             post = entry_item.get("post") or {}
-            row = build_row(senator_id, handle, did, post, scrape_run)
+            row = build_row(official_id, handle, did, post, scrape_run)
             if not row:
                 continue
             seen += 1
@@ -239,7 +239,7 @@ async def backfill_handle(
         await asyncio.sleep(PAGE_DELAY)
 
     return {
-        "senator_id": senator_id,
+        "official_id": official_id,
         "handle": handle,
         "did": did,
         "pages": pages,
@@ -255,9 +255,9 @@ async def amain(args: argparse.Namespace) -> None:
     handles_doc = json.loads(HANDLES.read_text())
     entries = handles_doc["handles"]
     if args.senator:
-        entries = [e for e in entries if e["senator_id"] == args.senator]
+        entries = [e for e in entries if e["official_id"] == args.senator]
         if not entries:
-            print(f"No entry for senator_id={args.senator}", file=sys.stderr)
+            print(f"No entry for official_id={args.senator}", file=sys.stderr)
             sys.exit(1)
 
     since = datetime.fromisoformat(args.since).replace(tzinfo=timezone.utc) \
@@ -281,7 +281,7 @@ async def amain(args: argparse.Namespace) -> None:
             results.append(r)
             tag = f"+{r.get('inserted', 0):>4}" if "inserted" in r else "ERR  "
             note = r.get("error") or f"seen={r.get('seen', 0)} pages={r.get('pages', 0)} reposts_skip={r.get('skipped_reposts', 0)}"
-            print(f"  [{i:>2}/{len(entries)}] {tag} {r['senator_id']:<28} @{r['handle']:<35} {note}")
+            print(f"  [{i:>2}/{len(entries)}] {tag} {r['official_id']:<28} @{r['handle']:<35} {note}")
 
     if conn:
         conn.close()
@@ -293,12 +293,12 @@ async def amain(args: argparse.Namespace) -> None:
     print(f"Done. {total_inserted} rows inserted, {total_seen} posts seen, {len(errors)} errors.")
     if errors:
         for e in errors:
-            print(f"  ERROR: {e['senator_id']}/{e['handle']}: {e['error']}")
+            print(f"  ERROR: {e['official_id']}/{e['handle']}: {e['error']}")
 
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--senator", help="Limit to one senator_id")
+    p.add_argument("--senator", help="Limit to one official_id")
     p.add_argument("--since", help="ISO date floor (default 2026-01-01)")
     p.add_argument("--dry-run", action="store_true", help="Walk feeds but write nothing")
     args = p.parse_args()

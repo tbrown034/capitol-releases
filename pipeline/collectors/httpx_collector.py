@@ -45,10 +45,10 @@ class HttpxCollector:
         max_pages: int = 1,
     ) -> CollectorResult:
         start = time.monotonic()
-        sid = senator["senator_id"]
+        sid = senator["official_id"]
         pr_url = senator.get("press_release_url", "")
         selectors = senator.get("selectors", {}) or {}
-        result = CollectorResult(senator_id=sid, method="httpx")
+        result = CollectorResult(official_id=sid, method="httpx")
 
         if not pr_url:
             result.errors.append("No press_release_url configured")
@@ -185,7 +185,7 @@ class HttpxCollector:
                             date_confidence = min(date_confidence, 0.2)
 
                     record = ReleaseRecord(
-                        senator_id=sid,
+                        official_id=sid,
                         title=title,
                         source_url=normalize_url(detail_url),
                         published_at=pub_date,
@@ -220,10 +220,10 @@ class HttpxCollector:
         return result
 
     async def health_check(self, senator: dict) -> HealthCheckResult:
-        sid = senator["senator_id"]
+        sid = senator["official_id"]
         pr_url = senator.get("press_release_url", "")
         selectors = senator.get("selectors", {}) or {}
-        hc = HealthCheckResult(senator_id=sid)
+        hc = HealthCheckResult(official_id=sid)
 
         if not pr_url:
             hc.error_message = "No press_release_url"

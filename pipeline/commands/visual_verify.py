@@ -33,7 +33,7 @@ log = logging.getLogger("capitol.visual")
 
 async def verify_senator(senator: dict, output_dir: Path, include_detail: bool = False):
     """Take screenshots of a senator's listing and detail pages."""
-    sid = senator["senator_id"]
+    sid = senator["official_id"]
     pr_url = senator.get("press_release_url", "")
 
     if not pr_url:
@@ -47,7 +47,7 @@ async def verify_senator(senator: dict, output_dir: Path, include_detail: bool =
         return None
 
     result = {
-        "senator_id": sid,
+        "official_id": sid,
         "press_release_url": pr_url,
         "collection_method": senator.get("collection_method", "?"),
         "screenshots": [],
@@ -184,7 +184,7 @@ def main():
     senators = load_members()
 
     if args.senator:
-        senators = [s for s in senators if s["senator_id"] == args.senator]
+        senators = [s for s in senators if s["official_id"] == args.senator]
     if args.method:
         senators = [s for s in senators if s.get("collection_method") == args.method]
 

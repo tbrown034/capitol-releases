@@ -61,7 +61,7 @@ export function ReleaseCard({
   item: FeedItem;
   snippet?: string | null;
 }) {
-  const photoUrl = getSenatorPhotoUrl(item.senator_name, item.senator_id);
+  const photoUrl = getSenatorPhotoUrl(item.senator_name, item.official_id);
   const partyRing =
     item.party === "D"
       ? "ring-blue-500"
@@ -84,7 +84,7 @@ export function ReleaseCard({
     >
       <div className="flex items-start gap-2.5">
         <Link
-          href={getSenatorHref(item.senator_id)}
+          href={getSenatorHref(item.official_id)}
           className="shrink-0 mt-0.5"
         >
           {photoUrl ? (
@@ -110,7 +110,7 @@ export function ReleaseCard({
               <span className="text-[10px] uppercase tracking-wider text-neutral-400">From</span>
             </span>
             <Link
-              href={getSenatorHref(item.senator_id)}
+              href={getSenatorHref(item.official_id)}
               className="text-neutral-700 font-[family-name:var(--font-source-serif)] hover:text-neutral-900 transition-colors"
             >
               {item.senator_name}

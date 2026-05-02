@@ -22,8 +22,8 @@ const PARTY_LABEL = {
   I: "Independent",
 } as const;
 
-async function loadPhoto(rel: { senator_name: string; senator_id: string }) {
-  const url = getSenatorPhotoUrl(rel.senator_name, rel.senator_id);
+async function loadPhoto(rel: { senator_name: string; official_id: string }) {
+  const url = getSenatorPhotoUrl(rel.senator_name, rel.official_id);
   if (!url) return null;
   try {
     const path = join(process.cwd(), "public", url);

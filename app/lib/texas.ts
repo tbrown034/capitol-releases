@@ -29,7 +29,7 @@ export async function getTxRoster(): Promise<TxSenator[]> {
       min(pr.published_at) AS earliest_release
     FROM senators s
     LEFT JOIN press_releases pr
-      ON pr.senator_id = s.id
+      ON pr.official_id = s.id
      AND pr.deleted_at IS NULL
      AND pr.content_type != 'photo_release'
     WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
@@ -49,14 +49,14 @@ export async function getTxStats() {
   const rows = (await sql`
     SELECT
       count(DISTINCT pr.id)::int AS total_releases,
-      count(DISTINCT pr.senator_id)::int AS senators_with_releases,
+      count(DISTINCT pr.official_id)::int AS senators_with_releases,
       count(DISTINCT s.id)::int AS total_senators,
       min(pr.published_at) AS earliest,
       max(pr.published_at) AS latest,
       max(pr.scraped_at) AS last_scrape
     FROM senators s
     LEFT JOIN press_releases pr
-      ON pr.senator_id = s.id
+      ON pr.official_id = s.id
      AND pr.deleted_at IS NULL
      AND pr.content_type != 'photo_release'
     WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
@@ -73,11 +73,11 @@ export async function getTxStats() {
 
 export async function getTxLatestReleases(limit = 12) {
   return (await sql`
-    SELECT pr.id, pr.senator_id, pr.title, pr.published_at, pr.body_text,
+    SELECT pr.id, pr.official_id, pr.title, pr.published_at, pr.body_text,
            pr.source_url, pr.scraped_at, pr.content_type,
            s.full_name AS senator_name, s.party, s.state
     FROM press_releases pr
-    JOIN senators s ON s.id = pr.senator_id
+    JOIN senators s ON s.id = pr.official_id
     WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
@@ -91,7 +91,7 @@ export async function getTxMonthlyVolume() {
     SELECT to_char(date_trunc('month', published_at), 'YYYY-MM-DD') AS month,
            count(*)::int AS count
     FROM press_releases pr
-    JOIN senators s ON s.id = pr.senator_id
+    JOIN senators s ON s.id = pr.official_id
     WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
@@ -114,7 +114,7 @@ export async function getTxTopicTrends(limit = 24) {
           's$', ''
         ) AS word
       FROM press_releases pr
-      JOIN senators s ON s.id = pr.senator_id
+      JOIN senators s ON s.id = pr.official_id
       WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
@@ -146,7 +146,7 @@ export async function getTxTopicTrends(limit = 24) {
   `) as { word: string; count: number }[];
 }
 
-export async function getTxSenatorTopicTrends(senatorId: string, limit = 12) {
+export async function getTxSenatorTopicTrends(officialId: string, limit = 12) {
   // For a single TX senator. Compares title-word frequency in the most
   // recent 90 days vs prior 90 days. The window is wider than the US
   // version (60d) because TX senators publish much less frequently — most
@@ -164,7 +164,7 @@ export async function getTxSenatorTopicTrends(senatorId: string, limit = 12) {
                       ))) AS word,
                       pr.published_at
       FROM press_releases pr
-      WHERE pr.senator_id = ${senatorId}
+      WHERE pr.official_id = ${officialId}
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
         AND pr.published_at >= NOW() - INTERVAL '180 days'
@@ -196,7 +196,7 @@ export async function getTxSenatorTopicTrends(senatorId: string, limit = 12) {
 }
 
 export async function getTxSenatorSignatureTopics(
-  senatorId: string,
+  officialId: string,
   limit = 12
 ) {
   // Words this senator uses disproportionately vs the rest of the TX
@@ -210,9 +210,9 @@ export async function getTxSenatorSignatureTopics(
                regexp_replace(coalesce(pr.title, ''), '[^a-zA-Z ]', ' ', 'g'),
                ' '
              ))) AS word,
-             (pr.senator_id = ${senatorId}) AS is_self
+             (pr.official_id = ${officialId}) AS is_self
       FROM press_releases pr
-      JOIN senators s ON s.id = pr.senator_id
+      JOIN senators s ON s.id = pr.official_id
       WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
@@ -279,7 +279,7 @@ export async function getTxSearchFacets(filters: {
   const partyRows = (await sql`
     SELECT s.party AS key, count(*)::int AS count
     FROM press_releases pr
-    JOIN senators s ON s.id = pr.senator_id
+    JOIN senators s ON s.id = pr.official_id
     WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
@@ -290,7 +290,7 @@ export async function getTxSearchFacets(filters: {
   const typeRows = (await sql`
     SELECT pr.content_type AS key, count(*)::int AS count
     FROM press_releases pr
-    JOIN senators s ON s.id = pr.senator_id
+    JOIN senators s ON s.id = pr.official_id
     WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'

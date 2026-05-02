@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       SELECT s.full_name, s.party, s.state, s.id,
              count(pr.id)::int as count
       FROM press_releases pr
-      JOIN senators s ON s.id = pr.senator_id
+      JOIN senators s ON s.id = pr.official_id
       WHERE pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
         AND s.status = 'active'
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       SELECT s.full_name, s.party, s.state, s.id,
              count(pr.id)::int as count
       FROM senators s
-      LEFT JOIN press_releases pr ON s.id = pr.senator_id
+      LEFT JOIN press_releases pr ON s.id = pr.official_id
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
       WHERE s.collection_method IS NOT NULL
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
       SELECT s.full_name, s.party, s.state, s.id,
              count(pr.id)::int as count
       FROM press_releases pr
-      JOIN senators s ON s.id = pr.senator_id
+      JOIN senators s ON s.id = pr.official_id
       WHERE pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
         AND pr.published_at >= NOW() - make_interval(days => ${days})
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
       SELECT s.full_name, s.party, s.state, s.id,
              count(pr.id)::int as count
       FROM senators s
-      LEFT JOIN press_releases pr ON s.id = pr.senator_id
+      LEFT JOIN press_releases pr ON s.id = pr.official_id
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
         AND pr.published_at >= NOW() - make_interval(days => ${days})

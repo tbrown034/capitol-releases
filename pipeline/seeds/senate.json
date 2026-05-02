@@ -1,7 +1,7 @@
 {
   "members": [
     {
-      "senator_id": "alsobrooks-angela",
+      "official_id": "alsobrooks-angela",
       "full_name": "Angela D. Alsobrooks",
       "party": "D",
       "state": "MD",
@@ -26,7 +26,7 @@
       "rss_feed_url": null
     },
     {
-      "senator_id": "armstrong-alan",
+      "official_id": "armstrong-alan",
       "full_name": "Alan Armstrong",
       "party": "R",
       "state": "OK",
@@ -52,7 +52,7 @@
       "rss_feed_url": "https://www.armstrong.senate.gov/press-releases/feed/"
     },
     {
-      "senator_id": "baldwin-tammy",
+      "official_id": "baldwin-tammy",
       "full_name": "Tammy Baldwin",
       "party": "D",
       "state": "WI",
@@ -76,7 +76,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "banks-jim",
+      "official_id": "banks-jim",
       "full_name": "Jim Banks",
       "party": "R",
       "state": "IN",
@@ -101,7 +101,7 @@
       "rss_feed_url": null
     },
     {
-      "senator_id": "barrasso-john",
+      "official_id": "barrasso-john",
       "full_name": "John Barrasso",
       "party": "R",
       "state": "WY",
@@ -126,7 +126,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "bennet-michael",
+      "official_id": "bennet-michael",
       "full_name": "Michael F. Bennet",
       "party": "D",
       "state": "CO",
@@ -151,7 +151,7 @@
       "rss_feed_url": "https://www.bennet.senate.gov/news/feed/"
     },
     {
-      "senator_id": "blackburn-marsha",
+      "official_id": "blackburn-marsha",
       "full_name": "Marsha Blackburn",
       "party": "R",
       "state": "TN",
@@ -177,7 +177,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "blumenthal-richard",
+      "official_id": "blumenthal-richard",
       "full_name": "Richard Blumenthal",
       "party": "D",
       "state": "CT",
@@ -201,7 +201,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "rochester-lisa",
+      "official_id": "rochester-lisa",
       "full_name": "Lisa Blunt Rochester",
       "party": "D",
       "state": "DE",
@@ -226,7 +226,7 @@
       "rss_feed_url": null
     },
     {
-      "senator_id": "booker-cory",
+      "official_id": "booker-cory",
       "full_name": "Cory A. Booker",
       "party": "D",
       "state": "NJ",
@@ -250,7 +250,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "boozman-john",
+      "official_id": "boozman-john",
       "full_name": "John Boozman",
       "party": "R",
       "state": "AR",
@@ -276,7 +276,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "britt-katie",
+      "official_id": "britt-katie",
       "full_name": "Katie Boyd Britt",
       "party": "R",
       "state": "AL",
@@ -301,7 +301,7 @@
       "rss_feed_url": null
     },
     {
-      "senator_id": "budd-ted",
+      "official_id": "budd-ted",
       "full_name": "Ted Budd",
       "party": "R",
       "state": "NC",
@@ -326,7 +326,7 @@
       "rss_feed_url": "https://www.budd.senate.gov/category/news/press-releases/feed/"
     },
     {
-      "senator_id": "cantwell-maria",
+      "official_id": "cantwell-maria",
       "full_name": "Maria Cantwell",
       "party": "D",
       "state": "WA",
@@ -350,7 +350,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "capito-shelley",
+      "official_id": "capito-shelley",
       "full_name": "Shelley Moore Capito",
       "party": "R",
       "state": "WV",
@@ -374,7 +374,7 @@
       "collection_method": "playwright"
     },
     {
-      "senator_id": "cassidy-bill",
+      "official_id": "cassidy-bill",
       "full_name": "Bill Cassidy",
       "party": "R",
       "state": "LA",
@@ -398,7 +398,7 @@
       "collection_method": "playwright"
     },
     {
-      "senator_id": "collins-susan",
+      "official_id": "collins-susan",
       "full_name": "Susan M. Collins",
       "party": "R",
       "state": "ME",
@@ -422,7 +422,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "coons-christopher",
+      "official_id": "coons-christopher",
       "full_name": "Christopher A. Coons",
       "party": "D",
       "state": "DE",
@@ -447,7 +447,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "cornyn-john",
+      "official_id": "cornyn-john",
       "full_name": "John Cornyn",
       "party": "R",
       "state": "TX",
@@ -472,7 +472,7 @@
       "rss_feed_url": "https://www.cornyn.senate.gov/news/feed/"
     },
     {
-      "senator_id": "masto-catherine",
+      "official_id": "masto-catherine",
       "full_name": "Catherine Cortez Masto",
       "party": "D",
       "state": "NV",
@@ -496,7 +496,7 @@
       "collection_method": "playwright"
     },
     {
-      "senator_id": "cotton-tom",
+      "official_id": "cotton-tom",
       "full_name": "Tom Cotton",
       "party": "R",
       "state": "AR",
@@ -520,7 +520,7 @@
       "collection_method": "playwright"
     },
     {
-      "senator_id": "cramer-kevin",
+      "official_id": "cramer-kevin",
       "full_name": "Kevin Cramer",
       "party": "R",
       "state": "ND",
@@ -544,7 +544,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "crapo-mike",
+      "official_id": "crapo-mike",
       "full_name": "Mike Crapo",
       "party": "R",
       "state": "ID",
@@ -568,7 +568,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "cruz-ted",
+      "official_id": "cruz-ted",
       "full_name": "Ted Cruz",
       "party": "R",
       "state": "TX",
@@ -592,7 +592,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "curtis-john",
+      "official_id": "curtis-john",
       "full_name": "John R. Curtis",
       "party": "R",
       "state": "UT",
@@ -618,7 +618,7 @@
       "rss_feed_url": "https://www.curtis.senate.gov/media/press-releases/feed/"
     },
     {
-      "senator_id": "daines-steve",
+      "official_id": "daines-steve",
       "full_name": "Steve Daines",
       "party": "R",
       "state": "MT",
@@ -643,7 +643,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "duckworth-tammy",
+      "official_id": "duckworth-tammy",
       "full_name": "Tammy Duckworth",
       "party": "D",
       "state": "IL",
@@ -668,7 +668,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "durbin-richard",
+      "official_id": "durbin-richard",
       "full_name": "Richard J. Durbin",
       "party": "D",
       "state": "IL",
@@ -693,7 +693,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "ernst-joni",
+      "official_id": "ernst-joni",
       "full_name": "Joni Ernst",
       "party": "R",
       "state": "IA",
@@ -717,7 +717,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "fetterman-john",
+      "official_id": "fetterman-john",
       "full_name": "John Fetterman",
       "party": "D",
       "state": "PA",
@@ -744,7 +744,7 @@
       "rss_feed_url": "https://www.fetterman.senate.gov/press-release/feed/"
     },
     {
-      "senator_id": "fischer-deb",
+      "official_id": "fischer-deb",
       "full_name": "Deb Fischer",
       "party": "R",
       "state": "NE",
@@ -770,7 +770,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "gallego-ruben",
+      "official_id": "gallego-ruben",
       "full_name": "Ruben Gallego",
       "party": "D",
       "state": "AZ",
@@ -795,7 +795,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "gillibrand-kirsten",
+      "official_id": "gillibrand-kirsten",
       "full_name": "Kirsten E. Gillibrand",
       "party": "D",
       "state": "NY",
@@ -820,7 +820,7 @@
       "rss_feed_url": "https://www.gillibrand.senate.gov/press-releases/feed/"
     },
     {
-      "senator_id": "graham-lindsey",
+      "official_id": "graham-lindsey",
       "full_name": "Lindsey Graham",
       "party": "R",
       "state": "SC",
@@ -846,7 +846,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "grassley-chuck",
+      "official_id": "grassley-chuck",
       "full_name": "Chuck Grassley",
       "party": "R",
       "state": "IA",
@@ -870,7 +870,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "hagerty-bill",
+      "official_id": "hagerty-bill",
       "full_name": "Bill Hagerty",
       "party": "R",
       "state": "TN",
@@ -897,7 +897,7 @@
       "rss_feed_url": "https://www.hagerty.senate.gov/press-releases/feed/"
     },
     {
-      "senator_id": "hassan-margaret",
+      "official_id": "hassan-margaret",
       "full_name": "Margaret Wood Hassan",
       "party": "D",
       "state": "NH",
@@ -921,7 +921,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "hawley-josh",
+      "official_id": "hawley-josh",
       "full_name": "Josh Hawley",
       "party": "R",
       "state": "MO",
@@ -948,7 +948,7 @@
       "rss_feed_url": "https://www.hawley.senate.gov/press-releases/feed/"
     },
     {
-      "senator_id": "heinrich-martin",
+      "official_id": "heinrich-martin",
       "full_name": "Martin Heinrich",
       "party": "D",
       "state": "NM",
@@ -972,7 +972,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "hickenlooper-john",
+      "official_id": "hickenlooper-john",
       "full_name": "John W. Hickenlooper",
       "party": "D",
       "state": "CO",
@@ -997,7 +997,7 @@
       "rss_feed_url": "https://www.hickenlooper.senate.gov/press/feed/"
     },
     {
-      "senator_id": "hirono-mazie",
+      "official_id": "hirono-mazie",
       "full_name": "Mazie K. Hirono",
       "party": "D",
       "state": "HI",
@@ -1021,7 +1021,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "hoeven-john",
+      "official_id": "hoeven-john",
       "full_name": "John Hoeven",
       "party": "R",
       "state": "ND",
@@ -1045,7 +1045,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "husted-jon",
+      "official_id": "husted-jon",
       "full_name": "Jon Husted",
       "party": "R",
       "state": "OH",
@@ -1069,7 +1069,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "hydesmith-cindy",
+      "official_id": "hydesmith-cindy",
       "full_name": "Cindy Hyde-Smith",
       "party": "R",
       "state": "MS",
@@ -1095,7 +1095,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "johnson-ron",
+      "official_id": "johnson-ron",
       "full_name": "Ron Johnson",
       "party": "R",
       "state": "WI",
@@ -1121,7 +1121,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "justice-james",
+      "official_id": "justice-james",
       "full_name": "James C. Justice",
       "party": "R",
       "state": "WV",
@@ -1147,7 +1147,7 @@
       "rss_feed_url": "https://www.justice.senate.gov/media/press-releases/feed/"
     },
     {
-      "senator_id": "kaine-tim",
+      "official_id": "kaine-tim",
       "full_name": "Tim Kaine",
       "party": "D",
       "state": "VA",
@@ -1171,7 +1171,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "kelly-mark",
+      "official_id": "kelly-mark",
       "full_name": "Mark Kelly",
       "party": "D",
       "state": "AZ",
@@ -1195,7 +1195,7 @@
       "collection_method": "playwright"
     },
     {
-      "senator_id": "kennedy-john",
+      "official_id": "kennedy-john",
       "full_name": "John Kennedy",
       "party": "R",
       "state": "LA",
@@ -1220,7 +1220,7 @@
       "rss_feed_url": "https://www.kennedy.senate.gov/public/?a=RSS.Feed"
     },
     {
-      "senator_id": "kim-andy",
+      "official_id": "kim-andy",
       "full_name": "Andy Kim",
       "party": "D",
       "state": "NJ",
@@ -1245,7 +1245,7 @@
       "rss_feed_url": "https://www.kim.senate.gov/press-releases/feed/"
     },
     {
-      "senator_id": "king-angus",
+      "official_id": "king-angus",
       "full_name": "Angus S. King, Jr.",
       "party": "I",
       "state": "ME",
@@ -1269,7 +1269,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "klobuchar-amy",
+      "official_id": "klobuchar-amy",
       "full_name": "Amy Klobuchar",
       "party": "D",
       "state": "MN",
@@ -1293,7 +1293,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "lankford-james",
+      "official_id": "lankford-james",
       "full_name": "James Lankford",
       "party": "R",
       "state": "OK",
@@ -1317,7 +1317,7 @@
       "collection_method": "playwright"
     },
     {
-      "senator_id": "lee-mike",
+      "official_id": "lee-mike",
       "full_name": "Mike Lee",
       "party": "R",
       "state": "UT",
@@ -1343,7 +1343,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "lujan-ben",
+      "official_id": "lujan-ben",
       "full_name": "Ben Ray Lujan",
       "party": "D",
       "state": "NM",
@@ -1368,7 +1368,7 @@
       "rss_feed_url": "https://www.lujan.senate.gov/feed/"
     },
     {
-      "senator_id": "lummis-cynthia",
+      "official_id": "lummis-cynthia",
       "full_name": "Cynthia M. Lummis",
       "party": "R",
       "state": "WY",
@@ -1395,7 +1395,7 @@
       "rss_feed_url": "https://www.lummis.senate.gov/press-releases/feed/"
     },
     {
-      "senator_id": "markey-edward",
+      "official_id": "markey-edward",
       "full_name": "Edward J. Markey",
       "party": "D",
       "state": "MA",
@@ -1419,7 +1419,7 @@
       "collection_method": "playwright"
     },
     {
-      "senator_id": "marshall-roger",
+      "official_id": "marshall-roger",
       "full_name": "Roger Marshall",
       "party": "R",
       "state": "KS",
@@ -1444,7 +1444,7 @@
       "rss_feed_url": "https://www.marshall.senate.gov/feed/"
     },
     {
-      "senator_id": "mcconnell-mitch",
+      "official_id": "mcconnell-mitch",
       "full_name": "Mitch McConnell",
       "party": "R",
       "state": "KY",
@@ -1468,7 +1468,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "mccormick-david",
+      "official_id": "mccormick-david",
       "full_name": "David McCormick",
       "party": "R",
       "state": "PA",
@@ -1494,7 +1494,7 @@
       "rss_feed_url": null
     },
     {
-      "senator_id": "merkley-jeff",
+      "official_id": "merkley-jeff",
       "full_name": "Jeff Merkley",
       "party": "D",
       "state": "OR",
@@ -1520,7 +1520,7 @@
       "rss_feed_url": "https://www.merkley.senate.gov/feed/"
     },
     {
-      "senator_id": "moody-ashley",
+      "official_id": "moody-ashley",
       "full_name": "Ashley Moody",
       "party": "R",
       "state": "FL",
@@ -1545,7 +1545,7 @@
       "rss_feed_url": "https://www.moody.senate.gov/press-releases/feed/"
     },
     {
-      "senator_id": "moran-jerry",
+      "official_id": "moran-jerry",
       "full_name": "Jerry Moran",
       "party": "R",
       "state": "KS",
@@ -1571,7 +1571,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "moreno-bernie",
+      "official_id": "moreno-bernie",
       "full_name": "Bernie Moreno",
       "party": "R",
       "state": "OH",
@@ -1597,7 +1597,7 @@
       "rss_feed_url": "https://www.moreno.senate.gov/media/press-releases/feed/"
     },
     {
-      "senator_id": "murkowski-lisa",
+      "official_id": "murkowski-lisa",
       "full_name": "Lisa Murkowski",
       "party": "R",
       "state": "AK",
@@ -1622,7 +1622,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "murphy-christopher",
+      "official_id": "murphy-christopher",
       "full_name": "Christopher Murphy",
       "party": "D",
       "state": "CT",
@@ -1646,7 +1646,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "murray-patty",
+      "official_id": "murray-patty",
       "full_name": "Patty Murray",
       "party": "D",
       "state": "WA",
@@ -1671,7 +1671,7 @@
       "rss_feed_url": "https://www.murray.senate.gov/press-kit/feed/"
     },
     {
-      "senator_id": "ossoff-jon",
+      "official_id": "ossoff-jon",
       "full_name": "Jon Ossoff",
       "party": "D",
       "state": "GA",
@@ -1696,7 +1696,7 @@
       "rss_feed_url": "https://www.ossoff.senate.gov/press-releases/feed/"
     },
     {
-      "senator_id": "padilla-alex",
+      "official_id": "padilla-alex",
       "full_name": "Alex Padilla",
       "party": "D",
       "state": "CA",
@@ -1721,7 +1721,7 @@
       "rss_feed_url": "https://www.padilla.senate.gov/feed/"
     },
     {
-      "senator_id": "paul-rand",
+      "official_id": "paul-rand",
       "full_name": "Rand Paul",
       "party": "R",
       "state": "KY",
@@ -1747,7 +1747,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "peters-gary",
+      "official_id": "peters-gary",
       "full_name": "Gary C. Peters",
       "party": "D",
       "state": "MI",
@@ -1771,7 +1771,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "reed-jack",
+      "official_id": "reed-jack",
       "full_name": "Jack Reed",
       "party": "D",
       "state": "RI",
@@ -1795,7 +1795,7 @@
       "collection_method": "playwright"
     },
     {
-      "senator_id": "ricketts-pete",
+      "official_id": "ricketts-pete",
       "full_name": "Pete Ricketts",
       "party": "R",
       "state": "NE",
@@ -1820,7 +1820,7 @@
       "rss_feed_url": null
     },
     {
-      "senator_id": "risch-james",
+      "official_id": "risch-james",
       "full_name": "James E. Risch",
       "party": "R",
       "state": "ID",
@@ -1845,7 +1845,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "rosen-jacky",
+      "official_id": "rosen-jacky",
       "full_name": "Jacky Rosen",
       "party": "D",
       "state": "NV",
@@ -1872,7 +1872,7 @@
       "rss_feed_url": "https://www.rosen.senate.gov/category/press_release/feed/"
     },
     {
-      "senator_id": "rounds-mike",
+      "official_id": "rounds-mike",
       "full_name": "Mike Rounds",
       "party": "R",
       "state": "SD",
@@ -1896,7 +1896,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "sanders-bernard",
+      "official_id": "sanders-bernard",
       "full_name": "Bernard Sanders",
       "party": "I",
       "state": "VT",
@@ -1921,7 +1921,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "schatz-brian",
+      "official_id": "schatz-brian",
       "full_name": "Brian Schatz",
       "party": "D",
       "state": "HI",
@@ -1945,7 +1945,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "schiff-adam",
+      "official_id": "schiff-adam",
       "full_name": "Adam B. Schiff",
       "party": "D",
       "state": "CA",
@@ -1970,7 +1970,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "schmitt-eric",
+      "official_id": "schmitt-eric",
       "full_name": "Eric Schmitt",
       "party": "R",
       "state": "MO",
@@ -1994,7 +1994,7 @@
       "collection_method": "playwright"
     },
     {
-      "senator_id": "schumer-charles",
+      "official_id": "schumer-charles",
       "full_name": "Charles E. Schumer",
       "party": "D",
       "state": "NY",
@@ -2018,7 +2018,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "scott-rick",
+      "official_id": "scott-rick",
       "full_name": "Rick Scott",
       "party": "R",
       "state": "FL",
@@ -2044,7 +2044,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "scott-tim",
+      "official_id": "scott-tim",
       "full_name": "Tim Scott",
       "party": "R",
       "state": "SC",
@@ -2068,7 +2068,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "shaheen-jeanne",
+      "official_id": "shaheen-jeanne",
       "full_name": "Jeanne Shaheen",
       "party": "D",
       "state": "NH",
@@ -2092,7 +2092,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "sheehy-tim",
+      "official_id": "sheehy-tim",
       "full_name": "Tim Sheehy",
       "party": "R",
       "state": "MT",
@@ -2116,7 +2116,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "slotkin-elissa",
+      "official_id": "slotkin-elissa",
       "full_name": "Elissa Slotkin",
       "party": "D",
       "state": "MI",
@@ -2143,7 +2143,7 @@
       "rss_feed_url": "https://www.slotkin.senate.gov/newsroom/feed/"
     },
     {
-      "senator_id": "smith-tina",
+      "official_id": "smith-tina",
       "full_name": "Tina Smith",
       "party": "D",
       "state": "MN",
@@ -2169,7 +2169,7 @@
       "rss_feed_url": "https://www.smith.senate.gov/press-releases/feed/"
     },
     {
-      "senator_id": "sullivan-dan",
+      "official_id": "sullivan-dan",
       "full_name": "Dan Sullivan",
       "party": "R",
       "state": "AK",
@@ -2194,7 +2194,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "thune-john",
+      "official_id": "thune-john",
       "full_name": "John Thune",
       "party": "R",
       "state": "SD",
@@ -2218,7 +2218,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "tillis-thom",
+      "official_id": "tillis-thom",
       "full_name": "Thom Tillis",
       "party": "R",
       "state": "NC",
@@ -2244,7 +2244,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "tuberville-tommy",
+      "official_id": "tuberville-tommy",
       "full_name": "Tommy Tuberville",
       "party": "R",
       "state": "AL",
@@ -2268,7 +2268,7 @@
       "collection_method": "playwright"
     },
     {
-      "senator_id": "hollen-chris",
+      "official_id": "hollen-chris",
       "full_name": "Chris Van Hollen",
       "party": "D",
       "state": "MD",
@@ -2292,7 +2292,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "warner-mark",
+      "official_id": "warner-mark",
       "full_name": "Mark R. Warner",
       "party": "D",
       "state": "VA",
@@ -2316,7 +2316,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "warnock-raphael",
+      "official_id": "warnock-raphael",
       "full_name": "Raphael G. Warnock",
       "party": "D",
       "state": "GA",
@@ -2341,7 +2341,7 @@
       "rss_feed_url": "https://www.warnock.senate.gov/feed/"
     },
     {
-      "senator_id": "warren-elizabeth",
+      "official_id": "warren-elizabeth",
       "full_name": "Elizabeth Warren",
       "party": "D",
       "state": "MA",
@@ -2367,7 +2367,7 @@
       "rss_feed_url": "https://www.warren.senate.gov/rss/"
     },
     {
-      "senator_id": "welch-peter",
+      "official_id": "welch-peter",
       "full_name": "Peter Welch",
       "party": "D",
       "state": "VT",
@@ -2392,7 +2392,7 @@
       "rss_feed_url": "https://www.welch.senate.gov/category/press-release/feed/"
     },
     {
-      "senator_id": "whitehouse-sheldon",
+      "official_id": "whitehouse-sheldon",
       "full_name": "Sheldon Whitehouse",
       "party": "D",
       "state": "RI",
@@ -2417,7 +2417,7 @@
       "rss_feed_url": null
     },
     {
-      "senator_id": "wicker-roger",
+      "official_id": "wicker-roger",
       "full_name": "Roger F. Wicker",
       "party": "R",
       "state": "MS",
@@ -2443,7 +2443,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "wyden-ron",
+      "official_id": "wyden-ron",
       "full_name": "Ron Wyden",
       "party": "D",
       "state": "OR",
@@ -2468,7 +2468,7 @@
       "collection_method": "httpx"
     },
     {
-      "senator_id": "young-todd",
+      "official_id": "young-todd",
       "full_name": "Todd Young",
       "party": "R",
       "state": "IN",

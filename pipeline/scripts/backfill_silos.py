@@ -1,6 +1,6 @@
 """Custom-scraper backfill for non-WP silos surfaced by silo_verify.
 
-For each (senator_id, section_url, content_type) silo, walks the section's
+For each (official_id, section_url, content_type) silo, walks the section's
 listing pages using the same selector cascade that backfill.py uses for
 press releases, then writes records into press_releases with the right
 content_type and date_source='silo_backfill'.
@@ -37,7 +37,7 @@ from pipeline.backfill_wp_json import load_env, normalize_url
 
 CUTOFF = date(2025, 1, 1)
 
-# (senator_id, section_url, content_type)
+# (official_id, section_url, content_type)
 # Verified active by silo_verify.py 2026-04-25 — see docs/silo_action_plan.md
 SILOS: list[tuple[str, str, str]] = [
     ("crapo-mike", "https://www.crapo.senate.gov/media/columns/", "op_ed"),
@@ -68,12 +68,12 @@ UA = (
 )
 
 
-def load_seed_selectors(senator_id: str) -> dict:
+def load_seed_selectors(official_id: str) -> dict:
     seeds = json.loads(
         (Path(__file__).resolve().parents[1] / "seeds" / "senate.json").read_text()
     )["members"]
     for s in seeds:
-        if s["senator_id"] == senator_id:
+        if s["official_id"] == official_id:
             return s.get("selectors") or {}
     return {}
 
@@ -81,14 +81,14 @@ def load_seed_selectors(senator_id: str) -> dict:
 def collect_silo(
     conn,
     client: httpx.Client,
-    senator_id: str,
+    official_id: str,
     section_url: str,
     content_type: str,
     selectors: dict,
     max_pages: int,
     dry_run: bool,
 ) -> dict:
-    print(f"\n[{senator_id}] {section_url}  ({content_type})")
+    print(f"\n[{official_id}] {section_url}  ({content_type})")
     counts = {
         "pages_walked": 0,
         "items_seen": 0,
@@ -100,7 +100,7 @@ def collect_silo(
         "skipped_non_gov": 0,
     }
 
-    run_id = f"silo-{senator_id}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+    run_id = f"silo-{official_id}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
     if not dry_run:
         cur = conn.cursor()
         cur.execute(
@@ -169,12 +169,12 @@ def collect_silo(
                 cur.execute(
                     """
                     INSERT INTO press_releases
-                      (senator_id, title, published_at, source_url,
+                      (official_id, title, published_at, source_url,
                        scrape_run, content_type, date_source, date_confidence)
                     VALUES (%s, %s, %s, %s, %s, %s, 'silo_backfill', 0.9)
                     ON CONFLICT (source_url) DO NOTHING
                     """,
-                    (senator_id, title, pub_dt, detail, run_id, content_type),
+                    (official_id, title, pub_dt, detail, run_id, content_type),
                 )
                 conn.commit()
                 if cur.rowcount > 0:
@@ -207,7 +207,7 @@ def collect_silo(
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--senator", help="Run only for one senator_id")
+    ap.add_argument("--senator", help="Run only for one official_id")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--max-pages", type=int, default=10)
     args = ap.parse_args()

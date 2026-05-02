@@ -33,9 +33,9 @@ class NebraskaUnicameralCollector:
         max_pages: int = 1,
     ) -> CollectorResult:
         start = time.monotonic()
-        sid = senator["senator_id"]
+        sid = senator["official_id"]
         pr_url = senator.get("press_release_url", "")
-        result = CollectorResult(senator_id=sid, method=self.method)
+        result = CollectorResult(official_id=sid, method=self.method)
 
         if not pr_url:
             result.errors.append("No press_release_url configured")
@@ -100,7 +100,7 @@ class NebraskaUnicameralCollector:
                         log.warning("Detail page failed for %s: %s", item["source_url"], e)
 
                     record = ReleaseRecord(
-                        senator_id=sid,
+                        official_id=sid,
                         title=title,
                         source_url=normalize_url(item["source_url"]),
                         published_at=published_at,
@@ -136,9 +136,9 @@ class NebraskaUnicameralCollector:
         return result
 
     async def health_check(self, senator: dict) -> HealthCheckResult:
-        sid = senator["senator_id"]
+        sid = senator["official_id"]
         pr_url = senator.get("press_release_url", "")
-        result = HealthCheckResult(senator_id=sid)
+        result = HealthCheckResult(official_id=sid)
 
         if not pr_url:
             result.error_message = "No press_release_url"
@@ -360,9 +360,9 @@ async def _collect_listing_source(
     prefer_detail_title: bool = True,
 ) -> CollectorResult:
     start = time.monotonic()
-    sid = senator["senator_id"]
+    sid = senator["official_id"]
     pr_url = senator.get("press_release_url", "")
-    result = CollectorResult(senator_id=sid, method=method)
+    result = CollectorResult(official_id=sid, method=method)
 
     if not pr_url:
         result.errors.append("No press_release_url configured")
@@ -424,7 +424,7 @@ async def _collect_listing_source(
                     log.warning("Detail page failed for %s: %s", source_url, e)
 
                 result.releases.append(ReleaseRecord(
-                    senator_id=sid,
+                    official_id=sid,
                     title=title,
                     source_url=normalize_url(source_url),
                     published_at=published_at,
@@ -453,9 +453,9 @@ async def _collect_listing_source(
 
 
 async def _health_check_listing_source(senator: dict, method: str, item_extractor) -> HealthCheckResult:
-    sid = senator["senator_id"]
+    sid = senator["official_id"]
     pr_url = senator.get("press_release_url", "")
-    result = HealthCheckResult(senator_id=sid)
+    result = HealthCheckResult(official_id=sid)
     if not pr_url:
         result.error_message = "No press_release_url"
         return result

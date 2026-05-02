@@ -659,7 +659,7 @@ async def scrape_senator(client, semaphore, senator, run_id, max_pages, _conn_un
                 cur = conn.cursor()
                 try:
                     cur.execute("""
-                        INSERT INTO press_releases (senator_id, title, published_at, body_text, source_url, scrape_run, date_source, date_confidence)
+                        INSERT INTO press_releases (official_id, title, published_at, body_text, source_url, scrape_run, date_source, date_confidence)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                         ON CONFLICT (source_url) DO NOTHING
                     """, (sid, title, pub_date, body_text or None, detail_url, run_id, "listing_page", 0.6))

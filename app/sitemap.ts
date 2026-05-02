@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/texas/trending", changeFrequency: "weekly" as const, priority: 0.5 },
   ];
 
-  const [senatorIds, txSenatorIds, total] = await Promise.all([
+  const [officialIds, txSenatorIds, total] = await Promise.all([
     getActiveSenatorIds("us-senate"),
     getActiveSenatorIds("tx-senate"),
     getReleaseCountForSitemap(),
@@ -44,7 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: p.changeFrequency,
       priority: p.priority,
     })),
-    ...senatorIds.map((sid) => ({
+    ...officialIds.map((sid) => ({
       url: `${SITE_URL}/senators/${sid}`,
       lastModified: now,
       changeFrequency: "daily" as const,

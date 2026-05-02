@@ -11,7 +11,7 @@ For each (senator, section_path) silo from docs/source_audit_report.md:
 
 Writes pipeline/recon/silo_probe_results.json:
 
-  {senator_id: [
+  {official_id: [
      {section, sitemap_count, classification, post_type_slug, wp_total}
   ]}
 
@@ -295,11 +295,11 @@ def load_seeds() -> dict[str, dict]:
     data = json.loads(SEEDS.read_text())
     out: dict[str, dict] = {}
     for m in data["members"]:
-        out[m["senator_id"]] = m
+        out[m["official_id"]] = m
     return out
 
 
-# Manual map: audit report shows display name; seeds use senator_id.
+# Manual map: audit report shows display name; seeds use official_id.
 NAME_TO_ID = {
     "John Barrasso": "barrasso-john",
     "Michael F. Bennet": "bennet-michael",
@@ -347,7 +347,7 @@ def classify_silo(
     }
 
     if count < LOW_VALUE_THRESHOLD:
-        return {**silo, "senator_id": sid, "classification": "low_value"}
+        return {**silo, "official_id": sid, "classification": "low_value"}
 
     cands = slug_candidates(section)
 
@@ -381,7 +381,7 @@ def classify_silo(
                 tag = "section_dormant"
             return {
                 **silo,
-                "senator_id": sid,
+                "official_id": sid,
                 "classification": tag,
                 "tried_slugs": cands[:6],
             }
@@ -390,7 +390,7 @@ def classify_silo(
         if not ok:
             return {
                 **silo,
-                "senator_id": sid,
+                "official_id": sid,
                 "classification": "needs_custom_scraper",
                 "tried_slugs": cands[:6],
                 "note": f"types listed {matched_post_type} but endpoint empty",
@@ -398,7 +398,7 @@ def classify_silo(
 
     base_row = {
         **silo,
-        "senator_id": sid,
+        "official_id": sid,
         "post_type_slug": matched_post_type,
         "wp_total": wp_total,
         "wp_in_window": wp_in_window,
@@ -421,7 +421,7 @@ def load_extras_already() -> set[tuple[str, str]]:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--senator", help="senator_id to limit probe to")
+    ap.add_argument("--senator", help="official_id to limit probe to")
     args = ap.parse_args()
 
     silos = parse_silos(REPORT)

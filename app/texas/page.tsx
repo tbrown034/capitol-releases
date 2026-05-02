@@ -61,16 +61,16 @@ export default async function TexasHubPage({
 
   // Reorder so no senator appears more than maxRun times in a row in the
   // Latest section, preserving recency.
-  function diversify<T extends { senator_id: string }>(items: T[], maxRun: number): T[] {
+  function diversify<T extends { official_id: string }>(items: T[], maxRun: number): T[] {
     const out: T[] = [];
     const queue = [...items];
     while (queue.length) {
-      const lastId = out[out.length - 1]?.senator_id;
+      const lastId = out[out.length - 1]?.official_id;
       let run = 0;
-      for (let i = out.length - 1; i >= 0 && out[i].senator_id === lastId; i--) run++;
+      for (let i = out.length - 1; i >= 0 && out[i].official_id === lastId; i--) run++;
       let pickIdx = 0;
       if (lastId && run >= maxRun) {
-        const alt = queue.findIndex((it) => it.senator_id !== lastId);
+        const alt = queue.findIndex((it) => it.official_id !== lastId);
         pickIdx = alt === -1 ? 0 : alt;
       }
       out.push(queue.splice(pickIdx, 1)[0]);
@@ -102,12 +102,12 @@ export default async function TexasHubPage({
 
   // HeroLetter items — pre-map to TX-specific photo paths.
   const heroItems = latestPool.slice(0, 6).map((it) => {
-    const senator = roster.find((r) => r.id === it.senator_id);
+    const senator = roster.find((r) => r.id === it.official_id);
     const district = senator ? String(senator.district).padStart(2, "0") : "00";
     return {
       id: it.id,
       title: it.title,
-      senator_id: it.senator_id,
+      official_id: it.official_id,
       senator_name: it.senator_name,
       party: it.party as "D" | "R" | "I",
       state: it.state,

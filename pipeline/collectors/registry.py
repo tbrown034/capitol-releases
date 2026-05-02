@@ -64,7 +64,7 @@ class CollectorRegistry:
             # or RSS if available.
             if senator.get("rss_feed_url"):
                 return self._rss
-            log.debug("Playwright not yet implemented for %s, using httpx", senator["senator_id"])
+            log.debug("Playwright not yet implemented for %s, using httpx", senator["official_id"])
             return self._httpx
         else:
             return self._httpx

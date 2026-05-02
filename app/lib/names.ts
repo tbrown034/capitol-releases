@@ -63,14 +63,14 @@ const REVERSE_NICKNAMES: Record<string, string[]> = (() => {
 /** Tokens to exclude when mining a senator's signature topics. Includes
  *  formal-name parts (split, lower, dropping initials), known nicknames for
  *  each part, and the senator-id slug parts. */
-export function excludeNameTokens(fullName: string, senatorId: string): string[] {
+export function excludeNameTokens(fullName: string, officialId: string): string[] {
   const tokens = new Set<string>();
   const fromName = fullName
     .toLowerCase()
     .split(/[^a-z]+/)
     .filter((t) => t.length > 1);
   for (const t of fromName) tokens.add(t);
-  for (const t of senatorId.toLowerCase().split(/[^a-z]+/)) {
+  for (const t of officialId.toLowerCase().split(/[^a-z]+/)) {
     if (t.length > 1) tokens.add(t);
   }
   // Expand each token with its nicknames (Charles -> chuck) and formals (chuck -> charles).

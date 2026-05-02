@@ -39,14 +39,14 @@ def insert_release(conn, rec, run_id: str) -> bool:
         cur.execute(
             """
             INSERT INTO press_releases
-                (senator_id, title, published_at, body_text, source_url,
+                (official_id, title, published_at, body_text, source_url,
                  raw_html, content_type, date_source, date_confidence,
                  content_hash, scrape_run, scraped_at)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
             ON CONFLICT (source_url) DO NOTHING
             """,
             (
-                rec.senator_id,
+                rec.official_id,
                 rec.title,
                 rec.published_at,
                 rec.body_text or None,
@@ -85,7 +85,7 @@ async def main():
     run_id = f"backfill-whitehouse-{datetime.now(timezone.utc).strftime('%Y-%m-%d-%H%M')}"
 
     members = load_members()
-    wh = next((m for m in members if m["senator_id"] == "whitehouse"), None)
+    wh = next((m for m in members if m["official_id"] == "whitehouse"), None)
     if not wh:
         print("ERROR: whitehouse entry not found in seeds")
         sys.exit(1)

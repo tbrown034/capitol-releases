@@ -41,7 +41,7 @@ function buildChamberCountsQuery(
     SELECT s.id, count(pr.id)::int as count
     FROM senators s
     LEFT JOIN press_releases pr
-      ON pr.senator_id = s.id
+      ON pr.official_id = s.id
       AND ${joinPreds.join(" AND ")}
     WHERE s.status = 'active' AND s.chamber = 'senate'
     GROUP BY s.id

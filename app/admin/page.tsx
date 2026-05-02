@@ -21,7 +21,7 @@ type Overview = {
     id: string;
     created_at: string;
     alert_type: string;
-    senator_id: string | null;
+    official_id: string | null;
     severity: string;
     message: string;
     acknowledged: boolean;
@@ -219,7 +219,7 @@ export default function AdminPage() {
                         </span>
                       </td>
                       <td className="px-3 py-2 text-neutral-600">{a.alert_type}</td>
-                      <td className="px-3 py-2 text-neutral-600">{a.senator_id ?? "—"}</td>
+                      <td className="px-3 py-2 text-neutral-600">{a.official_id ?? "—"}</td>
                       <td className="px-3 py-2 text-neutral-700">{a.message}</td>
                     </tr>
                   ))}

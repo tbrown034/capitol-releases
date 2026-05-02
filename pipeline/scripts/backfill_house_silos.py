@@ -227,7 +227,7 @@ def collect_silo(
                 cur.execute(
                     """
                     INSERT INTO press_releases
-                      (senator_id, title, published_at, source_url,
+                      (official_id, title, published_at, source_url,
                        scrape_run, content_type, date_source, date_confidence)
                     VALUES (%s, %s, %s, %s, %s, %s, 'silo_backfill', 0.9)
                     ON CONFLICT (source_url) DO NOTHING

@@ -21,7 +21,7 @@ type TrendingRow = {
 };
 type OwnerRow = {
   term: string;
-  senator_id: string;
+  official_id: string;
   full_name: string;
   party: "D" | "R" | "I";
   state: string;
@@ -239,7 +239,7 @@ export default async function TrendingPage({
                 ) : (
                   <ol className="space-y-1.5">
                     {owners.map((o, i) => {
-                      const photo = getSenatorPhotoUrl(o.full_name, o.senator_id);
+                      const photo = getSenatorPhotoUrl(o.full_name, o.official_id);
                       const ringColor =
                         o.party === "D"
                           ? "ring-blue-500"
@@ -248,7 +248,7 @@ export default async function TrendingPage({
                             : "ring-amber-500";
                       return (
                         <li
-                          key={o.senator_id}
+                          key={o.official_id}
                           className="flex items-center gap-2.5"
                         >
                           <span className="w-4 text-right text-[11px] tabular-nums text-neutral-400 font-mono">
@@ -271,7 +271,7 @@ export default async function TrendingPage({
                             </span>
                           )}
                           <Link
-                            href={`/senators/${o.senator_id}`}
+                            href={`/senators/${o.official_id}`}
                             className="text-sm text-neutral-800 hover:underline truncate flex-1 min-w-0"
                           >
                             {familyName(o.full_name)}{" "}

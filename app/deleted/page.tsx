@@ -82,7 +82,7 @@ export default async function DeletedPage({
                 </td>
                 <td className="py-2.5 pr-4 whitespace-nowrap">
                   <Link
-                    href={`/senators/${pr.senator_id}`}
+                    href={`/senators/${pr.official_id}`}
                     className="text-neutral-700 hover:underline"
                   >
                     {pr.senator_name}

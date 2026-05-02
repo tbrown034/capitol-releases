@@ -174,13 +174,13 @@ export async function getTopicOwnership(terms: string[]) {
     cleaned.map(
       (term) => sql`
         SELECT ${term}::text as term,
-               s.id as senator_id,
+               s.id as official_id,
                s.full_name,
                s.party,
                s.state,
                count(pr.id)::int as count
         FROM senators s
-        JOIN press_releases pr ON pr.senator_id = s.id
+        JOIN press_releases pr ON pr.official_id = s.id
         WHERE s.status = 'active'
           AND s.chamber = 'senate'
           AND pr.deleted_at IS NULL
@@ -200,7 +200,7 @@ export async function getTopicOwnership(terms: string[]) {
 
 export type TopicOwnerRow = {
   term: string;
-  senator_id: string;
+  official_id: string;
   full_name: string;
   party: "D" | "R" | "I";
   state: string;
@@ -222,7 +222,7 @@ export async function getPartySkew(limit = 12) {
              ))) as word,
              s.party
       FROM press_releases pr
-      JOIN senators s ON s.id = pr.senator_id
+      JOIN senators s ON s.id = pr.official_id
       WHERE pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
         AND pr.published_at >= '2025-01-01'
@@ -310,9 +310,9 @@ export async function getTermTimeline(term: string) {
                  s.full_name as senator_name,
                  s.party,
                  s.state,
-                 s.id as senator_id
+                 s.id as official_id
           FROM press_releases pr
-          JOIN senators s ON s.id = pr.senator_id
+          JOIN senators s ON s.id = pr.official_id
           WHERE pr.published_at >= '2025-01-01'
             AND pr.published_at IS NOT NULL
             AND pr.deleted_at IS NULL
@@ -334,5 +334,5 @@ export type TermSpikeHeadline = {
   senator_name: string;
   party: "D" | "R" | "I";
   state: string;
-  senator_id: string;
+  official_id: string;
 };

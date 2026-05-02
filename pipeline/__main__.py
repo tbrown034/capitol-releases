@@ -157,7 +157,7 @@ def _show_stats():
     cur.execute("SELECT COUNT(*) FROM press_releases WHERE body_text IS NOT NULL AND length(body_text) > 100")
     with_body = cur.fetchone()[0]
 
-    cur.execute("SELECT COUNT(DISTINCT senator_id) FROM press_releases")
+    cur.execute("SELECT COUNT(DISTINCT official_id) FROM press_releases")
     senators = cur.fetchone()[0]
 
     cur.execute("SELECT MIN(published_at), MAX(published_at) FROM press_releases WHERE published_at IS NOT NULL")

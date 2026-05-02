@@ -80,7 +80,7 @@ export type ContentType =
 
 export type PressRelease = {
   id: string;
-  senator_id: string;
+  official_id: string;
   title: string;
   published_at: string | null;
   body_text: string | null;
@@ -97,7 +97,7 @@ export type FeedItem = PressRelease & {
 
 export type SocialPost = {
   id: string;
-  senator_id: string;
+  official_id: string;
   source: "bluesky";
   platform_post_id: string;
   did: string;

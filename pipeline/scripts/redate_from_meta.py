@@ -82,14 +82,14 @@ async def fetch_and_parse(
 
 
 async def process_senator(
-    senator_id: str, conn, dry_run: bool, concurrency: int
+    official_id: str, conn, dry_run: bool, concurrency: int
 ) -> dict:
     cur = conn.cursor()
     cur.execute(
         """
         SELECT id, source_url, published_at, date_source, date_confidence
         FROM press_releases
-        WHERE senator_id = %s
+        WHERE official_id = %s
           AND deleted_at IS NULL
           AND published_at >= '2025-01-01'
           AND (
@@ -99,13 +99,13 @@ async def process_senator(
           )
         ORDER BY published_at
         """,
-        (senator_id,),
+        (official_id,),
     )
     rows = cur.fetchall()
     cur.close()
 
     stats = {
-        "senator": senator_id,
+        "senator": official_id,
         "candidates": len(rows),
         "updated": 0,
         "unchanged": 0,
@@ -115,10 +115,10 @@ async def process_senator(
     }
 
     if not rows:
-        log.info("%s: no candidates", senator_id)
+        log.info("%s: no candidates", official_id)
         return stats
 
-    log.info("%s: %d candidates", senator_id, len(rows))
+    log.info("%s: %d candidates", official_id, len(rows))
 
     sem = asyncio.Semaphore(concurrency)
     async with httpx.AsyncClient(headers=HEADERS) as client:
@@ -131,7 +131,7 @@ async def process_senator(
         if dr is None:
             stats["errors"] += 1
             if stats["errors"] <= 3:
-                log.warning("%s error: %s — %s", senator_id, url, err)
+                log.warning("%s error: %s — %s", official_id, url, err)
             continue
 
         new_date = dr.value.astimezone(timezone.utc)
@@ -176,7 +176,7 @@ async def process_senator(
     stats["elapsed"] = time.monotonic() - stats["start"]
     log.info(
         "%s done: candidates=%d updated=%d unchanged=%d errors=%d (%.1fs)",
-        senator_id, stats["candidates"], stats["updated"],
+        official_id, stats["candidates"], stats["updated"],
         stats["unchanged"], stats["errors"], stats["elapsed"],
     )
     return stats

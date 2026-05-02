@@ -22,15 +22,15 @@ function diversifyFeed(items: FeedItem[], maxRun: number): FeedItem[] {
   const out: FeedItem[] = [];
   const queue = [...items];
   while (queue.length) {
-    const lastId = out[out.length - 1]?.senator_id;
+    const lastId = out[out.length - 1]?.official_id;
     const runLength = (() => {
       let n = 0;
-      for (let i = out.length - 1; i >= 0 && out[i].senator_id === lastId; i--) n++;
+      for (let i = out.length - 1; i >= 0 && out[i].official_id === lastId; i--) n++;
       return n;
     })();
     let pickIdx = 0;
     if (lastId && runLength >= maxRun) {
-      const alt = queue.findIndex((it) => it.senator_id !== lastId);
+      const alt = queue.findIndex((it) => it.official_id !== lastId);
       pickIdx = alt === -1 ? 0 : alt;
     }
     out.push(queue.splice(pickIdx, 1)[0]);
@@ -61,7 +61,7 @@ export default async function Home() {
     .map((it) => ({
       id: it.id,
       title: it.title,
-      senator_id: it.senator_id,
+      official_id: it.official_id,
       senator_name: it.senator_name,
       party: it.party as "D" | "R" | "I",
       state: it.state,

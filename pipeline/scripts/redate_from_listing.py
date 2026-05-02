@@ -148,7 +148,7 @@ async def fetch_listing(
         return url, f"ERR {type(e).__name__}: {e}", []
 
 
-async def process_senator(senator_id: str, pr_url: str, conn, args):
+async def process_senator(official_id: str, pr_url: str, conn, args):
     url_to_date: dict[str, datetime] = {}
     pages_ok = 0
     pages_empty = 0
@@ -157,11 +157,11 @@ async def process_senator(senator_id: str, pr_url: str, conn, args):
         for page in range(1, args.max_pages + 1):
             url, status, entries = await fetch_listing(client, pr_url, page)
             if status != 200:
-                log.warning("%s page %d: status %s", senator_id, page, status)
+                log.warning("%s page %d: status %s", official_id, page, status)
                 break
             if not entries:
                 pages_empty += 1
-                log.info("%s page %d: no entries, stopping", senator_id, page)
+                log.info("%s page %d: no entries, stopping", official_id, page)
                 break
             pages_ok += 1
             # Dedup-insert
@@ -173,7 +173,7 @@ async def process_senator(senator_id: str, pr_url: str, conn, args):
                     new_entries += 1
             log.info(
                 "%s page %d: %d entries (%d new, total=%d)",
-                senator_id, page, len(entries), new_entries, len(url_to_date),
+                official_id, page, len(entries), new_entries, len(url_to_date),
             )
             if new_entries == 0:
                 # We've cycled; stop
@@ -181,10 +181,10 @@ async def process_senator(senator_id: str, pr_url: str, conn, args):
             await asyncio.sleep(args.delay)
 
     log.info("%s: walked %d pages, collected %d unique URLs",
-             senator_id, pages_ok, len(url_to_date))
+             official_id, pages_ok, len(url_to_date))
 
     if not url_to_date:
-        return {"senator": senator_id, "collected": 0, "matched": 0,
+        return {"senator": official_id, "collected": 0, "matched": 0,
                 "updated": 0, "conflicts": 0}
 
     # Build map of DB records for this senator
@@ -193,9 +193,9 @@ async def process_senator(senator_id: str, pr_url: str, conn, args):
         """
         SELECT id, source_url, published_at, date_source, date_confidence
         FROM press_releases
-        WHERE senator_id = %s AND deleted_at IS NULL
+        WHERE official_id = %s AND deleted_at IS NULL
         """,
-        (senator_id,),
+        (official_id,),
     )
     db_rows = cur.fetchall()
     cur.close()
@@ -244,7 +244,7 @@ async def process_senator(senator_id: str, pr_url: str, conn, args):
         conn.commit()
     update_cur.close()
 
-    return {"senator": senator_id, "collected": len(url_to_date),
+    return {"senator": official_id, "collected": len(url_to_date),
             "matched": matched, "updated": updated, "conflicts": conflicts}
 
 

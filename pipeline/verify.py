@@ -138,7 +138,7 @@ async def verify_senator(client, semaphore, senator, db_count, db_earliest):
         url = senator["press_release_url"]
 
         result = {
-            "senator_id": sid,
+            "official_id": sid,
             "name": name,
             "party": senator["party"],
             "state": senator["state"],
@@ -223,7 +223,7 @@ async def main():
                min(pr.published_at)::date as earliest,
                max(pr.published_at)::date as latest
         FROM senators s
-        LEFT JOIN press_releases pr ON pr.senator_id = s.id
+        LEFT JOIN press_releases pr ON pr.official_id = s.id
         GROUP BY s.id
         ORDER BY s.full_name
     """)

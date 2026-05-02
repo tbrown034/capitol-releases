@@ -52,12 +52,12 @@ def get_last_run_time(conn) -> datetime | None:
     return row[0] if row else None
 
 
-def get_existing_urls(conn, senator_id: str) -> set[str]:
+def get_existing_urls(conn, official_id: str) -> set[str]:
     """Get all known source_urls for a senator (for dedup)."""
     cur = conn.cursor()
     cur.execute(
-        "SELECT source_url FROM press_releases WHERE senator_id = %s",
-        (senator_id,),
+        "SELECT source_url FROM press_releases WHERE official_id = %s",
+        (official_id,),
     )
     urls = {normalize_url(row[0]) for row in cur.fetchall()}
     cur.close()
@@ -91,14 +91,14 @@ def upsert_release(conn, release: ReleaseRecord) -> tuple[bool, bool]:
             cur.execute(
                 """
                 INSERT INTO press_releases
-                    (senator_id, title, published_at, body_text, source_url,
+                    (official_id, title, published_at, body_text, source_url,
                      raw_html, content_type, date_source, date_confidence,
                      content_hash, scrape_run, scraped_at, last_seen_live)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
                 ON CONFLICT (source_url) DO NOTHING
                 """,
                 (
-                    release.senator_id,
+                    release.official_id,
                     release.title,
                     release.published_at,
                     release.body_text or None,
@@ -132,7 +132,7 @@ def upsert_release(conn, release: ReleaseRecord) -> tuple[bool, bool]:
             cur.execute(
                 """
                 INSERT INTO content_versions
-                    (press_release_id, body_text, content_hash, captured_at)
+                    (official_site_item_id, body_text, content_hash, captured_at)
                 VALUES (%s, %s, %s, NOW())
                 """,
                 (existing_id, existing_body, existing_hash),
@@ -231,7 +231,7 @@ async def run_update(
         nonlocal total_inserted, total_updated, total_skipped, total_errors
 
         async with semaphore:
-            sid = senator["senator_id"]
+            sid = senator["official_id"]
             expect_empty = bool(senator.get("expect_empty"))
             collector = registry.get_collector(senator)
 
@@ -241,7 +241,7 @@ async def run_update(
                 log.error("Collector crashed for %s: %s: %s", sid, type(e).__name__, e)
                 if not expect_empty:
                     total_errors += 1
-                senator_results.append({"senator_id": sid, "error": str(e)})
+                senator_results.append({"official_id": sid, "error": str(e)})
                 return
 
             if result.errors:
@@ -279,7 +279,7 @@ async def run_update(
             total_skipped += skipped
 
             senator_results.append({
-                "senator_id": sid,
+                "official_id": sid,
                 "method": result.method,
                 "collected": len(result.releases),
                 "inserted": inserted,
@@ -355,7 +355,7 @@ def main():
 
     # Filter if specific senators requested
     if args.senators:
-        senators = [s for s in senators if s["senator_id"] in args.senators]
+        senators = [s for s in senators if s["official_id"] in args.senators]
         if not senators:
             print(f"No senators matched: {args.senators}")
             sys.exit(1)

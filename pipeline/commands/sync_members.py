@@ -1,7 +1,7 @@
 """
 Sync member rows from pipeline/seeds/*.json into the senators table.
 
-Press_releases.senator_id is a FK to senators(id), so every member row
+Press_releases.official_id is a FK to senators(id), so every member row
 referenced by the daily collector must exist in the table before
 update.py can insert that member's records. The Senate roster has been
 hand-loaded historically; this command formalizes that path so adding
@@ -91,8 +91,8 @@ def member_to_params(m: dict) -> dict:
         cfg["notes"] = notes
 
     return {
-        "id": m["senator_id"],
-        "full_name": m.get("full_name") or m["senator_id"],
+        "id": m["official_id"],
+        "full_name": m.get("full_name") or m["official_id"],
         "party": m.get("party") or "I",
         "state": m.get("state") or "US",
         "official_url": m.get("official_url") or "",

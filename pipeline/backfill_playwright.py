@@ -50,7 +50,7 @@ def _load_ajax_senators():
     seed_path = Path(__file__).parent / "seeds" / "senate.json"
     data = json.loads(seed_path.read_text())
     return [
-        {"id": m["senator_id"], "url": m["press_release_url"]}
+        {"id": m["official_id"], "url": m["press_release_url"]}
         for m in data["members"]
         if m.get("requires_js") and m.get("press_release_url")
     ]
@@ -88,12 +88,12 @@ def parse_date(text):
     return None
 
 
-def scrape_senator_with_browser(page, senator_id, url, max_pages, run_id):
+def scrape_senator_with_browser(page, official_id, url, max_pages, run_id):
     """Use Playwright to scrape a JetEngine-paginated senator page."""
     conn = psycopg2.connect(DB_URL)
     conn.autocommit = True
 
-    print(f"\n  [{senator_id}] Loading {url}")
+    print(f"\n  [{official_id}] Loading {url}")
     page.goto(url, wait_until="networkidle", timeout=30000)
     page.wait_for_timeout(2000)
 
@@ -210,10 +210,10 @@ def scrape_senator_with_browser(page, senator_id, url, max_pages, run_id):
             cur = conn.cursor()
             try:
                 cur.execute("""
-                    INSERT INTO press_releases (senator_id, title, published_at, body_text, source_url, scrape_run)
+                    INSERT INTO press_releases (official_id, title, published_at, body_text, source_url, scrape_run)
                     VALUES (%s, %s, %s, %s, %s, %s)
                     ON CONFLICT (source_url) DO NOTHING
-                """, (senator_id, title, pub_date, body_text or None, detail_url, run_id))
+                """, (official_id, title, pub_date, body_text or None, detail_url, run_id))
                 if cur.rowcount > 0:
                     inserted += 1
                     date_str = pub_date.strftime("%Y-%m-%d") if pub_date else "no date"
@@ -244,7 +244,7 @@ def scrape_senator_with_browser(page, senator_id, url, max_pages, run_id):
             break
 
     conn.close()
-    print(f"  [{senator_id}] {inserted} inserted, {skipped} skipped, {page_num} pages")
+    print(f"  [{official_id}] {inserted} inserted, {skipped} skipped, {page_num} pages")
     return inserted, skipped
 
 

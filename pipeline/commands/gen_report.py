@@ -24,11 +24,11 @@ def main():
 
     # Load seed config across chambers
     from pipeline.lib.seeds import load_members
-    senators = {m["senator_id"]: m for m in load_members()}
+    senators = {m["official_id"]: m for m in load_members()}
 
     # DB stats per senator
     cur.execute("""
-        SELECT senator_id,
+        SELECT official_id,
                COUNT(*) as total,
                COUNT(*) FILTER (WHERE deleted_at IS NULL) as active,
                COUNT(*) FILTER (WHERE deleted_at IS NOT NULL) as deleted,
@@ -38,8 +38,8 @@ def main():
                MAX(published_at) FILTER (WHERE deleted_at IS NULL) as latest,
                COUNT(*) FILTER (WHERE date_source IS NOT NULL AND deleted_at IS NULL) as with_provenance
         FROM press_releases
-        GROUP BY senator_id
-        ORDER BY senator_id
+        GROUP BY official_id
+        ORDER BY official_id
     """)
     db_stats = {}
     for row in cur.fetchall():
@@ -52,8 +52,8 @@ def main():
 
     # Health check results
     cur.execute("""
-        SELECT DISTINCT ON (senator_id) senator_id, passed, url_status, items_found, page_load_ms, error_message
-        FROM health_checks ORDER BY senator_id, checked_at DESC
+        SELECT DISTINCT ON (official_id) official_id, passed, url_status, items_found, page_load_ms, error_message
+        FROM health_checks ORDER BY official_id, checked_at DESC
     """)
     health = {}
     for row in cur.fetchall():
@@ -62,7 +62,7 @@ def main():
     # RSS discovery results
     rss_path = Path(__file__).resolve().parent.parent / "results" / "rss_discovery.json"
     rss_data = json.loads(rss_path.read_text())
-    rss_map = {r["senator_id"]: r for r in rss_data["found"]}
+    rss_map = {r["official_id"]: r for r in rss_data["found"]}
 
     cur.close()
     conn.close()
@@ -258,7 +258,7 @@ def main():
     sorted_senators = sorted(senators.values(), key=lambda s: (s["state"], s["full_name"]))
 
     for s in sorted_senators:
-        sid = s["senator_id"]
+        sid = s["official_id"]
         stats = db_stats.get(sid, {})
         hc = health.get(sid, {})
         rss = rss_map.get(sid, {})

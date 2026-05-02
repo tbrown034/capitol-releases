@@ -5,7 +5,7 @@
     "generated_by": "pipeline.recon.build_bluesky_seeds",
     "generated_at": "2026-05-01",
     "schema": {
-      "senator_id": "matches senators.id",
+      "official_id": "matches senators.id",
       "handle": "Bluesky handle without @",
       "did": "AT Protocol DID (did:plc:...)",
       "verified_via": "evidence: URL, 'senate.gov footer', or pack list",
@@ -16,7 +16,7 @@
   },
   "handles": [
     {
-      "senator_id": "alsobrooks-angela",
+      "official_id": "alsobrooks-angela",
       "handle": "alsobrooks.senate.gov",
       "did": "did:plc:6srmlf7guiy534fkxhfmlubf",
       "verified_via": "https://www.alsobrooks.senate.gov",
@@ -28,7 +28,7 @@
       "notes": null
     },
     {
-      "senator_id": "baldwin-tammy",
+      "official_id": "baldwin-tammy",
       "handle": "baldwin.senate.gov",
       "did": "did:plc:hne455ahhpnxi5vnm7a5dquz",
       "verified_via": "https://www.baldwin.senate.gov",
@@ -40,7 +40,7 @@
       "notes": null
     },
     {
-      "senator_id": "bennet-michael",
+      "official_id": "bennet-michael",
       "handle": "bennet.senate.gov",
       "did": "did:plc:wfovpxilrfvxvyecoguoza3y",
       "verified_via": "https://www.bennet.senate.gov",
@@ -52,7 +52,7 @@
       "notes": null
     },
     {
-      "senator_id": "blumenthal-richard",
+      "official_id": "blumenthal-richard",
       "handle": "blumenthal.senate.gov",
       "did": "did:plc:fvwtf55iqiihc7ct543i2p6u",
       "verified_via": "https://www.blumenthal.senate.gov",
@@ -64,7 +64,7 @@
       "notes": null
     },
     {
-      "senator_id": "booker-cory",
+      "official_id": "booker-cory",
       "handle": "booker.senate.gov",
       "did": "did:plc:6fm2lhrkemwwzxw6kejxqwtt",
       "verified_via": "senate.gov-domain handle (no footer link)",
@@ -76,7 +76,7 @@
       "notes": null
     },
     {
-      "senator_id": "cantwell-maria",
+      "official_id": "cantwell-maria",
       "handle": "cantwell.senate.gov",
       "did": "did:plc:e3ap6sjaftiof33z6xjt54aa",
       "verified_via": "https://www.cantwell.senate.gov",
@@ -88,7 +88,7 @@
       "notes": null
     },
     {
-      "senator_id": "coons-christopher",
+      "official_id": "coons-christopher",
       "handle": "coons.senate.gov",
       "did": "did:plc:u653qd63piz6z2t6l3sd4duf",
       "verified_via": "https://www.coons.senate.gov",
@@ -100,7 +100,7 @@
       "notes": null
     },
     {
-      "senator_id": "duckworth-tammy",
+      "official_id": "duckworth-tammy",
       "handle": "duckworth.senate.gov",
       "did": "did:plc:uk62jqyggwt4hyhrnzka34wm",
       "verified_via": "https://www.duckworth.senate.gov",
@@ -112,7 +112,7 @@
       "notes": null
     },
     {
-      "senator_id": "durbin-richard",
+      "official_id": "durbin-richard",
       "handle": "durbin.senate.gov",
       "did": "did:plc:laiahnygdvnd7lqdvbem64pf",
       "verified_via": "https://www.durbin.senate.gov",
@@ -124,7 +124,7 @@
       "notes": null
     },
     {
-      "senator_id": "fetterman-john",
+      "official_id": "fetterman-john",
       "handle": "fetterman.senate.gov",
       "did": "did:plc:hmy4bopsymtjikfq5i5mekn6",
       "verified_via": "https://www.fetterman.senate.gov",
@@ -136,7 +136,7 @@
       "notes": null
     },
     {
-      "senator_id": "gallego-ruben",
+      "official_id": "gallego-ruben",
       "handle": "gallego.senate.gov",
       "did": "did:plc:vt3xvbw22imzxfegz45wq7y5",
       "verified_via": "https://www.gallego.senate.gov",
@@ -148,7 +148,7 @@
       "notes": null
     },
     {
-      "senator_id": "gillibrand-kirsten",
+      "official_id": "gillibrand-kirsten",
       "handle": "kirstengillibrand.bsky.social",
       "did": "did:plc:e7atmcvv2bblzo6biapuzi35",
       "verified_via": "starter packs (2): 2025 US Senators on Bluesky; US Senate, Senators, and Related Stuff",
@@ -160,7 +160,7 @@
       "notes": null
     },
     {
-      "senator_id": "hassan-margaret",
+      "official_id": "hassan-margaret",
       "handle": "hassan.senate.gov",
       "did": "did:plc:mtwom57onohy7mymkgdwzq55",
       "verified_via": "https://www.hassan.senate.gov",
@@ -172,7 +172,7 @@
       "notes": null
     },
     {
-      "senator_id": "heinrich-martin",
+      "official_id": "heinrich-martin",
       "handle": "heinrich.senate.gov",
       "did": "did:plc:67vugavgzxuc64jxpv4cqwbi",
       "verified_via": "https://www.heinrich.senate.gov",
@@ -184,7 +184,7 @@
       "notes": null
     },
     {
-      "senator_id": "hickenlooper-john",
+      "official_id": "hickenlooper-john",
       "handle": "hickenlooper.senate.gov",
       "did": "did:plc:wgy2pchnptmdldcsyhmfgs5i",
       "verified_via": "https://www.hickenlooper.senate.gov",
@@ -196,7 +196,7 @@
       "notes": null
     },
     {
-      "senator_id": "hirono-mazie",
+      "official_id": "hirono-mazie",
       "handle": "hirono.senate.gov",
       "did": "did:plc:vausut42drs3hymgujs64vwj",
       "verified_via": "https://www.hirono.senate.gov",
@@ -208,7 +208,7 @@
       "notes": null
     },
     {
-      "senator_id": "hollen-chris",
+      "official_id": "hollen-chris",
       "handle": "vanhollen.senate.gov",
       "did": "did:plc:ht3ruh74w6krts2fz4ir27pa",
       "verified_via": "https://www.vanhollen.senate.gov",
@@ -220,7 +220,7 @@
       "notes": null
     },
     {
-      "senator_id": "kaine-tim",
+      "official_id": "kaine-tim",
       "handle": "kaine.senate.gov",
       "did": "did:plc:gyl2gdob6lyckqwi5dwaehef",
       "verified_via": "https://www.kaine.senate.gov",
@@ -232,7 +232,7 @@
       "notes": null
     },
     {
-      "senator_id": "kelly-mark",
+      "official_id": "kelly-mark",
       "handle": "captmarkkelly.bsky.social",
       "did": "did:plc:6efcnh6vyakphqeims6sqjbm",
       "verified_via": "starter packs (2): 2025 US Senators on Bluesky; US Senate, Senators, and Related Stuff",
@@ -244,7 +244,7 @@
       "notes": "captmarkkelly.bsky.social \u2014 appears in 2 packs. Verify against his .gov-linked socials before promoting to high confidence."
     },
     {
-      "senator_id": "kim-andy",
+      "official_id": "kim-andy",
       "handle": "kim.senate.gov",
       "did": "did:plc:rmbfqraibpzbhjghsxrvksyr",
       "verified_via": "https://www.kim.senate.gov",
@@ -256,7 +256,7 @@
       "notes": null
     },
     {
-      "senator_id": "klobuchar-amy",
+      "official_id": "klobuchar-amy",
       "handle": "amyklobuchar.com",
       "did": "did:plc:hy4kwkakey4eawsw6jjzoc3j",
       "verified_via": "starter packs (4): 2025 US Senators on Bluesky; US Senate, Senators, and Related Stuff; US Senators and Committees (amymh); US Senators on BlueSky",
@@ -268,7 +268,7 @@
       "notes": "amyklobuchar.com is her own domain (acceptable handle verification per AT Protocol). Confirmed by 4 independent starter packs."
     },
     {
-      "senator_id": "lujan-ben",
+      "official_id": "lujan-ben",
       "handle": "lujan.senate.gov",
       "did": "did:plc:egu4ffq43hudoiwpfttx2eif",
       "verified_via": "https://www.lujan.senate.gov",
@@ -280,7 +280,7 @@
       "notes": null
     },
     {
-      "senator_id": "markey-edward",
+      "official_id": "markey-edward",
       "handle": "markey.senate.gov",
       "did": "did:plc:wo5kzzdgqwzizeyvg5bkaswh",
       "verified_via": "https://www.markey.senate.gov",
@@ -292,7 +292,7 @@
       "notes": null
     },
     {
-      "senator_id": "merkley-jeff",
+      "official_id": "merkley-jeff",
       "handle": "jeff-merkley.bsky.social",
       "did": "did:plc:ukdzucjim5kavwysh3adv6rl",
       "verified_via": "starter packs (4): 2025 US Senators on Bluesky; US Senate, Senators, and Related Stuff; US Senators and Committees (amymh); US Senators on BlueSky",
@@ -304,7 +304,7 @@
       "notes": null
     },
     {
-      "senator_id": "murray-patty",
+      "official_id": "murray-patty",
       "handle": "murray.senate.gov",
       "did": "did:plc:a23utge5gk6ckgm3ypx3weyr",
       "verified_via": "https://www.murray.senate.gov",
@@ -316,7 +316,7 @@
       "notes": null
     },
     {
-      "senator_id": "ossoff-jon",
+      "official_id": "ossoff-jon",
       "handle": "ossoff.senate.gov",
       "did": "did:plc:lx462v3tzpydnob3qpgarbcj",
       "verified_via": "https://www.ossoff.senate.gov",
@@ -328,7 +328,7 @@
       "notes": null
     },
     {
-      "senator_id": "padilla-alex",
+      "official_id": "padilla-alex",
       "handle": "padilla.senate.gov",
       "did": "did:plc:mnni4exuqf2rvvsvxc5q4pb2",
       "verified_via": "senate.gov-domain handle (no footer link)",
@@ -340,7 +340,7 @@
       "notes": null
     },
     {
-      "senator_id": "peters-gary",
+      "official_id": "peters-gary",
       "handle": "peters.senate.gov",
       "did": "did:plc:3krwmyznkpuss7ldiiy62pjy",
       "verified_via": "senate.gov-domain handle (no footer link)",
@@ -352,7 +352,7 @@
       "notes": null
     },
     {
-      "senator_id": "reed-jack",
+      "official_id": "reed-jack",
       "handle": "reed.senate.gov",
       "did": "did:plc:esz5zxtwgwbgkkvg7tw7zani",
       "verified_via": "https://www.reed.senate.gov",
@@ -364,7 +364,7 @@
       "notes": null
     },
     {
-      "senator_id": "rochester-lisa",
+      "official_id": "rochester-lisa",
       "handle": "bluntrochester.senate.gov",
       "did": "did:plc:5pgzf6g5p56phoxm4rk7tzjl",
       "verified_via": "https://www.bluntrochester.senate.gov",
@@ -376,7 +376,7 @@
       "notes": null
     },
     {
-      "senator_id": "rosen-jacky",
+      "official_id": "rosen-jacky",
       "handle": "rosen.senate.gov",
       "did": "did:plc:264oyvyqzmzk2syvn5yulmdx",
       "verified_via": "https://www.rosen.senate.gov",
@@ -388,7 +388,7 @@
       "notes": "senate.gov footer points to rosen.senate.gov; some packs list senatorjackyrosen.bsky.social. Adopting the .gov-linked official; the bsky.social variant may be a campaign account."
     },
     {
-      "senator_id": "sanders-bernard",
+      "official_id": "sanders-bernard",
       "handle": "sanders.senate.gov",
       "did": "did:plc:upw5n2uwhzubjajdtqaufsek",
       "verified_via": "https://www.sanders.senate.gov",
@@ -400,7 +400,7 @@
       "notes": null
     },
     {
-      "senator_id": "schatz-brian",
+      "official_id": "schatz-brian",
       "handle": "schatz.bsky.social",
       "did": "did:plc:zlekb26g7abqatkw442bq635",
       "verified_via": "starter packs (6): 2025 US Senators on Bluesky; Members of Congress; Senate Democrats (by whitehouse.senate.gov); US Senate, Senators, and Related Stuff; US Senators and Committees (amymh); US Senators on BlueSky",
@@ -412,7 +412,7 @@
       "notes": "schatz.bsky.social \u2014 appears in 6 packs. No senate.gov link, but consensus across curators is strong."
     },
     {
-      "senator_id": "schiff-adam",
+      "official_id": "schiff-adam",
       "handle": "schiff.senate.gov",
       "did": "did:plc:ux632osoaqigjkgvuei3m6no",
       "verified_via": "https://www.schiff.senate.gov",
@@ -424,7 +424,7 @@
       "notes": null
     },
     {
-      "senator_id": "schumer-charles",
+      "official_id": "schumer-charles",
       "handle": "schumer.senate.gov",
       "did": "did:plc:zlgotdjaxzuhw4nefvkxxvxa",
       "verified_via": "https://www.schumer.senate.gov",
@@ -436,7 +436,7 @@
       "notes": null
     },
     {
-      "senator_id": "shaheen-jeanne",
+      "official_id": "shaheen-jeanne",
       "handle": "shaheen.senate.gov",
       "did": "did:plc:dvg2f2abnjz3igabhwm45q7p",
       "verified_via": "https://www.shaheen.senate.gov",
@@ -448,7 +448,7 @@
       "notes": null
     },
     {
-      "senator_id": "slotkin-elissa",
+      "official_id": "slotkin-elissa",
       "handle": "slotkin.senate.gov",
       "did": "did:plc:5vake3jq6c27ytc52m5rpwv5",
       "verified_via": "https://www.slotkin.senate.gov",
@@ -460,7 +460,7 @@
       "notes": null
     },
     {
-      "senator_id": "smith-tina",
+      "official_id": "smith-tina",
       "handle": "smith.senate.gov",
       "did": "did:plc:dqj6ug6nsm7giy3xd4dpuhmx",
       "verified_via": "https://www.smith.senate.gov",
@@ -472,7 +472,7 @@
       "notes": null
     },
     {
-      "senator_id": "warner-mark",
+      "official_id": "warner-mark",
       "handle": "markwarner.bsky.social",
       "did": "did:plc:ri2qkcjghvcwv6gsi4vglnfz",
       "verified_via": "https://www.warner.senate.gov",
@@ -484,7 +484,7 @@
       "notes": null
     },
     {
-      "senator_id": "warnock-raphael",
+      "official_id": "warnock-raphael",
       "handle": "warnock.senate.gov",
       "did": "did:plc:7hake53hz2iumil2uhi6kk4m",
       "verified_via": "https://www.warnock.senate.gov",
@@ -496,7 +496,7 @@
       "notes": null
     },
     {
-      "senator_id": "warren-elizabeth",
+      "official_id": "warren-elizabeth",
       "handle": "warren.senate.gov",
       "did": "did:plc:ornpixmpy5ts36lh7hmi7wkp",
       "verified_via": "https://www.warren.senate.gov",
@@ -508,7 +508,7 @@
       "notes": null
     },
     {
-      "senator_id": "welch-peter",
+      "official_id": "welch-peter",
       "handle": "welch.senate.gov",
       "did": "did:plc:z2wvqdvi7hukokkpe2gnnqru",
       "verified_via": "senate.gov-domain handle (no footer link)",
@@ -520,7 +520,7 @@
       "notes": null
     },
     {
-      "senator_id": "whitehouse-sheldon",
+      "official_id": "whitehouse-sheldon",
       "handle": "whitehouse.senate.gov",
       "did": "did:plc:qqixzm5pwprzdnkbh2hglpax",
       "verified_via": "https://www.whitehouse.senate.gov",
@@ -532,7 +532,7 @@
       "notes": null
     },
     {
-      "senator_id": "wyden-ron",
+      "official_id": "wyden-ron",
       "handle": "wyden.senate.gov",
       "did": "did:plc:ydtsvzzsl6nlfkmnuooeqcmc",
       "verified_via": "https://www.wyden.senate.gov",

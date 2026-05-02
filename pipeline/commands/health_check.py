@@ -47,11 +47,11 @@ def store_health_check(conn, result: HealthCheckResult):
     try:
         cur.execute("""
             INSERT INTO health_checks
-                (senator_id, checked_at, url_status, selector_ok, items_found,
+                (official_id, checked_at, url_status, selector_ok, items_found,
                  date_parseable, page_load_ms, error_message, passed)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (
-            result.senator_id,
+            result.official_id,
             result.checked_at,
             result.url_status,
             result.selector_ok,
@@ -64,7 +64,7 @@ def store_health_check(conn, result: HealthCheckResult):
         conn.commit()
     except Exception as e:
         conn.rollback()
-        log.error("Failed to store health check for %s: %s", result.senator_id, e)
+        log.error("Failed to store health check for %s: %s", result.official_id, e)
     finally:
         cur.close()
 
@@ -109,7 +109,7 @@ async def run_health_checks(
                 result = await collector.health_check(senator)
             except Exception as e:
                 result = HealthCheckResult(
-                    senator_id=senator["senator_id"],
+                    official_id=senator["official_id"],
                     error_message=f"{type(e).__name__}: {e}",
                 )
             results.append(result)
@@ -139,16 +139,16 @@ async def run_health_checks(
 
     if failed:
         print(f"\n--- FAILED ({len(failed)}) ---")
-        for r in sorted(failed, key=lambda x: x.senator_id):
+        for r in sorted(failed, key=lambda x: x.official_id):
             status = f"HTTP {r.url_status}" if r.url_status else "no response"
             items = f"{r.items_found} items" if r.items_found else "0 items"
             err = f" | {r.error_message}" if r.error_message else ""
-            print(f"  {r.senator_id:30s} {status:12s} {items:10s}{err}")
+            print(f"  {r.official_id:30s} {status:12s} {items:10s}{err}")
 
     if passed:
         print(f"\n--- PASSED ({len(passed)}) ---")
-        for r in sorted(passed, key=lambda x: x.senator_id):
-            print(f"  {r.senator_id:30s} HTTP {r.url_status}  {r.items_found:3d} items  {r.page_load_ms:4d}ms")
+        for r in sorted(passed, key=lambda x: x.official_id):
+            print(f"  {r.official_id:30s} HTTP {r.url_status}  {r.items_found:3d} items  {r.page_load_ms:4d}ms")
 
     print(f"\n{'='*70}")
 
@@ -174,7 +174,7 @@ def main():
 
     # Filter
     if args.senators:
-        senators = [s for s in senators if s["senator_id"] in args.senators]
+        senators = [s for s in senators if s["official_id"] in args.senators]
     if args.method:
         senators = [s for s in senators if s.get("collection_method") == args.method]
 

@@ -33,9 +33,9 @@ class WhitehouseCollector:
         max_pages: int = 1,
     ) -> CollectorResult:
         start = time.monotonic()
-        sid = senator["senator_id"]
+        sid = senator["official_id"]
         sources = (senator.get("scrape_config") or {}).get("sources", [])
-        merged = CollectorResult(senator_id=sid, method="whitehouse")
+        merged = CollectorResult(official_id=sid, method="whitehouse")
 
         if not sources:
             merged.errors.append("No scrape_config.sources configured")
@@ -77,7 +77,7 @@ class WhitehouseCollector:
             scoped = dict(senator)
             return await self._httpx.health_check(scoped)
 
-        sid = senator["senator_id"]
+        sid = senator["official_id"]
         per_source: list[HealthCheckResult] = []
         for src in sources:
             url = src.get("url")
@@ -86,7 +86,7 @@ class WhitehouseCollector:
             scoped = {**senator, "press_release_url": url}
             per_source.append(await self._httpx.health_check(scoped))
 
-        merged = HealthCheckResult(senator_id=sid)
+        merged = HealthCheckResult(official_id=sid)
         merged.url_status = max(
             (h.url_status for h in per_source if h.url_status), default=0
         )

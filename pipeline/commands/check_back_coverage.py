@@ -88,7 +88,7 @@ def fetch_rows(conn) -> list[dict]:
             max(pr.published_at) FILTER (WHERE pr.deleted_at IS NULL
                                           AND pr.published_at >= '2025-01-01')::date AS latest
         FROM senators s
-        LEFT JOIN press_releases pr ON pr.senator_id = s.id
+        LEFT JOIN press_releases pr ON pr.official_id = s.id
         WHERE s.status = 'active'
         GROUP BY s.id, s.full_name, s.state, s.party,
                  s.collection_method, s.requires_js
@@ -101,20 +101,20 @@ def fetch_rows(conn) -> list[dict]:
     return rows
 
 
-def fetch_weekly_histogram(conn, senator_id: str) -> list[tuple[date, int]]:
+def fetch_weekly_histogram(conn, official_id: str) -> list[tuple[date, int]]:
     cur = conn.cursor()
     cur.execute(
         """
         SELECT date_trunc('week', published_at)::date AS wk,
                count(*)::int
         FROM press_releases
-        WHERE senator_id = %s
+        WHERE official_id = %s
           AND deleted_at IS NULL
           AND published_at >= '2025-01-01'
         GROUP BY wk
         ORDER BY wk
         """,
-        (senator_id,),
+        (official_id,),
     )
     out = [(r[0], r[1]) for r in cur.fetchall()]
     cur.close()
@@ -268,20 +268,20 @@ def print_table(rows: list[dict]) -> None:
         )
 
 
-def print_detail(conn, senator_id: str, today: date) -> None:
+def print_detail(conn, official_id: str, today: date) -> None:
     cur = conn.cursor()
     cur.execute(
         "SELECT id, full_name, state, party, collection_method, requires_js "
         "FROM senators WHERE id = %s",
-        (senator_id,),
+        (official_id,),
     )
     meta = cur.fetchone()
     cur.close()
     if not meta:
-        print(f"No senator with id={senator_id}")
+        print(f"No senator with id={official_id}")
         return
 
-    weekly = fetch_weekly_histogram(conn, senator_id)
+    weekly = fetch_weekly_histogram(conn, official_id)
     print(f"Senator: {meta[1]}  ({meta[2]}-{meta[3]})  method={meta[4]} requires_js={meta[5]}")
     if not weekly:
         print("  no in-window records")
@@ -403,7 +403,7 @@ def main() -> None:
     ap.add_argument("--json", action="store_true",
                     help="Emit JSON instead of a table")
     ap.add_argument("--detail", type=str, default=None,
-                    help="Print weekly histogram for one senator_id and exit")
+                    help="Print weekly histogram for one official_id and exit")
     args = ap.parse_args()
     sys.exit(run(args.threshold, args.all, args.json, args.detail))
 

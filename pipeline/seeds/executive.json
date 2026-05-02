@@ -1,7 +1,7 @@
 {
   "members": [
     {
-      "senator_id": "whitehouse",
+      "official_id": "whitehouse",
       "full_name": "The White House",
       "party": "R",
       "state": "DC",

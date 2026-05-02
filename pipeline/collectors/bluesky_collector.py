@@ -38,7 +38,7 @@ class BlueskyPost:
     """Normalized post record. Mirrors the fields the press_releases table
     will gain via the next migration."""
 
-    senator_id: str
+    official_id: str
     handle: str
     did: str
     at_uri: str
@@ -91,7 +91,7 @@ async def fetch_author_feed(
 
 
 async def backfill_since(
-    senator_id: str,
+    official_id: str,
     handle: str,
     did: str,
     since: datetime,
@@ -115,7 +115,7 @@ async def backfill_since(
             created = _parse_iso(created_raw)
             if created < since:
                 return
-            yield _normalize(senator_id, handle, did, post)
+            yield _normalize(official_id, handle, did, post)
         cursor = page.get("cursor")
         if not cursor:
             return
@@ -124,14 +124,14 @@ async def backfill_since(
 
 
 def _normalize(
-    senator_id: str, handle: str, did: str, post: dict
+    official_id: str, handle: str, did: str, post: dict
 ) -> BlueskyPost:
     record = post.get("record", {})
     reply = record.get("reply", {}) or {}
     parent = (reply.get("parent") or {}).get("uri")
     embed = post.get("embed")
     return BlueskyPost(
-        senator_id=senator_id,
+        official_id=official_id,
         handle=handle,
         did=did,
         at_uri=post["uri"],

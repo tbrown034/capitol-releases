@@ -57,9 +57,9 @@ def main():
 
     cur.execute(
         """
-        SELECT pr.senator_id, pr.source_url, pr.title, pr.published_at
+        SELECT pr.official_id, pr.source_url, pr.title, pr.published_at
         FROM press_releases pr
-        JOIN senators s ON s.id = pr.senator_id
+        JOIN senators s ON s.id = pr.official_id
         WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
           AND pr.deleted_at IS NULL
           AND pr.content_type != 'photo_release'

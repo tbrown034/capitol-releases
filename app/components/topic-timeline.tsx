@@ -15,7 +15,7 @@ type Headline = {
   senator_name: string;
   party: "D" | "R" | "I";
   state: string;
-  senator_id: string;
+  official_id: string;
 };
 
 type TimelineData = {
@@ -252,7 +252,7 @@ export function TopicTimeline({ initialTerm }: { initialTerm: string }) {
                     Week of {formatReleaseDate(h.week)}
                     {" · "}
                     <Link
-                      href={`/senators/${h.senator_id}`}
+                      href={`/senators/${h.official_id}`}
                       className="text-neutral-700 hover:underline"
                     >
                       {h.senator_name}

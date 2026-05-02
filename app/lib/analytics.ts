@@ -6,7 +6,7 @@ export async function getSenatorActivity() {
            to_char(date_trunc('week', pr.published_at), 'YYYY-MM-DD') as week,
            count(*)::int as count
     FROM press_releases pr
-    JOIN senators s ON s.id = pr.senator_id
+    JOIN senators s ON s.id = pr.official_id
     WHERE pr.published_at IS NOT NULL
       AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       AND pr.published_at >= '2025-01-01'
@@ -40,7 +40,7 @@ export async function getTopicTrends() {
           's$', ''
         ) as word
       FROM press_releases pr
-      JOIN senators s ON s.id = pr.senator_id
+      JOIN senators s ON s.id = pr.official_id
       WHERE pr.published_at >= NOW() - interval '30 days'
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
         AND s.status = 'active' AND s.chamber = 'senate'
@@ -82,12 +82,12 @@ export async function getTopicTrends() {
   `;
 }
 
-export async function getSenatorDailyActivity(senatorId: string) {
+export async function getSenatorDailyActivity(officialId: string) {
   return sql`
     SELECT to_char(published_at::date, 'YYYY-MM-DD') as day,
            count(*)::int as count
     FROM press_releases
-    WHERE senator_id = ${senatorId}
+    WHERE official_id = ${officialId}
       AND published_at IS NOT NULL
       AND deleted_at IS NULL
       AND content_type != 'photo_release'
@@ -98,7 +98,7 @@ export async function getSenatorDailyActivity(senatorId: string) {
 }
 
 export async function getSenatorSignatureTopics(
-  senatorId: string,
+  officialId: string,
   excludeNames: string[] = [],
   limit = 12
 ) {
@@ -114,9 +114,9 @@ export async function getSenatorSignatureTopics(
                regexp_replace(coalesce(pr.title, ''), '[^a-zA-Z ]', ' ', 'g'),
                ' '
              ))) as word,
-             (pr.senator_id = ${senatorId}) as is_self
+             (pr.official_id = ${officialId}) as is_self
       FROM press_releases pr
-      JOIN senators s ON s.id = pr.senator_id
+      JOIN senators s ON s.id = pr.official_id
       WHERE pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
         AND pr.published_at >= '2025-01-01'
         AND s.status = 'active'
@@ -165,7 +165,7 @@ export async function getSenatorSignatureTopics(
 }
 
 export async function getSenatorTopicTrends(
-  senatorId: string,
+  officialId: string,
   excludeNames: string[] = [],
   limit = 12
 ) {
@@ -184,7 +184,7 @@ export async function getSenatorTopicTrends(
                       ))) as word,
                       pr.published_at
       FROM press_releases pr
-      WHERE pr.senator_id = ${senatorId}
+      WHERE pr.official_id = ${officialId}
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
         AND pr.published_at >= NOW() - interval '60 days'
     )
@@ -217,14 +217,14 @@ export async function getChamberActivity(days = 7) {
            coalesce(rc.count, 0)::int as count
     FROM senators s
     LEFT JOIN (
-      SELECT senator_id, count(*)::int as count
+      SELECT official_id, count(*)::int as count
       FROM press_releases
       WHERE published_at >= NOW() - make_interval(days => ${days})
         AND published_at IS NOT NULL
         AND deleted_at IS NULL
         AND content_type != 'photo_release'
-      GROUP BY senator_id
-    ) rc ON rc.senator_id = s.id
+      GROUP BY official_id
+    ) rc ON rc.official_id = s.id
     WHERE s.status = 'active'
       AND s.chamber = 'senate'
     ORDER BY s.party, s.state, s.full_name
@@ -235,7 +235,7 @@ export async function getMailbag(days = 7) {
   return sql`
     SELECT pr.content_type, count(*)::int as count
     FROM press_releases pr
-    JOIN senators s ON s.id = pr.senator_id
+    JOIN senators s ON s.id = pr.official_id
     WHERE pr.published_at >= NOW() - make_interval(days => ${days})
       AND pr.published_at IS NOT NULL
       AND pr.deleted_at IS NULL
@@ -251,7 +251,7 @@ export async function getDailyVolume(days = 90) {
     SELECT to_char(pr.published_at, 'YYYY-MM-DD') as day,
            count(*)::int as count
     FROM press_releases pr
-    JOIN senators s ON s.id = pr.senator_id
+    JOIN senators s ON s.id = pr.official_id
     WHERE pr.published_at >= NOW() - make_interval(days => ${days})
       AND pr.published_at IS NOT NULL
       AND pr.deleted_at IS NULL

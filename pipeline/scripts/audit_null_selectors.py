@@ -64,7 +64,7 @@ def select_senators(seeds: list[dict], all_httpx: bool) -> list[dict]:
     return out
 
 
-def db_stats(conn, senator_id: str) -> dict:
+def db_stats(conn, official_id: str) -> dict:
     cur = conn.cursor()
     cur.execute(
         """
@@ -72,12 +72,12 @@ def db_stats(conn, senator_id: str) -> dict:
                max(published_at)::text,
                min(published_at)::text
         FROM press_releases
-        WHERE senator_id = %s
+        WHERE official_id = %s
           AND deleted_at IS NULL
           AND content_type != 'photo_release'
           AND published_at >= '2025-01-01'
         """,
-        (senator_id,),
+        (official_id,),
     )
     row = cur.fetchone()
     cur.close()
@@ -169,11 +169,11 @@ async def main():
     rows = []
     async with create_client() as client:
         for s in senators:
-            sid = s["senator_id"]
+            sid = s["official_id"]
             db = db_stats(conn, sid)
             live = await live_probe(client, s)
             row = {
-                "senator_id": sid,
+                "official_id": sid,
                 "parser_family": s.get("parser_family"),
                 "list_item": (s.get("selectors") or {}).get("list_item"),
                 "confidence": s.get("confidence"),
@@ -193,7 +193,7 @@ async def main():
     rows.sort(key=lambda r: (-1 if r["lag_days"] is None else r["lag_days"]), reverse=True)
 
     print(f"\nAudited {len(rows)} senators\n")
-    print(f"{'senator_id':25s} {'cfg':5s} {'db':>5s} {'live':>5s} {'inwin':>5s} {'lag':>5s}  {'db_latest':12s} {'live_latest':12s}  flags")
+    print(f"{'official_id':25s} {'cfg':5s} {'db':>5s} {'live':>5s} {'inwin':>5s} {'lag':>5s}  {'db_latest':12s} {'live_latest':12s}  flags")
     print("-" * 120)
     for r in rows:
         flags = []
@@ -213,7 +213,7 @@ async def main():
                 flags.append("undercollect?")
         cfg = "null" if not r["list_item"] else "bad" if r["list_item"] in ("span.elementor-grid-item", "li.page-item") else "ok"
         print(
-            f"{r['senator_id']:25s} {cfg:5s} {r['db_count']:>5d} {r['live_items']:>5d} {r['live_in_window']:>5d} "
+            f"{r['official_id']:25s} {cfg:5s} {r['db_count']:>5d} {r['live_items']:>5d} {r['live_in_window']:>5d} "
             f"{(str(r['lag_days']) + 'd' if r['lag_days'] is not None else '-'):>5s}  "
             f"{(r['db_latest'] or '-')[:10]:12s} {(r['live_latest'] or '-')[:10]:12s}  {' '.join(flags)}"
         )

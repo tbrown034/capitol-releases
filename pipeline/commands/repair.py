@@ -41,20 +41,20 @@ DB_URL = os.environ["DATABASE_URL"]
 log = logging.getLogger("capitol.repair")
 
 
-def get_null_date_records(conn, senator_id: str = None, limit: int = 1000) -> list[tuple]:
+def get_null_date_records(conn, official_id: str = None, limit: int = 1000) -> list[tuple]:
     """Get records with null published_at."""
     cur = conn.cursor()
     query = """
-        SELECT id::text, senator_id, source_url, title
+        SELECT id::text, official_id, source_url, title
         FROM press_releases
         WHERE published_at IS NULL
         AND deleted_at IS NULL
     """
     params = []
-    if senator_id:
-        query += " AND senator_id = %s"
-        params.append(senator_id)
-    query += " ORDER BY senator_id, scraped_at DESC LIMIT %s"
+    if official_id:
+        query += " AND official_id = %s"
+        params.append(official_id)
+    query += " ORDER BY official_id, scraped_at DESC LIMIT %s"
     params.append(limit)
     cur.execute(query, params)
     rows = cur.fetchall()
@@ -62,21 +62,21 @@ def get_null_date_records(conn, senator_id: str = None, limit: int = 1000) -> li
     return rows
 
 
-def get_no_body_records(conn, senator_id: str = None, limit: int = 500) -> list[tuple]:
+def get_no_body_records(conn, official_id: str = None, limit: int = 500) -> list[tuple]:
     """Get records with null or very short body text."""
     cur = conn.cursor()
     query = """
-        SELECT id::text, senator_id, source_url, title
+        SELECT id::text, official_id, source_url, title
         FROM press_releases
         WHERE (body_text IS NULL OR length(body_text) < 50)
         AND deleted_at IS NULL
         AND source_url LIKE '%%senate.gov%%'
     """
     params = []
-    if senator_id:
-        query += " AND senator_id = %s"
-        params.append(senator_id)
-    query += " ORDER BY senator_id LIMIT %s"
+    if official_id:
+        query += " AND official_id = %s"
+        params.append(official_id)
+    query += " ORDER BY official_id LIMIT %s"
     params.append(limit)
     cur.execute(query, params)
     rows = cur.fetchall()
@@ -94,7 +94,7 @@ async def repair_dates(
     stats = {"total": len(records), "url_fixed": 0, "html_fixed": 0, "unfixable": 0, "errors": 0}
     semaphore = asyncio.Semaphore(max_concurrent)
 
-    async def repair_one(client, record_id, senator_id, source_url, title):
+    async def repair_one(client, record_id, official_id, source_url, title):
         async with semaphore:
             # Strategy 1: Extract from URL path
             url_result = extract_date_from_url(source_url)
@@ -165,7 +165,7 @@ async def repair_body_text(
     stats = {"total": len(records), "fixed": 0, "unfixable": 0, "errors": 0}
     semaphore = asyncio.Semaphore(max_concurrent)
 
-    async def repair_one(client, record_id, senator_id, source_url, title):
+    async def repair_one(client, record_id, official_id, source_url, title):
         async with semaphore:
             try:
                 resp = await fetch_with_retry(client, source_url)

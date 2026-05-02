@@ -82,7 +82,7 @@ def fetch_day_releases(conn, brief_day: date) -> list[dict]:
                pr.content_type,
                pr.body_text
         FROM press_releases pr
-        JOIN senators s ON s.id = pr.senator_id
+        JOIN senators s ON s.id = pr.official_id
         WHERE pr.published_at >= %s
           AND pr.published_at < %s
           AND pr.deleted_at IS NULL
@@ -122,7 +122,7 @@ def compute_volume_baseline(conn, brief_day: date) -> dict:
     cur.execute(
         """
         SELECT COUNT(*) FROM press_releases pr
-        JOIN senators s ON s.id = pr.senator_id
+        JOIN senators s ON s.id = pr.official_id
         WHERE pr.published_at >= %s AND pr.published_at < %s
           AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate'
         """,
@@ -137,7 +137,7 @@ def compute_volume_baseline(conn, brief_day: date) -> dict:
         cur.execute(
             """
             SELECT COUNT(*) FROM press_releases pr
-            JOIN senators s ON s.id = pr.senator_id
+            JOIN senators s ON s.id = pr.official_id
             WHERE pr.published_at >= %s AND pr.published_at < %s
               AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate'
             """,
@@ -178,7 +178,7 @@ def fetch_silent_senators(conn, brief_day: date, threshold_days: int = 14) -> li
                MAX(pr.published_at) FILTER (WHERE pr.published_at < %s) AS last_release
         FROM senators s
         LEFT JOIN press_releases pr
-          ON pr.senator_id = s.id AND pr.deleted_at IS NULL
+          ON pr.official_id = s.id AND pr.deleted_at IS NULL
         WHERE s.status = 'active' AND s.chamber = 'senate'
         GROUP BY s.id, s.full_name, s.party, s.state
         HAVING MAX(pr.published_at) FILTER (WHERE pr.published_at < %s) IS NULL
@@ -212,7 +212,7 @@ def fetch_quiet_week_senators(conn, week_start: date, week_end: date) -> list[di
                  WHERE pr.published_at >= %s AND pr.published_at < %s AND pr.deleted_at IS NULL
                ) AS week_count
         FROM senators s
-        LEFT JOIN press_releases pr ON pr.senator_id = s.id
+        LEFT JOIN press_releases pr ON pr.official_id = s.id
         WHERE s.status = 'active' AND s.chamber = 'senate'
         GROUP BY s.id, s.full_name, s.party, s.state
         HAVING COUNT(pr.id) FILTER (
@@ -262,7 +262,7 @@ def fetch_week_release_index(conn, week_start: date, week_end: date) -> list[dic
         SELECT pr.id::text AS id, s.full_name AS senator, s.party, s.state,
                pr.title, pr.published_at, pr.content_type
         FROM press_releases pr
-        JOIN senators s ON s.id = pr.senator_id
+        JOIN senators s ON s.id = pr.official_id
         WHERE pr.published_at >= %s AND pr.published_at < %s
           AND pr.deleted_at IS NULL
           AND s.status = 'active' AND s.chamber = 'senate'
@@ -295,7 +295,7 @@ def compute_weekly_volume(conn, week_start: date, week_end: date) -> dict:
     cur.execute(
         """
         SELECT s.party, COUNT(*) FROM press_releases pr
-        JOIN senators s ON s.id = pr.senator_id
+        JOIN senators s ON s.id = pr.official_id
         WHERE pr.published_at >= %s AND pr.published_at < %s
           AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate'
         GROUP BY s.party
@@ -317,7 +317,7 @@ def compute_weekly_volume(conn, week_start: date, week_end: date) -> dict:
         cur.execute(
             """
             SELECT COUNT(*) FROM press_releases pr
-            JOIN senators s ON s.id = pr.senator_id
+            JOIN senators s ON s.id = pr.official_id
             WHERE pr.published_at >= %s AND pr.published_at < %s
               AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate'
             """,

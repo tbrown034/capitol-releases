@@ -88,9 +88,9 @@ def load_members(
                 m.setdefault("branch", "executive")
 
             # House members carry member_id; the rest of the pipeline keys
-            # on senator_id. Normalize so callers don't special-case.
-            if "senator_id" not in m and "member_id" in m:
-                m["senator_id"] = m["member_id"]
+            # on official_id. Normalize so callers don't special-case.
+            if "official_id" not in m and "member_id" in m:
+                m["official_id"] = m["member_id"]
             members.append(m)
     if chambers:
         members = [m for m in members if m.get("chamber") in chambers]

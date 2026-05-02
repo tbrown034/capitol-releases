@@ -91,7 +91,7 @@ def fetch_senators(conn, ids: list[str] | None) -> list[dict]:
     # daily updater actually uses.
     seed_path = Path(__file__).resolve().parents[1] / "seeds" / "senate.json"
     if seed_path.exists():
-        seed = {s["senator_id"]: s for s in json.loads(seed_path.read_text())["members"]}
+        seed = {s["official_id"]: s for s in json.loads(seed_path.read_text())["members"]}
         for row in out:
             sd = seed.get(row["id"])
             if sd:
@@ -106,7 +106,7 @@ def db_per_senator(conn) -> dict[str, dict[str, Any]]:
     cur = conn.cursor()
     cur.execute(
         """
-        SELECT senator_id,
+        SELECT official_id,
                content_type,
                count(*)::int,
                max(published_at)::date,
@@ -115,7 +115,7 @@ def db_per_senator(conn) -> dict[str, dict[str, Any]]:
         WHERE deleted_at IS NULL
           AND content_type != 'photo_release'
           AND published_at >= '2025-01-01'
-        GROUP BY senator_id, content_type
+        GROUP BY official_id, content_type
         """
     )
     by_sid: dict[str, dict[str, Any]] = defaultdict(
@@ -138,13 +138,13 @@ def db_drought_per_type(conn, today: date) -> dict[str, dict[str, int]]:
     cur = conn.cursor()
     cur.execute(
         """
-        SELECT senator_id,
+        SELECT official_id,
                content_type,
                (CURRENT_DATE - max(published_at)::date)::int AS drought_days
         FROM press_releases
         WHERE deleted_at IS NULL
           AND content_type != 'photo_release'
-        GROUP BY senator_id, content_type
+        GROUP BY official_id, content_type
         """
     )
     out: dict[str, dict[str, int]] = defaultdict(dict)
@@ -212,7 +212,7 @@ def db_corpus_totals(conn) -> dict[str, int]:
     undated = cur.fetchone()[0]
     cur.execute(
         """
-        SELECT count(DISTINCT senator_id)::int FROM press_releases
+        SELECT count(DISTINCT official_id)::int FROM press_releases
         WHERE deleted_at IS NULL
           AND content_type != 'photo_release'
           AND published_at >= NOW() - interval '7 days'
@@ -221,7 +221,7 @@ def db_corpus_totals(conn) -> dict[str, int]:
     active_7d = cur.fetchone()[0]
     cur.execute(
         """
-        SELECT count(DISTINCT senator_id)::int FROM press_releases
+        SELECT count(DISTINCT official_id)::int FROM press_releases
         WHERE deleted_at IS NULL
           AND content_type != 'photo_release'
           AND published_at >= NOW() - interval '30 days'
@@ -419,11 +419,11 @@ def render_md(report: dict[str, Any]) -> str:
 
 
 async def build_report(
-    senator_ids: list[str] | None,
+    official_ids: list[str] | None,
     skip_live: bool,
 ) -> dict[str, Any]:
     conn = psycopg2.connect(DB_URL)
-    senators = fetch_senators(conn, senator_ids)
+    senators = fetch_senators(conn, official_ids)
     db_data = db_per_senator(conn)
     drought = db_drought_per_type(conn, date.today())
     run = db_latest_run(conn)
@@ -496,7 +496,7 @@ def main():
                         help="Skip live-site probes (DB-only report)")
     parser.add_argument("--md", default=str(DEFAULT_MD), help="Output Markdown path")
     parser.add_argument("--json", default=str(DEFAULT_JSON), help="Output JSON path")
-    parser.add_argument("--senators", nargs="*", help="Only audit these senator_ids")
+    parser.add_argument("--senators", nargs="*", help="Only audit these official_ids")
     parser.add_argument("--quiet", action="store_true", help="Don't print summary to stdout")
     args = parser.parse_args()
 

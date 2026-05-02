@@ -52,7 +52,7 @@ CONFIRMATION_SPACING_S = 60  # seconds between confirmation re-checks
 
 
 async def check_urls(
-    urls: list[tuple[str, str, str]],  # (id, senator_id, source_url)
+    urls: list[tuple[str, str, str]],  # (id, official_id, source_url)
     max_concurrent: int = 10,
 ) -> list[dict]:
     """Check a batch of URLs for 404/410 responses.
@@ -84,7 +84,7 @@ async def check_urls(
                 await asyncio.sleep(CONFIRMATION_SPACING_S)
         return first
 
-    async def check_one(client, record_id, senator_id, url):
+    async def check_one(client, record_id, official_id, url):
         async with semaphore:
             try:
                 resp = await client.get(url, follow_redirects=True)
@@ -93,18 +93,18 @@ async def check_urls(
                     if confirmed is not None:
                         deletions.append({
                             "id": record_id,
-                            "senator_id": senator_id,
+                            "official_id": official_id,
                             "source_url": url,
                             "status_code": confirmed,
                         })
                         log.info(
                             "DELETED (confirmed %dx): %s [%d] %s",
-                            CONFIRMATION_RUNS, senator_id, confirmed, url[:80],
+                            CONFIRMATION_RUNS, official_id, confirmed, url[:80],
                         )
                     else:
                         log.info(
                             "DELETION CANDIDATE NOT CONFIRMED: %s %s",
-                            senator_id, url[:80],
+                            official_id, url[:80],
                         )
             except Exception as e:
                 log.debug("Check failed for %s: %s", url[:60], type(e).__name__)
@@ -117,14 +117,14 @@ async def check_urls(
     return deletions
 
 
-def get_urls_to_check(conn, senator_id: str = None, batch_size: int = 500) -> list[tuple]:
+def get_urls_to_check(conn, official_id: str = None, batch_size: int = 500) -> list[tuple]:
     """Get URLs to check, prioritizing those not recently verified."""
     cur = conn.cursor()
     # Allowed source domains: any first-party .gov site we collect from.
     # Keep this in sync with classifier.is_external_content() and any new
     # chamber additions (house.gov when we expand beyond Senate).
     query = """
-        SELECT id::text, senator_id, source_url
+        SELECT id::text, official_id, source_url
         FROM press_releases
         WHERE deleted_at IS NULL
         AND (
@@ -134,9 +134,9 @@ def get_urls_to_check(conn, senator_id: str = None, batch_size: int = 500) -> li
         )
     """
     params = []
-    if senator_id:
-        query += " AND senator_id = %s"
-        params.append(senator_id)
+    if official_id:
+        query += " AND official_id = %s"
+        params.append(official_id)
 
     # Prioritize records never checked or least recently checked
     query += """
@@ -180,7 +180,7 @@ def mark_seen_live(conn, record_ids: list[str]):
 
 
 async def run_deletion_check(
-    senator_id: str = None,
+    official_id: str = None,
     batch_size: int = 500,
     dry_run: bool = False,
 ):
@@ -193,7 +193,7 @@ async def run_deletion_check(
     conn.commit()
     cur.close()
 
-    urls = get_urls_to_check(conn, senator_id, batch_size)
+    urls = get_urls_to_check(conn, official_id, batch_size)
     log.info("Checking %d URLs for deletions", len(urls))
 
     if not urls:
@@ -208,7 +208,7 @@ async def run_deletion_check(
 
     if dry_run:
         for d in deletions:
-            print(f"  [DRY DELETE] {d['senator_id']}: {d['source_url'][:80]}")
+            print(f"  [DRY DELETE] {d['official_id']}: {d['source_url'][:80]}")
     else:
         for d in deletions:
             mark_deleted(conn, d["id"])
@@ -216,7 +216,7 @@ async def run_deletion_check(
                 alert_type="deletion_detected",
                 severity="info",
                 message=f"Release deleted: {d['source_url'][:80]}",
-                senator_id=d["senator_id"],
+                official_id=d["official_id"],
                 details={"source_url": d["source_url"], "status_code": d["status_code"]},
             )
             store_alert(conn, alert)
@@ -251,7 +251,7 @@ def main():
     )
 
     stats = asyncio.run(run_deletion_check(
-        senator_id=args.senator,
+        official_id=args.senator,
         batch_size=args.batch_size,
         dry_run=args.dry_run,
     ))

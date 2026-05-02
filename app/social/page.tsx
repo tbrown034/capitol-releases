@@ -22,13 +22,13 @@ export default async function SocialPage({
   const page = Math.max(1, Number(params.page ?? "1"));
   const party = ["D", "R", "I"].includes(params.party ?? "") ? params.party : undefined;
   const state = params.state;
-  const senatorId = params.senator;
+  const officialId = params.senator;
   const includeReplies = params.replies === "1";
 
   const filters = {
     party,
     state,
-    senatorId,
+    officialId,
     includeReplies,
   };
   const [feed, stats, active] = await Promise.all([
@@ -44,7 +44,7 @@ export default async function SocialPage({
       page: page > 1 ? String(page) : undefined,
       party,
       state,
-      senator: senatorId,
+      senator: officialId,
       replies: includeReplies ? "1" : undefined,
       ...overrides,
     };
@@ -68,8 +68,8 @@ export default async function SocialPage({
       </h1>
       <SummaryLine
         stats={stats}
-        filtered={Boolean(party || state || senatorId || includeReplies)}
-        senatorName={senatorId ? active.find((a) => a.senator_id === senatorId)?.full_name : undefined}
+        filtered={Boolean(party || state || officialId || includeReplies)}
+        senatorName={officialId ? active.find((a) => a.official_id === officialId)?.full_name : undefined}
         party={party}
         includeReplies={includeReplies}
       />
@@ -83,7 +83,7 @@ export default async function SocialPage({
       <Filters
         party={party}
         state={state}
-        senatorId={senatorId}
+        officialId={officialId}
         includeReplies={includeReplies}
         active={active}
         buildHref={buildHref}
@@ -109,23 +109,23 @@ export default async function SocialPage({
 
 function Filters({
   party,
-  senatorId,
+  officialId,
   includeReplies,
   active,
   buildHref,
 }: {
   party: string | undefined;
   state: string | undefined;
-  senatorId: string | undefined;
+  officialId: string | undefined;
   includeReplies: boolean;
-  active: { senator_id: string; full_name: string; party: "D" | "R" | "I"; state: string; post_count: number }[];
+  active: { official_id: string; full_name: string; party: "D" | "R" | "I"; state: string; post_count: number }[];
   buildHref: (overrides: Record<string, string | undefined>) => string;
 }) {
   const top = active.slice(0, 12);
   return (
     <div className="space-y-3 mb-6">
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <FilterPill label="All" active={!party && !senatorId} href={buildHref({ party: undefined, senator: undefined, page: undefined })} />
+        <FilterPill label="All" active={!party && !officialId} href={buildHref({ party: undefined, senator: undefined, page: undefined })} />
         <FilterPill label="Democrats" active={party === "D"} href={buildHref({ party: "D", senator: undefined, page: undefined })} />
         <FilterPill label="Republicans" active={party === "R"} href={buildHref({ party: "R", senator: undefined, page: undefined })} />
         <FilterPill label="Independents" active={party === "I"} href={buildHref({ party: "I", senator: undefined, page: undefined })} />
@@ -140,11 +140,11 @@ function Filters({
         <span className="text-neutral-500 mr-1">Most active:</span>
         {top.map((s) => (
           <FilterPill
-            key={s.senator_id}
+            key={s.official_id}
             label={`${s.full_name.split(" ").slice(-1)[0]} ${s.post_count}`}
-            active={senatorId === s.senator_id}
+            active={officialId === s.official_id}
             href={buildHref({
-              senator: senatorId === s.senator_id ? undefined : s.senator_id,
+              senator: officialId === s.official_id ? undefined : s.official_id,
               party: undefined,
               page: undefined,
             })}
@@ -184,8 +184,8 @@ function PostRow({ post }: { post: SocialFeedItem }) {
       : post.party === "R"
         ? "text-red-700"
         : "text-neutral-700";
-  const photo = getSenatorPhotoUrl(post.senator_id);
-  const senatorHref = getSenatorHref(post.senator_id);
+  const photo = getSenatorPhotoUrl(post.official_id);
+  const senatorHref = getSenatorHref(post.official_id);
   // AT URI looks like at://did:plc:.../app.bsky.feed.post/<rkey>
   const rkey = post.platform_post_id.split("/").pop();
   const bskyUrl = rkey ? `https://bsky.app/profile/${post.handle}/post/${rkey}` : `https://bsky.app/profile/${post.handle}`;

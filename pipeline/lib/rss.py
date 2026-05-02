@@ -53,7 +53,7 @@ class FeedItem:
 @dataclass
 class FeedDiscoveryResult:
     """Result of probing a senator's site for RSS feeds."""
-    senator_id: str
+    official_id: str
     feed_url: str | None
     feed_type: str = ""        # rss, atom, or empty
     item_count: int = 0
@@ -177,7 +177,7 @@ def parse_feed_items(xml_text: str) -> list[FeedItem]:
 
 async def discover_feed(
     client: httpx.AsyncClient,
-    senator_id: str,
+    official_id: str,
     press_release_url: str,
     official_url: str,
 ) -> FeedDiscoveryResult:
@@ -203,11 +203,11 @@ async def discover_feed(
                     is_narrow = "press" in url.lower()
                     log.info(
                         "RSS found for %s: %s (%d items, %s)",
-                        senator_id, url, len(items),
+                        official_id, url, len(items),
                         "narrow" if is_narrow else "broad",
                     )
                     return FeedDiscoveryResult(
-                        senator_id=senator_id,
+                        official_id=official_id,
                         feed_url=str(resp.url),  # use final URL after redirects
                         feed_type=feed_type,
                         item_count=len(items),
@@ -215,10 +215,10 @@ async def discover_feed(
                         probe_method="url_probe",
                     )
         except (httpx.TimeoutException, httpx.ConnectError) as e:
-            log.debug("Probe timeout for %s at %s: %s", senator_id, url, e)
+            log.debug("Probe timeout for %s at %s: %s", official_id, url, e)
             continue
         except Exception as e:
-            log.debug("Probe error for %s at %s: %s", senator_id, url, e)
+            log.debug("Probe error for %s at %s: %s", official_id, url, e)
             continue
 
     # 2. Check <link rel="alternate"> on the press release page
@@ -246,10 +246,10 @@ async def discover_feed(
                                     items = parse_feed_items(feed_resp.text)
                                     log.info(
                                         "RSS found via link tag for %s: %s (%d items)",
-                                        senator_id, feed_href, len(items),
+                                        official_id, feed_href, len(items),
                                     )
                                     return FeedDiscoveryResult(
-                                        senator_id=senator_id,
+                                        official_id=official_id,
                                         feed_url=str(feed_resp.url),
                                         feed_type=feed_type,
                                         item_count=len(items),
@@ -259,9 +259,9 @@ async def discover_feed(
                         except Exception:
                             continue
     except Exception as e:
-        log.debug("Link tag check failed for %s: %s", senator_id, e)
+        log.debug("Link tag check failed for %s: %s", official_id, e)
 
-    return FeedDiscoveryResult(senator_id=senator_id, feed_url=None)
+    return FeedDiscoveryResult(official_id=official_id, feed_url=None)
 
 
 async def discover_all_feeds(
@@ -276,7 +276,7 @@ async def discover_all_feeds(
         async with semaphore:
             result = await discover_feed(
                 client,
-                senator["senator_id"],
+                senator["official_id"],
                 senator.get("press_release_url", ""),
                 senator.get("official_url", ""),
             )

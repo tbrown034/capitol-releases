@@ -198,7 +198,7 @@ async def repair_batch(client, records, dry_run=False):
 
     conn = psycopg2.connect(DB_URL) if not dry_run else None
 
-    for record_id, source_url, senator_id, title in records:
+    for record_id, source_url, official_id, title in records:
         # Check for bad URLs first
         bad_reason = is_bad_url(source_url)
         if bad_reason:
@@ -266,14 +266,14 @@ async def main():
     where = "WHERE pr.published_at IS NULL"
     params = []
     if args.senator:
-        where += " AND pr.senator_id = %s"
+        where += " AND pr.official_id = %s"
         params.append(args.senator)
 
     cur.execute(f"""
-        SELECT pr.id, pr.source_url, pr.senator_id, pr.title
+        SELECT pr.id, pr.source_url, pr.official_id, pr.title
         FROM press_releases pr
         {where}
-        ORDER BY pr.senator_id, pr.scraped_at
+        ORDER BY pr.official_id, pr.scraped_at
     """, params)
     records = cur.fetchall()
     cur.close()

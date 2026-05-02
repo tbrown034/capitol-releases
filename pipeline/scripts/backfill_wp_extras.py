@@ -26,7 +26,7 @@ from pipeline.backfill_wp_json import fetch_all, html_to_text, load_env, normali
 
 CUTOFF = date(2025, 1, 1)
 
-# (senator_id, wp_post_type) -> content_type
+# (official_id, wp_post_type) -> content_type
 EXTRAS: dict[tuple[str, str], str] = {
     ("rochester-lisa", "newsletter"): "blog",
     ("young-todd", "newsletter"): "blog",
@@ -48,15 +48,15 @@ EXTRAS: dict[tuple[str, str], str] = {
 
 
 def collect_for(
-    conn, senator_id: str, post_type: str, content_type: str, base_url: str, dry_run: bool
+    conn, official_id: str, post_type: str, content_type: str, base_url: str, dry_run: bool
 ) -> dict:
-    print(f"\n[{senator_id}] /wp/v2/{post_type} -> {content_type}")
+    print(f"\n[{official_id}] /wp/v2/{post_type} -> {content_type}")
     records = fetch_all(
         base_url, post_type, extra_params={"after": "2025-01-01T00:00:00"}
     )
     print(f"  fetched {len(records)} in-window records")
 
-    run_id = f"wpx-{senator_id}-{post_type}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+    run_id = f"wpx-{official_id}-{post_type}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
     if not dry_run:
         cur = conn.cursor()
         cur.execute(
@@ -105,12 +105,12 @@ def collect_for(
             cur.execute(
                 """
                 INSERT INTO press_releases
-                  (senator_id, title, published_at, body_text, source_url,
+                  (official_id, title, published_at, body_text, source_url,
                    scrape_run, content_type, date_source, date_confidence)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, 'wp_json', 1.0)
                 ON CONFLICT (source_url) DO NOTHING
                 """,
-                (senator_id, title, pub_dt, body_text or None, source_url, run_id, content_type),
+                (official_id, title, pub_dt, body_text or None, source_url, run_id, content_type),
             )
             conn.commit()
             if cur.rowcount > 0:
@@ -138,7 +138,7 @@ def collect_for(
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--senator", help="Run only for one senator_id")
+    ap.add_argument("--senator", help="Run only for one official_id")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -146,7 +146,7 @@ def main() -> None:
     seeds = json.load(
         open(Path(__file__).resolve().parents[1] / "seeds" / "senate.json")
     )["members"]
-    base_by_id = {s["senator_id"]: (s.get("official_url") or "").rstrip("/") for s in seeds}
+    base_by_id = {s["official_id"]: (s.get("official_url") or "").rstrip("/") for s in seeds}
 
     conn = psycopg2.connect(os.environ["DATABASE_URL"])
 

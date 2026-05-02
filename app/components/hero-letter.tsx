@@ -11,7 +11,7 @@ import type { ContentType } from "../lib/db";
 type HeroItem = {
   id: string;
   title: string;
-  senator_id: string;
+  official_id: string;
   senator_name: string;
   party: "D" | "R" | "I";
   state: string;
@@ -67,7 +67,7 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
 
   if (items.length === 0) return null;
   const item = items[idx];
-  const photo = item.photo_url ?? getSenatorPhotoUrl(item.senator_name, item.senator_id);
+  const photo = item.photo_url ?? getSenatorPhotoUrl(item.senator_name, item.official_id);
   const titlePrefix = item.title_prefix ?? "Sen.";
   const sourceLabel = item.source_label ?? "senate.gov";
   const partyName =

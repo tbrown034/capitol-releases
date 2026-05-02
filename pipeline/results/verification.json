@@ -1,6 +1,6 @@
 [
   {
-    "senator_id": "blackburn-marsha",
+    "official_id": "blackburn-marsha",
     "name": "Marsha Blackburn",
     "party": "R",
     "state": "TN",
@@ -16,7 +16,7 @@
     "notes": "DB has 568, site estimates ~1750"
   },
   {
-    "senator_id": "tillis-thom",
+    "official_id": "tillis-thom",
     "name": "Thom Tillis",
     "party": "R",
     "state": "NC",
@@ -32,7 +32,7 @@
     "notes": "DB has 522, site estimates ~2170"
   },
   {
-    "senator_id": "scott-rick",
+    "official_id": "scott-rick",
     "name": "Rick Scott",
     "party": "R",
     "state": "FL",
@@ -48,7 +48,7 @@
     "notes": "DB has 499, site estimates ~3700"
   },
   {
-    "senator_id": "johnson-ron",
+    "official_id": "johnson-ron",
     "name": "Ron Johnson",
     "party": "R",
     "state": "WI",
@@ -64,7 +64,7 @@
     "notes": "DB has 499, site estimates ~2110"
   },
   {
-    "senator_id": "bennet-michael",
+    "official_id": "bennet-michael",
     "name": "Michael F. Bennet",
     "party": "D",
     "state": "CO",
@@ -80,7 +80,7 @@
     "notes": "DB has 371, site estimates ~5370"
   },
   {
-    "senator_id": "hawley-josh",
+    "official_id": "hawley-josh",
     "name": "Josh Hawley",
     "party": "R",
     "state": "MO",
@@ -96,7 +96,7 @@
     "notes": "DB has 214, site estimates ~1190"
   },
   {
-    "senator_id": "lummis-cynthia",
+    "official_id": "lummis-cynthia",
     "name": "Cynthia M. Lummis",
     "party": "R",
     "state": "WY",
@@ -112,7 +112,7 @@
     "notes": "DB has 190, site estimates ~690"
   },
   {
-    "senator_id": "hagerty-bill",
+    "official_id": "hagerty-bill",
     "name": "Bill Hagerty",
     "party": "R",
     "state": "TN",
@@ -128,7 +128,7 @@
     "notes": "DB has 181, site estimates ~1215"
   },
   {
-    "senator_id": "wicker-roger",
+    "official_id": "wicker-roger",
     "name": "Roger F. Wicker",
     "party": "R",
     "state": "MS",
@@ -144,7 +144,7 @@
     "notes": "DB has 129, site estimates ~3250"
   },
   {
-    "senator_id": "lee-mike",
+    "official_id": "lee-mike",
     "name": "Mike Lee",
     "party": "R",
     "state": "UT",
@@ -160,7 +160,7 @@
     "notes": "DB has 116, site estimates ~1328"
   },
   {
-    "senator_id": "paul-rand",
+    "official_id": "paul-rand",
     "name": "Rand Paul",
     "party": "R",
     "state": "KY",
@@ -176,7 +176,7 @@
     "notes": "DB has 78, site estimates ~1000"
   },
   {
-    "senator_id": "moran-jerry",
+    "official_id": "moran-jerry",
     "name": "Jerry Moran",
     "party": "R",
     "state": "KS",
@@ -192,7 +192,7 @@
     "notes": "DB has 41, site estimates ~502"
   },
   {
-    "senator_id": "welch-peter",
+    "official_id": "welch-peter",
     "name": "Peter Welch",
     "party": "D",
     "state": "VT",
@@ -208,7 +208,7 @@
     "notes": "DB has 12, site estimates ~1374"
   },
   {
-    "senator_id": "budd-ted",
+    "official_id": "budd-ted",
     "name": "Ted Budd",
     "party": "R",
     "state": "NC",
@@ -224,7 +224,7 @@
     "notes": "DB has 2, site estimates ~40"
   },
   {
-    "senator_id": "cruz-ted",
+    "official_id": "cruz-ted",
     "name": "Ted Cruz",
     "party": "R",
     "state": "TX",
@@ -240,7 +240,7 @@
     "notes": "Earliest in DB is 2026-02-13, should reach Jan 2025"
   },
   {
-    "senator_id": "heinrich-martin",
+    "official_id": "heinrich-martin",
     "name": "Martin Heinrich",
     "party": "D",
     "state": "NM",
@@ -256,7 +256,7 @@
     "notes": "Earliest in DB is 2025-12-31, should reach Jan 2025"
   },
   {
-    "senator_id": "risch-james",
+    "official_id": "risch-james",
     "name": "James E. Risch",
     "party": "R",
     "state": "ID",
@@ -272,7 +272,7 @@
     "notes": "Earliest in DB is 2025-07-28, should reach Jan 2025"
   },
   {
-    "senator_id": "booker-cory",
+    "official_id": "booker-cory",
     "name": "Cory A. Booker",
     "party": "D",
     "state": "NJ",
@@ -288,7 +288,7 @@
     "notes": "Earliest in DB is 2026-04-07, should reach Jan 2025"
   },
   {
-    "senator_id": "crapo-mike",
+    "official_id": "crapo-mike",
     "name": "Mike Crapo",
     "party": "R",
     "state": "ID",
@@ -304,7 +304,7 @@
     "notes": "Earliest in DB is 2026-03-30, should reach Jan 2025"
   },
   {
-    "senator_id": "murphy-christopher",
+    "official_id": "murphy-christopher",
     "name": "Christopher Murphy",
     "party": "D",
     "state": "CT",
@@ -320,7 +320,7 @@
     "notes": "Earliest in DB is 2026-03-08, should reach Jan 2025"
   },
   {
-    "senator_id": "young-todd",
+    "official_id": "young-todd",
     "name": "Todd Young",
     "party": "R",
     "state": "IN",
@@ -336,7 +336,7 @@
     "notes": "Earliest in DB is 2026-03-05, should reach Jan 2025"
   },
   {
-    "senator_id": "kim-andy",
+    "official_id": "kim-andy",
     "name": "Andy Kim",
     "party": "D",
     "state": "NJ",
@@ -352,7 +352,7 @@
     "notes": "Earliest in DB is 2026-03-12, should reach Jan 2025"
   },
   {
-    "senator_id": "cramer-kevin",
+    "official_id": "cramer-kevin",
     "name": "Kevin Cramer",
     "party": "R",
     "state": "ND",
@@ -368,7 +368,7 @@
     "notes": "Earliest in DB is 2026-03-18, should reach Jan 2025"
   },
   {
-    "senator_id": "gillibrand-kirsten",
+    "official_id": "gillibrand-kirsten",
     "name": "Kirsten E. Gillibrand",
     "party": "D",
     "state": "NY",
@@ -384,7 +384,7 @@
     "notes": "Earliest in DB is 2026-03-23, should reach Jan 2025"
   },
   {
-    "senator_id": "whitehouse-sheldon",
+    "official_id": "whitehouse-sheldon",
     "name": "Sheldon Whitehouse",
     "party": "D",
     "state": "RI",
@@ -400,7 +400,7 @@
     "notes": "Earliest in DB is 2026-03-04, should reach Jan 2025"
   },
   {
-    "senator_id": "cassidy-bill",
+    "official_id": "cassidy-bill",
     "name": "Bill Cassidy",
     "party": "R",
     "state": "LA",
@@ -416,7 +416,7 @@
     "notes": "Earliest in DB is 2026-03-30, should reach Jan 2025"
   },
   {
-    "senator_id": "moody-ashley",
+    "official_id": "moody-ashley",
     "name": "Ashley Moody",
     "party": "R",
     "state": "FL",
@@ -432,7 +432,7 @@
     "notes": "Earliest in DB is 2026-04-09, should reach Jan 2025"
   },
   {
-    "senator_id": "schmitt-eric",
+    "official_id": "schmitt-eric",
     "name": "Eric Schmitt",
     "party": "R",
     "state": "MO",
@@ -448,7 +448,7 @@
     "notes": "Earliest in DB is 2026-03-17, should reach Jan 2025"
   },
   {
-    "senator_id": "hickenlooper-john",
+    "official_id": "hickenlooper-john",
     "name": "John W. Hickenlooper",
     "party": "D",
     "state": "CO",
@@ -464,7 +464,7 @@
     "notes": "Earliest in DB is 2026-03-24, should reach Jan 2025"
   },
   {
-    "senator_id": "shaheen-jeanne",
+    "official_id": "shaheen-jeanne",
     "name": "Jeanne Shaheen",
     "party": "D",
     "state": "NH",
@@ -480,7 +480,7 @@
     "notes": "Earliest in DB is 2025-04-27, should reach Jan 2025"
   },
   {
-    "senator_id": "britt-katie",
+    "official_id": "britt-katie",
     "name": "Katie Boyd Britt",
     "party": "R",
     "state": "AL",
@@ -496,7 +496,7 @@
     "notes": "Earliest in DB is 2026-04-08, should reach Jan 2025"
   },
   {
-    "senator_id": "duckworth-tammy",
+    "official_id": "duckworth-tammy",
     "name": "Tammy Duckworth",
     "party": "D",
     "state": "IL",
@@ -512,7 +512,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "wyden-ron",
+    "official_id": "wyden-ron",
     "name": "Ron Wyden",
     "party": "D",
     "state": "OR",
@@ -528,7 +528,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "durbin-richard",
+    "official_id": "durbin-richard",
     "name": "Richard J. Durbin",
     "party": "D",
     "state": "IL",
@@ -544,7 +544,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "warren-elizabeth",
+    "official_id": "warren-elizabeth",
     "name": "Elizabeth Warren",
     "party": "D",
     "state": "MA",
@@ -560,7 +560,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "murkowski-lisa",
+    "official_id": "murkowski-lisa",
     "name": "Lisa Murkowski",
     "party": "R",
     "state": "AK",
@@ -576,7 +576,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "sullivan-dan",
+    "official_id": "sullivan-dan",
     "name": "Dan Sullivan",
     "party": "R",
     "state": "AK",
@@ -592,7 +592,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "rosen-jacky",
+    "official_id": "rosen-jacky",
     "name": "Jacky Rosen",
     "party": "D",
     "state": "NV",
@@ -608,7 +608,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "ossoff-jon",
+    "official_id": "ossoff-jon",
     "name": "Jon Ossoff",
     "party": "D",
     "state": "GA",
@@ -624,7 +624,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "daines-steve",
+    "official_id": "daines-steve",
     "name": "Steve Daines",
     "party": "R",
     "state": "MT",
@@ -640,7 +640,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "merkley-jeff",
+    "official_id": "merkley-jeff",
     "name": "Jeff Merkley",
     "party": "D",
     "state": "OR",
@@ -656,7 +656,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "barrasso-john",
+    "official_id": "barrasso-john",
     "name": "John Barrasso",
     "party": "R",
     "state": "WY",
@@ -672,7 +672,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "sanders-bernard",
+    "official_id": "sanders-bernard",
     "name": "Bernard Sanders",
     "party": "I",
     "state": "VT",
@@ -688,7 +688,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "curtis-john",
+    "official_id": "curtis-john",
     "name": "John R. Curtis",
     "party": "R",
     "state": "UT",
@@ -704,7 +704,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "moreno-bernie",
+    "official_id": "moreno-bernie",
     "name": "Bernie Moreno",
     "party": "R",
     "state": "OH",
@@ -720,7 +720,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "justice-james",
+    "official_id": "justice-james",
     "name": "James C. Justice",
     "party": "R",
     "state": "WV",
@@ -736,7 +736,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "smith-tina",
+    "official_id": "smith-tina",
     "name": "Tina Smith",
     "party": "D",
     "state": "MN",
@@ -752,7 +752,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "fetterman-john",
+    "official_id": "fetterman-john",
     "name": "John Fetterman",
     "party": "D",
     "state": "PA",
@@ -768,7 +768,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "hoeven-john",
+    "official_id": "hoeven-john",
     "name": "John Hoeven",
     "party": "R",
     "state": "ND",
@@ -784,7 +784,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "klobuchar-amy",
+    "official_id": "klobuchar-amy",
     "name": "Amy Klobuchar",
     "party": "D",
     "state": "MN",
@@ -800,7 +800,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "boozman-john",
+    "official_id": "boozman-john",
     "name": "John Boozman",
     "party": "R",
     "state": "AR",
@@ -816,7 +816,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "graham-lindsey",
+    "official_id": "graham-lindsey",
     "name": "Lindsey Graham",
     "party": "R",
     "state": "SC",
@@ -832,7 +832,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "cantwell-maria",
+    "official_id": "cantwell-maria",
     "name": "Maria Cantwell",
     "party": "D",
     "state": "WA",
@@ -848,7 +848,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "mcconnell-mitch",
+    "official_id": "mcconnell-mitch",
     "name": "Mitch McConnell",
     "party": "R",
     "state": "KY",
@@ -864,7 +864,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "king-angus",
+    "official_id": "king-angus",
     "name": "Angus S. King, Jr.",
     "party": "I",
     "state": "ME",
@@ -880,7 +880,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "kennedy-john",
+    "official_id": "kennedy-john",
     "name": "John Kennedy",
     "party": "R",
     "state": "LA",
@@ -896,7 +896,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "fischer-deb",
+    "official_id": "fischer-deb",
     "name": "Deb Fischer",
     "party": "R",
     "state": "NE",
@@ -912,7 +912,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "thune-john",
+    "official_id": "thune-john",
     "name": "John Thune",
     "party": "R",
     "state": "SD",
@@ -928,7 +928,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "murray-patty",
+    "official_id": "murray-patty",
     "name": "Patty Murray",
     "party": "D",
     "state": "WA",
@@ -944,7 +944,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "armstrong-alan",
+    "official_id": "armstrong-alan",
     "name": "Alan Armstrong",
     "party": "R",
     "state": "OK",
@@ -960,7 +960,7 @@
     "notes": "Could not find press release items on listing page"
   },
   {
-    "senator_id": "blumenthal-richard",
+    "official_id": "blumenthal-richard",
     "name": "Richard Blumenthal",
     "party": "D",
     "state": "CT",
@@ -976,7 +976,7 @@
     "notes": ""
   },
   {
-    "senator_id": "grassley-chuck",
+    "official_id": "grassley-chuck",
     "name": "Chuck Grassley",
     "party": "R",
     "state": "IA",
@@ -992,7 +992,7 @@
     "notes": ""
   },
   {
-    "senator_id": "warner-mark",
+    "official_id": "warner-mark",
     "name": "Mark R. Warner",
     "party": "D",
     "state": "VA",
@@ -1008,7 +1008,7 @@
     "notes": ""
   },
   {
-    "senator_id": "kaine-tim",
+    "official_id": "kaine-tim",
     "name": "Tim Kaine",
     "party": "D",
     "state": "VA",
@@ -1024,7 +1024,7 @@
     "notes": ""
   },
   {
-    "senator_id": "markey-edward",
+    "official_id": "markey-edward",
     "name": "Edward J. Markey",
     "party": "D",
     "state": "MA",
@@ -1040,7 +1040,7 @@
     "notes": ""
   },
   {
-    "senator_id": "coons-christopher",
+    "official_id": "coons-christopher",
     "name": "Christopher A. Coons",
     "party": "D",
     "state": "DE",
@@ -1056,7 +1056,7 @@
     "notes": ""
   },
   {
-    "senator_id": "schiff-adam",
+    "official_id": "schiff-adam",
     "name": "Adam B. Schiff",
     "party": "D",
     "state": "CA",
@@ -1072,7 +1072,7 @@
     "notes": ""
   },
   {
-    "senator_id": "reed-jack",
+    "official_id": "reed-jack",
     "name": "Jack Reed",
     "party": "D",
     "state": "RI",
@@ -1088,7 +1088,7 @@
     "notes": ""
   },
   {
-    "senator_id": "gallego-ruben",
+    "official_id": "gallego-ruben",
     "name": "Ruben Gallego",
     "party": "D",
     "state": "AZ",
@@ -1104,7 +1104,7 @@
     "notes": ""
   },
   {
-    "senator_id": "hollen-chris",
+    "official_id": "hollen-chris",
     "name": "Chris Van Hollen",
     "party": "D",
     "state": "MD",
@@ -1120,7 +1120,7 @@
     "notes": ""
   },
   {
-    "senator_id": "ernst-joni",
+    "official_id": "ernst-joni",
     "name": "Joni Ernst",
     "party": "R",
     "state": "IA",
@@ -1136,7 +1136,7 @@
     "notes": ""
   },
   {
-    "senator_id": "collins-susan",
+    "official_id": "collins-susan",
     "name": "Susan M. Collins",
     "party": "R",
     "state": "ME",
@@ -1152,7 +1152,7 @@
     "notes": ""
   },
   {
-    "senator_id": "capito-shelley",
+    "official_id": "capito-shelley",
     "name": "Shelley Moore Capito",
     "party": "R",
     "state": "WV",
@@ -1168,7 +1168,7 @@
     "notes": ""
   },
   {
-    "senator_id": "baldwin-tammy",
+    "official_id": "baldwin-tammy",
     "name": "Tammy Baldwin",
     "party": "D",
     "state": "WI",
@@ -1184,7 +1184,7 @@
     "notes": ""
   },
   {
-    "senator_id": "hirono-mazie",
+    "official_id": "hirono-mazie",
     "name": "Mazie K. Hirono",
     "party": "D",
     "state": "HI",
@@ -1200,7 +1200,7 @@
     "notes": ""
   },
   {
-    "senator_id": "rochester-lisa",
+    "official_id": "rochester-lisa",
     "name": "Lisa Blunt Rochester",
     "party": "D",
     "state": "DE",
@@ -1216,7 +1216,7 @@
     "notes": ""
   },
   {
-    "senator_id": "peters-gary",
+    "official_id": "peters-gary",
     "name": "Gary C. Peters",
     "party": "D",
     "state": "MI",
@@ -1232,7 +1232,7 @@
     "notes": ""
   },
   {
-    "senator_id": "hassan-margaret",
+    "official_id": "hassan-margaret",
     "name": "Margaret Wood Hassan",
     "party": "D",
     "state": "NH",
@@ -1248,7 +1248,7 @@
     "notes": ""
   },
   {
-    "senator_id": "schumer-charles",
+    "official_id": "schumer-charles",
     "name": "Charles E. Schumer",
     "party": "D",
     "state": "NY",
@@ -1264,7 +1264,7 @@
     "notes": ""
   },
   {
-    "senator_id": "alsobrooks-angela",
+    "official_id": "alsobrooks-angela",
     "name": "Angela D. Alsobrooks",
     "party": "D",
     "state": "MD",
@@ -1280,7 +1280,7 @@
     "notes": ""
   },
   {
-    "senator_id": "schatz-brian",
+    "official_id": "schatz-brian",
     "name": "Brian Schatz",
     "party": "D",
     "state": "HI",
@@ -1296,7 +1296,7 @@
     "notes": ""
   },
   {
-    "senator_id": "banks-jim",
+    "official_id": "banks-jim",
     "name": "Jim Banks",
     "party": "R",
     "state": "IN",
@@ -1312,7 +1312,7 @@
     "notes": ""
   },
   {
-    "senator_id": "slotkin-elissa",
+    "official_id": "slotkin-elissa",
     "name": "Elissa Slotkin",
     "party": "D",
     "state": "MI",
@@ -1328,7 +1328,7 @@
     "notes": ""
   },
   {
-    "senator_id": "husted-jon",
+    "official_id": "husted-jon",
     "name": "Jon Husted",
     "party": "R",
     "state": "OH",
@@ -1344,7 +1344,7 @@
     "notes": ""
   },
   {
-    "senator_id": "cotton-tom",
+    "official_id": "cotton-tom",
     "name": "Tom Cotton",
     "party": "R",
     "state": "AR",
@@ -1360,7 +1360,7 @@
     "notes": ""
   },
   {
-    "senator_id": "rounds-mike",
+    "official_id": "rounds-mike",
     "name": "Mike Rounds",
     "party": "R",
     "state": "SD",
@@ -1376,7 +1376,7 @@
     "notes": ""
   },
   {
-    "senator_id": "mccormick-david",
+    "official_id": "mccormick-david",
     "name": "David McCormick",
     "party": "R",
     "state": "PA",
@@ -1392,7 +1392,7 @@
     "notes": ""
   },
   {
-    "senator_id": "sheehy-tim",
+    "official_id": "sheehy-tim",
     "name": "Tim Sheehy",
     "party": "R",
     "state": "MT",
@@ -1408,7 +1408,7 @@
     "notes": ""
   },
   {
-    "senator_id": "hydesmith-cindy",
+    "official_id": "hydesmith-cindy",
     "name": "Cindy Hyde-Smith",
     "party": "R",
     "state": "MS",
@@ -1424,7 +1424,7 @@
     "notes": ""
   },
   {
-    "senator_id": "cornyn-john",
+    "official_id": "cornyn-john",
     "name": "John Cornyn",
     "party": "R",
     "state": "TX",
@@ -1440,7 +1440,7 @@
     "notes": ""
   },
   {
-    "senator_id": "scott-tim",
+    "official_id": "scott-tim",
     "name": "Tim Scott",
     "party": "R",
     "state": "SC",
@@ -1456,7 +1456,7 @@
     "notes": ""
   },
   {
-    "senator_id": "tuberville-tommy",
+    "official_id": "tuberville-tommy",
     "name": "Tommy Tuberville",
     "party": "R",
     "state": "AL",
@@ -1472,7 +1472,7 @@
     "notes": ""
   },
   {
-    "senator_id": "masto-catherine",
+    "official_id": "masto-catherine",
     "name": "Catherine Cortez Masto",
     "party": "D",
     "state": "NV",
@@ -1488,7 +1488,7 @@
     "notes": ""
   },
   {
-    "senator_id": "ricketts-pete",
+    "official_id": "ricketts-pete",
     "name": "Pete Ricketts",
     "party": "R",
     "state": "NE",
@@ -1504,7 +1504,7 @@
     "notes": ""
   },
   {
-    "senator_id": "padilla-alex",
+    "official_id": "padilla-alex",
     "name": "Alex Padilla",
     "party": "D",
     "state": "CA",
@@ -1520,7 +1520,7 @@
     "notes": ""
   },
   {
-    "senator_id": "lujan-ben",
+    "official_id": "lujan-ben",
     "name": "Ben Ray Lujan",
     "party": "D",
     "state": "NM",
@@ -1536,7 +1536,7 @@
     "notes": ""
   },
   {
-    "senator_id": "lankford-james",
+    "official_id": "lankford-james",
     "name": "James Lankford",
     "party": "R",
     "state": "OK",
@@ -1552,7 +1552,7 @@
     "notes": ""
   },
   {
-    "senator_id": "kelly-mark",
+    "official_id": "kelly-mark",
     "name": "Mark Kelly",
     "party": "D",
     "state": "AZ",
@@ -1568,7 +1568,7 @@
     "notes": ""
   },
   {
-    "senator_id": "warnock-raphael",
+    "official_id": "warnock-raphael",
     "name": "Raphael G. Warnock",
     "party": "D",
     "state": "GA",
@@ -1584,7 +1584,7 @@
     "notes": ""
   },
   {
-    "senator_id": "marshall-roger",
+    "official_id": "marshall-roger",
     "name": "Roger Marshall",
     "party": "R",
     "state": "KS",

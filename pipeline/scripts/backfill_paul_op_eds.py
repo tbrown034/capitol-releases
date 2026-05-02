@@ -141,7 +141,7 @@ def main() -> None:
             cur.execute(
                 """
                 INSERT INTO press_releases
-                  (senator_id, title, published_at, body_text, source_url,
+                  (official_id, title, published_at, body_text, source_url,
                    scrape_run, content_type, date_source, date_confidence)
                 VALUES (%s, %s, %s, %s, %s, %s, 'op_ed', %s, %s)
                 ON CONFLICT (source_url) DO NOTHING

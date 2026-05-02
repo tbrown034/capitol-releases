@@ -34,9 +34,9 @@ class RSSCollector:
         max_pages: int = 1,
     ) -> CollectorResult:
         start = time.monotonic()
-        sid = senator["senator_id"]
+        sid = senator["official_id"]
         feed_url = senator.get("rss_feed_url", "")
-        result = CollectorResult(senator_id=sid, method="rss")
+        result = CollectorResult(official_id=sid, method="rss")
 
         if not feed_url:
             result.errors.append("No RSS feed URL configured")
@@ -121,7 +121,7 @@ class RSSCollector:
                         date_confidence = min(date_confidence, 0.2)
 
                 record = ReleaseRecord(
-                    senator_id=sid,
+                    official_id=sid,
                     title=item.title,
                     source_url=normalize_url(item.url),
                     published_at=item.published_at,
@@ -142,9 +142,9 @@ class RSSCollector:
         return result
 
     async def health_check(self, senator: dict) -> HealthCheckResult:
-        sid = senator["senator_id"]
+        sid = senator["official_id"]
         feed_url = senator.get("rss_feed_url", "")
-        hc = HealthCheckResult(senator_id=sid)
+        hc = HealthCheckResult(official_id=sid)
 
         if not feed_url:
             hc.error_message = "No RSS feed URL"

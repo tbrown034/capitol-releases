@@ -24,7 +24,7 @@ export default async function StatesPage() {
            count(pr.id)::int AS releases
     FROM senators s
     LEFT JOIN press_releases pr
-      ON pr.senator_id = s.id
+      ON pr.official_id = s.id
      AND pr.deleted_at IS NULL
      AND pr.content_type != 'photo_release'
     WHERE s.jurisdiction IN ('tx')

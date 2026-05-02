@@ -72,7 +72,7 @@ def content_hash(text: str) -> str:
 
 
 def is_likely_duplicate(
-    senator_id: str,
+    official_id: str,
     title: str,
     existing_titles: set[str],
 ) -> bool:
@@ -82,13 +82,13 @@ def is_likely_duplicate(
     Useful for catching republished content at different URLs.
     """
     normalized = _normalize_title(title)
-    key = f"{senator_id}:{normalized}"
+    key = f"{official_id}:{normalized}"
     return key in existing_titles
 
 
-def make_title_key(senator_id: str, title: str) -> str:
+def make_title_key(official_id: str, title: str) -> str:
     """Create a normalized title key for duplicate checking."""
-    return f"{senator_id}:{_normalize_title(title)}"
+    return f"{official_id}:{_normalize_title(title)}"
 
 
 def _normalize_title(title: str) -> str:

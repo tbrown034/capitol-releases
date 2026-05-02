@@ -79,13 +79,13 @@ export default async function TxSenatorPage({
              min(published_at) AS earliest,
              max(published_at) AS latest
       FROM press_releases
-      WHERE senator_id = ${id}
+      WHERE official_id = ${id}
         AND deleted_at IS NULL
         AND content_type != 'photo_release'
     `,
     sql`
       SELECT * FROM press_releases
-      WHERE senator_id = ${id}
+      WHERE official_id = ${id}
         AND deleted_at IS NULL
         AND content_type != 'photo_release'
       ORDER BY LEAST(published_at, scraped_at) DESC NULLS LAST
@@ -95,7 +95,7 @@ export default async function TxSenatorPage({
       SELECT to_char(date_trunc('week', published_at), 'YYYY-MM-DD') AS week,
              count(*)::int AS count
       FROM press_releases
-      WHERE senator_id = ${id}
+      WHERE official_id = ${id}
         AND deleted_at IS NULL
         AND content_type != 'photo_release'
         AND published_at IS NOT NULL
@@ -106,7 +106,7 @@ export default async function TxSenatorPage({
     sql`
       SELECT count(*)::int AS chamber_total
       FROM press_releases pr
-      JOIN senators s ON s.id = pr.senator_id
+      JOIN senators s ON s.id = pr.official_id
       WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'

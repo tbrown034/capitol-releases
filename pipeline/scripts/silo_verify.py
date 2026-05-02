@@ -234,7 +234,7 @@ def verify_silo(client: httpx.Client, base: str, section: str) -> dict:
 
 def main() -> None:
     probe = json.loads(PROBE.read_text())
-    seeds = {m["senator_id"]: m for m in json.loads(SEEDS.read_text())["members"]}
+    seeds = {m["official_id"]: m for m in json.loads(SEEDS.read_text())["members"]}
 
     targets: list[tuple[str, dict]] = []
     for sid, rows in probe.items():

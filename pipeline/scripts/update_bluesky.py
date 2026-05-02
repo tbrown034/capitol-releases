@@ -58,11 +58,11 @@ async def update_one(
 ) -> dict:
     """Walk an author's feed forward until we hit `floor` (last-known created_at
     for this senator, or the global cutoff for first-runs)."""
-    senator_id = entry["senator_id"]
+    official_id = entry["official_id"]
     handle = entry["handle"]
     did = entry.get("did") or await resolve_did(client, handle)
     if not did:
-        return {"senator_id": senator_id, "handle": handle, "error": "did_resolve_failed"}
+        return {"official_id": official_id, "handle": handle, "error": "did_resolve_failed"}
 
     cursor: str | None = None
     seen = 0
@@ -86,7 +86,7 @@ async def update_one(
                 skipped_reposts += 1
                 continue
             post = entry_item.get("post") or {}
-            row = build_row(senator_id, handle, did, post, scrape_run)
+            row = build_row(official_id, handle, did, post, scrape_run)
             if not row:
                 continue
             seen += 1
@@ -108,7 +108,7 @@ async def update_one(
         await asyncio.sleep(PAGE_DELAY)
 
     return {
-        "senator_id": senator_id,
+        "official_id": official_id,
         "handle": handle,
         "pages": pages,
         "seen": seen,
@@ -119,10 +119,10 @@ async def update_one(
 
 
 def per_senator_floor(conn) -> dict[str, datetime]:
-    """Map senator_id -> max(created_at) of their existing posts."""
+    """Map official_id -> max(created_at) of their existing posts."""
     cur = conn.cursor()
     cur.execute(
-        "SELECT senator_id, max(created_at) FROM social_posts GROUP BY senator_id"
+        "SELECT official_id, max(created_at) FROM social_posts GROUP BY official_id"
     )
     out: dict[str, datetime] = {}
     for sid, ts in cur.fetchall():
@@ -137,9 +137,9 @@ async def amain(args: argparse.Namespace) -> None:
     handles_doc = json.loads(HANDLES.read_text())
     entries = handles_doc["handles"]
     if args.senator:
-        entries = [e for e in entries if e["senator_id"] == args.senator]
+        entries = [e for e in entries if e["official_id"] == args.senator]
         if not entries:
-            print(f"No entry for senator_id={args.senator}", file=sys.stderr)
+            print(f"No entry for official_id={args.senator}", file=sys.stderr)
             sys.exit(1)
 
     if args.dry_run:
@@ -155,19 +155,19 @@ async def amain(args: argparse.Namespace) -> None:
     async with httpx.AsyncClient(headers=headers) as client:
         results: list[dict] = []
         for i, entry in enumerate(entries, 1):
-            floor = floors.get(entry["senator_id"], cutoff)
+            floor = floors.get(entry["official_id"], cutoff)
             r = await update_one(client, conn, entry, floor, scrape_run, args.dry_run)
             results.append(r)
             tag = f"+{r.get('inserted', 0):>3}" if "inserted" in r else "ERR "
             note = r.get("error") or f"seen={r.get('seen', 0)} pages={r.get('pages', 0)}"
-            print(f"  [{i:>2}/{len(entries)}] {tag} {r['senator_id']:<28} @{r['handle']:<35} {note}")
+            print(f"  [{i:>2}/{len(entries)}] {tag} {r['official_id']:<28} @{r['handle']:<35} {note}")
 
     conn.close()
     total_inserted = sum(r.get("inserted") or 0 for r in results)
     errors = [r for r in results if r.get("error")]
     print(f"\nUpdate complete. {total_inserted} new posts. {len(errors)} errors.")
     for e in errors:
-        print(f"  ERROR: {e['senator_id']}/{e['handle']}: {e['error']}")
+        print(f"  ERROR: {e['official_id']}/{e['handle']}: {e['error']}")
     # Non-zero exit on errors lets CI flag without aborting the whole pipeline
     if errors and not args.dry_run:
         sys.exit(2)
@@ -175,7 +175,7 @@ async def amain(args: argparse.Namespace) -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--senator", help="Limit to one senator_id")
+    p.add_argument("--senator", help="Limit to one official_id")
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args()
     asyncio.run(amain(args))

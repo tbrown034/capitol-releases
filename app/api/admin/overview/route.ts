@@ -17,7 +17,7 @@ type AlertRow = {
   id: string;
   created_at: string;
   alert_type: string;
-  senator_id: string | null;
+  official_id: string | null;
   severity: string;
   message: string;
   acknowledged: boolean;
@@ -60,7 +60,7 @@ export async function GET() {
   `) as RunRow[];
 
   const recentAlerts = (await sql`
-    SELECT id, created_at, alert_type, senator_id, severity, message, acknowledged
+    SELECT id, created_at, alert_type, official_id, severity, message, acknowledged
     FROM alerts
     ORDER BY created_at DESC
     LIMIT 10

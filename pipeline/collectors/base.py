@@ -14,7 +14,7 @@ from typing import Protocol
 @dataclass
 class ReleaseRecord:
     """A single collected press release, ready for DB insertion."""
-    senator_id: str
+    official_id: str
     title: str
     source_url: str
     published_at: datetime | None = None
@@ -29,7 +29,7 @@ class ReleaseRecord:
 @dataclass
 class CollectorResult:
     """Result of a collection run for one senator."""
-    senator_id: str
+    official_id: str
     method: str                          # rss, httpx, playwright
     releases: list[ReleaseRecord] = field(default_factory=list)
     pages_scraped: int = 0
@@ -46,7 +46,7 @@ class CollectorResult:
 @dataclass
 class HealthCheckResult:
     """Result of a health check for one senator."""
-    senator_id: str
+    official_id: str
     checked_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     url_status: int = 0
     selector_ok: bool = False

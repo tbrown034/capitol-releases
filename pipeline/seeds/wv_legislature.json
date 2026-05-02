@@ -9,7 +9,7 @@
   },
   "members": [
     {
-      "senator_id": "wv-legislature-news",
+      "official_id": "wv-legislature-news",
       "full_name": "West Virginia Legislature News Releases",
       "party": "N",
       "state": "WV",

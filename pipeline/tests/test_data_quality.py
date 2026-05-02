@@ -74,7 +74,7 @@ def test_minimum_senator_coverage():
     """At least 95 senators should have press releases."""
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT count(DISTINCT senator_id) FROM press_releases WHERE deleted_at IS NULL")
+    cur.execute("SELECT count(DISTINCT official_id) FROM press_releases WHERE deleted_at IS NULL")
     count = cur.fetchone()[0]
     cur.close()
     conn.close()
@@ -152,7 +152,7 @@ def test_dates_in_valid_range():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT senator_id, source_url, published_at FROM press_releases
+        SELECT official_id, source_url, published_at FROM press_releases
         WHERE deleted_at IS NULL
           AND published_at IS NOT NULL
           AND (published_at < '2010-01-01' OR published_at > NOW() + interval '60 days')
@@ -173,7 +173,7 @@ def test_no_future_dates():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT senator_id, source_url, published_at FROM press_releases
+        SELECT official_id, source_url, published_at FROM press_releases
         WHERE deleted_at IS NULL
           AND published_at > NOW() + interval '1 day'
           AND published_at <= NOW() + interval '60 days'
@@ -184,8 +184,8 @@ def test_no_future_dates():
     conn.close()
     if typos:
         print(f"WARNING: {len(typos)} records with future published_at — likely upstream typos:")
-        for senator_id, source_url, pub_at in typos[:10]:
-            print(f"  {senator_id}: {pub_at.strftime('%Y-%m-%d')} - {source_url[:80]}")
+        for official_id, source_url, pub_at in typos[:10]:
+            print(f"  {official_id}: {pub_at.strftime('%Y-%m-%d')} - {source_url[:80]}")
 
 
 # ---- URL quality tests ----
@@ -262,7 +262,7 @@ def test_no_suspicious_round_counts():
     cur.execute("""
         SELECT s.id, s.full_name, count(pr.id)::int as cnt
         FROM senators s
-        JOIN press_releases pr ON pr.senator_id = s.id
+        JOIN press_releases pr ON pr.official_id = s.id
         WHERE pr.deleted_at IS NULL
           AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.id, s.full_name
@@ -320,7 +320,7 @@ def test_rss_collectors_not_severely_undercollecting():
     pagination via httpx.
     """
     seeds = _load_seeds()
-    rss_ids = [s["senator_id"] for s in seeds
+    rss_ids = [s["official_id"] for s in seeds
                if s.get("collection_method") == "rss"]
     if not rss_ids:
         return
@@ -328,10 +328,10 @@ def test_rss_collectors_not_severely_undercollecting():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT senator_id, count(*)::int
+        SELECT official_id, count(*)::int
         FROM press_releases
-        WHERE deleted_at IS NULL AND senator_id = ANY(%s)
-        GROUP BY senator_id
+        WHERE deleted_at IS NULL AND official_id = ANY(%s)
+        GROUP BY official_id
     """, (rss_ids,))
     counts = dict(cur.fetchall())
     cur.close()
@@ -366,7 +366,7 @@ def test_no_rss_rampup_signature():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT pr.senator_id,
+        SELECT pr.official_id,
                count(*) FILTER (
                    WHERE pr.published_at >= '2025-01-01'
                    AND pr.published_at < '2025-04-01'
@@ -376,10 +376,10 @@ def test_no_rss_rampup_signature():
                )::int AS last_30,
                count(*)::int AS total
         FROM press_releases pr
-        JOIN senators s ON s.id = pr.senator_id
+        JOIN senators s ON s.id = pr.official_id
         WHERE pr.deleted_at IS NULL
           AND s.chamber = 'senate' AND s.jurisdiction = 'us'
-        GROUP BY pr.senator_id
+        GROUP BY pr.official_id
     """)
     rows = cur.fetchall()
     cur.close()
@@ -421,11 +421,11 @@ def test_no_zero_volume_months():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT pr.senator_id,
+        SELECT pr.official_id,
                to_char(date_trunc('month', pr.published_at), 'YYYY-MM') AS m,
                count(*)::int AS n
         FROM press_releases pr
-        JOIN senators s ON s.id = pr.senator_id
+        JOIN senators s ON s.id = pr.official_id
         WHERE pr.deleted_at IS NULL
           AND pr.published_at >= '2025-01-01'
           AND s.chamber = 'senate' AND s.jurisdiction = 'us'
@@ -490,20 +490,20 @@ def test_no_long_publication_gaps():
     # Compute per-senator max-gap using window functions
     cur.execute("""
         WITH ordered AS (
-            SELECT pr.senator_id,
+            SELECT pr.official_id,
                    pr.published_at,
-                   lag(pr.published_at) OVER (PARTITION BY pr.senator_id ORDER BY pr.published_at) AS prev_at
+                   lag(pr.published_at) OVER (PARTITION BY pr.official_id ORDER BY pr.published_at) AS prev_at
             FROM press_releases pr
-            JOIN senators s ON s.id = pr.senator_id
+            JOIN senators s ON s.id = pr.official_id
             WHERE pr.deleted_at IS NULL
               AND pr.published_at >= '2025-01-01'
               AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         )
-        SELECT senator_id,
+        SELECT official_id,
                max(extract(epoch FROM (published_at - prev_at)) / 86400)::int AS max_gap_days
         FROM ordered
         WHERE prev_at IS NOT NULL
-        GROUP BY senator_id
+        GROUP BY official_id
         HAVING max(extract(epoch FROM (published_at - prev_at)) / 86400) > 45
     """)
     flagged = cur.fetchall()
@@ -531,9 +531,9 @@ def test_depth_to_jan_2025():
     cur = conn.cursor()
     cur.execute("""
         SELECT count(*) FROM (
-            SELECT senator_id FROM press_releases WHERE deleted_at IS NULL
+            SELECT official_id FROM press_releases WHERE deleted_at IS NULL
             AND published_at IS NOT NULL
-            GROUP BY senator_id
+            GROUP BY official_id
             HAVING min(published_at)::date <= '2025-02-28'
         ) sub
     """)
@@ -552,7 +552,7 @@ def test_no_date_clumping():
     unique_days / total < 0.2 AND total >= 30.
 
     Run `python -m pipeline back-coverage` for the full list and
-    `--detail <senator_id>` for a weekly histogram.
+    `--detail <official_id>` for a weekly histogram.
     """
     conn = get_conn()
     cur = conn.cursor()
@@ -561,7 +561,7 @@ def test_no_date_clumping():
                count(pr.id)::int as total,
                count(DISTINCT pr.published_at::date)::int as unique_days
         FROM senators s
-        JOIN press_releases pr ON pr.senator_id = s.id
+        JOIN press_releases pr ON pr.official_id = s.id
         WHERE s.status = 'active'
           AND pr.deleted_at IS NULL
           AND pr.published_at >= '2025-01-01'
@@ -619,7 +619,7 @@ def test_back_coverage_not_truncated():
                min(pr.published_at) FILTER (WHERE pr.deleted_at IS NULL)::date AS earliest,
                count(pr.id) FILTER (WHERE pr.deleted_at IS NULL)::int AS total
         FROM senators s
-        LEFT JOIN press_releases pr ON pr.senator_id = s.id
+        LEFT JOIN press_releases pr ON pr.official_id = s.id
         WHERE s.status = 'active'
           AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.id, s.full_name
@@ -681,9 +681,9 @@ def test_no_anomalously_low_counts():
         SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY cnt) as median
         FROM (
             SELECT COUNT(*) as cnt FROM press_releases pr
-            JOIN senators s ON s.id = pr.senator_id
+            JOIN senators s ON s.id = pr.official_id
             WHERE pr.deleted_at IS NULL AND s.chamber = 'senate' AND s.jurisdiction = 'us'
-            GROUP BY senator_id HAVING COUNT(*) > 0
+            GROUP BY official_id HAVING COUNT(*) > 0
         ) sub
     """)
     median = cur.fetchone()[0] or 1
@@ -692,7 +692,7 @@ def test_no_anomalously_low_counts():
     cur.execute("""
         SELECT s.id, s.full_name, COUNT(pr.id) FILTER (WHERE pr.deleted_at IS NULL) as cnt
         FROM senators s
-        LEFT JOIN press_releases pr ON s.id = pr.senator_id
+        LEFT JOIN press_releases pr ON s.id = pr.official_id
         WHERE s.collection_method IS NOT NULL AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.id, s.full_name
         HAVING COUNT(pr.id) FILTER (WHERE pr.deleted_at IS NULL) < %s
@@ -722,7 +722,7 @@ def test_no_stale_senators():
     cur.execute("""
         SELECT s.id, s.full_name, MAX(pr.published_at) as last_release
         FROM senators s
-        JOIN press_releases pr ON s.id = pr.senator_id
+        JOIN press_releases pr ON s.id = pr.official_id
         WHERE s.collection_method IS NOT NULL AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.id, s.full_name
         HAVING MAX(pr.published_at) < NOW() - INTERVAL '60 days'
@@ -918,7 +918,7 @@ def test_social_posts_per_senator_floor():
     if not handles_path.exists():
         return  # nothing to assert
     handles = json.load(handles_path.open())["handles"]
-    expected = {h["senator_id"] for h in handles}
+    expected = {h["official_id"] for h in handles}
 
     # Documented dormants — verified empty-2026 accounts. Update if their
     # status changes.
@@ -927,8 +927,8 @@ def test_social_posts_per_senator_floor():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(
-        "SELECT senator_id FROM social_posts WHERE deleted_at IS NULL "
-        "GROUP BY senator_id"
+        "SELECT official_id FROM social_posts WHERE deleted_at IS NULL "
+        "GROUP BY official_id"
     )
     have = {row[0] for row in cur.fetchall()}
     cur.close()

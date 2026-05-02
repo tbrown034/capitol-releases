@@ -176,7 +176,7 @@ def extract_html_text(content: bytes, url: str) -> str:
 def main():
     _load_env()
     parser = argparse.ArgumentParser()
-    parser.add_argument("--senator", help="senator_id to limit to")
+    parser.add_argument("--senator", help="official_id to limit to")
     parser.add_argument("--limit", type=int, help="cap on records to process")
     parser.add_argument("--dry-run", action="store_true", help="don't write DB")
     parser.add_argument("--reextract", action="store_true",
@@ -199,13 +199,13 @@ def main():
         where.append("(pr.body_text IS NULL OR length(pr.body_text) < 50)")
     params: list[object] = []
     if args.senator:
-        where.append("pr.senator_id = %s")
+        where.append("pr.official_id = %s")
         params.append(args.senator)
 
     sql = f"""
-        SELECT pr.id, pr.senator_id, pr.title, pr.source_url
+        SELECT pr.id, pr.official_id, pr.title, pr.source_url
         FROM press_releases pr
-        JOIN senators s ON s.id = pr.senator_id
+        JOIN senators s ON s.id = pr.official_id
         WHERE {" AND ".join(where)}
         ORDER BY pr.published_at DESC NULLS LAST
     """

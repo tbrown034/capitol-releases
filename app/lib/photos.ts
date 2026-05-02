@@ -24,8 +24,8 @@ for (const [name, bioguideId] of Object.entries(nameToId)) {
   lastNameMap.set(lastName, bioguideId);
 }
 
-// Also build senator_id -> bioguide_id map
-// senator_id format: "warren-elizabeth", name format: "Elizabeth Warren"
+// Also build official_id -> bioguide_id map
+// official_id format: "warren-elizabeth", name format: "Elizabeth Warren"
 const idToBioguide = new Map<string, string>();
 for (const [name, bioguideId] of Object.entries(nameToId)) {
   const parts = name
@@ -69,21 +69,21 @@ for (const [id, bioguideId] of Object.entries(ID_OVERRIDES)) {
   idToBioguide.set(id, bioguideId);
 }
 
-export function getSenatorPhotoUrl(fullName: string, senatorId?: string): string | null {
-  // Non-senate members (e.g. White House) use senator_id as the filename directly.
-  if (senatorId === "whitehouse") return `/senators/whitehouse.jpg`;
+export function getSenatorPhotoUrl(fullName: string, officialId?: string): string | null {
+  // Non-senate members (e.g. White House) use official_id as the filename directly.
+  if (officialId === "whitehouse") return `/senators/whitehouse.jpg`;
 
   // Texas state senators have IDs like "tx-d29-blanco" and photos stored
   // at /state-senators/tx/dXX.jpg. Pull the district number out of the ID
   // and resolve directly — no bioguide lookup applies.
-  if (senatorId?.startsWith("tx-d")) {
-    const m = senatorId.match(/^tx-d(\d{2})-/);
+  if (officialId?.startsWith("tx-d")) {
+    const m = officialId.match(/^tx-d(\d{2})-/);
     if (m) return `/state-senators/tx/d${m[1]}.jpg`;
   }
 
-  // Try senator_id first (most reliable)
-  if (senatorId) {
-    const byId = idToBioguide.get(senatorId);
+  // Try official_id first (most reliable)
+  if (officialId) {
+    const byId = idToBioguide.get(officialId);
     if (byId) return `/senators/${byId}.jpg`;
   }
 
@@ -118,9 +118,9 @@ export function getSenatorPhotoUrl(fullName: string, senatorId?: string): string
 // US senators live under /senators/[id]; Texas state senators live under
 // /texas/[id]. Returns the right path regardless of chamber so cards and
 // release detail pages don't need chamber-aware logic locally.
-export function getSenatorHref(senatorId: string): string {
-  if (senatorId.startsWith("tx-")) return `/texas/${senatorId}`;
-  return `/senators/${senatorId}`;
+export function getSenatorHref(officialId: string): string {
+  if (officialId.startsWith("tx-")) return `/texas/${officialId}`;
+  return `/senators/${officialId}`;
 }
 
 export function getInitials(fullName: string): string {

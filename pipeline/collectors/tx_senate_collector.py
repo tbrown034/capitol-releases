@@ -46,9 +46,9 @@ class TxSenateCollector:
         max_pages: int = 1,
     ) -> CollectorResult:
         start = time.monotonic()
-        sid = senator["senator_id"]
+        sid = senator["official_id"]
         pr_url = senator.get("press_release_url", "")
-        result = CollectorResult(senator_id=sid, method="tx_senate")
+        result = CollectorResult(official_id=sid, method="tx_senate")
 
         if not pr_url:
             result.errors.append("No press_release_url configured")
@@ -80,7 +80,7 @@ class TxSenateCollector:
                 if since and item["published_at"] and item["published_at"].date() < since.date():
                     continue
                 rec = ReleaseRecord(
-                    senator_id=sid,
+                    official_id=sid,
                     title=item["title"],
                     source_url=item["source_url"],
                     published_at=item["published_at"],
@@ -104,9 +104,9 @@ class TxSenateCollector:
         return result
 
     async def health_check(self, senator: dict) -> HealthCheckResult:
-        sid = senator["senator_id"]
+        sid = senator["official_id"]
         pr_url = senator.get("press_release_url", "")
-        result = HealthCheckResult(senator_id=sid)
+        result = HealthCheckResult(official_id=sid)
 
         if not pr_url:
             result.error_message = "No press_release_url"

@@ -11,7 +11,7 @@
   },
   "members": [
     {
-      "senator_id": "ne-d02-clements",
+      "official_id": "ne-d02-clements",
       "full_name": "Robert Clements",
       "party": "R",
       "state": "NE",
@@ -25,7 +25,7 @@
       "expect_empty": false
     },
     {
-      "senator_id": "ne-d06-cavanaugh",
+      "official_id": "ne-d06-cavanaugh",
       "full_name": "Machaela Cavanaugh",
       "party": "D",
       "state": "NE",
@@ -39,7 +39,7 @@
       "expect_empty": false
     },
     {
-      "senator_id": "ne-d42-jacobson",
+      "official_id": "ne-d42-jacobson",
       "full_name": "Mike Jacobson",
       "party": "R",
       "state": "NE",
