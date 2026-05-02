@@ -32,6 +32,7 @@ import argparse
 import json
 import os
 import sys
+import uuid
 from datetime import date, datetime, timezone
 from pathlib import Path
 
@@ -147,7 +148,14 @@ def collect_silo(
         "skipped_off_host": 0,
     }
 
-    run_id = f"silo-{member_id}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+    # Unique run_id even when multiple silos for the same member fire in the
+    # same second. Earlier seconds-precision collided on members with several
+    # silos (begich-nicholas had editorial + op-eds back-to-back).
+    run_id = (
+        f"silo-{member_id}-"
+        f"{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}-"
+        f"{uuid.uuid4().hex[:6]}"
+    )
     if not dry_run:
         cur = conn.cursor()
         cur.execute(
