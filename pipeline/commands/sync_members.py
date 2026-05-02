@@ -44,14 +44,14 @@ UPSERT_SQL = """
         id, full_name, party, state, official_url, press_release_url,
         parser_family, requires_js, confidence, last_verified,
         rss_feed_url, collection_method, chamber, district, status,
-        scrape_config, branch, jurisdiction, office_type
+        scrape_config, branch, jurisdiction, office_type, bioguide_id
     ) VALUES (
         %(id)s, %(full_name)s, %(party)s, %(state)s, %(official_url)s,
         %(press_release_url)s, %(parser_family)s, %(requires_js)s,
         %(confidence)s, %(last_verified)s, %(rss_feed_url)s,
         %(collection_method)s, %(chamber)s, %(district)s, 'active',
         %(scrape_config)s::jsonb,
-        %(branch)s, %(jurisdiction)s, %(office_type)s
+        %(branch)s, %(jurisdiction)s, %(office_type)s, %(bioguide_id)s
     )
     ON CONFLICT (id) DO UPDATE SET
         full_name         = EXCLUDED.full_name,
@@ -71,6 +71,7 @@ UPSERT_SQL = """
         branch            = EXCLUDED.branch,
         jurisdiction      = EXCLUDED.jurisdiction,
         office_type       = EXCLUDED.office_type,
+        bioguide_id       = COALESCE(EXCLUDED.bioguide_id, officials.bioguide_id),
         updated_at        = NOW()
 """
 
@@ -113,6 +114,9 @@ def member_to_params(m: dict) -> dict:
         "branch": m.get("branch") or "legislative",
         "jurisdiction": m.get("jurisdiction") or "us",
         "office_type": m.get("office_type") or "senator",
+        # bioguide_id sourced from seed; COALESCE in UPSERT preserves
+        # any hand-applied DB value if seed is missing it.
+        "bioguide_id": m.get("bioguide_id"),
     }
 
 
