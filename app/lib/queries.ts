@@ -226,11 +226,72 @@ export async function getSenators(): Promise<SenatorWithCount[]> {
 export async function getSenator(id: string): Promise<Senator | null> {
   // Hard-scope to chamber='senate' so /senators/[id] cannot render a House,
   // executive, or state-chamber member as a US senator. Other chambers have
-  // their own routes (e.g. /texas/[id]); this loader is US-Senate-only.
+  // their own routes (e.g. /texas/[id], /house/[id]); this loader is
+  // US-Senate-only.
   const rows = await sql`
-    SELECT * FROM officials WHERE id = ${id} AND chamber = 'senate'
+    SELECT * FROM officials
+    WHERE id = ${id}
+      AND chamber = 'senate'
+      AND jurisdiction = 'us'
   `;
   return (rows[0] as Senator) ?? null;
+}
+
+export async function getHouseMember(id: string): Promise<Senator | null> {
+  // Mirror of getSenator() for US House. Hard-scoped so /house/[id]
+  // cannot render a state-house member as a US Rep.
+  const rows = await sql`
+    SELECT * FROM officials
+    WHERE id = ${id}
+      AND chamber = 'house'
+      AND jurisdiction = 'us'
+  `;
+  return (rows[0] as Senator) ?? null;
+}
+
+export async function getHouseMembers(): Promise<SenatorWithCount[]> {
+  // US House roster with per-member release counts. Mirrors getSenators()
+  // shape so the same downstream rendering helpers work.
+  const base = (await sql`
+    SELECT s.*,
+           count(pr.id)::int as release_count,
+           max(pr.published_at) as latest_release,
+           min(pr.published_at) as earliest_release
+    FROM officials s
+    LEFT JOIN official_site_items pr
+      ON pr.official_id = s.id
+     AND pr.deleted_at IS NULL
+     AND pr.content_type != 'photo_release'
+    WHERE s.status = 'active'
+      AND s.chamber = 'house'
+      AND s.jurisdiction = 'us'
+    GROUP BY s.id
+    ORDER BY s.state, s.district NULLS LAST, s.full_name
+  `) as (SenatorWithCount & { type_breakdown: never })[];
+
+  const rows = (await sql`
+    SELECT pr.official_id, pr.content_type, count(*)::int as count
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
+    WHERE pr.deleted_at IS NULL
+      AND pr.content_type != 'photo_release'
+      AND s.status = 'active'
+      AND s.chamber = 'house'
+      AND s.jurisdiction = 'us'
+    GROUP BY pr.official_id, pr.content_type
+  `) as { official_id: string; content_type: ContentType; count: number }[];
+
+  const breakdown = new Map<string, TypeBreakdown>();
+  for (const r of rows) {
+    const b = breakdown.get(r.official_id) ?? {};
+    b[r.content_type] = r.count;
+    breakdown.set(r.official_id, b);
+  }
+
+  return base.map((s) => ({
+    ...s,
+    type_breakdown: breakdown.get(s.id) ?? {},
+  }));
 }
 
 export type ReleaseDetail = FeedItem & {
@@ -347,7 +408,7 @@ export async function getReleaseCountForSitemap(): Promise<number> {
   return Number((rows[0] as { total: number }).total);
 }
 
-export type RosterScope = "us-senate" | "tx-senate";
+export type RosterScope = "us-senate" | "tx-senate" | "us-house";
 
 export async function getActiveSenatorIds(
   scope: RosterScope = "us-senate"
@@ -356,7 +417,11 @@ export async function getActiveSenatorIds(
   // The legacy chamber='tx_senate' value was normalized away in migration 012;
   // every Texas state senator is now (chamber='senate', jurisdiction='tx').
   const [chamber, jurisdiction] =
-    scope === "tx-senate" ? ["senate", "tx"] : ["senate", "us"];
+    scope === "tx-senate"
+      ? ["senate", "tx"]
+      : scope === "us-house"
+        ? ["house", "us"]
+        : ["senate", "us"];
   const rows = await sql`
     SELECT id FROM officials
     WHERE status = 'active'

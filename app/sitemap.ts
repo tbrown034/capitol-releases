@@ -21,6 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/feed", changeFrequency: "hourly" as const, priority: 0.9 },
     { path: "/trending", changeFrequency: "hourly" as const, priority: 0.8 },
     { path: "/senators", changeFrequency: "daily" as const, priority: 0.8 },
+    { path: "/house", changeFrequency: "daily" as const, priority: 0.8 },
     { path: "/search", changeFrequency: "weekly" as const, priority: 0.6 },
     { path: "/about", changeFrequency: "monthly" as const, priority: 0.4 },
     { path: "/status", changeFrequency: "daily" as const, priority: 0.3 },
@@ -31,9 +32,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/texas/trending", changeFrequency: "weekly" as const, priority: 0.5 },
   ];
 
-  const [officialIds, txSenatorIds, total] = await Promise.all([
+  const [officialIds, txSenatorIds, houseMemberIds, total] = await Promise.all([
     getActiveSenatorIds("us-senate"),
     getActiveSenatorIds("tx-senate"),
+    getActiveSenatorIds("us-house"),
     getReleaseCountForSitemap(),
   ]);
 
@@ -49,6 +51,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "daily" as const,
       priority: 0.7,
+    })),
+    ...houseMemberIds.map((mid) => ({
+      url: `${SITE_URL}/house/${mid}`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.6,
     })),
     ...txSenatorIds.map((sid) => ({
       url: `${SITE_URL}/texas/${sid}`,
