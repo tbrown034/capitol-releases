@@ -127,8 +127,8 @@ export async function getFeed(
   params.push(offset);
   const offsetIdx = `$${params.length}`;
 
-  const countText = `SELECT count(*)::int AS total FROM press_releases pr JOIN senators s ON s.id = pr.official_id WHERE ${where}`;
-  const itemsText = `SELECT ${cols} FROM press_releases pr JOIN senators s ON s.id = pr.official_id WHERE ${where} ORDER BY ${orderBy} LIMIT ${limitIdx} OFFSET ${offsetIdx}`;
+  const countText = `SELECT count(*)::int AS total FROM official_site_items pr JOIN officials s ON s.id = pr.official_id WHERE ${where}`;
+  const itemsText = `SELECT ${cols} FROM official_site_items pr JOIN officials s ON s.id = pr.official_id WHERE ${where} ORDER BY ${orderBy} LIMIT ${limitIdx} OFFSET ${offsetIdx}`;
 
   const countParams = params.slice(0, params.length - 2);
   const [countResult, items] = await Promise.all([
@@ -157,7 +157,7 @@ export async function getSearchFacets(
     const filtered: FeedFilters = { ...f, [omit]: undefined };
     const { preds, params } = buildFeedPredicates(filtered);
     const where = preds.join(" AND ");
-    const text = `SELECT ${groupCol} as key, count(*)::int as count FROM press_releases pr JOIN senators s ON s.id = pr.official_id WHERE ${where} GROUP BY ${groupCol}`;
+    const text = `SELECT ${groupCol} as key, count(*)::int as count FROM official_site_items pr JOIN officials s ON s.id = pr.official_id WHERE ${where} GROUP BY ${groupCol}`;
     return (await sql.query(text, params)) as { key: string; count: number }[];
   }
 
@@ -193,8 +193,8 @@ export async function getSenators(): Promise<SenatorWithCount[]> {
            count(pr.id)::int as release_count,
            max(pr.published_at) as latest_release,
            min(pr.published_at) as earliest_release
-    FROM senators s
-    LEFT JOIN press_releases pr ON pr.official_id = s.id AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
+    FROM officials s
+    LEFT JOIN official_site_items pr ON pr.official_id = s.id AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
     WHERE s.status = 'active' AND s.chamber = 'senate'
     GROUP BY s.id
     ORDER BY s.state, s.full_name
@@ -202,8 +202,8 @@ export async function getSenators(): Promise<SenatorWithCount[]> {
 
   const rows = (await sql`
     SELECT pr.official_id, pr.content_type, count(*)::int as count
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       AND s.status = 'active'
       AND s.chamber = 'senate'
@@ -228,7 +228,7 @@ export async function getSenator(id: string): Promise<Senator | null> {
   // executive, or state-chamber member as a US senator. Other chambers have
   // their own routes (e.g. /texas/[id]); this loader is US-Senate-only.
   const rows = await sql`
-    SELECT * FROM senators WHERE id = ${id} AND chamber = 'senate'
+    SELECT * FROM officials WHERE id = ${id} AND chamber = 'senate'
   `;
   return (rows[0] as Senator) ?? null;
 }
@@ -252,8 +252,8 @@ export async function getReleaseById(
            pr.deleted_at, pr.last_seen_live, pr.updated_at,
            s.full_name as senator_name, s.party, s.state,
            (SELECT count(*)::int FROM content_versions cv WHERE cv.official_site_item_id = pr.id) as version_count
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE pr.id = ${id}
   `;
   return (rows[0] as ReleaseDetail) ?? null;
@@ -292,9 +292,9 @@ export async function getRelatedReleases(
   // editorial frame anyway — "what else was happening in this body."
   const text = `
     SELECT ${FEED_COLUMNS}
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
-    JOIN senators rel ON rel.id = $2
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
+    JOIN officials rel ON rel.id = $2
     WHERE pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
@@ -322,8 +322,8 @@ export async function getReleaseIdsForSitemap(
 ): Promise<{ id: string; updated_at: string | null; published_at: string | null }[]> {
   const rows = await sql`
     SELECT pr.id, pr.updated_at, pr.published_at
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
@@ -337,8 +337,8 @@ export async function getReleaseIdsForSitemap(
 export async function getReleaseCountForSitemap(): Promise<number> {
   const rows = await sql`
     SELECT count(*)::int as total
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
@@ -358,7 +358,7 @@ export async function getActiveSenatorIds(
   const [chamber, jurisdiction] =
     scope === "tx-senate" ? ["senate", "tx"] : ["senate", "us"];
   const rows = await sql`
-    SELECT id FROM senators
+    SELECT id FROM officials
     WHERE status = 'active'
       AND chamber = ${chamber}
       AND jurisdiction = ${jurisdiction}
@@ -373,8 +373,8 @@ export async function getDeletedReleases(
 ): Promise<{ items: ReleaseDetail[]; total: number }> {
   const offset = (page - 1) * perPage;
   const countResult = await sql`
-    SELECT count(*)::int as total FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    SELECT count(*)::int as total FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE pr.deleted_at IS NOT NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
@@ -386,8 +386,8 @@ export async function getDeletedReleases(
            pr.deleted_at, pr.last_seen_live, pr.updated_at,
            s.full_name as senator_name, s.party, s.state,
            0 as version_count
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE pr.deleted_at IS NOT NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
@@ -411,9 +411,9 @@ export async function getSenatorReleases(
   const ctype = normalizeType(type);
 
   if (ctype) {
-    const countResult = await sql`SELECT count(*) as total FROM press_releases WHERE official_id = ${officialId} AND deleted_at IS NULL AND content_type = ${ctype}`;
+    const countResult = await sql`SELECT count(*) as total FROM official_site_items WHERE official_id = ${officialId} AND deleted_at IS NULL AND content_type = ${ctype}`;
     const items = (await sql`
-      SELECT * FROM press_releases
+      SELECT * FROM official_site_items
       WHERE official_id = ${officialId} AND deleted_at IS NULL AND content_type = ${ctype}
       ORDER BY LEAST(published_at, scraped_at) DESC NULLS LAST
       LIMIT ${perPage} OFFSET ${offset}
@@ -421,9 +421,9 @@ export async function getSenatorReleases(
     return { items, total: Number(countResult[0].total) };
   }
 
-  const countResult = await sql`SELECT count(*) as total FROM press_releases WHERE official_id = ${officialId} AND deleted_at IS NULL AND content_type != 'photo_release'`;
+  const countResult = await sql`SELECT count(*) as total FROM official_site_items WHERE official_id = ${officialId} AND deleted_at IS NULL AND content_type != 'photo_release'`;
   const items = (await sql`
-    SELECT * FROM press_releases WHERE official_id = ${officialId} AND deleted_at IS NULL AND content_type != 'photo_release'
+    SELECT * FROM official_site_items WHERE official_id = ${officialId} AND deleted_at IS NULL AND content_type != 'photo_release'
     ORDER BY LEAST(published_at, scraped_at) DESC NULLS LAST
     LIMIT ${perPage} OFFSET ${offset}
   `) as PressRelease[];
@@ -438,7 +438,7 @@ export async function getSenatorSections(
       SELECT
         regexp_replace(source_url, '^(https?://[^/]+/[^/]+(?:/[^/]+)?/).*$', '\\1') AS section_url,
         source_url
-      FROM press_releases
+      FROM official_site_items
       WHERE official_id = ${officialId} AND deleted_at IS NULL
     )
     SELECT section_url AS url, count(*)::int AS count
@@ -465,7 +465,7 @@ export async function getSenatorTypeBreakdown(
 ): Promise<{ breakdown: TypeBreakdown; earliest: string | null }> {
   const rows = (await sql`
     SELECT content_type, count(*)::int as count, min(published_at) as earliest
-    FROM press_releases
+    FROM official_site_items
     WHERE official_id = ${officialId} AND deleted_at IS NULL AND content_type != 'photo_release'
     GROUP BY content_type
   `) as { content_type: ContentType; count: number; earliest: string | null }[];
@@ -487,8 +487,8 @@ export async function getStats() {
       count(DISTINCT s.id)::int as total_senators,
       min(pr.published_at) as earliest,
       max(pr.published_at) as latest
-    FROM senators s
-    LEFT JOIN press_releases pr ON pr.official_id = s.id AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
+    FROM officials s
+    LEFT JOIN official_site_items pr ON pr.official_id = s.id AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
     WHERE s.status = 'active' AND s.chamber = 'senate'
   `;
   return result[0];
@@ -498,8 +498,8 @@ export async function getTopSenators(limit = 10) {
   return sql`
     SELECT s.full_name, s.party, s.state, s.id,
            count(pr.id)::int as count
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       AND s.status = 'active'
       AND s.chamber = 'senate'
@@ -514,8 +514,8 @@ export async function getLeastActiveSenators(limit = 10) {
     SELECT s.full_name, s.party, s.state, s.id,
            count(pr.id)::int as count,
            max(pr.published_at) as last_release
-    FROM senators s
-    LEFT JOIN press_releases pr ON s.id = pr.official_id AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
+    FROM officials s
+    LEFT JOIN official_site_items pr ON s.id = pr.official_id AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
     WHERE s.collection_method IS NOT NULL
       AND s.status = 'active'
       AND s.chamber = 'senate'
@@ -696,8 +696,8 @@ export async function getThemeSparkline({
     counts AS (
       SELECT (pr.published_at AT TIME ZONE 'America/New_York')::date AS d,
              count(*)::int AS c
-      FROM press_releases pr
-      JOIN senators s ON s.id = pr.official_id
+      FROM official_site_items pr
+      JOIN officials s ON s.id = pr.official_id
       WHERE pr.published_at >= (${endDate}::date - ${days}::int)
         AND pr.published_at < (${endDate}::date + 1)
         AND pr.deleted_at IS NULL
@@ -722,8 +722,8 @@ export async function getBriefCitations(
   const rows = (await sql`
     SELECT pr.id::text AS id, pr.title, pr.source_url, pr.published_at,
            s.full_name AS senator_name, s.party, s.state
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE pr.id = ANY(${ids}::uuid[])
   `) as BriefCitation[];
   const map = new Map<string, BriefCitation>();
@@ -782,8 +782,8 @@ export async function getSocialFeed(
     sp.embed_kind, sp.embed_summary,
     s.full_name AS senator_name, s.party, s.state
   `;
-  const countText = `SELECT count(*)::int AS total FROM social_posts sp JOIN senators s ON s.id = sp.official_id WHERE ${where}`;
-  const itemsText = `SELECT ${cols} FROM social_posts sp JOIN senators s ON s.id = sp.official_id WHERE ${where} ORDER BY sp.created_at DESC LIMIT ${limitIdx} OFFSET ${offsetIdx}`;
+  const countText = `SELECT count(*)::int AS total FROM social_posts sp JOIN officials s ON s.id = sp.official_id WHERE ${where}`;
+  const itemsText = `SELECT ${cols} FROM social_posts sp JOIN officials s ON s.id = sp.official_id WHERE ${where} ORDER BY sp.created_at DESC LIMIT ${limitIdx} OFFSET ${offsetIdx}`;
   const countParams = params.slice(0, params.length - 2);
   const [countResult, items] = await Promise.all([
     sql.query(countText, countParams),
@@ -836,13 +836,13 @@ export async function getSocialStats(
            min(sp.created_at)::text                   AS earliest,
            max(sp.created_at)::text                   AS latest
       FROM social_posts sp
-      JOIN senators s ON s.id = sp.official_id
+      JOIN officials s ON s.id = sp.official_id
       WHERE ${where}
   `;
   const partyText = `
     SELECT s.party AS party, count(*)::int AS count
       FROM social_posts sp
-      JOIN senators s ON s.id = sp.official_id
+      JOIN officials s ON s.id = sp.official_id
       WHERE ${partyWhere}
       GROUP BY s.party
   `;
@@ -878,7 +878,7 @@ export async function getSocialActiveSenators(): Promise<
            count(*)::int AS post_count,
            max(sp.created_at)::text AS latest
       FROM social_posts sp
-      JOIN senators s ON s.id = sp.official_id
+      JOIN officials s ON s.id = sp.official_id
       WHERE sp.deleted_at IS NULL AND sp.is_reply = FALSE
       GROUP BY sp.official_id, s.full_name, s.party, s.state
       ORDER BY post_count DESC

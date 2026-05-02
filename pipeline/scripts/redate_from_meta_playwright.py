@@ -93,7 +93,7 @@ def process_senator(browser, official_id: str, conn, dry_run: bool, delay_ms: in
     cur.execute(
         """
         SELECT id, source_url, published_at, date_source, date_confidence
-        FROM press_releases
+        FROM official_site_items
         WHERE official_id = %s
           AND deleted_at IS NULL
           AND published_at >= '2025-01-01'
@@ -126,7 +126,7 @@ def process_senator(browser, official_id: str, conn, dry_run: bool, delay_ms: in
 
     # Warm up with the listing page so WAF sees a natural session
     cur = conn.cursor()
-    cur.execute("SELECT press_release_url FROM senators WHERE id = %s", (official_id,))
+    cur.execute("SELECT press_release_url FROM officials WHERE id = %s", (official_id,))
     pr_url = cur.fetchone()[0]
     cur.close()
     try:

@@ -366,7 +366,7 @@ def get_last_speech_date(conn) -> date | None:
 
 def get_official_id_by_bioguide(conn) -> dict[str, str]:
     cur = conn.cursor()
-    cur.execute("SELECT bioguide_id, id FROM senators WHERE bioguide_id IS NOT NULL")
+    cur.execute("SELECT bioguide_id, id FROM officials WHERE bioguide_id IS NOT NULL")
     out = {bid: sid for bid, sid in cur.fetchall()}
     cur.close()
     return out

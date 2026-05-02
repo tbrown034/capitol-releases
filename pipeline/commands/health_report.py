@@ -79,7 +79,7 @@ def fetch_senators(conn, ids: list[str] | None) -> list[dict]:
     cur.execute(
         f"SELECT id, full_name, party, state, press_release_url, "
         f"       collection_method, parser_family "
-        f"FROM senators {where} "
+        f"FROM officials {where} "
         f"ORDER BY full_name",
         params,
     )
@@ -111,7 +111,7 @@ def db_per_senator(conn) -> dict[str, dict[str, Any]]:
                count(*)::int,
                max(published_at)::date,
                min(published_at)::date
-        FROM press_releases
+        FROM official_site_items
         WHERE deleted_at IS NULL
           AND content_type != 'photo_release'
           AND published_at >= '2025-01-01'
@@ -141,7 +141,7 @@ def db_drought_per_type(conn, today: date) -> dict[str, dict[str, int]]:
         SELECT official_id,
                content_type,
                (CURRENT_DATE - max(published_at)::date)::int AS drought_days
-        FROM press_releases
+        FROM official_site_items
         WHERE deleted_at IS NULL
           AND content_type != 'photo_release'
         GROUP BY official_id, content_type
@@ -189,21 +189,21 @@ def db_corpus_totals(conn) -> dict[str, int]:
     cur = conn.cursor()
     cur.execute(
         """
-        SELECT count(*)::int FROM press_releases
+        SELECT count(*)::int FROM official_site_items
         WHERE deleted_at IS NULL AND content_type != 'photo_release'
         """
     )
     total = cur.fetchone()[0]
     cur.execute(
         """
-        SELECT count(*)::int FROM press_releases
+        SELECT count(*)::int FROM official_site_items
         WHERE deleted_at IS NOT NULL
         """
     )
     deleted = cur.fetchone()[0]
     cur.execute(
         """
-        SELECT count(*)::int FROM press_releases
+        SELECT count(*)::int FROM official_site_items
         WHERE deleted_at IS NULL
           AND content_type != 'photo_release'
           AND published_at IS NULL
@@ -212,7 +212,7 @@ def db_corpus_totals(conn) -> dict[str, int]:
     undated = cur.fetchone()[0]
     cur.execute(
         """
-        SELECT count(DISTINCT official_id)::int FROM press_releases
+        SELECT count(DISTINCT official_id)::int FROM official_site_items
         WHERE deleted_at IS NULL
           AND content_type != 'photo_release'
           AND published_at >= NOW() - interval '7 days'
@@ -221,7 +221,7 @@ def db_corpus_totals(conn) -> dict[str, int]:
     active_7d = cur.fetchone()[0]
     cur.execute(
         """
-        SELECT count(DISTINCT official_id)::int FROM press_releases
+        SELECT count(DISTINCT official_id)::int FROM official_site_items
         WHERE deleted_at IS NULL
           AND content_type != 'photo_release'
           AND published_at >= NOW() - interval '30 days'

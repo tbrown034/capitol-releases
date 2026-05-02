@@ -124,7 +124,7 @@ def fetch_all(
 def get_senator(conn, official_id: str) -> dict:
     cur = conn.cursor()
     cur.execute(
-        "SELECT id, full_name, official_url, press_release_url FROM senators WHERE id = %s",
+        "SELECT id, full_name, official_url, press_release_url FROM officials WHERE id = %s",
         (official_id,),
     )
     row = cur.fetchone()

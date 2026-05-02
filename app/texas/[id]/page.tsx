@@ -37,7 +37,7 @@ export async function generateMetadata({
 }) {
   const { id } = await params;
   const rows = (await sql`
-    SELECT full_name, party FROM senators WHERE id = ${id} AND chamber = 'senate' AND jurisdiction = 'tx'
+    SELECT full_name, party FROM officials WHERE id = ${id} AND chamber = 'senate' AND jurisdiction = 'tx'
   `) as { full_name: string; party: string }[];
   if (!rows[0]) return { title: "Not found — Capitol Releases" };
   return {
@@ -63,7 +63,7 @@ export default async function TxSenatorPage({
   const senatorRows = (await sql`
     SELECT id, full_name, party, state, official_url, press_release_url,
            scrape_config, status
-    FROM senators
+    FROM officials
     WHERE id = ${id} AND chamber = 'senate' AND jurisdiction = 'tx'
   `) as TxSenator[];
   const senator = senatorRows[0];
@@ -78,13 +78,13 @@ export default async function TxSenatorPage({
       SELECT count(*)::int AS total,
              min(published_at) AS earliest,
              max(published_at) AS latest
-      FROM press_releases
+      FROM official_site_items
       WHERE official_id = ${id}
         AND deleted_at IS NULL
         AND content_type != 'photo_release'
     `,
     sql`
-      SELECT * FROM press_releases
+      SELECT * FROM official_site_items
       WHERE official_id = ${id}
         AND deleted_at IS NULL
         AND content_type != 'photo_release'
@@ -94,7 +94,7 @@ export default async function TxSenatorPage({
     sql`
       SELECT to_char(date_trunc('week', published_at), 'YYYY-MM-DD') AS week,
              count(*)::int AS count
-      FROM press_releases
+      FROM official_site_items
       WHERE official_id = ${id}
         AND deleted_at IS NULL
         AND content_type != 'photo_release'
@@ -105,8 +105,8 @@ export default async function TxSenatorPage({
     `,
     sql`
       SELECT count(*)::int AS chamber_total
-      FROM press_releases pr
-      JOIN senators s ON s.id = pr.official_id
+      FROM official_site_items pr
+      JOIN officials s ON s.id = pr.official_id
       WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'

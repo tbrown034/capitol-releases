@@ -222,8 +222,8 @@ async def main():
                count(pr.id)::int as cnt,
                min(pr.published_at)::date as earliest,
                max(pr.published_at)::date as latest
-        FROM senators s
-        LEFT JOIN press_releases pr ON pr.official_id = s.id
+        FROM officials s
+        LEFT JOIN official_site_items pr ON pr.official_id = s.id
         GROUP BY s.id
         ORDER BY s.full_name
     """)

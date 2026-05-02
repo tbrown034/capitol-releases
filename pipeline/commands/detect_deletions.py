@@ -125,7 +125,7 @@ def get_urls_to_check(conn, official_id: str = None, batch_size: int = 500) -> l
     # chamber additions (house.gov when we expand beyond Senate).
     query = """
         SELECT id::text, official_id, source_url
-        FROM press_releases
+        FROM official_site_items
         WHERE deleted_at IS NULL
         AND (
           source_url LIKE '%%senate.gov%%'

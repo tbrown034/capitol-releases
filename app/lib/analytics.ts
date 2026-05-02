@@ -5,8 +5,8 @@ export async function getSenatorActivity() {
     SELECT s.id, s.full_name, s.party, s.state,
            to_char(date_trunc('week', pr.published_at), 'YYYY-MM-DD') as week,
            count(*)::int as count
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE pr.published_at IS NOT NULL
       AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       AND pr.published_at >= '2025-01-01'
@@ -28,7 +28,7 @@ export async function getTopicTrends() {
     WITH senator_surnames AS (
       SELECT DISTINCT
         regexp_replace(lower(split_part(full_name, ' ', -1)), 's$', '') AS surname
-      FROM senators
+      FROM officials
       WHERE chamber = 'senate' AND status = 'active'
     ),
     stemmed AS (
@@ -39,8 +39,8 @@ export async function getTopicTrends() {
           ))),
           's$', ''
         ) as word
-      FROM press_releases pr
-      JOIN senators s ON s.id = pr.official_id
+      FROM official_site_items pr
+      JOIN officials s ON s.id = pr.official_id
       WHERE pr.published_at >= NOW() - interval '30 days'
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
         AND s.status = 'active' AND s.chamber = 'senate'
@@ -86,7 +86,7 @@ export async function getSenatorDailyActivity(officialId: string) {
   return sql`
     SELECT to_char(published_at::date, 'YYYY-MM-DD') as day,
            count(*)::int as count
-    FROM press_releases
+    FROM official_site_items
     WHERE official_id = ${officialId}
       AND published_at IS NOT NULL
       AND deleted_at IS NULL
@@ -115,8 +115,8 @@ export async function getSenatorSignatureTopics(
                ' '
              ))) as word,
              (pr.official_id = ${officialId}) as is_self
-      FROM press_releases pr
-      JOIN senators s ON s.id = pr.official_id
+      FROM official_site_items pr
+      JOIN officials s ON s.id = pr.official_id
       WHERE pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
         AND pr.published_at >= '2025-01-01'
         AND s.status = 'active'
@@ -183,7 +183,7 @@ export async function getSenatorTopicTrends(
                         ' '
                       ))) as word,
                       pr.published_at
-      FROM press_releases pr
+      FROM official_site_items pr
       WHERE pr.official_id = ${officialId}
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
         AND pr.published_at >= NOW() - interval '60 days'
@@ -215,10 +215,10 @@ export async function getChamberActivity(days = 7) {
   return sql`
     SELECT s.id, s.full_name, s.party, s.state,
            coalesce(rc.count, 0)::int as count
-    FROM senators s
+    FROM officials s
     LEFT JOIN (
       SELECT official_id, count(*)::int as count
-      FROM press_releases
+      FROM official_site_items
       WHERE published_at >= NOW() - make_interval(days => ${days})
         AND published_at IS NOT NULL
         AND deleted_at IS NULL
@@ -234,8 +234,8 @@ export async function getChamberActivity(days = 7) {
 export async function getMailbag(days = 7) {
   return sql`
     SELECT pr.content_type, count(*)::int as count
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE pr.published_at >= NOW() - make_interval(days => ${days})
       AND pr.published_at IS NOT NULL
       AND pr.deleted_at IS NULL
@@ -250,8 +250,8 @@ export async function getDailyVolume(days = 90) {
   return sql`
     SELECT to_char(pr.published_at, 'YYYY-MM-DD') as day,
            count(*)::int as count
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE pr.published_at >= NOW() - make_interval(days => ${days})
       AND pr.published_at IS NOT NULL
       AND pr.deleted_at IS NULL

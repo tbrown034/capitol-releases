@@ -87,8 +87,8 @@ def fetch_rows(conn) -> list[dict]:
                                           AND pr.published_at >= '2025-01-01')::date AS earliest,
             max(pr.published_at) FILTER (WHERE pr.deleted_at IS NULL
                                           AND pr.published_at >= '2025-01-01')::date AS latest
-        FROM senators s
-        LEFT JOIN press_releases pr ON pr.official_id = s.id
+        FROM officials s
+        LEFT JOIN official_site_items pr ON pr.official_id = s.id
         WHERE s.status = 'active'
         GROUP BY s.id, s.full_name, s.state, s.party,
                  s.collection_method, s.requires_js
@@ -107,7 +107,7 @@ def fetch_weekly_histogram(conn, official_id: str) -> list[tuple[date, int]]:
         """
         SELECT date_trunc('week', published_at)::date AS wk,
                count(*)::int
-        FROM press_releases
+        FROM official_site_items
         WHERE official_id = %s
           AND deleted_at IS NULL
           AND published_at >= '2025-01-01'
@@ -272,7 +272,7 @@ def print_detail(conn, official_id: str, today: date) -> None:
     cur = conn.cursor()
     cur.execute(
         "SELECT id, full_name, state, party, collection_method, requires_js "
-        "FROM senators WHERE id = %s",
+        "FROM officials WHERE id = %s",
         (official_id,),
     )
     meta = cur.fetchone()

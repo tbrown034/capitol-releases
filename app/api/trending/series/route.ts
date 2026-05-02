@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       (term) => sql`
         SELECT to_char(date_trunc('week', published_at), 'YYYY-MM-DD') as week,
                count(*)::int as count
-        FROM press_releases
+        FROM official_site_items
         WHERE published_at >= '2025-01-01'
           AND published_at IS NOT NULL
           AND deleted_at IS NULL

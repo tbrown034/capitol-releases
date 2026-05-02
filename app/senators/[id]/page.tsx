@@ -87,7 +87,7 @@ export default async function SenatorPage({
     getSenatorDailyActivity(id),
     getSenatorTopicTrends(id, nameTokens, 12),
     getSenatorSignatureTopics(id, nameTokens, 12),
-    sql`SELECT bioguide_id, status, left_date, left_reason FROM senators WHERE id = ${id}`,
+    sql`SELECT bioguide_id, status, left_date, left_reason FROM officials WHERE id = ${id}`,
     getSenatorSections(id),
   ]);
   const grandTotal = Object.values(breakdown).reduce(

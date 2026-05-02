@@ -44,7 +44,7 @@ def test_all_senators_in_db():
     """Every senator should have a record in the senators table."""
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT count(*) FROM senators")
+    cur.execute("SELECT count(*) FROM officials")
     count = cur.fetchone()[0]
     cur.close()
     conn.close()
@@ -56,7 +56,7 @@ def test_senators_have_urls():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT full_name FROM senators
+        SELECT full_name FROM officials
         WHERE press_release_url IS NULL
           AND chamber = 'senate' AND jurisdiction = 'us'
           AND status = 'active'
@@ -74,7 +74,7 @@ def test_minimum_senator_coverage():
     """At least 95 senators should have press releases."""
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT count(DISTINCT official_id) FROM press_releases WHERE deleted_at IS NULL")
+    cur.execute("SELECT count(DISTINCT official_id) FROM official_site_items WHERE deleted_at IS NULL")
     count = cur.fetchone()[0]
     cur.close()
     conn.close()
@@ -87,7 +87,7 @@ def test_minimum_total_records():
     """Should have at least 10,000 press releases."""
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT count(*) FROM press_releases WHERE deleted_at IS NULL")
+    cur.execute("SELECT count(*) FROM official_site_items WHERE deleted_at IS NULL")
     count = cur.fetchone()[0]
     cur.close()
     conn.close()
@@ -105,7 +105,7 @@ def test_no_empty_titles():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT count(*) FROM press_releases
+        SELECT count(*) FROM official_site_items
         WHERE deleted_at IS NULL
           AND (title IS NULL OR length(trim(title)) < 3)
     """)
@@ -121,7 +121,7 @@ def test_no_duplicate_urls():
     cur = conn.cursor()
     cur.execute("""
         SELECT source_url, count(*) as cnt
-        FROM press_releases WHERE deleted_at IS NULL
+        FROM official_site_items WHERE deleted_at IS NULL
         GROUP BY source_url
         HAVING count(*) > 1
     """)
@@ -137,7 +137,7 @@ def test_date_coverage_above_threshold():
     """At least 60% of records should have dates."""
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT count(*) FILTER (WHERE published_at IS NOT NULL), count(*) FROM press_releases WHERE deleted_at IS NULL")
+    cur.execute("SELECT count(*) FILTER (WHERE published_at IS NOT NULL), count(*) FROM official_site_items WHERE deleted_at IS NULL")
     dated, total = cur.fetchone()
     cur.close()
     conn.close()
@@ -152,7 +152,7 @@ def test_dates_in_valid_range():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT official_id, source_url, published_at FROM press_releases
+        SELECT official_id, source_url, published_at FROM official_site_items
         WHERE deleted_at IS NULL
           AND published_at IS NOT NULL
           AND (published_at < '2010-01-01' OR published_at > NOW() + interval '60 days')
@@ -173,7 +173,7 @@ def test_no_future_dates():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT official_id, source_url, published_at FROM press_releases
+        SELECT official_id, source_url, published_at FROM official_site_items
         WHERE deleted_at IS NULL
           AND published_at > NOW() + interval '1 day'
           AND published_at <= NOW() + interval '60 days'
@@ -195,7 +195,7 @@ def test_all_urls_are_government():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT source_url FROM press_releases WHERE deleted_at IS NULL
+        SELECT source_url FROM official_site_items WHERE deleted_at IS NULL
         AND source_url NOT LIKE '%.gov%'
         LIMIT 10
     """)
@@ -210,7 +210,7 @@ def test_no_listing_page_urls():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT count(*) FROM press_releases WHERE deleted_at IS NULL
+        SELECT count(*) FROM official_site_items WHERE deleted_at IS NULL
         AND (source_url ~ '/press-releases/?$'
            OR source_url ~ '/news-releases/?$'
            OR source_url ~ '/newsroom/?$'
@@ -232,7 +232,7 @@ def test_no_navigation_urls():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT count(*) FROM press_releases WHERE deleted_at IS NULL
+        SELECT count(*) FROM official_site_items WHERE deleted_at IS NULL
         AND (source_url ~ '/(about|contact|services|issues)(/?(\\?.*)?$)'
            OR source_url LIKE '%facebook.com%'
            OR source_url LIKE '%twitter.com%'
@@ -261,8 +261,8 @@ def test_no_suspicious_round_counts():
     # House would flag every active member.
     cur.execute("""
         SELECT s.id, s.full_name, count(pr.id)::int as cnt
-        FROM senators s
-        JOIN press_releases pr ON pr.official_id = s.id
+        FROM officials s
+        JOIN official_site_items pr ON pr.official_id = s.id
         WHERE pr.deleted_at IS NULL
           AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.id, s.full_name
@@ -329,7 +329,7 @@ def test_rss_collectors_not_severely_undercollecting():
     cur = conn.cursor()
     cur.execute("""
         SELECT official_id, count(*)::int
-        FROM press_releases
+        FROM official_site_items
         WHERE deleted_at IS NULL AND official_id = ANY(%s)
         GROUP BY official_id
     """, (rss_ids,))
@@ -375,8 +375,8 @@ def test_no_rss_rampup_signature():
                    WHERE pr.published_at >= NOW() - INTERVAL '30 days'
                )::int AS last_30,
                count(*)::int AS total
-        FROM press_releases pr
-        JOIN senators s ON s.id = pr.official_id
+        FROM official_site_items pr
+        JOIN officials s ON s.id = pr.official_id
         WHERE pr.deleted_at IS NULL
           AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY pr.official_id
@@ -424,8 +424,8 @@ def test_no_zero_volume_months():
         SELECT pr.official_id,
                to_char(date_trunc('month', pr.published_at), 'YYYY-MM') AS m,
                count(*)::int AS n
-        FROM press_releases pr
-        JOIN senators s ON s.id = pr.official_id
+        FROM official_site_items pr
+        JOIN officials s ON s.id = pr.official_id
         WHERE pr.deleted_at IS NULL
           AND pr.published_at >= '2025-01-01'
           AND s.chamber = 'senate' AND s.jurisdiction = 'us'
@@ -493,8 +493,8 @@ def test_no_long_publication_gaps():
             SELECT pr.official_id,
                    pr.published_at,
                    lag(pr.published_at) OVER (PARTITION BY pr.official_id ORDER BY pr.published_at) AS prev_at
-            FROM press_releases pr
-            JOIN senators s ON s.id = pr.official_id
+            FROM official_site_items pr
+            JOIN officials s ON s.id = pr.official_id
             WHERE pr.deleted_at IS NULL
               AND pr.published_at >= '2025-01-01'
               AND s.chamber = 'senate' AND s.jurisdiction = 'us'
@@ -531,7 +531,7 @@ def test_depth_to_jan_2025():
     cur = conn.cursor()
     cur.execute("""
         SELECT count(*) FROM (
-            SELECT official_id FROM press_releases WHERE deleted_at IS NULL
+            SELECT official_id FROM official_site_items WHERE deleted_at IS NULL
             AND published_at IS NOT NULL
             GROUP BY official_id
             HAVING min(published_at)::date <= '2025-02-28'
@@ -560,8 +560,8 @@ def test_no_date_clumping():
         SELECT s.full_name,
                count(pr.id)::int as total,
                count(DISTINCT pr.published_at::date)::int as unique_days
-        FROM senators s
-        JOIN press_releases pr ON pr.official_id = s.id
+        FROM officials s
+        JOIN official_site_items pr ON pr.official_id = s.id
         WHERE s.status = 'active'
           AND pr.deleted_at IS NULL
           AND pr.published_at >= '2025-01-01'
@@ -618,8 +618,8 @@ def test_back_coverage_not_truncated():
         SELECT s.id, s.full_name,
                min(pr.published_at) FILTER (WHERE pr.deleted_at IS NULL)::date AS earliest,
                count(pr.id) FILTER (WHERE pr.deleted_at IS NULL)::int AS total
-        FROM senators s
-        LEFT JOIN press_releases pr ON pr.official_id = s.id
+        FROM officials s
+        LEFT JOIN official_site_items pr ON pr.official_id = s.id
         WHERE s.status = 'active'
           AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.id, s.full_name
@@ -654,9 +654,9 @@ def test_body_coverage_above_threshold():
     """At least 70% of records should have body text > 100 chars."""
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT COUNT(*) FROM press_releases WHERE deleted_at IS NULL")
+    cur.execute("SELECT COUNT(*) FROM official_site_items WHERE deleted_at IS NULL")
     total = cur.fetchone()[0]
-    cur.execute("SELECT COUNT(*) FROM press_releases WHERE deleted_at IS NULL AND body_text IS NOT NULL AND length(body_text) > 100")
+    cur.execute("SELECT COUNT(*) FROM official_site_items WHERE deleted_at IS NULL AND body_text IS NOT NULL AND length(body_text) > 100")
     with_body = cur.fetchone()[0]
     cur.close()
     conn.close()
@@ -680,8 +680,8 @@ def test_no_anomalously_low_counts():
     cur.execute("""
         SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY cnt) as median
         FROM (
-            SELECT COUNT(*) as cnt FROM press_releases pr
-            JOIN senators s ON s.id = pr.official_id
+            SELECT COUNT(*) as cnt FROM official_site_items pr
+            JOIN officials s ON s.id = pr.official_id
             WHERE pr.deleted_at IS NULL AND s.chamber = 'senate' AND s.jurisdiction = 'us'
             GROUP BY official_id HAVING COUNT(*) > 0
         ) sub
@@ -691,8 +691,8 @@ def test_no_anomalously_low_counts():
 
     cur.execute("""
         SELECT s.id, s.full_name, COUNT(pr.id) FILTER (WHERE pr.deleted_at IS NULL) as cnt
-        FROM senators s
-        LEFT JOIN press_releases pr ON s.id = pr.official_id
+        FROM officials s
+        LEFT JOIN official_site_items pr ON s.id = pr.official_id
         WHERE s.collection_method IS NOT NULL AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.id, s.full_name
         HAVING COUNT(pr.id) FILTER (WHERE pr.deleted_at IS NULL) < %s
@@ -721,8 +721,8 @@ def test_no_stale_senators():
     cur = conn.cursor()
     cur.execute("""
         SELECT s.id, s.full_name, MAX(pr.published_at) as last_release
-        FROM senators s
-        JOIN press_releases pr ON s.id = pr.official_id
+        FROM officials s
+        JOIN official_site_items pr ON s.id = pr.official_id
         WHERE s.collection_method IS NOT NULL AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.id, s.full_name
         HAVING MAX(pr.published_at) < NOW() - INTERVAL '60 days'
@@ -773,7 +773,7 @@ def test_per_type_floors():
     cur = conn.cursor()
     cur.execute("""
         SELECT content_type, count(*)::int
-        FROM press_releases
+        FROM official_site_items
         WHERE deleted_at IS NULL
         GROUP BY content_type
     """)
@@ -803,7 +803,7 @@ def test_per_type_back_coverage():
     cur = conn.cursor()
     cur.execute("""
         SELECT content_type, min(published_at)::date
-        FROM press_releases
+        FROM official_site_items
         WHERE deleted_at IS NULL
           AND published_at IS NOT NULL
         GROUP BY content_type
@@ -818,7 +818,7 @@ def test_per_type_back_coverage():
     cur = get_conn().cursor()
     cur.execute("""
         SELECT content_type, count(*)::int
-        FROM press_releases
+        FROM official_site_items
         WHERE deleted_at IS NULL
         GROUP BY content_type
     """)
@@ -854,7 +854,7 @@ def test_per_type_not_date_clumped():
         SELECT content_type,
                count(*)::int as total,
                count(DISTINCT published_at::date)::int as unique_days
-        FROM press_releases
+        FROM official_site_items
         WHERE deleted_at IS NULL
           AND published_at >= '2025-01-01'
         GROUP BY content_type

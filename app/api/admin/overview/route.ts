@@ -33,20 +33,20 @@ export async function GET() {
 
   const [totalRow] = (await sql`
     SELECT COUNT(*)::int AS count
-    FROM press_releases
+    FROM official_site_items
     WHERE deleted_at IS NULL
   `) as CountRow[];
 
   const [last24Row] = (await sql`
     SELECT COUNT(*)::int AS count
-    FROM press_releases
+    FROM official_site_items
     WHERE deleted_at IS NULL
       AND scraped_at > NOW() - INTERVAL '24 hours'
   `) as CountRow[];
 
   const [senatorRow] = (await sql`
     SELECT COUNT(*)::int AS count
-    FROM senators
+    FROM officials
     WHERE status = 'active'
   `) as CountRow[];
 

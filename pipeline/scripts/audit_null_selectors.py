@@ -71,7 +71,7 @@ def db_stats(conn, official_id: str) -> dict:
         SELECT count(*)::int,
                max(published_at)::text,
                min(published_at)::text
-        FROM press_releases
+        FROM official_site_items
         WHERE official_id = %s
           AND deleted_at IS NULL
           AND content_type != 'photo_release'

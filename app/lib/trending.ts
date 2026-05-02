@@ -27,7 +27,7 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
         SELECT DISTINCT pr.id,
           regexp_replace(lower(unnest(string_to_array(
             regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
-        FROM press_releases pr
+        FROM official_site_items pr
         WHERE pr.published_at >= NOW() - interval '7 days'
           AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       ),
@@ -35,7 +35,7 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
         SELECT DISTINCT pr.id,
           regexp_replace(lower(unnest(string_to_array(
             regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
-        FROM press_releases pr
+        FROM official_site_items pr
         WHERE pr.published_at >= NOW() - interval '14 days'
           AND pr.published_at < NOW() - interval '7 days'
           AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
@@ -66,7 +66,7 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
         SELECT DISTINCT pr.id,
           regexp_replace(lower(unnest(string_to_array(
             regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
-        FROM press_releases pr
+        FROM official_site_items pr
         WHERE pr.published_at >= date_trunc('year', NOW())
           AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       ),
@@ -74,7 +74,7 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
         SELECT DISTINCT pr.id,
           regexp_replace(lower(unnest(string_to_array(
             regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
-        FROM press_releases pr
+        FROM official_site_items pr
         WHERE pr.published_at >= date_trunc('year', NOW()) - interval '1 year'
           AND pr.published_at < date_trunc('year', NOW())
               - (NOW() - date_trunc('year', NOW()))
@@ -107,7 +107,7 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
         SELECT DISTINCT pr.id,
           regexp_replace(lower(unnest(string_to_array(
             regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
-        FROM press_releases pr
+        FROM official_site_items pr
         WHERE pr.published_at >= '2025-01-01'
           AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       )
@@ -127,7 +127,7 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
       SELECT DISTINCT pr.id,
         regexp_replace(lower(unnest(string_to_array(
           regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
-      FROM press_releases pr
+      FROM official_site_items pr
       WHERE pr.published_at >= NOW() - interval '30 days'
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
     ),
@@ -135,7 +135,7 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
       SELECT DISTINCT pr.id,
         regexp_replace(lower(unnest(string_to_array(
           regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
-      FROM press_releases pr
+      FROM official_site_items pr
       WHERE pr.published_at >= NOW() - interval '60 days'
         AND pr.published_at < NOW() - interval '30 days'
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
@@ -179,8 +179,8 @@ export async function getTopicOwnership(terms: string[]) {
                s.party,
                s.state,
                count(pr.id)::int as count
-        FROM senators s
-        JOIN press_releases pr ON pr.official_id = s.id
+        FROM officials s
+        JOIN official_site_items pr ON pr.official_id = s.id
         WHERE s.status = 'active'
           AND s.chamber = 'senate'
           AND pr.deleted_at IS NULL
@@ -221,8 +221,8 @@ export async function getPartySkew(limit = 12) {
                ' '
              ))) as word,
              s.party
-      FROM press_releases pr
-      JOIN senators s ON s.id = pr.official_id
+      FROM official_site_items pr
+      JOIN officials s ON s.id = pr.official_id
       WHERE pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
         AND pr.published_at >= '2025-01-01'
@@ -283,7 +283,7 @@ export async function getTermTimeline(term: string) {
   const weekly = (await sql`
     SELECT to_char(date_trunc('week', published_at), 'YYYY-MM-DD') as week,
            count(*)::int as count
-    FROM press_releases
+    FROM official_site_items
     WHERE published_at >= '2025-01-01'
       AND published_at IS NOT NULL
       AND deleted_at IS NULL
@@ -311,8 +311,8 @@ export async function getTermTimeline(term: string) {
                  s.party,
                  s.state,
                  s.id as official_id
-          FROM press_releases pr
-          JOIN senators s ON s.id = pr.official_id
+          FROM official_site_items pr
+          JOIN officials s ON s.id = pr.official_id
           WHERE pr.published_at >= '2025-01-01'
             AND pr.published_at IS NOT NULL
             AND pr.deleted_at IS NULL

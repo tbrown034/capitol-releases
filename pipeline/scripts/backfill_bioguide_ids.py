@@ -98,7 +98,7 @@ def main() -> int:
     conn = psycopg2.connect(os.environ["DATABASE_URL"])
     cur = conn.cursor()
     cur.execute(
-        "SELECT id, full_name, state, bioguide_id FROM senators "
+        "SELECT id, full_name, state, bioguide_id FROM officials "
         "WHERE chamber='senate' ORDER BY id"
     )
     rows = cur.fetchall()

@@ -81,8 +81,8 @@ def fetch_day_releases(conn, brief_day: date) -> list[dict]:
                pr.source_url,
                pr.content_type,
                pr.body_text
-        FROM press_releases pr
-        JOIN senators s ON s.id = pr.official_id
+        FROM official_site_items pr
+        JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= %s
           AND pr.published_at < %s
           AND pr.deleted_at IS NULL
@@ -121,8 +121,8 @@ def compute_volume_baseline(conn, brief_day: date) -> dict:
     today_start, today_end = et_day_window(brief_day)
     cur.execute(
         """
-        SELECT COUNT(*) FROM press_releases pr
-        JOIN senators s ON s.id = pr.official_id
+        SELECT COUNT(*) FROM official_site_items pr
+        JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= %s AND pr.published_at < %s
           AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate'
         """,
@@ -136,8 +136,8 @@ def compute_volume_baseline(conn, brief_day: date) -> dict:
         s, e = et_day_window(d)
         cur.execute(
             """
-            SELECT COUNT(*) FROM press_releases pr
-            JOIN senators s ON s.id = pr.official_id
+            SELECT COUNT(*) FROM official_site_items pr
+            JOIN officials s ON s.id = pr.official_id
             WHERE pr.published_at >= %s AND pr.published_at < %s
               AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate'
             """,
@@ -176,8 +176,8 @@ def fetch_silent_senators(conn, brief_day: date, threshold_days: int = 14) -> li
         """
         SELECT s.id, s.full_name AS senator, s.party, s.state,
                MAX(pr.published_at) FILTER (WHERE pr.published_at < %s) AS last_release
-        FROM senators s
-        LEFT JOIN press_releases pr
+        FROM officials s
+        LEFT JOIN official_site_items pr
           ON pr.official_id = s.id AND pr.deleted_at IS NULL
         WHERE s.status = 'active' AND s.chamber = 'senate'
         GROUP BY s.id, s.full_name, s.party, s.state
@@ -211,8 +211,8 @@ def fetch_quiet_week_senators(conn, week_start: date, week_end: date) -> list[di
                COUNT(pr.id) FILTER (
                  WHERE pr.published_at >= %s AND pr.published_at < %s AND pr.deleted_at IS NULL
                ) AS week_count
-        FROM senators s
-        LEFT JOIN press_releases pr ON pr.official_id = s.id
+        FROM officials s
+        LEFT JOIN official_site_items pr ON pr.official_id = s.id
         WHERE s.status = 'active' AND s.chamber = 'senate'
         GROUP BY s.id, s.full_name, s.party, s.state
         HAVING COUNT(pr.id) FILTER (
@@ -261,8 +261,8 @@ def fetch_week_release_index(conn, week_start: date, week_end: date) -> list[dic
         """
         SELECT pr.id::text AS id, s.full_name AS senator, s.party, s.state,
                pr.title, pr.published_at, pr.content_type
-        FROM press_releases pr
-        JOIN senators s ON s.id = pr.official_id
+        FROM official_site_items pr
+        JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= %s AND pr.published_at < %s
           AND pr.deleted_at IS NULL
           AND s.status = 'active' AND s.chamber = 'senate'
@@ -294,8 +294,8 @@ def compute_weekly_volume(conn, week_start: date, week_end: date) -> dict:
 
     cur.execute(
         """
-        SELECT s.party, COUNT(*) FROM press_releases pr
-        JOIN senators s ON s.id = pr.official_id
+        SELECT s.party, COUNT(*) FROM official_site_items pr
+        JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= %s AND pr.published_at < %s
           AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate'
         GROUP BY s.party
@@ -316,8 +316,8 @@ def compute_weekly_volume(conn, week_start: date, week_end: date) -> dict:
         we_utc = datetime.combine(we + timedelta(days=1), time(0, 0), tzinfo=ET).astimezone(timezone.utc)
         cur.execute(
             """
-            SELECT COUNT(*) FROM press_releases pr
-            JOIN senators s ON s.id = pr.official_id
+            SELECT COUNT(*) FROM official_site_items pr
+            JOIN officials s ON s.id = pr.official_id
             WHERE pr.published_at >= %s AND pr.published_at < %s
               AND pr.deleted_at IS NULL AND s.status = 'active' AND s.chamber = 'senate'
             """,

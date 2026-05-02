@@ -204,8 +204,8 @@ def main():
 
     sql = f"""
         SELECT pr.id, pr.official_id, pr.title, pr.source_url
-        FROM press_releases pr
-        JOIN senators s ON s.id = pr.official_id
+        FROM official_site_items pr
+        JOIN officials s ON s.id = pr.official_id
         WHERE {" AND ".join(where)}
         ORDER BY pr.published_at DESC NULLS LAST
     """

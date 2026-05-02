@@ -46,7 +46,7 @@ def get_null_date_records(conn, official_id: str = None, limit: int = 1000) -> l
     cur = conn.cursor()
     query = """
         SELECT id::text, official_id, source_url, title
-        FROM press_releases
+        FROM official_site_items
         WHERE published_at IS NULL
         AND deleted_at IS NULL
     """
@@ -67,7 +67,7 @@ def get_no_body_records(conn, official_id: str = None, limit: int = 500) -> list
     cur = conn.cursor()
     query = """
         SELECT id::text, official_id, source_url, title
-        FROM press_releases
+        FROM official_site_items
         WHERE (body_text IS NULL OR length(body_text) < 50)
         AND deleted_at IS NULL
         AND source_url LIKE '%%senate.gov%%'

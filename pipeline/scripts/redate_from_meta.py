@@ -88,7 +88,7 @@ async def process_senator(
     cur.execute(
         """
         SELECT id, source_url, published_at, date_source, date_confidence
-        FROM press_releases
+        FROM official_site_items
         WHERE official_id = %s
           AND deleted_at IS NULL
           AND published_at >= '2025-01-01'

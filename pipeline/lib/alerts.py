@@ -70,7 +70,7 @@ def check_anomalies(conn) -> list[Alert]:
     cur.execute("""
         WITH recent AS (
             SELECT official_id, COUNT(*) as cnt
-            FROM press_releases
+            FROM official_site_items
             WHERE published_at > NOW() - INTERVAL '14 days'
               AND deleted_at IS NULL
             GROUP BY official_id
@@ -79,7 +79,7 @@ def check_anomalies(conn) -> list[Alert]:
             SELECT official_id, COUNT(*) as total,
                    COUNT(*) FILTER (WHERE published_at > NOW() - INTERVAL '90 days') as last_90,
                    COUNT(*) FILTER (WHERE published_at > NOW() - INTERVAL '30 days') as last_30
-            FROM press_releases
+            FROM official_site_items
             WHERE deleted_at IS NULL
             GROUP BY official_id
             HAVING COUNT(*) > 20
@@ -106,7 +106,7 @@ def check_anomalies(conn) -> list[Alert]:
         SELECT official_id,
                COUNT(*) as total,
                COUNT(*) FILTER (WHERE published_at IS NULL) as null_count
-        FROM press_releases
+        FROM official_site_items
         WHERE scraped_at > NOW() - INTERVAL '3 days'
         GROUP BY official_id
         HAVING COUNT(*) > 3
@@ -126,8 +126,8 @@ def check_anomalies(conn) -> list[Alert]:
     cur.execute("""
         SELECT s.id, s.full_name,
                MAX(pr.published_at) as last_release
-        FROM senators s
-        JOIN press_releases pr ON s.id = pr.official_id
+        FROM officials s
+        JOIN official_site_items pr ON s.id = pr.official_id
         WHERE s.collection_method IS NOT NULL
         GROUP BY s.id, s.full_name
         HAVING MAX(pr.published_at) < NOW() - INTERVAL '30 days'
@@ -150,7 +150,7 @@ def check_anomalies(conn) -> list[Alert]:
     # bugs (those go through test_dates_in_valid_range as failures).
     cur.execute("""
         SELECT official_id, source_url, published_at, scraped_at
-        FROM press_releases
+        FROM official_site_items
         WHERE deleted_at IS NULL
           AND published_at > NOW() + INTERVAL '1 day'
           AND published_at <= NOW() + INTERVAL '60 days'

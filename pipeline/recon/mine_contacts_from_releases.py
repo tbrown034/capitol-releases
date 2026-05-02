@@ -122,7 +122,7 @@ def main():
     # Get all press releases with body text, grouped by senator
     cur.execute("""
         SELECT senator_id, body_text
-        FROM press_releases
+        FROM official_site_items
         WHERE body_text IS NOT NULL
           AND length(body_text) > 100
         ORDER BY senator_id, published_at DESC

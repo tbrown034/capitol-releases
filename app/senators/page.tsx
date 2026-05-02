@@ -61,7 +61,7 @@ export default async function SenatorsPage({
 
   const [senators, bioguides] = await Promise.all([
     getSenators(),
-    sql`SELECT id, bioguide_id FROM senators WHERE bioguide_id IS NOT NULL`,
+    sql`SELECT id, bioguide_id FROM officials WHERE bioguide_id IS NOT NULL`,
   ]);
   const bioMap = new Map<string, string>();
   for (const row of bioguides as { id: string; bioguide_id: string }[]) {

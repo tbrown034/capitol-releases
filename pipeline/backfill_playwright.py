@@ -175,7 +175,7 @@ def scrape_senator_with_browser(page, official_id, url, max_pages, run_id):
 
             # Check if exists
             cur = conn.cursor()
-            cur.execute("SELECT 1 FROM press_releases WHERE source_url = %s", (detail_url,))
+            cur.execute("SELECT 1 FROM official_site_items WHERE source_url = %s", (detail_url,))
             if cur.fetchone():
                 skipped += 1
                 cur.close()

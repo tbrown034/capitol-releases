@@ -27,8 +27,8 @@ export async function getTxRoster(): Promise<TxSenator[]> {
       count(pr.id)::int AS release_count,
       max(pr.published_at) AS latest_release,
       min(pr.published_at) AS earliest_release
-    FROM senators s
-    LEFT JOIN press_releases pr
+    FROM officials s
+    LEFT JOIN official_site_items pr
       ON pr.official_id = s.id
      AND pr.deleted_at IS NULL
      AND pr.content_type != 'photo_release'
@@ -54,8 +54,8 @@ export async function getTxStats() {
       min(pr.published_at) AS earliest,
       max(pr.published_at) AS latest,
       max(pr.scraped_at) AS last_scrape
-    FROM senators s
-    LEFT JOIN press_releases pr
+    FROM officials s
+    LEFT JOIN official_site_items pr
       ON pr.official_id = s.id
      AND pr.deleted_at IS NULL
      AND pr.content_type != 'photo_release'
@@ -76,8 +76,8 @@ export async function getTxLatestReleases(limit = 12) {
     SELECT pr.id, pr.official_id, pr.title, pr.published_at, pr.body_text,
            pr.source_url, pr.scraped_at, pr.content_type,
            s.full_name AS senator_name, s.party, s.state
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
@@ -90,8 +90,8 @@ export async function getTxMonthlyVolume() {
   return (await sql`
     SELECT to_char(date_trunc('month', published_at), 'YYYY-MM-DD') AS month,
            count(*)::int AS count
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
@@ -113,15 +113,15 @@ export async function getTxTopicTrends(limit = 24) {
           ))),
           's$', ''
         ) AS word
-      FROM press_releases pr
-      JOIN senators s ON s.id = pr.official_id
+      FROM official_site_items pr
+      JOIN officials s ON s.id = pr.official_id
       WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
     ),
     surnames AS (
       SELECT DISTINCT regexp_replace(lower(split_part(full_name, ' ', -1)), 's$', '') AS s
-      FROM senators WHERE chamber = 'senate' AND jurisdiction = 'tx'
+      FROM officials WHERE chamber = 'senate' AND jurisdiction = 'tx'
     )
     SELECT word, count(*)::int AS count
     FROM stems
@@ -163,7 +163,7 @@ export async function getTxSenatorTopicTrends(officialId: string, limit = 12) {
                         ' '
                       ))) AS word,
                       pr.published_at
-      FROM press_releases pr
+      FROM official_site_items pr
       WHERE pr.official_id = ${officialId}
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
@@ -211,8 +211,8 @@ export async function getTxSenatorSignatureTopics(
                ' '
              ))) AS word,
              (pr.official_id = ${officialId}) AS is_self
-      FROM press_releases pr
-      JOIN senators s ON s.id = pr.official_id
+      FROM official_site_items pr
+      JOIN officials s ON s.id = pr.official_id
       WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
@@ -278,8 +278,8 @@ export async function getTxSearchFacets(filters: {
 
   const partyRows = (await sql`
     SELECT s.party AS key, count(*)::int AS count
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
@@ -289,8 +289,8 @@ export async function getTxSearchFacets(filters: {
 
   const typeRows = (await sql`
     SELECT pr.content_type AS key, count(*)::int AS count
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'

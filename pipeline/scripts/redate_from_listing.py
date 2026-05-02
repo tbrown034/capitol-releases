@@ -192,7 +192,7 @@ async def process_senator(official_id: str, pr_url: str, conn, args):
     cur.execute(
         """
         SELECT id, source_url, published_at, date_source, date_confidence
-        FROM press_releases
+        FROM official_site_items
         WHERE official_id = %s AND deleted_at IS NULL
         """,
         (official_id,),
@@ -256,7 +256,7 @@ async def main_async(args):
     cur = conn.cursor()
     sids = tuple(args.senators)
     cur.execute(
-        "SELECT id, press_release_url FROM senators WHERE id IN %s",
+        "SELECT id, press_release_url FROM officials WHERE id IN %s",
         (sids,),
     )
     urls = dict(cur.fetchall())

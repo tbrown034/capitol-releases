@@ -13,8 +13,8 @@ export async function getDataQuality() {
       count(*) FILTER (WHERE pr.body_text IS NOT NULL AND length(pr.body_text) > 50)::int as has_body,
       count(*) FILTER (WHERE pr.body_text IS NULL OR length(pr.body_text) <= 50)::int as no_body,
       count(DISTINCT pr.official_id)::int as senators_with_data
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE s.chamber = 'senate' AND s.status = 'active'
       AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
   `;
@@ -29,8 +29,8 @@ export async function getCoverageByFamily() {
            count(*) FILTER (WHERE pr.published_at IS NOT NULL)::int as dated,
            count(*) FILTER (WHERE pr.published_at IS NULL)::int as undated,
            count(*) FILTER (WHERE pr.body_text IS NOT NULL AND length(pr.body_text) > 50)::int as has_body
-    FROM senators s
-    LEFT JOIN press_releases pr ON pr.official_id = s.id
+    FROM officials s
+    LEFT JOIN official_site_items pr ON pr.official_id = s.id
     WHERE s.chamber = 'senate'
     GROUP BY s.parser_family
     ORDER BY release_count DESC
@@ -41,7 +41,7 @@ export async function getCollectionMethodBreakdown() {
   return sql`
     SELECT collection_method,
            count(*)::int as senator_count
-    FROM senators
+    FROM officials
     WHERE chamber = 'senate' AND status = 'active' AND collection_method IS NOT NULL
     GROUP BY collection_method
     ORDER BY senator_count DESC
@@ -52,8 +52,8 @@ export async function getContentTypeBreakdown() {
   return sql`
     SELECT pr.content_type,
            count(*)::int as count
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE s.chamber = 'senate' AND pr.deleted_at IS NULL
     GROUP BY pr.content_type
     ORDER BY count DESC
@@ -63,8 +63,8 @@ export async function getContentTypeBreakdown() {
 export async function getDeletionCount() {
   const result = await sql`
     SELECT count(*)::int as count
-    FROM press_releases pr
-    JOIN senators s ON s.id = pr.official_id
+    FROM official_site_items pr
+    JOIN officials s ON s.id = pr.official_id
     WHERE s.chamber = 'senate' AND pr.deleted_at IS NOT NULL
   `;
   return Number(result[0]?.count ?? 0);
@@ -83,8 +83,8 @@ export async function getCoverageDepth() {
              WHEN count(pr.id) = 0 THEN 'empty'
              ELSE 'partial'
            END as coverage
-    FROM senators s
-    LEFT JOIN press_releases pr ON pr.official_id = s.id
+    FROM officials s
+    LEFT JOIN official_site_items pr ON pr.official_id = s.id
     WHERE s.chamber = 'senate'
     GROUP BY s.id, s.full_name, s.party, s.state, s.parser_family
     ORDER BY s.state, s.full_name

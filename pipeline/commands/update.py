@@ -56,7 +56,7 @@ def get_existing_urls(conn, official_id: str) -> set[str]:
     """Get all known source_urls for a senator (for dedup)."""
     cur = conn.cursor()
     cur.execute(
-        "SELECT source_url FROM press_releases WHERE official_id = %s",
+        "SELECT source_url FROM official_site_items WHERE official_id = %s",
         (official_id,),
     )
     urls = {normalize_url(row[0]) for row in cur.fetchall()}
@@ -82,7 +82,7 @@ def upsert_release(conn, release: ReleaseRecord) -> tuple[bool, bool]:
     cur = conn.cursor()
     try:
         cur.execute(
-            "SELECT id, content_hash, body_text FROM press_releases WHERE source_url = %s",
+            "SELECT id, content_hash, body_text FROM official_site_items WHERE source_url = %s",
             (canonical,),
         )
         existing = cur.fetchone()

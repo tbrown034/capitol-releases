@@ -148,27 +148,27 @@ def _show_stats():
     conn = psycopg2.connect(os.environ["DATABASE_URL"])
     cur = conn.cursor()
 
-    cur.execute("SELECT COUNT(*) FROM press_releases")
+    cur.execute("SELECT COUNT(*) FROM official_site_items")
     total = cur.fetchone()[0]
 
-    cur.execute("SELECT COUNT(*) FROM press_releases WHERE published_at IS NOT NULL")
+    cur.execute("SELECT COUNT(*) FROM official_site_items WHERE published_at IS NOT NULL")
     dated = cur.fetchone()[0]
 
-    cur.execute("SELECT COUNT(*) FROM press_releases WHERE body_text IS NOT NULL AND length(body_text) > 100")
+    cur.execute("SELECT COUNT(*) FROM official_site_items WHERE body_text IS NOT NULL AND length(body_text) > 100")
     with_body = cur.fetchone()[0]
 
-    cur.execute("SELECT COUNT(DISTINCT official_id) FROM press_releases")
+    cur.execute("SELECT COUNT(DISTINCT official_id) FROM official_site_items")
     senators = cur.fetchone()[0]
 
-    cur.execute("SELECT MIN(published_at), MAX(published_at) FROM press_releases WHERE published_at IS NOT NULL")
+    cur.execute("SELECT MIN(published_at), MAX(published_at) FROM official_site_items WHERE published_at IS NOT NULL")
     min_date, max_date = cur.fetchone()
 
-    cur.execute("SELECT COUNT(*) FROM press_releases WHERE date_source IS NOT NULL")
+    cur.execute("SELECT COUNT(*) FROM official_site_items WHERE date_source IS NOT NULL")
     provenance = cur.fetchone()[0]
 
     cur.execute("""
         SELECT collection_method, COUNT(*)
-        FROM senators
+        FROM officials
         GROUP BY collection_method
         ORDER BY COUNT(*) DESC
     """)

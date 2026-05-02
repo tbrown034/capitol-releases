@@ -48,7 +48,7 @@ def main():
         SELECT s.id, s.full_name,
                (s.scrape_config->>'district')::int AS district,
                s.press_release_url
-        FROM senators s
+        FROM officials s
         WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
         ORDER BY (s.scrape_config->>'district')::int
         """
@@ -58,8 +58,8 @@ def main():
     cur.execute(
         """
         SELECT pr.official_id, pr.source_url, pr.title, pr.published_at
-        FROM press_releases pr
-        JOIN senators s ON s.id = pr.official_id
+        FROM official_site_items pr
+        JOIN officials s ON s.id = pr.official_id
         WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
           AND pr.deleted_at IS NULL
           AND pr.content_type != 'photo_release'

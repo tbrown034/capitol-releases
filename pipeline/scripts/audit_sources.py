@@ -352,7 +352,7 @@ def pull_db_state(conn_url: str, official_id: str) -> dict:
              count(*) FILTER (WHERE deleted_at IS NULL AND content_type='press_release'),
              max(scraped_at) FILTER (WHERE deleted_at IS NULL),
              max(published_at) FILTER (WHERE deleted_at IS NULL)
-        FROM press_releases WHERE official_id = %s
+        FROM official_site_items WHERE official_id = %s
     """, (official_id,))
     total, n_pr, last_scrape, last_pub = cur.fetchone()
 
@@ -360,7 +360,7 @@ def pull_db_state(conn_url: str, official_id: str) -> dict:
       WITH paths AS (
         SELECT regexp_replace(source_url,
             '^https?://[^/]+(/[^/]+(?:/[^/]+)?/).*$', '\\1') AS section
-        FROM press_releases
+        FROM official_site_items
         WHERE official_id = %s AND deleted_at IS NULL
       )
       SELECT section, count(*) FROM paths

@@ -22,8 +22,8 @@ export default async function StatesPage() {
     SELECT s.jurisdiction,
            count(DISTINCT s.id)::int AS members,
            count(pr.id)::int AS releases
-    FROM senators s
-    LEFT JOIN press_releases pr
+    FROM officials s
+    LEFT JOIN official_site_items pr
       ON pr.official_id = s.id
      AND pr.deleted_at IS NULL
      AND pr.content_type != 'photo_release'

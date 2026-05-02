@@ -37,7 +37,7 @@ def main():
                MIN(published_at) FILTER (WHERE deleted_at IS NULL) as earliest,
                MAX(published_at) FILTER (WHERE deleted_at IS NULL) as latest,
                COUNT(*) FILTER (WHERE date_source IS NOT NULL AND deleted_at IS NULL) as with_provenance
-        FROM press_releases
+        FROM official_site_items
         GROUP BY official_id
         ORDER BY official_id
     """)

@@ -637,7 +637,7 @@ async def scrape_senator(client, semaphore, senator, run_id, max_pages, _conn_un
 
                 # Check if already in DB
                 cur = conn.cursor()
-                cur.execute("SELECT 1 FROM press_releases WHERE source_url = %s", (detail_url,))
+                cur.execute("SELECT 1 FROM official_site_items WHERE source_url = %s", (detail_url,))
                 if cur.fetchone():
                     skipped += 1
                     cur.close()
@@ -698,9 +698,9 @@ async def main():
     # Load senators from DB
     if args.senators:
         placeholders = ",".join(["%s"] * len(args.senators))
-        cur.execute(f"SELECT id, full_name, press_release_url, parser_family, scrape_config, confidence FROM senators WHERE id IN ({placeholders})", args.senators)
+        cur.execute(f"SELECT id, full_name, press_release_url, parser_family, scrape_config, confidence FROM officials WHERE id IN ({placeholders})", args.senators)
     else:
-        cur.execute("SELECT id, full_name, press_release_url, parser_family, scrape_config, confidence FROM senators WHERE press_release_url IS NOT NULL ORDER BY confidence DESC")
+        cur.execute("SELECT id, full_name, press_release_url, parser_family, scrape_config, confidence FROM officials WHERE press_release_url IS NOT NULL ORDER BY confidence DESC")
 
     rows = cur.fetchall()
     if args.limit:

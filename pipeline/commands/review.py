@@ -105,8 +105,8 @@ def show_stale():
         SELECT s.id, s.full_name, s.collection_method,
                MAX(pr.published_at) as last_release,
                COUNT(*) as total
-        FROM senators s
-        LEFT JOIN press_releases pr ON s.id = pr.official_id
+        FROM officials s
+        LEFT JOIN official_site_items pr ON s.id = pr.official_id
         GROUP BY s.id, s.full_name, s.collection_method
         ORDER BY MAX(pr.published_at) ASC NULLS FIRST
         LIMIT 20
@@ -129,24 +129,24 @@ def show_quality():
     conn = psycopg2.connect(DB_URL)
     cur = conn.cursor()
 
-    cur.execute("SELECT COUNT(*) FROM press_releases")
+    cur.execute("SELECT COUNT(*) FROM official_site_items")
     total = cur.fetchone()[0]
 
-    cur.execute("SELECT COUNT(*) FROM press_releases WHERE published_at IS NOT NULL")
+    cur.execute("SELECT COUNT(*) FROM official_site_items WHERE published_at IS NOT NULL")
     dated = cur.fetchone()[0]
 
-    cur.execute("SELECT COUNT(*) FROM press_releases WHERE body_text IS NOT NULL AND length(body_text) > 100")
+    cur.execute("SELECT COUNT(*) FROM official_site_items WHERE body_text IS NOT NULL AND length(body_text) > 100")
     with_body = cur.fetchone()[0]
 
-    cur.execute("SELECT COUNT(*) FROM press_releases WHERE deleted_at IS NOT NULL")
+    cur.execute("SELECT COUNT(*) FROM official_site_items WHERE deleted_at IS NOT NULL")
     deleted = cur.fetchone()[0]
 
-    cur.execute("SELECT COUNT(*) FROM press_releases WHERE date_source IS NOT NULL")
+    cur.execute("SELECT COUNT(*) FROM official_site_items WHERE date_source IS NOT NULL")
     with_provenance = cur.fetchone()[0]
 
     cur.execute("""
         SELECT content_type, COUNT(*)
-        FROM press_releases
+        FROM official_site_items
         GROUP BY content_type
         ORDER BY COUNT(*) DESC
     """)
@@ -154,7 +154,7 @@ def show_quality():
 
     cur.execute("""
         SELECT date_source, COUNT(*)
-        FROM press_releases
+        FROM official_site_items
         WHERE date_source IS NOT NULL
         GROUP BY date_source
         ORDER BY COUNT(*) DESC

@@ -271,7 +271,7 @@ async def main():
 
     cur.execute(f"""
         SELECT pr.id, pr.source_url, pr.official_id, pr.title
-        FROM press_releases pr
+        FROM official_site_items pr
         {where}
         ORDER BY pr.official_id, pr.scraped_at
     """, params)
