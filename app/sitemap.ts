@@ -32,8 +32,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const [senatorIds, txSenatorIds, total] = await Promise.all([
-    getActiveSenatorIds("senate"),
-    getActiveSenatorIds("tx_senate"),
+    getActiveSenatorIds("us-senate"),
+    getActiveSenatorIds("tx-senate"),
     getReleaseCountForSitemap(),
   ]);
 

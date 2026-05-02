@@ -49,7 +49,7 @@ def main():
                (s.scrape_config->>'district')::int AS district,
                s.press_release_url
         FROM senators s
-        WHERE s.chamber = 'tx_senate'
+        WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
         ORDER BY (s.scrape_config->>'district')::int
         """
     )
@@ -60,7 +60,7 @@ def main():
         SELECT pr.senator_id, pr.source_url, pr.title, pr.published_at
         FROM press_releases pr
         JOIN senators s ON s.id = pr.senator_id
-        WHERE s.chamber = 'tx_senate'
+        WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
           AND pr.deleted_at IS NULL
           AND pr.content_type != 'photo_release'
           AND pr.published_at >= '2025-01-01'

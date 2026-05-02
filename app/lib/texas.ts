@@ -1,7 +1,9 @@
 import { sql } from "./db";
 import type { FeedItem, ContentType } from "./db";
 
-export const TX_CHAMBER = "tx_senate" as const;
+// TX_CHAMBER constant retired 2026-05-02 schema migration. Texas state
+// senators now live under (chamber=senate, jurisdiction=tx) — the legacy
+// overloaded "tx_senate" chamber value was normalized away in migration 012.
 export const TX_TOTAL_SEATS = 31;
 
 export type TxSenator = {
@@ -30,7 +32,7 @@ export async function getTxRoster(): Promise<TxSenator[]> {
       ON pr.senator_id = s.id
      AND pr.deleted_at IS NULL
      AND pr.content_type != 'photo_release'
-    WHERE s.chamber = ${TX_CHAMBER}
+    WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
     GROUP BY s.id
     ORDER BY (s.scrape_config->>'district')::int
   `) as TxSenator[];
@@ -57,7 +59,7 @@ export async function getTxStats() {
       ON pr.senator_id = s.id
      AND pr.deleted_at IS NULL
      AND pr.content_type != 'photo_release'
-    WHERE s.chamber = ${TX_CHAMBER}
+    WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
   `) as {
     total_releases: number;
     senators_with_releases: number;
@@ -76,7 +78,7 @@ export async function getTxLatestReleases(limit = 12) {
            s.full_name AS senator_name, s.party, s.state
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
-    WHERE s.chamber = ${TX_CHAMBER}
+    WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
     ORDER BY LEAST(pr.published_at, pr.scraped_at) DESC NULLS LAST
@@ -90,7 +92,7 @@ export async function getTxMonthlyVolume() {
            count(*)::int AS count
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
-    WHERE s.chamber = ${TX_CHAMBER}
+    WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
       AND pr.published_at >= '2025-01-01'
@@ -113,13 +115,13 @@ export async function getTxTopicTrends(limit = 24) {
         ) AS word
       FROM press_releases pr
       JOIN senators s ON s.id = pr.senator_id
-      WHERE s.chamber = ${TX_CHAMBER}
+      WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
     ),
     surnames AS (
       SELECT DISTINCT regexp_replace(lower(split_part(full_name, ' ', -1)), 's$', '') AS s
-      FROM senators WHERE chamber = ${TX_CHAMBER}
+      FROM senators WHERE chamber = 'senate' AND jurisdiction = 'tx'
     )
     SELECT word, count(*)::int AS count
     FROM stems
@@ -211,7 +213,7 @@ export async function getTxSenatorSignatureTopics(
              (pr.senator_id = ${senatorId}) AS is_self
       FROM press_releases pr
       JOIN senators s ON s.id = pr.senator_id
-      WHERE s.chamber = ${TX_CHAMBER}
+      WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
         AND pr.published_at >= '2025-01-01'
@@ -278,7 +280,7 @@ export async function getTxSearchFacets(filters: {
     SELECT s.party AS key, count(*)::int AS count
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
-    WHERE s.chamber = ${TX_CHAMBER}
+    WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
       AND pr.fts @@ plainto_tsquery('english', ${search})
@@ -289,7 +291,7 @@ export async function getTxSearchFacets(filters: {
     SELECT pr.content_type AS key, count(*)::int AS count
     FROM press_releases pr
     JOIN senators s ON s.id = pr.senator_id
-    WHERE s.chamber = ${TX_CHAMBER}
+    WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
       AND pr.fts @@ plainto_tsquery('english', ${search})

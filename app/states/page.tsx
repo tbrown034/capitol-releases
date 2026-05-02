@@ -9,14 +9,17 @@ export const metadata = {
 
 export const revalidate = 600;
 
-const STATE_CHAMBER: Record<string, string> = { TX: "tx_senate" };
+// Map state code -> jurisdiction value used in the officials table.
+// Post-2026-05-02 schema: state legislators sit under jurisdiction='<state>'
+// rather than the legacy overloaded chamber='<state>_senate' value.
+const STATE_JURISDICTION: Record<string, string> = { TX: "tx" };
 
 export default async function StatesPage() {
   // Live release counts and member counts for each covered state. Pulling
   // from DB avoids drift when the static config falls out of sync with what
   // the daily collector actually has on file.
   const liveStats = (await sql`
-    SELECT s.chamber,
+    SELECT s.jurisdiction,
            count(DISTINCT s.id)::int AS members,
            count(pr.id)::int AS releases
     FROM senators s
@@ -24,11 +27,13 @@ export default async function StatesPage() {
       ON pr.senator_id = s.id
      AND pr.deleted_at IS NULL
      AND pr.content_type != 'photo_release'
-    WHERE s.chamber IN ('tx_senate')
-    GROUP BY s.chamber
-  `) as { chamber: string; members: number; releases: number }[];
-  const byChamber = new Map(liveStats.map((r) => [r.chamber, r]));
-  const live = (code: string) => byChamber.get(STATE_CHAMBER[code] ?? "");
+    WHERE s.jurisdiction IN ('tx')
+      AND s.branch = 'legislative'
+    GROUP BY s.jurisdiction
+  `) as { jurisdiction: string; members: number; releases: number }[];
+  const byJurisdiction = new Map(liveStats.map((r) => [r.jurisdiction, r]));
+  const live = (code: string) =>
+    byJurisdiction.get(STATE_JURISDICTION[code] ?? "");
 
   const enrichedCoverage = COVERAGE.map((s) => {
     const stats = live(s.code);

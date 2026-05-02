@@ -54,10 +54,12 @@ export type FeedFilters = {
   from?: string;
   to?: string;
   sort?: "date" | "relevance";
-  // Chamber scope. Defaults to "senate" (US Senate). Set to "tx_senate" for
-  // the Texas Senate corpus. Single point of override so /texas/* feeds and
-  // searches reuse all the existing query logic.
-  chamber?: "senate" | "tx_senate";
+  // Roster scope. Defaults to "us-senate" (US Senate). Set to "tx-senate"
+  // for the Texas state-senate corpus. Single point of override so /texas/*
+  // feeds and searches reuse all the existing query logic. Post-2026-05-02
+  // schema: state legislators sit under (chamber, jurisdiction); the legacy
+  // overloaded chamber='tx_senate' value was normalized away in migration 012.
+  roster?: RosterScope;
 };
 
 export type SearchFeedItem = FeedItem & { snippet?: string | null };
@@ -66,7 +68,9 @@ function buildFeedPredicates(f: FeedFilters): {
   preds: string[];
   params: unknown[];
 } {
-  const chamber = f.chamber ?? "senate";
+  const roster = f.roster ?? "us-senate";
+  const [scopeChamber, scopeJurisdiction] =
+    roster === "tx-senate" ? ["senate", "tx"] : ["senate", "us"];
   const preds: string[] = [
     "pr.deleted_at IS NULL",
     "pr.content_type != 'photo_release'",
@@ -81,7 +85,8 @@ function buildFeedPredicates(f: FeedFilters): {
   // ts_headline snippet column referencing $1 by index. The chamber filter
   // and any other facets follow.
   if (f.search) push("pr.fts @@ plainto_tsquery('english', $?)", f.search);
-  push("s.chamber = $?", chamber);
+  push("s.chamber = $?", scopeChamber);
+  push("s.jurisdiction = $?", scopeJurisdiction);
   const ctype = normalizeType(f.type);
   if (f.party) push("s.party = $?", f.party);
   if (f.state) push("s.state = $?", f.state);
@@ -342,11 +347,22 @@ export async function getReleaseCountForSitemap(): Promise<number> {
   return Number((rows[0] as { total: number }).total);
 }
 
+export type RosterScope = "us-senate" | "tx-senate";
+
 export async function getActiveSenatorIds(
-  chamber: "senate" | "tx_senate" = "senate"
+  scope: RosterScope = "us-senate"
 ): Promise<string[]> {
+  // Post-2026-05-02 schema: members live under (chamber, jurisdiction).
+  // The legacy chamber='tx_senate' value was normalized away in migration 012;
+  // every Texas state senator is now (chamber='senate', jurisdiction='tx').
+  const [chamber, jurisdiction] =
+    scope === "tx-senate" ? ["senate", "tx"] : ["senate", "us"];
   const rows = await sql`
-    SELECT id FROM senators WHERE status = 'active' AND chamber = ${chamber} ORDER BY id
+    SELECT id FROM senators
+    WHERE status = 'active'
+      AND chamber = ${chamber}
+      AND jurisdiction = ${jurisdiction}
+    ORDER BY id
   `;
   return rows.map((r) => (r as { id: string }).id);
 }

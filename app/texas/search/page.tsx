@@ -73,7 +73,7 @@ export default async function TexasSearchPage({
   const [{ items, total }, facets, roster] = hasQuery
     ? await Promise.all([
         getFeed({
-          chamber: "tx_senate",
+          roster: "tx-senate",
           page,
           perPage,
           search: query,

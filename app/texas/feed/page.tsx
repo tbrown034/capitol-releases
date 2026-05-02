@@ -44,7 +44,7 @@ export default async function TexasFeedPage({
     getFeed({
       page,
       perPage,
-      chamber: "tx_senate",
+      roster: "tx-senate",
       party,
       senator,
       type,

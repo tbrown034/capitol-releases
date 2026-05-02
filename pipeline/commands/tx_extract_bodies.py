@@ -187,7 +187,8 @@ def main():
     cur = conn.cursor()
 
     where = [
-        "s.chamber = 'tx_senate'",
+        "s.chamber = 'senate'",
+        "s.jurisdiction = 'tx'",
         "pr.deleted_at IS NULL",
         "pr.content_type = 'press_release'",
         # Both PDF and HTML press.php URLs are in scope; videoplayer.php is

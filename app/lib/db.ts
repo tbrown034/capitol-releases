@@ -55,7 +55,16 @@ export type Senator = {
   senate_class: number | null;
   first_term_start: string | null;
   current_term_end: string | null;
-  chamber: string;
+  // Post-2026-05-02 schema:
+  //   branch       'legislative' | 'executive'
+  //   jurisdiction 'us' | 'tx' | ... (state codes for state legislators)
+  //   office_type  'senator' | 'representative' | 'state_senator' | 'executive_office'
+  //   chamber      'senate' | 'house' | 'unicameral' | null (executives have no chamber)
+  branch: "legislative" | "executive";
+  jurisdiction: string;
+  office_type: string;
+  chamber: string | null;
+  district: string | null;
 };
 
 export type ContentType =

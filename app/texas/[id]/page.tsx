@@ -37,7 +37,7 @@ export async function generateMetadata({
 }) {
   const { id } = await params;
   const rows = (await sql`
-    SELECT full_name, party FROM senators WHERE id = ${id} AND chamber = 'tx_senate'
+    SELECT full_name, party FROM senators WHERE id = ${id} AND chamber = 'senate' AND jurisdiction = 'tx'
   `) as { full_name: string; party: string }[];
   if (!rows[0]) return { title: "Not found — Capitol Releases" };
   return {
@@ -64,7 +64,7 @@ export default async function TxSenatorPage({
     SELECT id, full_name, party, state, official_url, press_release_url,
            scrape_config, status
     FROM senators
-    WHERE id = ${id} AND chamber = 'tx_senate'
+    WHERE id = ${id} AND chamber = 'senate' AND jurisdiction = 'tx'
   `) as TxSenator[];
   const senator = senatorRows[0];
   if (!senator) notFound();
@@ -107,7 +107,7 @@ export default async function TxSenatorPage({
       SELECT count(*)::int AS chamber_total
       FROM press_releases pr
       JOIN senators s ON s.id = pr.senator_id
-      WHERE s.chamber = 'tx_senate'
+      WHERE s.chamber = 'senate' AND s.jurisdiction = 'tx'
         AND pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
     `,

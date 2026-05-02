@@ -131,7 +131,7 @@ export default async function SenatorPage({
 
       {/* Profile header */}
       <div className="mt-6 flex items-start gap-4">
-        {bio?.bioguide_id || senator.chamber === "executive" ? (
+        {bio?.bioguide_id || senator.branch === "executive" ? (
           <Image
             src={`/senators/${bio?.bioguide_id ?? senator.id}.jpg`}
             alt={senator.full_name}

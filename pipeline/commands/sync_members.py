@@ -40,17 +40,18 @@ DB_URL = os.environ.get("DATABASE_URL")
 
 
 UPSERT_SQL = """
-    INSERT INTO senators (
+    INSERT INTO officials (
         id, full_name, party, state, official_url, press_release_url,
         parser_family, requires_js, confidence, last_verified,
         rss_feed_url, collection_method, chamber, district, status,
-        scrape_config
+        scrape_config, branch, jurisdiction, office_type
     ) VALUES (
         %(id)s, %(full_name)s, %(party)s, %(state)s, %(official_url)s,
         %(press_release_url)s, %(parser_family)s, %(requires_js)s,
         %(confidence)s, %(last_verified)s, %(rss_feed_url)s,
         %(collection_method)s, %(chamber)s, %(district)s, 'active',
-        %(scrape_config)s::jsonb
+        %(scrape_config)s::jsonb,
+        %(branch)s, %(jurisdiction)s, %(office_type)s
     )
     ON CONFLICT (id) DO UPDATE SET
         full_name         = EXCLUDED.full_name,
@@ -67,6 +68,9 @@ UPSERT_SQL = """
         chamber           = EXCLUDED.chamber,
         district          = EXCLUDED.district,
         scrape_config     = EXCLUDED.scrape_config,
+        branch            = EXCLUDED.branch,
+        jurisdiction      = EXCLUDED.jurisdiction,
+        office_type       = EXCLUDED.office_type,
         updated_at        = NOW()
 """
 
@@ -99,11 +103,16 @@ def member_to_params(m: dict) -> dict:
         "last_verified": m.get("last_verified"),
         "rss_feed_url": m.get("rss_feed_url"),
         "collection_method": m.get("collection_method"),
-        "chamber": m["chamber"],
+        "chamber": m.get("chamber"),  # may be None for executives
         "district": (
             str(m["district"]) if m.get("district") not in (None, "") else None
         ),
         "scrape_config": json.dumps(cfg) if cfg else None,
+        # Post-2026-05-02 schema (migration 012). Defaults applied by
+        # pipeline.lib.seeds.load_members based on the source seed file.
+        "branch": m.get("branch") or "legislative",
+        "jurisdiction": m.get("jurisdiction") or "us",
+        "office_type": m.get("office_type") or "senator",
     }
 
 
@@ -113,10 +122,17 @@ def run_sync(chambers: list[str] | None, apply: bool) -> dict:
 
     if not apply:
         from collections import Counter
-        by_chamber = Counter(m["chamber"] for m in members)
+        # Group by (jurisdiction, chamber) since chamber alone is no longer
+        # unique post-migration-012 (TX state senators and US senators both
+        # have chamber='senate'). Use string fallback so None (executives)
+        # sorts cleanly.
+        by_scope = Counter(
+            (m.get("jurisdiction") or "?", m.get("chamber") or "—")
+            for m in members
+        )
         log.info("Dry-run. Would UPSERT %d rows.", len(members))
-        for c, n in sorted(by_chamber.items()):
-            log.info("  chamber=%-15s rows=%d", c, n)
+        for (juris, chamber), n in sorted(by_scope.items()):
+            log.info("  jurisdiction=%-4s chamber=%-12s rows=%d", juris, chamber, n)
         return {"loaded": len(members), "applied": 0}
 
     if not DB_URL:
