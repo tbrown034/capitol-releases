@@ -60,6 +60,23 @@ END$$;
 -- Recreate press_releases compat view exposing official_id AND senator_id
 -- (alias) so any unswept read paths keep working. Drop in a follow-up
 -- migration once the codemod sweep is complete and verified.
+--
+-- Idempotent: detect column shape and create the right view form. Mirrors
+-- the same DO-block in 013 so re-running either migration in any order
+-- converges on the right view.
 DROP VIEW IF EXISTS press_releases;
-CREATE VIEW press_releases AS
-  SELECT *, official_id AS senator_id FROM official_site_items;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_name = 'official_site_items'
+               AND column_name = 'official_id')
+     AND NOT EXISTS (SELECT 1 FROM information_schema.columns
+                     WHERE table_name = 'official_site_items'
+                       AND column_name = 'senator_id')
+  THEN
+    EXECUTE 'CREATE VIEW press_releases AS '
+            'SELECT *, official_id AS senator_id FROM official_site_items';
+  ELSE
+    EXECUTE 'CREATE VIEW press_releases AS SELECT * FROM official_site_items';
+  END IF;
+END$$;

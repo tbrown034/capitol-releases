@@ -43,7 +43,7 @@ function buildChamberCountsQuery(
     LEFT JOIN official_site_items pr
       ON pr.official_id = s.id
       AND ${joinPreds.join(" AND ")}
-    WHERE s.status = 'active' AND s.chamber = 'senate'
+    WHERE s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us' AND s.jurisdiction = 'us'
     GROUP BY s.id
   `;
 

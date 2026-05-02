@@ -46,5 +46,29 @@ END$$;
 -- Step 2: compatibility view so legacy `FROM press_releases` callers
 -- keep working during the codemod sweep. Drop this in a future migration
 -- once all callers have moved to official_site_items.
+--
+-- Idempotent across migration order: 014 will later rename the FK column
+-- from senator_id to official_id and recreate this view with the
+-- `official_id AS senator_id` alias. If a re-run of THIS migration
+-- follows 014, we'd otherwise wipe that alias and break unswept SELECT
+-- callers. Detect post-014 state by checking column shape and create
+-- the right view form for whichever state we're in.
 DROP VIEW IF EXISTS press_releases;
-CREATE VIEW press_releases AS SELECT * FROM official_site_items;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_name = 'official_site_items'
+               AND column_name = 'official_id')
+     AND NOT EXISTS (SELECT 1 FROM information_schema.columns
+                     WHERE table_name = 'official_site_items'
+                       AND column_name = 'senator_id')
+  THEN
+    -- 014 has already run: column is named official_id; expose senator_id
+    -- as a legacy alias so unswept SELECTs keep working.
+    EXECUTE 'CREATE VIEW press_releases AS '
+            'SELECT *, official_id AS senator_id FROM official_site_items';
+  ELSE
+    -- 014 hasn't run yet: column is still senator_id; simple alias view.
+    EXECUTE 'CREATE VIEW press_releases AS SELECT * FROM official_site_items';
+  END IF;
+END$$;

@@ -71,7 +71,17 @@ def fetch_senators(conn, ids: list[str] | None) -> list[dict]:
     daily updater reads from the seed, so the seed is the source of truth
     for live-probe URLs."""
     cur = conn.cursor()
-    where = "WHERE status = 'active' AND chamber IN ('senate', 'executive')"
+    # Post-migration-012 scope: federal officials (US Senate + US executive).
+    # Note executives now have chamber=NULL (was 'executive' pre-migration);
+    # use branch='executive' to capture them. The original "chamber IN
+    # ('senate', 'executive')" filter would silently include TX state
+    # senators (now chamber='senate', jurisdiction='tx') AND drop the
+    # White House row (chamber=NULL post-migration).
+    where = (
+        "WHERE status = 'active' "
+        "AND jurisdiction = 'us' "
+        "AND (chamber = 'senate' OR branch = 'executive')"
+    )
     params: list = []
     if ids:
         where += " AND id = ANY(%s)"

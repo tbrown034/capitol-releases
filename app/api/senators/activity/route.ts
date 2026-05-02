@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       WHERE pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
         AND s.status = 'active'
-        AND s.chamber = 'senate'
+        AND s.chamber = 'senate' AND s.jurisdiction = 'us'
       GROUP BY s.id, s.full_name, s.party, s.state
       ORDER BY count DESC
       LIMIT ${limit}
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         AND pr.content_type != 'photo_release'
       WHERE s.collection_method IS NOT NULL
         AND s.status = 'active'
-        AND s.chamber = 'senate'
+        AND s.chamber = 'senate' AND s.jurisdiction = 'us'
       GROUP BY s.id, s.full_name, s.party, s.state
       ORDER BY count ASC
       LIMIT ${limit}
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
         AND pr.content_type != 'photo_release'
         AND pr.published_at >= NOW() - make_interval(days => ${days})
         AND s.status = 'active'
-        AND s.chamber = 'senate'
+        AND s.chamber = 'senate' AND s.jurisdiction = 'us'
       GROUP BY s.id, s.full_name, s.party, s.state
       ORDER BY count DESC
       LIMIT ${limit}
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         AND pr.published_at >= NOW() - make_interval(days => ${days})
       WHERE s.collection_method IS NOT NULL
         AND s.status = 'active'
-        AND s.chamber = 'senate'
+        AND s.chamber = 'senate' AND s.jurisdiction = 'us'
       GROUP BY s.id, s.full_name, s.party, s.state
       ORDER BY count ASC
       LIMIT ${limit}
