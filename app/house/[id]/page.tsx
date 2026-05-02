@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import { sql } from "../../lib/db";
 import { getHouseMember, getSenatorReleases, getSenatorTypeBreakdown } from "../../lib/queries";
 import type { PressRelease, ContentType } from "../../lib/db";
 import { Pagination } from "../../components/pagination";
@@ -55,10 +57,14 @@ export default async function HouseMemberPage({
   const member = await getHouseMember(id);
   if (!member) notFound();
 
-  const [{ items, total }, { breakdown, earliest }] = await Promise.all([
+  const [{ items, total }, { breakdown, earliest }, bioRows] = await Promise.all([
     getSenatorReleases(id, page, perPage, activeType),
     getSenatorTypeBreakdown(id),
+    sql`SELECT bioguide_id FROM officials WHERE id = ${id}`,
   ]);
+  const bioguideId =
+    (bioRows[0] as { bioguide_id: string | null } | undefined)?.bioguide_id ??
+    null;
 
   const grandTotal = Object.values(breakdown).reduce<number>(
     (sum, n) => sum + (n ?? 0),
@@ -98,7 +104,26 @@ export default async function HouseMemberPage({
       </Link>
 
       {/* Profile header */}
-      <div className="mt-6">
+      <div className="mt-6 flex items-start gap-4">
+        {bioguideId ? (
+          <Image
+            src={`/house/${bioguideId}.jpg`}
+            alt={member.full_name}
+            width={72}
+            height={72}
+            className="h-[72px] w-[72px] object-cover object-top shrink-0"
+            unoptimized
+          />
+        ) : (
+          <div className="h-[72px] w-[72px] bg-neutral-200 flex items-center justify-center text-neutral-400 text-lg shrink-0">
+            {member.full_name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .slice(0, 2)}
+          </div>
+        )}
+        <div className="min-w-0">
         <h1 className="font-[family-name:var(--font-source-serif)] text-3xl text-neutral-900 leading-tight">
           {member.full_name}
         </h1>
@@ -128,6 +153,7 @@ export default async function HouseMemberPage({
               .replace(/\/$/, "")}
             <span aria-hidden="true"> ↗</span>
           </a>
+        </div>
         </div>
       </div>
 
