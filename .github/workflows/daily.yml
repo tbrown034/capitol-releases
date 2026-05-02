@@ -76,7 +76,10 @@ jobs:
 
       - name: Generate data-health report
         # Runs after collection + tests so the report reflects today's run.
+        # if: always() so a failed test step still gets the diagnostic — the
+        # day tests fail is the day you most want the health report.
         # docs/ is gitignored so the file lands in the runner workspace
         # only; for now this serves as in-CI diagnostics + a future
         # commit-target if we decide to surface it on the site.
+        if: always()
         run: python -m pipeline health-report
