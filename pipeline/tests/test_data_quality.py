@@ -52,10 +52,15 @@ def test_all_senators_in_db():
 
 
 def test_senators_have_urls():
-    """Every senator should have a press_release_url (except Armstrong who has no page)."""
+    """Every active US senator should have a press_release_url (except Armstrong)."""
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT full_name FROM senators WHERE press_release_url IS NULL")
+    cur.execute("""
+        SELECT full_name FROM senators
+        WHERE press_release_url IS NULL
+          AND chamber = 'senate'
+          AND status = 'active'
+    """)
     missing = [r[0] for r in cur.fetchall()]
     cur.close()
     conn.close()
@@ -241,11 +246,15 @@ def test_no_suspicious_round_counts():
     """
     conn = get_conn()
     cur = conn.cursor()
+    # Scoped to chamber='senate'. House feeds cap at 10 by design (Drupal
+    # /rss.xml limit), so applying this Senate-style RSS-cap heuristic to
+    # House would flag every active member.
     cur.execute("""
         SELECT s.id, s.full_name, count(pr.id)::int as cnt
         FROM senators s
         JOIN press_releases pr ON pr.senator_id = s.id
         WHERE pr.deleted_at IS NULL
+          AND s.chamber = 'senate'
         GROUP BY s.id, s.full_name
     """)
     rows = cur.fetchall()
@@ -582,6 +591,11 @@ def test_back_coverage_not_truncated():
 
     conn = get_conn()
     cur = conn.cursor()
+    # Scoped to chamber='senate'. House RSS feeds cap at 10 items so the
+    # earliest record is typically ~Feb 2026, not Jan 2025; that's a feed
+    # truncation artifact, not a collector bug. Back-coverage for House
+    # will need a separate Drupal listing-page wave before this check
+    # makes sense for that chamber.
     cur.execute("""
         SELECT s.id, s.full_name,
                min(pr.published_at) FILTER (WHERE pr.deleted_at IS NULL)::date AS earliest,
@@ -589,6 +603,7 @@ def test_back_coverage_not_truncated():
         FROM senators s
         LEFT JOIN press_releases pr ON pr.senator_id = s.id
         WHERE s.status = 'active'
+          AND s.chamber = 'senate'
         GROUP BY s.id, s.full_name
     """)
     rows = cur.fetchall()
