@@ -1,11 +1,11 @@
 name: Daily pipeline
 
 on:
-  schedule:
-    # 4x/day at 9 AM, 1 PM, 5 PM, 9 PM ET (UTC: 13, 17, 21, 01). Same-day
-    # business-hour content gets captured within ~4h instead of waiting
-    # until the next morning. Source-URL dedup makes re-runs safe.
-    - cron: "0 1,13,17,21 * * *"
+  # Cron schedule paused 2026-05-02 PM EDT for the senators -> officials
+  # rename + official_site_items + official_sources migration. Re-enable
+  # once Phase 3 lands green and a manual smoke run passes.
+  # schedule:
+  #   - cron: "0 1,13,17,21 * * *"
   workflow_dispatch:
 
 concurrency:
