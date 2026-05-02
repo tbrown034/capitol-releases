@@ -58,7 +58,7 @@ def test_senators_have_urls():
     cur.execute("""
         SELECT full_name FROM senators
         WHERE press_release_url IS NULL
-          AND chamber = 'senate'
+          AND chamber = 'senate' AND jurisdiction = 'us'
           AND status = 'active'
     """)
     missing = [r[0] for r in cur.fetchall()]
@@ -264,7 +264,7 @@ def test_no_suspicious_round_counts():
         FROM senators s
         JOIN press_releases pr ON pr.senator_id = s.id
         WHERE pr.deleted_at IS NULL
-          AND s.chamber = 'senate'
+          AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.id, s.full_name
     """)
     rows = cur.fetchall()
@@ -378,7 +378,7 @@ def test_no_rss_rampup_signature():
         FROM press_releases pr
         JOIN senators s ON s.id = pr.senator_id
         WHERE pr.deleted_at IS NULL
-          AND s.chamber = 'senate'
+          AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY pr.senator_id
     """)
     rows = cur.fetchall()
@@ -428,7 +428,7 @@ def test_no_zero_volume_months():
         JOIN senators s ON s.id = pr.senator_id
         WHERE pr.deleted_at IS NULL
           AND pr.published_at >= '2025-01-01'
-          AND s.chamber = 'senate'
+          AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY 1, 2
     """)
     rows = cur.fetchall()
@@ -497,7 +497,7 @@ def test_no_long_publication_gaps():
             JOIN senators s ON s.id = pr.senator_id
             WHERE pr.deleted_at IS NULL
               AND pr.published_at >= '2025-01-01'
-              AND s.chamber = 'senate'
+              AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         )
         SELECT senator_id,
                max(extract(epoch FROM (published_at - prev_at)) / 86400)::int AS max_gap_days
@@ -621,7 +621,7 @@ def test_back_coverage_not_truncated():
         FROM senators s
         LEFT JOIN press_releases pr ON pr.senator_id = s.id
         WHERE s.status = 'active'
-          AND s.chamber = 'senate'
+          AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.id, s.full_name
     """)
     rows = cur.fetchall()
@@ -682,7 +682,7 @@ def test_no_anomalously_low_counts():
         FROM (
             SELECT COUNT(*) as cnt FROM press_releases pr
             JOIN senators s ON s.id = pr.senator_id
-            WHERE pr.deleted_at IS NULL AND s.chamber = 'senate'
+            WHERE pr.deleted_at IS NULL AND s.chamber = 'senate' AND s.jurisdiction = 'us'
             GROUP BY senator_id HAVING COUNT(*) > 0
         ) sub
     """)
@@ -693,7 +693,7 @@ def test_no_anomalously_low_counts():
         SELECT s.id, s.full_name, COUNT(pr.id) FILTER (WHERE pr.deleted_at IS NULL) as cnt
         FROM senators s
         LEFT JOIN press_releases pr ON s.id = pr.senator_id
-        WHERE s.collection_method IS NOT NULL AND s.chamber = 'senate'
+        WHERE s.collection_method IS NOT NULL AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.id, s.full_name
         HAVING COUNT(pr.id) FILTER (WHERE pr.deleted_at IS NULL) < %s
     """, (threshold,))
@@ -723,7 +723,7 @@ def test_no_stale_senators():
         SELECT s.id, s.full_name, MAX(pr.published_at) as last_release
         FROM senators s
         JOIN press_releases pr ON s.id = pr.senator_id
-        WHERE s.collection_method IS NOT NULL AND s.chamber = 'senate'
+        WHERE s.collection_method IS NOT NULL AND s.chamber = 'senate' AND s.jurisdiction = 'us'
         GROUP BY s.id, s.full_name
         HAVING MAX(pr.published_at) < NOW() - INTERVAL '60 days'
     """)
