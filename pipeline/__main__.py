@@ -22,13 +22,34 @@ Usage:
     python -m pipeline stats                     # show database stats
 """
 
+import os
 import sys
+from pathlib import Path
+
+
+def _load_dotenv():
+    """Source pipeline/.env into os.environ if present.
+
+    Most subcommands need DATABASE_URL and ANTHROPIC_API_KEY; these live in
+    pipeline/.env locally and ship via secrets in CI. This used to live only
+    inside _show_stats(); promoting it makes every command work the same way
+    when run from a fresh shell.
+    """
+    env_path = Path("pipeline/.env")
+    if not env_path.exists():
+        return
+    for line in env_path.read_text().splitlines():
+        if line.strip() and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip())
 
 
 def main():
     if len(sys.argv) < 2:
         print(__doc__)
         sys.exit(0)
+
+    _load_dotenv()
 
     command = sys.argv[1]
     # Remove the command from argv so subcommand parsers work correctly
