@@ -17,6 +17,8 @@ Usage:
     python -m pipeline source-profiles           # validate state source-profile registry
     python -m pipeline floor-speeches update     # daily Senate floor speeches collector (Congressional Record)
     python -m pipeline floor-speeches backfill --since 2025-01-01
+    python -m pipeline sync-members              # upsert seed members into senators table (dry-run)
+    python -m pipeline sync-members --apply      # actually write
     python -m pipeline stats                     # show database stats
 """
 
@@ -95,6 +97,10 @@ def main():
     elif command == "floor-speeches":
         from pipeline.commands.floor_speeches import main as floor_main
         sys.exit(floor_main())
+
+    elif command == "sync-members":
+        from pipeline.commands.sync_members import main as sync_main
+        sync_main()
 
     elif command == "stats":
         _show_stats()
