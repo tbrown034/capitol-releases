@@ -243,6 +243,36 @@ Sequence: **D1 → D2 → D4 → D3** (D3 needs Track B1 seed schema landed firs
 
 **House coverage: 75.7% reaching Jan 2025 (need 80% = 350 members; gap is 19).** The remaining 19 require per-member seed-config or pagination work.
 
+## Strategic pivot — bulletproof framing (1:35 PM EDT)
+
+Per Trevor's instruction ("bulletproof, not 80%"): each House member must be CLEAN, OUTLIER-verified, or KNOWN-GAP-documented. The 80% number is a comfort metric — the launch bar is "every member accounted for."
+
+**Latest data after batch 1+2 deep backfill:**
+
+| Status | Count | % | Action |
+|---|---:|---:|---|
+| CLEAN (≥10 records, reaches Jan 2025) | 342 | 78.3% | Bar hit |
+| KNOWN GAP — Playwright-required (Phase 2) | 18 | 4.1% | Tagged `coverage_status: "playwright_required"` in seed |
+| KNOWN GAP — pagination caps short (≥10 rec) | 60 | 13.7% | Documented; needs WP-JSON or alt-URL audit |
+| KNOWN GAP — shallow scrape (5-9 rec) | 15 | 3.4% | Selector hardening per member |
+| KNOWN GAP — very few records (1-4) | 7 | 1.6% | Low-volume verification (Codex D4) |
+| KNOWN GAP — zero (jordan-jim) | 1 | 0.2% | Documented as scraper bug |
+
+**Bulletproof count: 342 CLEAN + 19 documented (18 GraphQL + jordan-jim) = 361 / 437 (82.6%) accounted for.**
+
+**Open: 76 House members in undocumented coverage gaps.** Plan to triage:
+- ~10-15 of these are likely WP-JSON-rescuable (House WordPress sites with `/wp-json/wp/v2/posts` deeper than the HTML listing)
+- ~30 are senate-generic with broken pagination — need URL pattern audit
+- ~25 are likely real low-volume offices (Codex D4 web research will verify)
+
+## Codex D2 → done
+
+Methodology page committed (`/methodology`). Reads `expected_low_volume`, `expected_zero`, `coverage_status` from seeds. Renders sortable table of low-volume offices. Hardcoded coverage stats (will wire to live in follow-up).
+
+## Codex D3 → unblocked, ready to send
+
+Track B1 fields (`expected_low_volume`, `expected_zero`, `coverage_status`, `coverage_note`, `low_volume_reason`) are now in seed JSONs for 19 members. D3 (coverage diagnostic CLI) can proceed.
+
 ## Lessons learned (live, append as we go)
 
 - **Codex 5.5 high is excellent at exhaustive read-only audits.** The D1 brief was 70 lines; the report is 250 lines covering 222 queries with consistent classification. Use it for this kind of work liberally — much better than Claude doing the same sweep manually.
