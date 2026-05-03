@@ -28,7 +28,11 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
           regexp_replace(lower(unnest(string_to_array(
             regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
         FROM official_site_items pr
+        JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= NOW() - interval '7 days'
+          AND s.status = 'active'
+          AND s.jurisdiction = 'us'
+          AND s.chamber IN ('senate','house')
           AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       ),
       prior AS (
@@ -36,8 +40,12 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
           regexp_replace(lower(unnest(string_to_array(
             regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
         FROM official_site_items pr
+        JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= NOW() - interval '14 days'
           AND pr.published_at < NOW() - interval '7 days'
+          AND s.status = 'active'
+          AND s.jurisdiction = 'us'
+          AND s.chamber IN ('senate','house')
           AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       ),
       rcounts AS (
@@ -67,7 +75,11 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
           regexp_replace(lower(unnest(string_to_array(
             regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
         FROM official_site_items pr
+        JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= date_trunc('year', NOW())
+          AND s.status = 'active'
+          AND s.jurisdiction = 'us'
+          AND s.chamber IN ('senate','house')
           AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       ),
       prior AS (
@@ -75,10 +87,14 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
           regexp_replace(lower(unnest(string_to_array(
             regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
         FROM official_site_items pr
+        JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= date_trunc('year', NOW()) - interval '1 year'
           AND pr.published_at < date_trunc('year', NOW())
               - (NOW() - date_trunc('year', NOW()))
               + interval '1 day'
+          AND s.status = 'active'
+          AND s.jurisdiction = 'us'
+          AND s.chamber IN ('senate','house')
           AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       ),
       rcounts AS (
@@ -108,7 +124,11 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
           regexp_replace(lower(unnest(string_to_array(
             regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
         FROM official_site_items pr
+        JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= '2025-01-01'
+          AND s.status = 'active'
+          AND s.jurisdiction = 'us'
+          AND s.chamber IN ('senate','house')
           AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       )
       SELECT word, count(*)::int as recent_count,
@@ -128,7 +148,11 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
         regexp_replace(lower(unnest(string_to_array(
           regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
       FROM official_site_items pr
+      JOIN officials s ON s.id = pr.official_id
       WHERE pr.published_at >= NOW() - interval '30 days'
+        AND s.status = 'active'
+        AND s.jurisdiction = 'us'
+        AND s.chamber IN ('senate','house')
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
     ),
     prior AS (
@@ -136,8 +160,12 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
         regexp_replace(lower(unnest(string_to_array(
           regexp_replace(pr.title, '[^a-zA-Z ]', '', 'g'), ' '))), 's$', '') as word
       FROM official_site_items pr
+      JOIN officials s ON s.id = pr.official_id
       WHERE pr.published_at >= NOW() - interval '60 days'
         AND pr.published_at < NOW() - interval '30 days'
+        AND s.status = 'active'
+        AND s.jurisdiction = 'us'
+        AND s.chamber IN ('senate','house')
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
     ),
     rcounts AS (
