@@ -1,8 +1,11 @@
 import { sql } from "./db";
 
 export async function getSenatorActivity() {
+  // Congress-wide swim-lane source (chamber='senate' OR 'house'). Homepage
+  // bars the top members across both bodies. Function name kept for
+  // backward compat — it now returns members from either chamber.
   return sql`
-    SELECT s.id, s.full_name, s.party, s.state,
+    SELECT s.id, s.full_name, s.party, s.state, s.chamber,
            to_char(date_trunc('week', pr.published_at), 'YYYY-MM-DD') as week,
            count(*)::int as count
     FROM official_site_items pr
@@ -11,8 +14,9 @@ export async function getSenatorActivity() {
       AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       AND pr.published_at >= '2025-01-01'
       AND s.status = 'active'
-      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
-    GROUP BY s.id, s.full_name, s.party, s.state, week
+      AND s.chamber IN ('senate','house')
+      AND s.jurisdiction = 'us'
+    GROUP BY s.id, s.full_name, s.party, s.state, s.chamber, week
     ORDER BY s.full_name, week
   `;
 }
@@ -20,16 +24,19 @@ export async function getSenatorActivity() {
 export async function getTopicTrends() {
   // Title-only keyword extraction with stemming (trailing -s stripped). Two
   // exclusion lists: a static stopword list (procedural/political vocabulary
-  // that's noise across the dataset), and a dynamic list of senator
-  // surnames pulled from the senators table — without it the rankings
-  // degrade into "who issued the most releases" since every senator's name
-  // appears in their own headlines.
+  // that's noise across the dataset), and a dynamic list of member surnames
+  // pulled from officials — without it the rankings degrade into "who
+  // issued the most releases" since every member's name appears in their
+  // own headlines. Surnames cover both Senate and House members so the
+  // chip cloud doesn't tilt toward one chamber's name vocabulary.
   return sql`
     WITH senator_surnames AS (
       SELECT DISTINCT
         regexp_replace(lower(split_part(full_name, ' ', -1)), 's$', '') AS surname
       FROM officials
-      WHERE chamber = 'senate' AND jurisdiction = 'us' AND status = 'active'
+      WHERE chamber IN ('senate','house')
+        AND jurisdiction = 'us'
+        AND status = 'active'
     ),
     stemmed AS (
       SELECT DISTINCT pr.id,
@@ -43,7 +50,9 @@ export async function getTopicTrends() {
       JOIN officials s ON s.id = pr.official_id
       WHERE pr.published_at >= NOW() - interval '30 days'
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
-        AND s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
+        AND s.status = 'active'
+        AND s.chamber IN ('senate','house')
+        AND s.jurisdiction = 'us'
     )
     SELECT word, count(*)::int as count
     FROM stemmed
@@ -232,6 +241,9 @@ export async function getChamberActivity(days = 7, chamber: "senate" | "house" =
 }
 
 export async function getMailbag(days = 7) {
+  // Mailbag (homepage content-type strip) — Congress-wide. Counts press
+  // releases / statements / op-eds / floor statements / etc. across both
+  // chambers in the last ${days} days.
   return sql`
     SELECT pr.content_type, count(*)::int as count
     FROM official_site_items pr
@@ -240,7 +252,9 @@ export async function getMailbag(days = 7) {
       AND pr.published_at IS NOT NULL
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
-      AND s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
+      AND s.status = 'active'
+      AND s.chamber IN ('senate','house')
+      AND s.jurisdiction = 'us'
     GROUP BY pr.content_type
     ORDER BY count DESC
   `;
