@@ -427,3 +427,28 @@ Did one Webflow wave 2 fix for ezell, mcgovern, fernandez (same Hamadeh-style AS
 | Records added today | +7,255 |
 
 **Total commits today: ~25.** All 29 pipeline tests pass. Production build clean. Vercel auto-deploy in flight on each push. The 80% strict bar is hit. The product reads as Full Congress on every public surface.
+
+## Late-evening continuation (4:35-4:55 PM EDT)
+
+User stayed away another hour. Continued pushing autonomously.
+
+**Round 2 fixes:**
+1. **Homepage analytics Congress-wide** — `getSenatorActivity`, `getTopicTrends`, `getMailbag` were Senate-only. Now all three scope to chamber IN ('senate','house'). Topic-trend stopwords pull surnames from BOTH chambers so the chip cloud doesn't tilt to one body.
+2. **Swim lane chamber-aware** — SenatorActivity + SenatorBars now use `getMemberPhotoUrl` and chamber-aware hrefs. House members in the rankings link to /house/[id], get their /house/<bioguide>.jpg photo.
+3. **Homepage copy** — "Senator Frequency Rankings" → "Frequency Rankings" + dual links (All Senate / All House). "Showing N of 100 senators" → "Showing top N of 537 members of Congress."
+4. **Webflow wave 2** — ezell, mcgovern, fernandez patched. Fernandez +45 records.
+5. **Deep-pagination wave** — 18 stuck-with-30-100-records members at max-pages 100. Net **+10 reaches Jan 2025**, +985 records.
+
+**End-of-session honest numbers:**
+
+| Metric | Value | % |
+|---|---:|---:|
+| House records (live, clean) | **43,927** | (was 35,687 yesterday → +8,240 today) |
+| House CLEAN reaches Jan 2025 | **374** | **85.6%** |
+| House documented gaps | 24 (after dedup) |  |
+| Bulletproof accounted-for | **397** | **90.8%** |
+| Stuck + undocumented | 40 | 9.2% |
+
+The 40 still-undocumented stuck are mostly members whose listings only serve recent items (no deeper pagination on the source site) — won't be fixable from our side. Future work: WP-JSON for any members on WordPress, Playwright for the 18 NextJS+GraphQL group, or just acknowledge the gap publicly via methodology page.
+
+Total commits today: ~28. All 29 pipeline tests pass. Production build clean. The reframe is complete.
