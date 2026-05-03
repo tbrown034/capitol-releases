@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getTrendingWithDelta, getTopicOwnership, getPartySkew, type TrendingScope } from "../lib/trending";
+import { getTrendingWithDelta, getTopicOwnership, getPartySkew, type TrendingScope, type TrendingChamber } from "../lib/trending";
 import { TermChart } from "../components/term-chart";
 import { TopicTimeline } from "../components/topic-timeline";
 import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
@@ -36,6 +36,7 @@ type SkewRow = {
 };
 
 const VALID_SCOPES: TrendingScope[] = ["week", "month", "ytd", "all"];
+const VALID_CHAMBERS: TrendingChamber[] = ["all", "senate", "house"];
 
 export default async function TrendingPage({
   searchParams,
@@ -47,17 +48,21 @@ export default async function TrendingPage({
     sp.scope && VALID_SCOPES.includes(sp.scope as TrendingScope)
       ? (sp.scope as TrendingScope)
       : "month";
+  const chamber: TrendingChamber =
+    sp.chamber && VALID_CHAMBERS.includes(sp.chamber as TrendingChamber)
+      ? (sp.chamber as TrendingChamber)
+      : "all";
 
   const [trendingRaw, skewRaw] = await Promise.all([
-    getTrendingWithDelta(scope),
-    getPartySkew(10),
+    getTrendingWithDelta(scope, chamber),
+    getPartySkew(10, chamber),
   ]);
 
   const trending = trendingRaw as TrendingRow[];
   const skew = skewRaw as SkewRow[];
 
   const top5Terms = trending.slice(0, 5).map((t) => t.word);
-  const ownership = (await getTopicOwnership(top5Terms)) as OwnerRow[];
+  const ownership = (await getTopicOwnership(top5Terms, chamber)) as OwnerRow[];
 
   const ownersByTerm = new Map<string, OwnerRow[]>();
   for (const row of ownership) {
@@ -94,6 +99,38 @@ export default async function TrendingPage({
         </h2>
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <span className="text-[10px] uppercase tracking-wider text-neutral-500 mr-1">
+            Chamber:
+          </span>
+          {(
+            [
+              { key: "all", label: "All Congress" },
+              { key: "senate", label: "Senate" },
+              { key: "house", label: "House" },
+            ] as { key: TrendingChamber; label: string }[]
+          ).map((opt) => {
+            const selected = chamber === opt.key;
+            const params = new URLSearchParams();
+            if (scope !== "month") params.set("scope", scope);
+            if (opt.key !== "all") params.set("chamber", opt.key);
+            const qs = params.toString();
+            const href = qs ? `/trending?${qs}` : "/trending";
+            return (
+              <Link
+                key={opt.key}
+                href={href}
+                className={`text-xs rounded-full border px-2.5 py-0.5 transition-colors ${
+                  selected
+                    ? "border-neutral-900 bg-neutral-900 text-white"
+                    : "border-neutral-300 text-neutral-600 hover:border-neutral-500"
+                }`}
+              >
+                {opt.label}
+              </Link>
+            );
+          })}
+        </div>
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <span className="text-[10px] uppercase tracking-wider text-neutral-500 mr-1">
             Window:
           </span>
           {(
@@ -105,7 +142,11 @@ export default async function TrendingPage({
             ] as { key: TrendingScope; label: string }[]
           ).map((opt) => {
             const selected = scope === opt.key;
-            const href = opt.key === "month" ? "/trending" : `/trending?scope=${opt.key}`;
+            const params = new URLSearchParams();
+            if (opt.key !== "month") params.set("scope", opt.key);
+            if (chamber !== "all") params.set("chamber", chamber);
+            const qs = params.toString();
+            const href = qs ? `/trending?${qs}` : "/trending";
             return (
               <Link
                 key={opt.key}

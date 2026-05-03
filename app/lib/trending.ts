@@ -15,12 +15,28 @@ const STOPWORDS = [
 
 export type TrendingScope = "week" | "month" | "ytd" | "all";
 
+export type TrendingChamber = "all" | "senate" | "house";
+
+// Returns the chamber filter as a string array suitable for `= ANY($)`.
+// "all" → both chambers; "senate" / "house" → single-chamber array. Lets
+// every trending query take a single chamber arg without rewriting the
+// predicate per scope.
+function chamberArray(chamber: TrendingChamber): string[] {
+  if (chamber === "senate") return ["senate"];
+  if (chamber === "house") return ["house"];
+  return ["senate", "house"];
+}
+
 /**
  * Trending now. Returns top stems for the chosen scope, with delta vs the
  * equivalent prior window (same length for week/month, prior calendar year
  * for ytd, no delta for "all").
  */
-export async function getTrendingWithDelta(scope: TrendingScope = "month") {
+export async function getTrendingWithDelta(
+  scope: TrendingScope = "month",
+  chamber: TrendingChamber = "all"
+) {
+  const chambers = chamberArray(chamber);
   if (scope === "week") {
     return sql`
       WITH recent AS (
@@ -32,7 +48,7 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
         WHERE pr.published_at >= NOW() - interval '7 days'
           AND s.status = 'active'
           AND s.jurisdiction = 'us'
-          AND s.chamber IN ('senate','house')
+          AND s.chamber = ANY(${chambers}::text[])
           AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       ),
       prior AS (
@@ -45,7 +61,7 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
           AND pr.published_at < NOW() - interval '7 days'
           AND s.status = 'active'
           AND s.jurisdiction = 'us'
-          AND s.chamber IN ('senate','house')
+          AND s.chamber = ANY(${chambers}::text[])
           AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       ),
       rcounts AS (
@@ -79,7 +95,7 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
         WHERE pr.published_at >= date_trunc('year', NOW())
           AND s.status = 'active'
           AND s.jurisdiction = 'us'
-          AND s.chamber IN ('senate','house')
+          AND s.chamber = ANY(${chambers}::text[])
           AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       ),
       prior AS (
@@ -94,7 +110,7 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
               + interval '1 day'
           AND s.status = 'active'
           AND s.jurisdiction = 'us'
-          AND s.chamber IN ('senate','house')
+          AND s.chamber = ANY(${chambers}::text[])
           AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       ),
       rcounts AS (
@@ -128,7 +144,7 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
         WHERE pr.published_at >= '2025-01-01'
           AND s.status = 'active'
           AND s.jurisdiction = 'us'
-          AND s.chamber IN ('senate','house')
+          AND s.chamber = ANY(${chambers}::text[])
           AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       )
       SELECT word, count(*)::int as recent_count,
@@ -152,7 +168,7 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
       WHERE pr.published_at >= NOW() - interval '30 days'
         AND s.status = 'active'
         AND s.jurisdiction = 'us'
-        AND s.chamber IN ('senate','house')
+        AND s.chamber = ANY(${chambers}::text[])
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
     ),
     prior AS (
@@ -165,7 +181,7 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
         AND pr.published_at < NOW() - interval '30 days'
         AND s.status = 'active'
         AND s.jurisdiction = 'us'
-        AND s.chamber IN ('senate','house')
+        AND s.chamber = ANY(${chambers}::text[])
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
     ),
     rcounts AS (
@@ -191,12 +207,16 @@ export async function getTrendingWithDelta(scope: TrendingScope = "month") {
  * For a list of terms, return the top 3 senators by full-text mentions
  * since Jan 1, 2025. One row per (term, senator).
  */
-export async function getTopicOwnership(terms: string[]) {
+export async function getTopicOwnership(
+  terms: string[],
+  chamber: TrendingChamber = "all"
+) {
   if (terms.length === 0) return [] as TopicOwnerRow[];
   const cleaned = terms
     .map((t) => t.trim().replace(/[^a-zA-Z0-9 \-']/g, "").slice(0, 40))
     .filter(Boolean);
   if (cleaned.length === 0) return [] as TopicOwnerRow[];
+  const chambers = chamberArray(chamber);
 
   const results = await Promise.all(
     cleaned.map(
@@ -210,7 +230,8 @@ export async function getTopicOwnership(terms: string[]) {
         FROM officials s
         JOIN official_site_items pr ON pr.official_id = s.id
         WHERE s.status = 'active'
-          AND s.chamber = 'senate' AND s.jurisdiction = 'us'
+          AND s.chamber = ANY(${chambers}::text[])
+          AND s.jurisdiction = 'us'
           AND pr.deleted_at IS NULL
           AND pr.content_type != 'photo_release'
           AND pr.published_at IS NOT NULL
@@ -240,7 +261,11 @@ export type TopicOwnerRow = {
  * Republicans (titles, since 2025-01-01). Returns top tilted terms in each
  * direction.
  */
-export async function getPartySkew(limit = 12) {
+export async function getPartySkew(
+  limit = 12,
+  chamber: TrendingChamber = "all"
+) {
+  const chambers = chamberArray(chamber);
   return sql`
     WITH all_words AS (
       SELECT pr.id,
@@ -255,7 +280,8 @@ export async function getPartySkew(limit = 12) {
         AND pr.content_type != 'photo_release'
         AND pr.published_at >= '2025-01-01'
         AND s.status = 'active'
-        AND s.chamber = 'senate' AND s.jurisdiction = 'us'
+        AND s.chamber = ANY(${chambers}::text[])
+        AND s.jurisdiction = 'us'
         AND s.party IN ('D','R')
     ),
     cleaned AS (
