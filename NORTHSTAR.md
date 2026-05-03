@@ -273,6 +273,21 @@ Methodology page committed (`/methodology`). Reads `expected_low_volume`, `expec
 
 Track B1 fields (`expected_low_volume`, `expected_zero`, `coverage_status`, `coverage_note`, `low_volume_reason`) are now in seed JSONs for 19 members. D3 (coverage diagnostic CLI) can proceed.
 
+## Milestone — 1:30 PM EDT — 80% bar HIT
+
+**House reaches Jan 2025: 355/437 = 81.2%.** With documented gaps included: **374/437 = 85.6% accounted for.**
+
+| Metric | Start of day | Now | Delta |
+|---|---:|---:|---:|
+| House records total | 35,687 | **40,093** | +4,406 |
+| Reaches Jan 2025 | 323 | **355** | +32 |
+| Reaches Jan 2025 % | 73.9% | **81.2%** | +7.3 pts |
+| Accounted-for (CLEAN + documented) | n/a | **85.6%** | new |
+
+Today's wave: 3 deep-pagination batches (15 + 10 + 21 + 20 members at max-pages 5/15/20/25/30), one WP-JSON rescue (smith-jason +33), and a single `coverage_status` tagging pass for the 18 GraphQL members. Codex's `pipeline/backfill.py` updates (date-from-parent fallback + external-URL filter) materially helped on the heading-only-listing members.
+
+**Remaining 63 unaccounted-for House members** are mostly: senate-generic parser members where pagination is configured but doesn't actually walk deeper pages on the live site. These need per-member URL-pattern audit (~2-4 hours of focused work) — defer to next session.
+
 ## Lessons learned (live, append as we go)
 
 - **Codex 5.5 high is excellent at exhaustive read-only audits.** The D1 brief was 70 lines; the report is 250 lines covering 222 queries with consistent classification. Use it for this kind of work liberally — much better than Claude doing the same sweep manually.
