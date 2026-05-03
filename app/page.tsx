@@ -4,6 +4,7 @@ import { getStats, getTopSenators, getLeastActiveSenators, getFeed, getLatestRun
 import { getChamberActivity, getSenatorActivity, getTopicTrends, getMailbag } from "./lib/analytics";
 import { ReleaseCard } from "./components/release-card";
 import { SenateChamber } from "./components/senate-chamber";
+import { HouseChamber } from "./components/house-chamber";
 import { SenatorBars } from "./components/senator-bars";
 import { SenatorActivity } from "./components/senator-activity";
 import { MailbagStrip } from "./components/mailbag-strip";
@@ -38,8 +39,15 @@ function diversifyFeed(items: FeedItem[], maxRun: number): FeedItem[] {
   return out;
 }
 
-export default async function Home() {
-  const [stats, topSenators, leastActive, { items: latestPool }, senatorActivity, topicTrends, latestRun, chamber, mailbag] =
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | undefined>>;
+}) {
+  const sp = (await searchParams) ?? {};
+  const chamberView: "senate" | "house" = sp.chamber === "house" ? "house" : "senate";
+
+  const [stats, topSenators, leastActive, { items: latestPool }, senatorActivity, topicTrends, latestRun, senateChamber, houseChamber, mailbag] =
     await Promise.all([
       getStats(),
       getTopSenators(10),
@@ -51,7 +59,8 @@ export default async function Home() {
       getSenatorActivity(),
       getTopicTrends(),
       getLatestRun(),
-      getChamberActivity(30),
+      getChamberActivity(30, "senate"),
+      getChamberActivity(30, "house"),
       getMailbag(7),
     ]);
 
@@ -185,16 +194,40 @@ export default async function Home() {
         </p>
       </div>
 
-      {/* Senate Chamber — lifted high; this is the visual anchor of the page. */}
+      {/* Chamber — visual anchor of the page. Toggle between Senate (100
+          seats, default) and House (437 seats). Both render as semicircle
+          heatmaps colored by party with opacity = activity. */}
       <section className="mb-10 md:mb-14">
-        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3 md:mb-4">
-          The Chamber
-        </h2>
+        <div className="flex items-center justify-between border-b border-neutral-900 pb-2 mb-3 md:mb-4">
+          <h2 className="text-xs uppercase tracking-wider text-neutral-500">
+            The Chamber
+          </h2>
+          <div className="flex gap-1">
+            <Link
+              href="/"
+              className={`px-3 py-1 text-xs border ${chamberView === "senate" ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
+            >
+              Senate (100)
+            </Link>
+            <Link
+              href="/?chamber=house"
+              className={`px-3 py-1 text-xs border ${chamberView === "house" ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
+            >
+              House (437)
+            </Link>
+          </div>
+        </div>
         <Suspense>
-          <SenateChamber
-            senators={chamber as { id: string; full_name: string; party: "D" | "R" | "I"; state: string; count: number }[]}
-            days={30}
-          />
+          {chamberView === "senate" ? (
+            <SenateChamber
+              senators={senateChamber as { id: string; full_name: string; party: "D" | "R" | "I"; state: string; count: number }[]}
+              days={30}
+            />
+          ) : (
+            <HouseChamber
+              members={houseChamber as { id: string; full_name: string; party: "D" | "R" | "I"; state: string; count: number }[]}
+            />
+          )}
         </Suspense>
       </section>
 

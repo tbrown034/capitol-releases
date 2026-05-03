@@ -211,9 +211,9 @@ export async function getSenatorTopicTrends(
   `;
 }
 
-export async function getChamberActivity(days = 7) {
+export async function getChamberActivity(days = 7, chamber: "senate" | "house" = "senate") {
   return sql`
-    SELECT s.id, s.full_name, s.party, s.state,
+    SELECT s.id, s.full_name, s.party, s.state, s.district,
            coalesce(rc.count, 0)::int as count
     FROM officials s
     LEFT JOIN (
@@ -226,8 +226,8 @@ export async function getChamberActivity(days = 7) {
       GROUP BY official_id
     ) rc ON rc.official_id = s.id
     WHERE s.status = 'active'
-      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
-    ORDER BY s.party, s.state, s.full_name
+      AND s.chamber = ${chamber} AND s.jurisdiction = 'us'
+    ORDER BY s.party, s.state, s.district NULLS LAST, s.full_name
   `;
 }
 

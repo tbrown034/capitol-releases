@@ -24,6 +24,10 @@ export default async function SocialPage({
   const state = params.state;
   const officialId = params.senator;
   const includeReplies = params.replies === "1";
+  const chamber: "all" | "senate" | "house" =
+    params.chamber === "house" || params.chamber === "senate"
+      ? params.chamber
+      : "all";
 
   const filters = {
     party,
@@ -46,6 +50,7 @@ export default async function SocialPage({
       state,
       senator: officialId,
       replies: includeReplies ? "1" : undefined,
+      chamber: chamber !== "all" ? chamber : undefined,
       ...overrides,
     };
     const sp = new URLSearchParams();
@@ -80,25 +85,57 @@ export default async function SocialPage({
         currently exist on the platform.
       </p>
 
-      <Filters
-        party={party}
-        state={state}
-        officialId={officialId}
-        includeReplies={includeReplies}
-        active={active}
-        buildHref={buildHref}
-      />
-
-      <ul className="divide-y divide-neutral-200 border-t border-neutral-200">
-        {feed.items.map((post) => (
-          <PostRow key={post.id} post={post} />
+      <div className="flex flex-wrap gap-1 mb-6">
+        {(["all", "senate", "house"] as const).map((c) => (
+          <Link
+            key={c}
+            href={buildHref({ chamber: c === "all" ? undefined : c, page: undefined })}
+            className={`px-3 py-1 text-xs border ${chamber === c ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
+          >
+            {c === "all" ? "All Congress" : c === "senate" ? "Senate" : "House"}
+          </Link>
         ))}
-        {feed.items.length === 0 && (
-          <li className="py-10 text-center text-sm text-neutral-500">
-            No posts match these filters.
-          </li>
-        )}
-      </ul>
+      </div>
+
+      {chamber === "house" ? (
+        <div className="border-t border-neutral-200 py-10 text-center text-sm text-neutral-500">
+          <p className="font-medium text-neutral-900 mb-1">House Bluesky coming in Phase 2</p>
+          <p className="text-xs">
+            Verified House handles aren&rsquo;t collected yet — we&rsquo;re currently
+            tracking 44 verified Senate accounts. Switch to{" "}
+            <Link href={buildHref({ chamber: undefined })} className="underline hover:text-neutral-900">
+              All Congress
+            </Link>{" "}
+            or{" "}
+            <Link href={buildHref({ chamber: "senate" })} className="underline hover:text-neutral-900">
+              Senate
+            </Link>{" "}
+            to see what&rsquo;s collected.
+          </p>
+        </div>
+      ) : (
+        <>
+          <Filters
+            party={party}
+            state={state}
+            officialId={officialId}
+            includeReplies={includeReplies}
+            active={active}
+            buildHref={buildHref}
+          />
+
+          <ul className="divide-y divide-neutral-200 border-t border-neutral-200">
+            {feed.items.map((post) => (
+              <PostRow key={post.id} post={post} />
+            ))}
+            {feed.items.length === 0 && (
+              <li className="py-10 text-center text-sm text-neutral-500">
+                No posts match these filters.
+              </li>
+            )}
+          </ul>
+        </>
+      )}
 
       {feed.items.length > 0 && (
         <Pagination page={page} totalPages={totalPages} buildHref={buildHref} total={feed.total} />
