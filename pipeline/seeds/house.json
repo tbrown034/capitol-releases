@@ -584,9 +584,7 @@
       "recon_status": "verified",
       "district": 8,
       "collection_method": "httpx",
-      "bioguide_id": "H001098",
-      "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
+      "bioguide_id": "H001098"
     },
     {
       "member_id": "gosar-paul",
@@ -1144,9 +1142,7 @@
       "recon_status": "verified",
       "district": 21,
       "collection_method": "httpx",
-      "bioguide_id": "C001059",
-      "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
+      "bioguide_id": "C001059"
     },
     {
       "member_id": "valadao-david",
@@ -2612,9 +2608,7 @@
       "recon_status": "verified",
       "district": 7,
       "collection_method": "httpx",
-      "bioguide_id": "M001216",
-      "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
+      "bioguide_id": "M001216"
     },
     {
       "member_id": "haridopolos-mike",
@@ -4303,9 +4297,7 @@
       "recon_status": "verified",
       "district": 17,
       "collection_method": "httpx",
-      "bioguide_id": "S001225",
-      "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
+      "bioguide_id": "S001225"
     },
     {
       "member_id": "mrvan-frank",
@@ -5662,9 +5654,7 @@
       "district": 5,
       "collection_method": "rss",
       "rss_feed_url": "https://walberg.house.gov/rss.xml",
-      "bioguide_id": "W000798",
-      "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
+      "bioguide_id": "W000798"
     },
     {
       "member_id": "dingell-debbie",
@@ -6332,9 +6322,7 @@
       "recon_status": "verified",
       "district": 8,
       "bioguide_id": "S001195",
-      "collection_method": "httpx",
-      "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
+      "collection_method": "httpx"
     },
     {
       "member_id": "kinghinds-kimberlyn",
@@ -7563,9 +7551,7 @@
       "recon_status": "verified",
       "district": 3,
       "collection_method": "httpx",
-      "bioguide_id": "L000590",
-      "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
+      "bioguide_id": "L000590"
     },
     {
       "member_id": "horsford-steven",
@@ -9224,9 +9210,7 @@
       "recon_status": "verified",
       "district": 7,
       "collection_method": "httpx",
-      "bioguide_id": "M001230",
-      "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
+      "bioguide_id": "M001230"
     },
     {
       "member_id": "bresnahan-robert",
@@ -9675,9 +9659,7 @@
       "recon_status": "verified",
       "district": 3,
       "collection_method": "httpx",
-      "bioguide_id": "B001325",
-      "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
+      "bioguide_id": "B001325"
     },
     {
       "member_id": "timmons-william",
@@ -9870,9 +9852,7 @@
       "recon_status": "verified",
       "district": 2,
       "collection_method": "httpx",
-      "bioguide_id": "B001309",
-      "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
+      "bioguide_id": "B001309"
     },
     {
       "member_id": "fleischmann-charles",
