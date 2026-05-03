@@ -381,3 +381,26 @@ User feedback: hero card showed "Sen." prefix and missing photo for House member
 **Skipped:** Chrome MCP for stuck-member URL probes — extension was disconnected at session start. Will revisit if time allows or use Playwright fallback.
 
 **Build status:** Production build clean. 43 routes (added `/methodology`, `/speeches`). All 29 pipeline data-quality tests pass.
+
+## Late-evening push (3:55-4:25 PM EDT)
+
+**Milestone: 80% bar hit.** House reaches Jan 2025 at 352/437 = 80.5%.
+
+**What landed in this push:**
+1. Codex D4 web-research output processed. 3 members tagged `expected_low_volume` with verified real-world reasons (fuller-clay special election, cherfilus-mccormick resignation, menefee-christian special election). 14 members tagged `coverage_status: scraper_bug_pending` for follow-up.
+2. **EvoGov wave 3** — discovered 188 House members had stale `.views-row` selectors. Filtered to 31 stuck-AND-stale, bulk-patched + backfilled. Net +5 reaches Jan 2025; biggest individual wins: hurd-jeff (50 records, +49), costa-jim (54, +47), lalota-nick (50 after individual retry).
+3. **Hamadeh fix** — discovered his press release listing is on a Webflow + ASP.NET document store at `/news/documentquery.aspx?DocumentTypeID=27` not `/media/press-releases`. New seed selectors: `.article_wrap` + `.article_title` + `.article_date`. Single-member backfill: +77 records reaching Jan 3, 2025 (his swearing-in).
+4. **3 URL fixes** — velazquez, lee-summer, davis-donald had wrong/dead seed URLs. Probed for working alternatives; lee-summer turned out to use his homepage as the press release listing.
+5. **/trending UI chamber pills** — All Congress / Senate / House. Used `chamberArray()` helper + `= ANY($N::text[])` Postgres pattern so chambers work as a single parameter across all 4 trending functions.
+
+**Final coverage:**
+
+| Metric | Value | % |
+|---|---:|---:|
+| House records (live, clean) | 41,776 | (+6,089 today) |
+| House CLEAN reaches Jan 2025 | 352 | **80.5%** |
+| House documented gaps | 35 | 8.0% |
+| House zero | 2 | 0.5% |
+| Total accounted for | 387 | **88.6%** |
+
+The 80% bar is now hit on the strict measure (CLEAN ≥10 records reaching Jan 2025), not just on the bulletproof count. That's the launch-grade number.
