@@ -24,6 +24,16 @@ const VALID_TYPES = new Set<ContentType>([
   "other",
 ]);
 
+const CHAMBER_TO_ROSTER = {
+  all: "us-congress",
+  senate: "us-senate",
+  house: "us-house",
+} as const;
+type ChamberFilter = keyof typeof CHAMBER_TO_ROSTER;
+function normalizeChamber(s: string | undefined): ChamberFilter {
+  return s === "senate" || s === "house" ? s : "all";
+}
+
 export default async function FeedPage({
   searchParams,
 }: {
@@ -37,9 +47,11 @@ export default async function FeedPage({
     params.type && VALID_TYPES.has(params.type as ContentType)
       ? (params.type as ContentType)
       : undefined;
+  const chamber = normalizeChamber(params.chamber);
+  const roster = CHAMBER_TO_ROSTER[chamber];
   const perPage = 25;
 
-  const { items, total } = await getFeed({ page, perPage, party, state, type });
+  const { items, total } = await getFeed({ page, perPage, party, state, type, roster });
 
   const filterSummary: string[] = [];
   if (type) filterSummary.push(CONTENT_TYPE_LABEL[type].toLowerCase());
@@ -58,13 +70,33 @@ export default async function FeedPage({
         Feed
       </h1>
       <p className="text-sm text-neutral-600 leading-relaxed mb-2 max-w-2xl">
-        Every official release from every senator, reverse-chronological. Filter
-        by type, party, or state; search the full text at{" "}
+        Every official release from every member of Congress,
+        reverse-chronological. Filter by chamber, type, party, or state; search
+        the full text at{" "}
         <Link href="/search" className="underline hover:text-neutral-900">
           /search
         </Link>
         .
       </p>
+      <div className="flex flex-wrap gap-1 mb-4">
+        {(["all", "senate", "house"] as const).map((c) => {
+          const u = new URLSearchParams();
+          if (party) u.set("party", party);
+          if (state) u.set("state", state);
+          if (type) u.set("type", type);
+          if (c !== "all") u.set("chamber", c);
+          const href = u.toString() ? `/feed?${u.toString()}` : "/feed";
+          return (
+            <Link
+              key={c}
+              href={href}
+              className={`px-3 py-1 text-xs border ${chamber === c ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
+            >
+              {c === "all" ? "All Congress" : c === "senate" ? "Senate" : "House"}
+            </Link>
+          );
+        })}
+      </div>
       <p className="text-xs text-neutral-500 leading-relaxed mb-6 max-w-2xl">
         <span className="font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-900 font-semibold">
           {total.toLocaleString()}

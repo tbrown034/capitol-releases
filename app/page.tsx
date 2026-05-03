@@ -152,7 +152,10 @@ export default async function Home() {
             <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
               {stats.total_senators ?? 0}
             </span>
-            senators tracked
+            members of Congress tracked
+            <span className="ml-2 text-xs text-neutral-400">
+              ({stats.senate_count ?? 0} Senate &middot; {stats.house_count ?? 0} House)
+            </span>
           </div>
           <div>
             <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
@@ -162,7 +165,7 @@ export default async function Home() {
           </div>
         </div>
         <p className="mt-3 text-xs text-neutral-500">
-          {stats.senators_with_releases ?? 0} of 100 senators publishing
+          {stats.senators_with_releases ?? 0} of {stats.total_senators ?? 0} members publishing
           {latestRun?.finished_at && (
             <>
               {" · "}Last updated{" "}

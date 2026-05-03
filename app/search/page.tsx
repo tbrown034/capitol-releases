@@ -50,7 +50,18 @@ type Params = {
   from?: string;
   to?: string;
   sort?: string;
+  chamber?: string;
 };
+
+const CHAMBER_TO_ROSTER = {
+  all: "us-congress",
+  senate: "us-senate",
+  house: "us-house",
+} as const;
+type ChamberFilter = keyof typeof CHAMBER_TO_ROSTER;
+function normalizeChamber(s: string | undefined): ChamberFilter {
+  return s === "senate" || s === "house" ? s : "all";
+}
 
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
@@ -79,6 +90,8 @@ export default async function SearchPage({
   const to = isValidDate(sp.to);
   const sort: "date" | "relevance" =
     sp.sort === "relevance" ? "relevance" : "date";
+  const chamber = normalizeChamber(sp.chamber);
+  const roster = CHAMBER_TO_ROSTER[chamber];
   const perPage = 25;
 
   const hasQuery = query.trim().length > 0;
@@ -92,6 +105,7 @@ export default async function SearchPage({
     from,
     to,
     sort,
+    roster,
   };
 
   const [{ items, total }, facets] = hasQuery
@@ -107,6 +121,7 @@ export default async function SearchPage({
     if (from) u.set("from", from);
     if (to) u.set("to", to);
     if (sort !== "date") u.set("sort", sort);
+    if (chamber !== "all") u.set("chamber", chamber);
     for (const [k, v] of Object.entries(overrides)) {
       if (v === null || v === undefined) u.delete(k);
       else u.set(k, v);
@@ -117,6 +132,8 @@ export default async function SearchPage({
   };
 
   const activeFilters: string[] = [];
+  if (chamber !== "all")
+    activeFilters.push(chamber === "senate" ? "Senate" : "House");
   if (party)
     activeFilters.push(
       party === "D" ? "Democrats" : party === "R" ? "Republicans" : "Independents"
@@ -148,6 +165,24 @@ export default async function SearchPage({
         <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-8">
           {/* Facet sidebar */}
           <aside className="space-y-6 text-sm">
+            {/* Chamber */}
+            <section>
+              <h3 className="text-[10px] uppercase tracking-wider text-neutral-500 mb-2">
+                Chamber
+              </h3>
+              <div className="flex flex-wrap gap-1">
+                {(["all", "senate", "house"] as const).map((c) => (
+                  <Link
+                    key={c}
+                    href={buildHref({ chamber: c === "all" ? null : c })}
+                    className={`px-2 py-1 text-xs border ${chamber === c ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
+                  >
+                    {c === "all" ? "All Congress" : c === "senate" ? "Senate" : "House"}
+                  </Link>
+                ))}
+              </div>
+            </section>
+
             {/* Sort */}
             <section>
               <h3 className="text-[10px] uppercase tracking-wider text-neutral-500 mb-2">
