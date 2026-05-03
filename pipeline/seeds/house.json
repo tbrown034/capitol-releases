@@ -3482,17 +3482,19 @@
       "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "path_segment",
+        "format": "/category/press-releases/page/{page}/",
+        "starts_at": 1
       },
       "selectors": {
-        "list_item": "article",
-        "title": "h2 a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": "article.news-card",
+        "title": "h2.news-card__title a, .news-card__title a",
+        "date": ".news-card__meta",
+        "detail_link": "h2.news-card__title a[href], .news-card__title a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 6 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 11,
       "collection_method": "httpx",
@@ -5056,21 +5058,23 @@
       "party": "D",
       "state": "MA",
       "official_url": "https://trahan.house.gov",
-      "press_release_url": "https://trahan.house.gov/news",
+      "press_release_url": "https://trahan.house.gov/news/documentquery.aspx?DocumentTypeID=27",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "Page",
+        "starts_at": 1
       },
       "selectors": {
-        "list_item": "article",
-        "title": "h2 a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": "article.newsblocker",
+        "title": "h2.newsie-titler a, .newsie-titler a",
+        "date": ".newsie-details time, time",
+        "detail_link": "h2.newsie-titler a[href], .newsie-titler a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 15 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 3,
       "bioguide_id": "T000482",
@@ -9172,21 +9176,23 @@
       "party": "D",
       "state": "PA",
       "official_url": "https://houlahan.house.gov",
-      "press_release_url": "https://houlahan.house.gov/press/",
+      "press_release_url": "https://houlahan.house.gov/news/documentquery.aspx?DocumentTypeID=27",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "Page",
+        "starts_at": 1
       },
       "selectors": {
-        "list_item": "strong.title",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": "article.newsblocker",
+        "title": "h2.newsie-titler a, .newsie-titler a, strong.title a",
+        "date": ".newsie-details time, time, span.date",
+        "detail_link": "h2.newsie-titler a[href], .newsie-titler a[href], strong.title a[href]"
       },
       "confidence": 0.55,
       "notes": "Found 132 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 6,
       "bioguide_id": "H001085",
