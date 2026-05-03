@@ -54,7 +54,9 @@
       "recon_status": "verified",
       "district": 1,
       "collection_method": "httpx",
-      "bioguide_id": "M001212"
+      "bioguide_id": "M001212",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 73 records starting 2025-02-28; deeper pages don't surface January 2025 content."
     },
     {
       "member_id": "figures-shomari",
@@ -2447,7 +2449,9 @@
       "recon_status": "verified",
       "district": 1,
       "collection_method": "httpx",
-      "bioguide_id": "P000622"
+      "bioguide_id": "P000622",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 80 records starting 2025-04-02. Patronis sworn in mid-2025 to fill McMurray vacancy \u2014 partially explained by term start."
     },
     {
       "member_id": "dunn-neal",
@@ -3500,7 +3504,9 @@
       "recon_status": "verified",
       "district": 11,
       "collection_method": "httpx",
-      "bioguide_id": "L000583"
+      "bioguide_id": "L000583",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "WordPress site with JS-driven pagination + Akamai-blocked REST API. Server-side HTML caps at 18 records."
     },
     {
       "member_id": "allen-rick",
@@ -3610,7 +3616,9 @@
       "recon_status": "verified",
       "district": "At-Large",
       "collection_method": "httpx",
-      "bioguide_id": "M001219"
+      "bioguide_id": "M001219",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 86 records starting 2025-04-04. Site doesn't surface pre-April content."
     },
     {
       "member_id": "case-ed",
@@ -5054,7 +5062,9 @@
       "recon_status": "verified",
       "district": 2,
       "collection_method": "httpx",
-      "bioguide_id": "M000312"
+      "bioguide_id": "M000312",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 50 records starting 2025-02-04; one record short of strict Jan 2025 bar."
     },
     {
       "member_id": "trahan-lori",
@@ -5497,11 +5507,13 @@
       },
       "confidence": 0.95,
       "notes": "Found 15 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 1,
       "bioguide_id": "P000597",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 19 records starting 2025-02-22. Long-serving member; Codex D4 web research found no scandal/absence \u2014 likely real low office volume."
     },
     {
       "member_id": "golden-jared",
@@ -5885,11 +5897,13 @@
       },
       "confidence": 0.95,
       "notes": "Found 138 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 13,
       "bioguide_id": "T000488",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 60 records starting 2025-03-27; deeper pages don't surface January-February 2025 content."
     },
     {
       "member_id": "finstad-brad",
@@ -6450,7 +6464,9 @@
       "recon_status": "verified",
       "district": 3,
       "collection_method": "httpx",
-      "bioguide_id": "G000591"
+      "bioguide_id": "G000591",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 6 records starting 2025-07-16. Codex D4 web research couldn't determine cause."
     },
     {
       "member_id": "ezell-mike",
@@ -6478,7 +6494,9 @@
       "recon_status": "verified",
       "district": 4,
       "collection_method": "httpx",
-      "bioguide_id": "E000235"
+      "bioguide_id": "E000235",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 50 records starting 2025-05-14; deeper pages don't surface earlier content."
     },
     {
       "member_id": "zinke-ryan",
@@ -6643,11 +6661,13 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 4,
       "bioguide_id": "F000477",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 120 records starting 2025-02-19; deeper pages don't surface pre-Feb 2025 content."
     },
     {
       "member_id": "foxx-virginia",
@@ -7401,11 +7421,13 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 12,
       "bioguide_id": "W000822",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 160 records starting 2025-02-13; deeper pages don't surface pre-Feb 2025 content. Likely CMS migration cutoff."
     },
     {
       "member_id": "stansbury-melanie",
@@ -8181,11 +8203,13 @@
       },
       "confidence": 0.55,
       "notes": "Found 158 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 21,
       "bioguide_id": "S001196",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 216 records starting 2025-02-20; deeper pages don't surface pre-Feb 2025 content. Likely CMS migration cutoff."
     },
     {
       "member_id": "mannion-john",
@@ -8976,11 +9000,13 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 4,
       "bioguide_id": "H001094",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 118 records starting 2025-03-03; deeper pages don't surface pre-March 2025 content."
     },
     {
       "member_id": "bynum-janelle",
@@ -9758,12 +9784,14 @@
       },
       "confidence": 0.95,
       "notes": "Found 6 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 6,
       "collection_method": "rss",
       "rss_feed_url": "https://clyburn.house.gov/category/press-release/feed/",
-      "bioguide_id": "C000537"
+      "bioguide_id": "C000537",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "WordPress site with JS-driven pagination + REST API blocked by Solid Security plugin. Server-side HTML caps at 26 records."
     },
     {
       "member_id": "fry-russell",
@@ -9987,7 +10015,9 @@
       "recon_status": "verified",
       "district": 6,
       "collection_method": "httpx",
-      "bioguide_id": "R000612"
+      "bioguide_id": "R000612",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 21 records starting 2025-03-05."
     },
     {
       "member_id": "epps-matt",
@@ -10895,11 +10925,13 @@
       },
       "confidence": 0.95,
       "notes": "Found 5 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 31,
       "collection_method": "httpx",
-      "bioguide_id": "C001051"
+      "bioguide_id": "C001051",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 16 records starting 2025-03-04."
     },
     {
       "member_id": "johnson-julie",
@@ -11967,11 +11999,13 @@
       },
       "confidence": 0.8,
       "notes": "Found 10 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 5,
       "collection_method": "httpx",
-      "bioguide_id": "F000471"
+      "bioguide_id": "F000471",
+      "coverage_status": "listing_horizon",
+      "coverage_note": "Listing returns 70 records starting 2025-02-11; deeper pages don't surface January 2025 content."
     },
     {
       "member_id": "grothman-glenn",
