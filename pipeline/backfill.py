@@ -713,14 +713,25 @@ def find_next_page(soup, current_url):
                 if num == current_page + 1:
                     return urljoin(current_url, href)
 
-    # 4. WordPress /page/N/ pattern (look in entire page, not just pager)
+    # 4. WordPress /page/N/ pattern (look in entire page, not just pager).
+    # Walks page-by-page based on the highest reachable page number; works
+    # both on page 1 (no /page/ in URL) and deeper pages.
     import re as _re
+    current_page = 1
+    cm = _re.search(r"/page/(\d+)", current_url)
+    if cm:
+        current_page = int(cm.group(1))
+    candidates = []
     for a in soup.select("a[href*='/page/']"):
         m = _re.search(r"/page/(\d+)", a.get("href", ""))
-        if m and int(m.group(1)) == 2:
-            # Only use this for page 1 -> 2 transition; for later pages the pager logic above handles it
-            if "page=" not in current_url and "/page/" not in current_url:
-                return urljoin(current_url, a["href"])
+        if m:
+            candidates.append((int(m.group(1)), a.get("href", "")))
+    if candidates:
+        # Find smallest page number greater than current_page
+        candidates.sort()
+        for num, href in candidates:
+            if num == current_page + 1:
+                return urljoin(current_url, href)
 
     return None
 
