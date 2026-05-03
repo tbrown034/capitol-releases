@@ -196,4 +196,21 @@ Sequence: **D1 → D2 → D4 → D3** (D3 needs Track B1 seed schema landed firs
 
 ## Live updates
 
-- 12:36 PM EDT — Plan locked, starting Track A1 + briefing Codex on D1.
+- **12:36 PM EDT** — Plan locked, starting Track A1 + briefing Codex on D1.
+- **12:48 PM EDT** — Codex D1 complete. Audit at `docs/codex-leak-audit-2026-05-03.md` (gitignored, local-only). **55 leaks across 222 queries.** Top affected surfaces: homepage, /feed, /search, /trending — exactly the surfaces Track C reframes today.
+- **12:55 PM EDT** — Plan adjustment from D1 findings: **the 28 user-facing leaks are mostly the same architectural bug repeated** — `chamber='senate'` filters that should be `jurisdiction='us' AND chamber IN ('senate','house')` (or chamber-as-parameter for filter pills). Track C and Track D leak-fix collapse into one pass. Won't make separate "fix leak" commits — the chamber filter implementation IS the fix.
+- **12:55 PM EDT** — Newly surfaced issues from D1 not previously tracked:
+  - `app/lib/queries.ts:356` — related-releases doesn't match `rel.jurisdiction`/`rel.branch`; a TX state senator could surface as "related" to a US senator. Fix in Track C.
+  - `pipeline/commands/health_report.py` is internally inconsistent — federal roster filter but universal corpus totals. Fix in Track C cleanup pass.
+  - 14 leaks in `pipeline/tests/test_data_quality.py` — universal scans that should be federal-scoped. Fix as a batch after UI ships (not launch-blocking; tests still pass on real data because the universe is overwhelmingly federal).
+- **12:55 PM EDT** — Sending Codex D2 (methodology page draft) now. D3 still queued behind Track B1.
+
+## Lessons learned (live, append as we go)
+
+- **Codex 5.5 high is excellent at exhaustive read-only audits.** The D1 brief was 70 lines; the report is 250 lines covering 222 queries with consistent classification. Use it for this kind of work liberally — much better than Claude doing the same sweep manually.
+- **`docs/` is gitignored** in this repo. Codex outputs land there but don't survive git commits. NORTHSTAR.md (at root) is the unified doc that DOES commit.
+- **Same-bug-repeated patterns** in audit reports are a green flag, not a red one — they collapse into one fix.
+
+## Issues / blockers (live)
+
+*(none active)*
