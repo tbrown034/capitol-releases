@@ -8,7 +8,7 @@ import { familyName } from "../lib/names";
 export const metadata = {
   title: "Trending — Capitol Releases",
   description:
-    "What U.S. senators are talking about now: trending terms, weekly frequency, who's pushing each topic, and party-coded vocabulary.",
+    "What members of Congress are talking about now: trending terms, weekly frequency, who's pushing each topic, and party-coded vocabulary across the U.S. Senate and House.",
 };
 
 export const revalidate = 600;
@@ -77,9 +77,9 @@ export default async function TrendingPage({
         Trending
       </h1>
       <p className="text-sm md:text-base text-neutral-600 leading-relaxed mb-2 max-w-2xl">
-        What U.S. senators are talking about now — and how it&rsquo;s
-        changing. Word stems pulled from release titles; trajectories use
-        full text (title + body) with stemming.
+        What members of Congress are talking about now — and how it&rsquo;s
+        changing. Word stems pulled from release titles across the U.S. Senate
+        and U.S. House; trajectories use full text (title + body) with stemming.
       </p>
       <p className="text-xs text-neutral-500 mb-10">
         Stems collapse simple plurals (e.g. <em>family</em>/<em>families</em>
