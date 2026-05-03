@@ -2427,14 +2427,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.8,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 1,
       "collection_method": "httpx",
@@ -3141,14 +3141,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.8,
       "notes": "Found 18 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 27,
       "collection_method": "httpx",
@@ -3280,14 +3280,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 4,
       "bioguide_id": "J000288",
@@ -3441,14 +3441,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 10,
       "website_url": "https://collins.house.gov",
@@ -3686,14 +3686,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.8,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 2,
       "collection_method": "httpx",
@@ -4401,14 +4401,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.8,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 5,
       "collection_method": "httpx",
@@ -4541,14 +4541,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.8,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 1,
       "collection_method": "httpx",
@@ -5675,14 +5675,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.6,
       "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 7,
       "bioguide_id": "B001321",
@@ -5703,14 +5703,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.8,
       "notes": "Found 16 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 8,
       "collection_method": "httpx",
@@ -7399,14 +7399,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.8,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 2,
       "collection_method": "httpx",
@@ -7481,14 +7481,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.8,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 2,
       "collection_method": "httpx",
@@ -8307,14 +8307,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.8,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 2,
       "collection_method": "httpx",
@@ -9402,14 +9402,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.8,
       "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 16,
       "collection_method": "httpx",
@@ -11007,14 +11007,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.95,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 38,
       "bioguide_id": "H001095",
@@ -11655,9 +11655,9 @@
       },
       "selectors": {
         "list_item": "div.post-content",
-        "title": "a",
+        "title": "h2 a",
         "date": ".time-cat",
-        "detail_link": "a[href]"
+        "detail_link": "h2 a[href]"
       },
       "confidence": 0.3,
       "notes": "",
@@ -12017,14 +12017,14 @@
         "starts_at": 0
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": ".evo-views-row",
+        "title": ".media-body .h3 a, .media-body .h5 a, .media-body .h4 a",
+        "detail_link": ".media-body .h3 a[href], .media-body .h5 a[href], .media-body .h4 a[href]",
+        "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.8,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 2,
       "collection_method": "httpx",

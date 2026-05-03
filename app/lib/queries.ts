@@ -43,6 +43,8 @@ const FEED_COLUMNS = `pr.id, pr.official_id, pr.title, pr.published_at, pr.body_
 // tag claims.
 const EFFECTIVE_DATE_SQL = `LEAST(pr.published_at, pr.scraped_at)`;
 
+export type RosterScope = "us-congress" | "us-senate" | "us-house" | "tx-senate";
+
 export type FeedFilters = {
   page?: number;
   perPage?: number;
@@ -54,9 +56,10 @@ export type FeedFilters = {
   from?: string;
   to?: string;
   sort?: "date" | "relevance";
-  // Roster scope. Defaults to "us-senate" (US Senate). Set to "tx-senate"
-  // for the Texas state-senate corpus. Single point of override so /texas/*
-  // feeds and searches reuse all the existing query logic. Post-2026-05-02
+  // Roster scope. Defaults to "us-congress" (US Senate + US House). Set to
+  // "us-senate" / "us-house" to narrow to one chamber, or "tx-senate" for
+  // the Texas state corpus. Single point of override so /texas/* feeds and
+  // chamber-filter pills reuse all the existing query logic. Post-2026-05-02
   // schema: state legislators sit under (chamber, jurisdiction); the legacy
   // overloaded chamber='tx_senate' value was normalized away in migration 012.
   roster?: RosterScope;
@@ -68,9 +71,7 @@ function buildFeedPredicates(f: FeedFilters): {
   preds: string[];
   params: unknown[];
 } {
-  const roster = f.roster ?? "us-senate";
-  const [scopeChamber, scopeJurisdiction] =
-    roster === "tx-senate" ? ["senate", "tx"] : ["senate", "us"];
+  const roster = f.roster ?? "us-congress";
   const preds: string[] = [
     "pr.deleted_at IS NULL",
     "pr.content_type != 'photo_release'",
@@ -85,8 +86,24 @@ function buildFeedPredicates(f: FeedFilters): {
   // ts_headline snippet column referencing $1 by index. The chamber filter
   // and any other facets follow.
   if (f.search) push("pr.fts @@ plainto_tsquery('english', $?)", f.search);
-  push("s.chamber = $?", scopeChamber);
-  push("s.jurisdiction = $?", scopeJurisdiction);
+  // Roster scope. us-congress fans across both chambers; the others pin to
+  // one. Keeping these as a literal IN list (no parameter) is intentional —
+  // it lets the planner use the chamber index and matches the shape of
+  // the existing single-chamber predicate.
+  if (roster === "us-congress") {
+    preds.push("s.chamber IN ('senate','house')");
+    preds.push("s.jurisdiction = 'us'");
+  } else if (roster === "us-house") {
+    preds.push("s.chamber = 'house'");
+    preds.push("s.jurisdiction = 'us'");
+  } else if (roster === "tx-senate") {
+    preds.push("s.chamber = 'senate'");
+    preds.push("s.jurisdiction = 'tx'");
+  } else {
+    // us-senate
+    preds.push("s.chamber = 'senate'");
+    preds.push("s.jurisdiction = 'us'");
+  }
   const ctype = normalizeType(f.type);
   if (f.party) push("s.party = $?", f.party);
   if (f.state) push("s.state = $?", f.state);
@@ -232,7 +249,6 @@ export async function getSenator(id: string): Promise<Senator | null> {
     SELECT * FROM officials
     WHERE id = ${id}
       AND chamber = 'senate' AND jurisdiction = 'us'
-      AND jurisdiction = 'us'
   `;
   return (rows[0] as Senator) ?? null;
 }
@@ -346,11 +362,11 @@ export async function getRelatedReleases(
   limit = 6
 ): Promise<FeedItem[]> {
   if (!release.published_at) return [];
-  // Scope "related" to the same chamber the release came from. Without
-  // this, a TX-state release would surface only US-Senate matches (or
-  // nothing), and a US-Senate release would surface only US matches even
-  // though TX released on the same day. Same chamber is the right
-  // editorial frame anyway — "what else was happening in this body."
+  // Scope "related" to the same chamber AND jurisdiction the release came
+  // from. Without the jurisdiction match, a US-Senate release could pull
+  // a TX state-senator release as "related" because both are chamber=senate.
+  // Pinning to (chamber, jurisdiction) keeps the editorial frame honest —
+  // "what else was happening in the same body."
   const text = `
     SELECT ${FEED_COLUMNS}
     FROM official_site_items pr
@@ -360,6 +376,7 @@ export async function getRelatedReleases(
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
       AND s.chamber = rel.chamber
+      AND s.jurisdiction = rel.jurisdiction
       AND pr.id != $1
       AND pr.official_id != $2
       AND pr.published_at IS NOT NULL
@@ -388,7 +405,8 @@ export async function getReleaseIdsForSitemap(
     WHERE pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
-      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
+      AND s.chamber IN ('senate','house')
+      AND s.jurisdiction = 'us'
     ORDER BY pr.published_at DESC NULLS LAST
     LIMIT ${limit} OFFSET ${offset}
   `;
@@ -403,19 +421,28 @@ export async function getReleaseCountForSitemap(): Promise<number> {
     WHERE pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
-      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
+      AND s.chamber IN ('senate','house')
+      AND s.jurisdiction = 'us'
   `;
   return Number((rows[0] as { total: number }).total);
 }
 
-export type RosterScope = "us-senate" | "tx-senate" | "us-house";
-
 export async function getActiveSenatorIds(
-  scope: RosterScope = "us-senate"
+  scope: RosterScope = "us-congress"
 ): Promise<string[]> {
   // Post-2026-05-02 schema: members live under (chamber, jurisdiction).
   // The legacy chamber='tx_senate' value was normalized away in migration 012;
   // every Texas state senator is now (chamber='senate', jurisdiction='tx').
+  if (scope === "us-congress") {
+    const rows = await sql`
+      SELECT id FROM officials
+      WHERE status = 'active'
+        AND chamber IN ('senate','house')
+        AND jurisdiction = 'us'
+      ORDER BY id
+    `;
+    return rows.map((r) => (r as { id: string }).id);
+  }
   const [chamber, jurisdiction] =
     scope === "tx-senate"
       ? ["senate", "tx"]
@@ -443,7 +470,8 @@ export async function getDeletedReleases(
     WHERE pr.deleted_at IS NOT NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
-      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
+      AND s.chamber IN ('senate','house')
+      AND s.jurisdiction = 'us'
   `;
   const items = await sql`
     SELECT pr.id, pr.official_id, pr.title, pr.published_at, pr.body_text,
@@ -456,7 +484,8 @@ export async function getDeletedReleases(
     WHERE pr.deleted_at IS NOT NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
-      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
+      AND s.chamber IN ('senate','house')
+      AND s.jurisdiction = 'us'
     ORDER BY pr.deleted_at DESC
     LIMIT ${perPage} OFFSET ${offset}
   `;
@@ -544,31 +573,39 @@ export async function getSenatorTypeBreakdown(
   return { breakdown, earliest };
 }
 
+// Homepage corpus stats. Cross-chamber federal — both US Senate and US House.
+// Senate-only and House-only chamber pages have their own dedicated queries
+// (getSenators / getHouseMembers) that include per-member breakdowns.
 export async function getStats() {
   const result = await sql`
     SELECT
       count(DISTINCT pr.id)::int as total_releases,
       count(DISTINCT pr.official_id)::int as senators_with_releases,
       count(DISTINCT s.id)::int as total_senators,
+      count(DISTINCT s.id) FILTER (WHERE s.chamber = 'senate')::int as senate_count,
+      count(DISTINCT s.id) FILTER (WHERE s.chamber = 'house')::int as house_count,
       min(pr.published_at) as earliest,
       max(pr.published_at) as latest
     FROM officials s
     LEFT JOIN official_site_items pr ON pr.official_id = s.id AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
-    WHERE s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
+    WHERE s.status = 'active'
+      AND s.chamber IN ('senate','house')
+      AND s.jurisdiction = 'us'
   `;
   return result[0];
 }
 
 export async function getTopSenators(limit = 10) {
   return sql`
-    SELECT s.full_name, s.party, s.state, s.id,
+    SELECT s.full_name, s.party, s.state, s.id, s.chamber, s.district,
            count(pr.id)::int as count
     FROM official_site_items pr
     JOIN officials s ON s.id = pr.official_id
     WHERE pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       AND s.status = 'active'
-      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
-    GROUP BY s.id, s.full_name, s.party, s.state
+      AND s.chamber IN ('senate','house')
+      AND s.jurisdiction = 'us'
+    GROUP BY s.id, s.full_name, s.party, s.state, s.chamber, s.district
     ORDER BY count DESC
     LIMIT ${limit}
   `;
@@ -576,15 +613,16 @@ export async function getTopSenators(limit = 10) {
 
 export async function getLeastActiveSenators(limit = 10) {
   return sql`
-    SELECT s.full_name, s.party, s.state, s.id,
+    SELECT s.full_name, s.party, s.state, s.id, s.chamber, s.district,
            count(pr.id)::int as count,
            max(pr.published_at) as last_release
     FROM officials s
     LEFT JOIN official_site_items pr ON s.id = pr.official_id AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
     WHERE s.collection_method IS NOT NULL
       AND s.status = 'active'
-      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
-    GROUP BY s.id, s.full_name, s.party, s.state
+      AND s.chamber IN ('senate','house')
+      AND s.jurisdiction = 'us'
+    GROUP BY s.id, s.full_name, s.party, s.state, s.chamber, s.district
     ORDER BY count ASC
     LIMIT ${limit}
   `;
@@ -819,7 +857,15 @@ export async function getSocialFeed(
   const perPage = f.perPage ?? 50;
   const offset = (page - 1) * perPage;
 
-  const preds: string[] = ["sp.deleted_at IS NULL"];
+  // Social feed scopes to verified US senators. The 44 Bluesky handles
+  // we collect against today are all US-Senate offices; House handles
+  // are not yet verified, and state Bluesky is out of scope. Pin
+  // chamber + jurisdiction to avoid future state/exec drift.
+  const preds: string[] = [
+    "sp.deleted_at IS NULL",
+    "s.chamber = 'senate'",
+    "s.jurisdiction = 'us'",
+  ];
   const params: unknown[] = [];
   if (!f.includeReplies) preds.push("sp.is_reply = FALSE");
   if (f.party) {
