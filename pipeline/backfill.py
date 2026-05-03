@@ -153,20 +153,58 @@ def _nearby_date_text(item) -> str:
     return ""
 
 
+_NAV_JUNK_PATH_FRAGMENTS = (
+    "/contact/offices/",
+    "/contact/office/",
+    "/contact/contact-form",
+    "/contact/email-me",
+    "/about/biography",
+    "/about/biographical",
+    "/services/help-with",
+    "/services/flag-",
+    "/services/internship",
+    "/forms/",
+    "/jobs/",
+    "/internships/",
+    "/serving-you/",
+    "/help-with-a-federal-agency",
+    "/pages/about-",
+    "/privacy-policy",
+    "/sitemap",
+)
+
+
 def _is_external_detail_url(url: str) -> bool:
-    """Reject social/share/mail links that selectors can accidentally grab."""
+    """Reject links that selectors can accidentally grab.
+
+    Two classes of rejections:
+    1. Off-domain links (social, share, mailto). Rejected if host is not
+       a senate/house/whitehouse domain.
+    2. In-domain navigation/contact pages — office locator pages, form
+       pages, sitemaps, biography pages — that look like listing-row
+       links to permissive selectors but are not press releases. We
+       maintain an explicit denylist of path fragments observed in
+       real scrapes. Adding a new fragment here is safer than tightening
+       selectors per-member, because the same junk pattern repeats
+       across dozens of House sites that share CMS templates.
+    """
     if not url:
         return True
     parsed = urlparse(url)
     if parsed.scheme and parsed.scheme not in ("http", "https"):
         return True
     host = parsed.netloc.lower()
+    path = parsed.path.lower()
     if not host:
         return False
     allowed_suffixes = (".senate.gov", ".house.gov", "whitehouse.gov")
-    if host.endswith(allowed_suffixes):
-        return False
-    return True
+    if not host.endswith(allowed_suffixes):
+        return True
+    # Same-domain but a known navigation/contact path
+    for frag in _NAV_JUNK_PATH_FRAGMENTS:
+        if frag in path:
+            return True
+    return False
 
 
 def extract_listing_items(soup, selectors):
