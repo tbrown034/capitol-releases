@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { sql } from "../lib/db";
 import senateSeed from "../../pipeline/seeds/senate.json";
 import houseSeed from "../../pipeline/seeds/house.json";
 
@@ -93,12 +94,92 @@ const CONTENT_TYPES = [
   },
 ];
 
-const COVERAGE_ROWS = [
-  ["U.S. senators", "100 / 100", "90 clean, 10 documented gaps"],
-  ["House members configured", "437", "Every configured member has a source row"],
-  ["House members reaching Jan. 2025", "323", "74% of configured House rows"],
-  ["House trouble list", "39", "Zero, null-date, selector, pagination or low-volume cases"],
-];
+async function getCoverageRows(): Promise<[string, string, string][]> {
+  // Live numbers from the database. Calling out: "reaches Jan 2025" uses
+  // first_dt < 2025-02-01 because some legitimate Jan releases land 2025-01-15
+  // through 2025-01-31 — we want anyone whose archive starts within the
+  // window. The "documented gaps" count includes coverage_status flags
+  // (e.g. playwright_required) plus expected_zero / expected_low_volume.
+  const [senateClean] = (await sql`
+    SELECT count(*)::int as ct
+    FROM officials s
+    LEFT JOIN official_site_items pr
+      ON pr.official_id = s.id AND pr.deleted_at IS NULL
+     AND pr.content_type != 'photo_release'
+    WHERE s.status = 'active'
+      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
+    GROUP BY s.id
+    HAVING count(pr.id) >= 10 AND min(pr.published_at) < '2025-02-01'
+  `) as { ct: number }[];
+
+  const [houseStats] = (await sql`
+    WITH counts AS (
+      SELECT s.id,
+             count(pr.id) FILTER (WHERE pr.deleted_at IS NULL
+                                  AND pr.content_type != 'photo_release') as rec,
+             min(pr.published_at) FILTER (WHERE pr.deleted_at IS NULL
+                                          AND pr.content_type != 'photo_release') as first_dt
+      FROM officials s
+      LEFT JOIN official_site_items pr ON pr.official_id = s.id
+      WHERE s.status = 'active'
+        AND s.chamber = 'house' AND s.jurisdiction = 'us'
+      GROUP BY s.id
+    )
+    SELECT
+      count(*)::int as total,
+      count(*) FILTER (WHERE first_dt < '2025-02-01' AND rec >= 10)::int as reaches,
+      count(*) FILTER (WHERE rec = 0)::int as zero,
+      count(*) FILTER (WHERE rec BETWEEN 1 AND 9)::int as shallow
+    FROM counts
+  `) as { total: number; reaches: number; zero: number; shallow: number }[];
+
+  // Senate coverage rows: 100/100 minus documented gaps. We'll source
+  // 'documented' from the seed (any senator with expected_zero, expected_low_volume,
+  // or coverage_status set).
+  const senateMembers = senateSeed.members as SeedMember[];
+  const senateDocumented = senateMembers.filter(
+    (m) => m.expected_zero || m.expected_low_volume || (m as { coverage_status?: string }).coverage_status
+  ).length;
+
+  const houseMembers = houseSeed.members as SeedMember[];
+  const houseDocumented = houseMembers.filter(
+    (m) => m.expected_zero || m.expected_low_volume || (m as { coverage_status?: string }).coverage_status
+  ).length;
+
+  // Bulletproof = clean reaches + documented (so the "X/Y accounted for" reads honest)
+  const houseAccountedFor = houseStats.reaches + houseDocumented;
+  const housePct = ((houseStats.reaches / houseStats.total) * 100).toFixed(1);
+  const houseBulletproofPct = ((houseAccountedFor / houseStats.total) * 100).toFixed(1);
+  const houseTroubleList = houseStats.total - houseAccountedFor;
+
+  return [
+    [
+      "U.S. senators (clean)",
+      `${senateClean?.ct ?? 0} / 100`,
+      `${senateDocumented} documented gaps; rest publishing on schedule.`,
+    ],
+    [
+      "U.S. House (configured)",
+      `${houseStats.total} / 435`,
+      "Every member has a source row. Two non-voting delegate seats exclude (DC, PR, etc., counted in the 437 active rows).",
+    ],
+    [
+      "House — reaches Jan. 2025",
+      `${houseStats.reaches} / ${houseStats.total}`,
+      `${housePct}% have ≥10 records reaching back to early 2025.`,
+    ],
+    [
+      "House — bulletproof accounted for",
+      `${houseAccountedFor} / ${houseStats.total}`,
+      `${houseBulletproofPct}% — clean rows plus ${houseDocumented} members tagged as documented gaps (Phase 2 scrapers, scraper bugs, low-volume offices).`,
+    ],
+    [
+      "House — open trouble list",
+      `${houseTroubleList}`,
+      "Members with shallow archives where the cause is still under investigation.",
+    ],
+  ];
+}
 
 function normalizeRows(): LowVolumeRow[] {
   // TODO: fill from seed once expected_low_volume field lands.
@@ -188,7 +269,10 @@ export default async function MethodologyPage({
     params.sort === "verified"
       ? params.sort
       : "name";
-  const lowVolumeRows = sortRows(normalizeRows(), sort);
+  const [lowVolumeRows, coverageRows] = await Promise.all([
+    Promise.resolve(sortRows(normalizeRows(), sort)),
+    getCoverageRows(),
+  ]);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
@@ -350,7 +434,7 @@ export default async function MethodologyPage({
               </tr>
             </thead>
             <tbody>
-              {COVERAGE_ROWS.map(([metric, status, note]) => (
+              {coverageRows.map(([metric, status, note]) => (
                 <tr key={metric} className="border-b border-neutral-100">
                   <td className="py-2.5 pr-4 text-neutral-900">{metric}</td>
                   <td className="py-2.5 pr-4 font-[family-name:var(--font-dm-mono)] text-neutral-900">
