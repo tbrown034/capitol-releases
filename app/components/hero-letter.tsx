@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
+import { getMemberPhotoUrl, getMemberTitlePrefix, getInitials } from "../lib/photos";
 import { normalizeTitle } from "../lib/titles";
 import { TypeIcon } from "./type-icon";
 import { formatReleaseDate, formatTimestamp, formatTimestampShort, isFutureDated } from "../lib/dates";
@@ -19,12 +19,20 @@ type HeroItem = {
   scraped_at?: string;
   content_type: ContentType;
   source_url: string;
+  // Chamber drives photo path (/house vs /senators) and the byline prefix
+  // (Rep. vs Sen.). Optional — defaults to senate behavior to preserve
+  // backward-compat for any caller that doesn't pass it.
+  chamber?: string | null;
+  // bioguide_id is needed for /house/<bioguide>.jpg lookups. Senate photo
+  // resolution falls back to the name-based map if absent.
+  bioguide_id?: string | null;
   // Optional pre-resolved photo URL. If unset, falls back to the bioguide
   // map. Set this for TX state senators (whose photos live at
   // /state-senators/tx/dXX.jpg, outside the bioguide).
   photo_url?: string | null;
-  // Optional senator title prefix. Defaults to "Sen."; the TX hub uses
-  // "State Sen." to clarify state vs federal in the byline.
+  // Optional senator title prefix override. Defaults are chamber-aware
+  // ("Sen."/"Rep."); the TX hub uses "State Sen." to clarify state vs
+  // federal in the byline.
   title_prefix?: string;
   // Optional source domain shown in the card footer. Defaults to "senate.gov";
   // TX uses "senate.texas.gov".
@@ -67,9 +75,12 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
 
   if (items.length === 0) return null;
   const item = items[idx];
-  const photo = item.photo_url ?? getSenatorPhotoUrl(item.senator_name, item.official_id);
-  const titlePrefix = item.title_prefix ?? "Sen.";
-  const sourceLabel = item.source_label ?? "senate.gov";
+  const photo =
+    item.photo_url ??
+    getMemberPhotoUrl(item.senator_name, item.official_id, item.chamber, item.bioguide_id);
+  const titlePrefix = item.title_prefix ?? getMemberTitlePrefix(item.chamber);
+  const sourceLabel =
+    item.source_label ?? (item.chamber === "house" ? "house.gov" : "senate.gov");
   const partyName =
     item.party === "D" ? "Democrat" : item.party === "R" ? "Republican" : "Independent";
   const partyAccent =

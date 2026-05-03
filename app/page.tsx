@@ -69,6 +69,8 @@ export default async function Home() {
       scraped_at: it.scraped_at,
       content_type: (it.content_type ?? "press_release") as ContentType,
       source_url: it.source_url,
+      chamber: it.chamber,
+      bioguide_id: it.bioguide_id,
     }));
 
   const latest = diversifyFeed(latestPool, 2).slice(0, 9);

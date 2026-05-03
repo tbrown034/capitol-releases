@@ -32,7 +32,7 @@ function normalizeType(t?: string): ContentType | undefined {
 }
 
 // SELECT columns for all feed queries -- keep in sync with FeedItem.
-const FEED_COLUMNS = `pr.id, pr.official_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, pr.content_type, s.full_name as senator_name, s.party, s.state`;
+const FEED_COLUMNS = `pr.id, pr.official_id, pr.title, pr.published_at, pr.body_text, pr.source_url, pr.scraped_at, pr.content_type, s.full_name as senator_name, s.party, s.state, s.chamber, s.bioguide_id`;
 
 // Sort key that defends against upstream date typos (e.g. a senator's
 // office putting "May 04" on a release captured April 28). The display

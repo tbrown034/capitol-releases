@@ -123,6 +123,38 @@ export function getSenatorHref(officialId: string): string {
   return `/senators/${officialId}`;
 }
 
+// Resolve a member's headshot URL, chamber-aware.
+//   - House member: /house/<bioguide>.jpg (433 of 437 currently shipped)
+//   - Senate / executive / TX: existing getSenatorPhotoUrl logic
+// Pass `bioguideId` from the DB row when available; we fall back to
+// best-effort name lookup if it's missing.
+export function getMemberPhotoUrl(
+  fullName: string,
+  officialId: string,
+  chamber: string | null | undefined,
+  bioguideId: string | null | undefined
+): string | null {
+  if (chamber === "house" && bioguideId) {
+    return `/house/${bioguideId}.jpg`;
+  }
+  return getSenatorPhotoUrl(fullName, officialId);
+}
+
+// Chamber-aware archive URL: House -> /house/[id], Senate -> /senators/[id],
+// TX -> /texas/[id]. Use this when a hero card or feed item could be from
+// either chamber.
+export function getMemberHref(officialId: string, chamber: string | null | undefined): string {
+  if (chamber === "house") return `/house/${officialId}`;
+  return getSenatorHref(officialId);
+}
+
+// "Sen." / "Rep." byline prefix per chamber. Defaults to "Sen." when the
+// chamber is missing — preserves existing rendering for old data.
+export function getMemberTitlePrefix(chamber: string | null | undefined): string {
+  if (chamber === "house") return "Rep.";
+  return "Sen.";
+}
+
 export function getInitials(fullName: string): string {
   const parts = fullName.split(" ");
   if (parts.length === 1) return parts[0][0];

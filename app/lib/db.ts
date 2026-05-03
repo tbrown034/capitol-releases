@@ -93,6 +93,8 @@ export type FeedItem = PressRelease & {
   senator_name: string;
   party: "D" | "R" | "I";
   state: string;
+  chamber: string | null;
+  bioguide_id: string | null;
 };
 
 export type SocialPost = {
