@@ -552,11 +552,13 @@
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 7,
       "collection_method": "httpx",
-      "bioguide_id": "G000606"
+      "bioguide_id": "G000606",
+      "expected_low_volume": true,
+      "low_volume_reason": "Sworn in 2025-09 after winning special election to replace her father Ra\u00fal Grijalva (died March 2025). Limited archive expected \u2014 64 records since first day."
     },
     {
       "member_id": "hamadeh-abraham",
@@ -1906,11 +1908,12 @@
       },
       "confidence": 0.85,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 49,
       "bioguide_id": "L000593",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "low_volume_reason": "Holdover D-CA-49; 20 records starting April 28, 2026 \u2014 almost certainly a recent site migration (record count too low to be real)."
     },
     {
       "member_id": "peters-scott",
@@ -2771,12 +2774,14 @@
       },
       "confidence": 0.3,
       "notes": "",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "district": 13,
       "collection_method": "rss",
       "rss_feed_url": "https://luna.house.gov/feed",
-      "bioguide_id": "L000596"
+      "bioguide_id": "L000596",
+      "coverage_status": "playwright_required",
+      "coverage_note": "luna.house.gov is on the NextJS+GraphQL stack \u2014 confirmed shallow listing returns ~10 SSR'd items. Same pattern as the 18 GraphQL members. Should have been in that bucket originally; tagging now."
     },
     {
       "member_id": "castor-kathy",
@@ -3651,11 +3656,12 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 2,
       "bioguide_id": "T000487",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "low_volume_reason": "Holdover D-HI-2; 20 records starting Feb 2026 strongly suggests scraper or pagination issue. Re-probe needed."
     },
     {
       "member_id": "millermeeks-mariannette",
@@ -7297,11 +7303,13 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 8,
       "bioguide_id": "M001226",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "expected_low_volume": true,
+      "low_volume_reason": "First-term D-NJ-8, sworn in January 2025. 20 records starting April 2026 suggests very recent activation of press operations or fresh CMS rollout."
     },
     {
       "member_id": "pou-nellie",
@@ -11094,11 +11102,12 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 1,
       "bioguide_id": "M001213",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "low_volume_reason": "First-term R-UT-1; 20 records starting Jan 2026 likely reflects a 2026 CMS migration. Worth a per-member URL probe."
     },
     {
       "member_id": "maloy-celeste",
