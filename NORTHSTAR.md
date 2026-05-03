@@ -366,3 +366,18 @@ The "82.2% bulletproof" is now a number that holds up to a journalist's scrutiny
 4. **~5 likely real low-volume** — need web-research verification (Track D4 / Codex).
 
 **Adjustment from yesterday's plan:** the "58 zero'd Bucket A members" mostly recovered themselves via the overnight + morning cron (Akamai cleared, daily collector picked them up). Track A1 is largely done passively. Track A5 (Playwright triage of trouble sites) becomes the meaningful coverage push — focused on the 39-member trouble list, not the imagined 80-100.
+
+## Late-afternoon batch (3:40-3:55 PM EDT)
+
+User feedback: hero card showed "Sen." prefix and missing photo for House members; chamber visualization was Senate-only with no way to see House.
+
+**Fixes shipped:**
+1. **Hero byline + photo bug** (commit `22ad086`) — chamber-aware helpers in `lib/photos.ts` (`getMemberPhotoUrl`, `getMemberHref`, `getMemberTitlePrefix`). House members now show "Rep." and pull from `/house/<bioguide>.jpg`. FEED_COLUMNS + FeedItem type carry `chamber` and `bioguide_id` through to the hero.
+2. **Senate/House chamber toggle** (commit `92c7a1f`) — new `HouseChamber` component (437 seats arranged as a 5-row semicircle, [55,71,87,103,121] sum to 437). Same party-color + activity-opacity heatmap as Senate. Toggle on homepage uses `?chamber=house` URL param so it server-renders.
+3. **/social chamber filter pills** — All Congress / Senate / House. House selection shows explicit "Phase 2" empty state since House Bluesky handles aren't verified yet.
+4. **Methodology page wired to live DB** (commit `9882d17`) — `getCoverageRows()` queries officials/official_site_items live; coverage stats always match reality. New "bulletproof accounted for" row, "open trouble list" row both live.
+5. **Codex D4 prompt** prepared and handed to user for trouble-site web research.
+
+**Skipped:** Chrome MCP for stuck-member URL probes — extension was disconnected at session start. Will revisit if time allows or use Playwright fallback.
+
+**Build status:** Production build clean. 43 routes (added `/methodology`, `/speeches`). All 29 pipeline data-quality tests pass.
