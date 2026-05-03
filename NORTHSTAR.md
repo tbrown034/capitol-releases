@@ -30,7 +30,7 @@ Categories 1+2 must hit ≥350/437 House members (80% truly clean). Category 3 i
 
 ## Tracks (parallel)
 
-### Track A — Coverage push (Trevor, ~2.5hr)
+### Track A — Coverage push (Claude, ~2.5hr)
 
 | ID | Action | Done when |
 |---|---|---|
@@ -40,7 +40,7 @@ Categories 1+2 must hit ≥350/437 House members (80% truly clean). Category 3 i
 | A4 | Run new diagnostic script (Track D3 below) → produce per-member status JSON | `docs/coverage-diagnostic-2026-05-03.json` exists |
 | A5 | Probe each "0 records" + "suspicious round number" House member with Playwright. Classify "they" (truly quiet) vs "us" (scraper bug). | All zero/round-number members triaged |
 
-### Track B — Outlier infrastructure (Trevor, ~1hr)
+### Track B — Outlier infrastructure (Claude, ~1hr)
 
 | ID | Action | Done when |
 |---|---|---|
@@ -49,7 +49,7 @@ Categories 1+2 must hit ≥350/437 House members (80% truly clean). Category 3 i
 | B3 | Add JSON Schema doc for the new fields in `pipeline/seeds/SCHEMA.md` | Schema doc updated |
 | B4 | Apply outlier flags to confirmed members from A5 web research | All researched outliers flagged |
 
-### Track C — UI reframe (Trevor, ~3hr)
+### Track C — UI reframe (Claude, ~3hr)
 
 | ID | Action | Done when |
 |---|---|---|
@@ -58,14 +58,14 @@ Categories 1+2 must hit ≥350/437 House members (80% truly clean). Category 3 i
 | C3 | `/trending` — same chamber filter pills | Trending honors chamber scope |
 | C4 | `/social` — same chamber filter pills (verify Bluesky has House handles; if not, document) | Filter present even if House Bluesky is empty for now |
 | C5 | New `/speeches` route surfacing Congressional Record floor speeches with chamber filter (currently Senate-only collector; House is a future expansion) | Route exists, Senate speeches render, chamber filter present (House shows "expansion coming") |
-| C6 | `/methodology` page (Codex draft, Trevor reviews + ships) | Public, links from footer |
+| C6 | `/methodology` page (Codex draft, Claude integrates, Trevor approves on preview) | Public, links from footer |
 | C7 | Header nav audit: ensure /senators, /house, and a future /congress directory are discoverable; remove Senate-only language | Nav reads Congress-wide |
 
 ### Track D — Codex tasks (parallel, ~3hr Codex time)
 
 See "Codex briefs" section below. Four tasks, run them in this order: D1 → D2 → D4 → D3 (D3 depends on B1's seed schema landing).
 
-### Track E — Verification + ship (Trevor, ~1hr)
+### Track E — Verification + ship (Claude, ~1hr)
 
 | ID | Action | Done when |
 |---|---|---|
@@ -112,7 +112,7 @@ Sequence: **D1 → D2 → D4 → D3** (D3 needs Track B1 seed schema landed firs
 >
 > **Constraint:** This Next.js version has breaking changes from your training data — read `node_modules/next/dist/docs/` before commenting on any frontend pattern.
 
-### D2 — Methodology Page (draft, Trevor reviews)
+### D2 — Methodology Page (draft, Claude integrates)
 
 > **Context:** Capitol Releases is launching as a 535-member Congress archive today. We need a public methodology page that holds up to journalist scrutiny — explains scope, exclusions, known low-volume offices, deletion handling, provenance. This page is one of the surfaces a hiring manager opens.
 >
@@ -135,7 +135,7 @@ Sequence: **D1 → D2 → D4 → D3** (D3 needs Track B1 seed schema landed firs
 
 ### D3 — Coverage Diagnostic CLI (depends on B1)
 
-> **Context:** We need a per-member diagnostic that classifies every active House and Senate member's coverage status. Output drives the methodology page (D2) and our own troubleshooting list. **Wait until Trevor confirms Track B1 (seed schema) has landed before starting — you need to read the new `expected_low_volume` field.**
+> **Context:** We need a per-member diagnostic that classifies every active House and Senate member's coverage status. Output drives the methodology page (D2) and our own troubleshooting list. **Wait until Claude confirms Track B1 (seed schema) has landed before starting — you need to read the new `expected_low_volume` field.**
 >
 > **Task:** Write `pipeline/commands/coverage_diagnostic.py` that:
 > 1. Queries `officials JOIN official_site_items` for every active member where `chamber IN ('senate','house') AND jurisdiction='us'`
@@ -160,7 +160,7 @@ Sequence: **D1 → D2 → D4 → D3** (D3 needs Track B1 seed schema landed firs
 
 > **Context:** The diagnostic in D3 will produce a list of ~80-100 House members with coverage problems. Before we manually probe each site with Playwright, we want to know if there's a real-world reason for the silence — recent appointment, resignation, vacancy, special election, major scandal, hospitalization, etc.
 >
-> **Task:** Trevor will share the trouble-site list once D3 generates it. For each member:
+> **Task:** Claude will share the trouble-site list once D3 generates it. For each member:
 > 1. Web search: `"<member name>" "<state>" district <N> 2025 2026` and review first-page results
 > 2. Note any of: resignation, death, expulsion, appointment after Jan 2025, party switch, hospitalization, no-show member reputation, vacancy
 > 3. Cross-check against bioguide.congress.gov and ballotpedia.org for term start date
