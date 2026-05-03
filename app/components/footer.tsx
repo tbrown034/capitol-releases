@@ -19,9 +19,12 @@ export function Footer() {
 
           <nav className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-neutral-500">
             <Link href="/feed" className="hover:text-neutral-900 transition-colors">Feed</Link>
-            <Link href="/senators" className="hover:text-neutral-900 transition-colors">Directory</Link>
+            <Link href="/senators" className="hover:text-neutral-900 transition-colors">Senate</Link>
+            <Link href="/house" className="hover:text-neutral-900 transition-colors">House</Link>
             <Link href="/trending" className="hover:text-neutral-900 transition-colors">Trending</Link>
             <Link href="/search" className="hover:text-neutral-900 transition-colors">Search</Link>
+            <Link href="/speeches" className="hover:text-neutral-900 transition-colors">Speeches</Link>
+            <Link href="/social" className="hover:text-neutral-900 transition-colors">Social</Link>
             <Link href="/texas" className="hover:text-neutral-900 transition-colors">Texas Senate</Link>
             <Link href="/methodology" className="hover:text-neutral-900 transition-colors">Methodology</Link>
             <Link href="/status" className="hover:text-neutral-900 transition-colors">Run history</Link>

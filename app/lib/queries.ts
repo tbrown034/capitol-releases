@@ -835,6 +835,96 @@ export async function getBriefCitations(
 }
 
 
+// --- Floor speeches (Congressional Record) -----------------------------
+//
+// Read from `floor_speeches`. Currently US-Senate-only — the collector
+// pulls from the Congressional Record's Senate sections via GPO bulkdata.
+// House parity needs a House CREC parser (Phase 2). The /speeches route
+// surfaces the chamber filter and shows an explicit "House coming"
+// state when the user picks House.
+
+export type FloorSpeechFilters = {
+  page?: number;
+  perPage?: number;
+  party?: string;
+  state?: string;
+  officialId?: string;
+  chamber?: "all" | "senate" | "house";
+};
+
+export type FloorSpeech = {
+  id: string;
+  official_id: string;
+  bioguide_id: string;
+  speech_date: string;
+  title: string;
+  party: string;
+  state: string;
+  word_count: number;
+  detail_url: string | null;
+  body_text: string | null;
+  senator_name: string;
+};
+
+export async function getFloorSpeeches(
+  f: FloorSpeechFilters = {}
+): Promise<{ items: FloorSpeech[]; total: number; chamberAvailable: { senate: boolean; house: boolean } }> {
+  const page = f.page ?? 1;
+  const perPage = f.perPage ?? 25;
+  const offset = (page - 1) * perPage;
+  const chamber = f.chamber ?? "all";
+
+  // House CREC collector not yet built; explicit empty state.
+  if (chamber === "house") {
+    return { items: [], total: 0, chamberAvailable: { senate: true, house: false } };
+  }
+
+  const preds: string[] = [
+    "fs.body_text IS NOT NULL",
+    "s.status = 'active'",
+    "s.chamber = 'senate'",
+    "s.jurisdiction = 'us'",
+  ];
+  const params: unknown[] = [];
+  if (f.party) {
+    params.push(f.party);
+    preds.push(`s.party = $${params.length}`);
+  }
+  if (f.state) {
+    params.push(f.state);
+    preds.push(`s.state = $${params.length}`);
+  }
+  if (f.officialId) {
+    params.push(f.officialId);
+    preds.push(`fs.official_id = $${params.length}`);
+  }
+
+  const where = preds.join(" AND ");
+  params.push(perPage);
+  const limitIdx = `$${params.length}`;
+  params.push(offset);
+  const offsetIdx = `$${params.length}`;
+
+  const cols = `
+    fs.id, fs.official_id, fs.bioguide_id, fs.speech_date, fs.title,
+    fs.party, fs.state, fs.word_count, fs.detail_url, fs.body_text,
+    s.full_name AS senator_name
+  `;
+
+  const countText = `SELECT count(*)::int AS total FROM floor_speeches fs JOIN officials s ON s.id = fs.official_id WHERE ${where}`;
+  const itemsText = `SELECT ${cols} FROM floor_speeches fs JOIN officials s ON s.id = fs.official_id WHERE ${where} ORDER BY fs.speech_date DESC, fs.turn_index DESC LIMIT ${limitIdx} OFFSET ${offsetIdx}`;
+  const countParams = params.slice(0, params.length - 2);
+  const [countResult, items] = await Promise.all([
+    sql.query(countText, countParams),
+    sql.query(itemsText, params),
+  ]);
+  return {
+    items: items as FloorSpeech[],
+    total: Number((countResult as { total: number }[])[0].total),
+    chamberAvailable: { senate: true, house: false },
+  };
+}
+
 // --- Social posts (Bluesky) ---------------------------------------------
 //
 // Read from `social_posts`. Default surface excludes replies — feed shows
