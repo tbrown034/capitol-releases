@@ -49,7 +49,9 @@
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
       "collection_method": "httpx",
-      "rss_feed_url": "https://www.armstrong.senate.gov/press-releases/feed/"
+      "rss_feed_url": "https://www.armstrong.senate.gov/press-releases/feed/",
+      "expected_zero": true,
+      "low_volume_reason": "Sworn in 2026-03-24 to fill ND seat vacated by Hoeven retirement; office is still in setup phase, no press releases published yet (verified 2026-05-03)."
     },
     {
       "official_id": "baldwin-tammy",

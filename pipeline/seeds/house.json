@@ -8374,7 +8374,9 @@
       "recon_status": "verified",
       "district": 4,
       "collection_method": "httpx",
-      "bioguide_id": "J000289"
+      "bioguide_id": "J000289",
+      "expected_low_volume": false,
+      "low_volume_reason": "Active scraper bug \u2014 chairman Jim Jordan publishes regularly but our collector returns 0 (verified 2026-05-03). Tracked as known scraper issue, not a real silence."
     },
     {
       "member_id": "latta-robert",
