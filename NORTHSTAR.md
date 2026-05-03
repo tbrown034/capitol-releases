@@ -404,3 +404,26 @@ User feedback: hero card showed "Sen." prefix and missing photo for House member
 | Total accounted for | 387 | **88.6%** |
 
 The 80% bar is now hit on the strict measure (CLEAN ≥10 records reaching Jan 2025), not just on the bulletproof count. That's the launch-grade number.
+
+## Final autonomous push (4:25-4:35 PM EDT)
+
+One more wave on high-profile members previously stuck at the listing-page horizon:
+
+- **comer-james** (House Oversight chair): 50 → 75 records, now reaches Jan 16, 2025
+- **raskin-jamie** (D-MD-8): 50 → 86 records, now reaches Jan 6, 2025
+- **stefanik-elise** (R-NY-21): 50 → **216 records**, first=Feb 20 2025
+- **barr-andy** (R-KY-6): 50 → 100 records, now reaches Jan 3, 2025
+- **luna-anna**: still stuck at 10 records (NextJS+GraphQL group, requires Playwright)
+
+Did one Webflow wave 2 fix for ezell, mcgovern, fernandez (same Hamadeh-style ASP.NET document store).
+
+**End-of-session coverage:**
+
+| Metric | Value |
+|---|---:|
+| House reaches Jan 2025 | **364 / 437 = 83.3%** |
+| House documented gaps | 35 |
+| House total records | 42,942 |
+| Records added today | +7,255 |
+
+**Total commits today: ~25.** All 29 pipeline tests pass. Production build clean. Vercel auto-deploy in flight on each push. The 80% strict bar is hit. The product reads as Full Congress on every public surface.
