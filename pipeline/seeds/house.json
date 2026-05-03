@@ -6537,7 +6537,7 @@
       "party": "D",
       "state": "NC",
       "official_url": "https://donalddavis.house.gov",
-      "press_release_url": "https://dondavis.house.gov/media/press-releases",
+      "press_release_url": "https://davis.house.gov/media/press-releases",
       "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
@@ -7769,7 +7769,7 @@
       "party": "D",
       "state": "NY",
       "official_url": "https://velzquez.house.gov",
-      "press_release_url": "https://velazquez.house.gov/media-center/press-releases",
+      "press_release_url": "https://velazquez.house.gov/media/press-releases",
       "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
@@ -9342,7 +9342,7 @@
       "party": "D",
       "state": "PA",
       "official_url": "https://summerlee.house.gov",
-      "press_release_url": "https://summerlee.house.gov/newsroom/press-releases",
+      "press_release_url": "https://summerlee.house.gov",
       "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
