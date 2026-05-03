@@ -93,6 +93,7 @@ export default async function Home({
       state: string;
       weeks: { week: string; count: number }[];
       total: number;
+      chamber: string | null;
     }
   >();
   for (const row of senatorActivity as {
@@ -100,6 +101,7 @@ export default async function Home({
     full_name: string;
     party: "D" | "R" | "I";
     state: string;
+    chamber: string | null;
     week: string;
     count: number;
   }[]) {
@@ -111,6 +113,7 @@ export default async function Home({
         state: row.state,
         weeks: [],
         total: 0,
+        chamber: row.chamber,
       });
     }
     const s = senatorMap.get(row.id)!;
@@ -295,26 +298,28 @@ export default async function Home({
         </section>
 
         <SenatorActivity
-          initialTop={topSenators as { id: string; full_name: string; party: string; state: string; count: number }[]}
-          initialBottom={leastActive as { id: string; full_name: string; party: string; state: string; count: number }[]}
+          initialTop={topSenators as { id: string; full_name: string; party: string; state: string; count: number; chamber?: string | null; bioguide_id?: string | null }[]}
+          initialBottom={leastActive as { id: string; full_name: string; party: string; state: string; count: number; chamber?: string | null; bioguide_id?: string | null }[]}
         />
       </div>
 
-      {/* Senator Rankings — moved to bottom as the deep-dive view. */}
+      {/* Member Rankings — moved to bottom as the deep-dive view. */}
       <section className="mb-10 md:mb-16">
         <div className="flex items-center justify-between border-b border-neutral-900 pb-2 mb-4 md:mb-6">
           <h2 className="text-xs uppercase tracking-wider text-neutral-500">
-            Senator Frequency Rankings
+            Frequency Rankings
           </h2>
-          <Link
-            href="/senators"
-            className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
-          >
-            View all 100
-          </Link>
+          <div className="flex gap-3 text-xs text-neutral-500">
+            <Link href="/senators" className="hover:text-neutral-900 transition-colors">
+              All Senate
+            </Link>
+            <Link href="/house" className="hover:text-neutral-900 transition-colors">
+              All House
+            </Link>
+          </div>
         </div>
         <p className="text-xs text-neutral-500 mb-6">
-          Top 15 senators by release volume since January 2025
+          Top 15 members of Congress by release volume since January 2025
           <span className="ml-3 inline-flex items-center gap-3">
             <span className="inline-flex items-center gap-1">
               <span className="inline-block h-2 w-2 rounded-full bg-blue-500" />{" "}
@@ -332,7 +337,7 @@ export default async function Home({
         </p>
         <SenatorBars data={swimLaneData} />
         <div className="mt-4 pt-4 border-t border-neutral-200 flex items-center justify-between text-xs text-neutral-500">
-          <span>Showing {swimLaneData.length} of 100 senators</span>
+          <span>Showing top {swimLaneData.length} of 537 members of Congress</span>
           <Link
             href="/senators"
             className="text-neutral-900 hover:underline font-medium"

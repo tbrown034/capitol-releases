@@ -11,6 +11,7 @@ type SenatorRow = {
   state: string;
   weeks: { week: string; count: number }[];
   total: number;
+  chamber?: string | null;
 };
 
 const partyColor = {
@@ -93,9 +94,10 @@ export function SenatorBars({ data }: { data: SenatorRow[] }) {
       const baseColor = partyColor[senator.party];
       const isTopThree = i < 3;
 
+      const memberHref = senator.chamber === "house" ? `/house/${senator.id}` : `/senators/${senator.id}`;
       const rowLink = g
         .append("a")
-        .attr("href", `/senators/${senator.id}`)
+        .attr("href", memberHref)
         .attr("aria-label", `${senator.full_name} — ${senator.total} releases`)
         .style("cursor", "pointer");
 

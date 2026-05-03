@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
+import { getMemberPhotoUrl, getMemberHref, getInitials } from "../lib/photos";
 
 type SenatorRow = {
   id: string;
@@ -10,6 +10,9 @@ type SenatorRow = {
   party: string;
   state: string;
   count: number;
+  chamber?: string | null;
+  district?: string | null;
+  bioguide_id?: string | null;
 };
 
 type Range = "all" | "ytd" | "year" | "month" | "week";
@@ -41,14 +44,14 @@ function SenatorList({
   return (
     <div className="space-y-0.5">
       {rows.map((row, i) => {
-        const photoUrl = getSenatorPhotoUrl(row.full_name, row.id);
+        const photoUrl = getMemberPhotoUrl(row.full_name, row.id, row.chamber, row.bioguide_id);
         const isTopThree = emphasizeTop && i < 3;
         const pct = max > 0 ? Math.max(2, (row.count / max) * 100) : 0;
         const tint = PARTY_TINT[row.party] ?? "rgba(115,115,115,0.10)";
         return (
           <Link
             key={row.id}
-            href={`/senators/${row.id}`}
+            href={getMemberHref(row.id, row.chamber)}
             className="relative flex items-center justify-between py-1.5 text-sm hover:bg-neutral-50 transition-colors -mx-2 px-2 overflow-hidden"
           >
             {/* Magnitude bar — sits behind row content, party-tinted. */}
