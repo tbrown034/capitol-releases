@@ -13,7 +13,7 @@ export function Footer() {
               className="h-6 opacity-60"
             />
             <p className="text-xs text-neutral-500">
-              Senate press release archive
+              Congress press release archive
             </p>
           </div>
 
@@ -23,7 +23,7 @@ export function Footer() {
             <Link href="/trending" className="hover:text-neutral-900 transition-colors">Trending</Link>
             <Link href="/search" className="hover:text-neutral-900 transition-colors">Search</Link>
             <Link href="/texas" className="hover:text-neutral-900 transition-colors">Texas Senate</Link>
-            <Link href="/about" className="hover:text-neutral-900 transition-colors">Methodology</Link>
+            <Link href="/methodology" className="hover:text-neutral-900 transition-colors">Methodology</Link>
             <Link href="/status" className="hover:text-neutral-900 transition-colors">Run history</Link>
             <Link href="/admin" className="hover:text-neutral-900 transition-colors">Admin</Link>
           </nav>
@@ -32,16 +32,16 @@ export function Footer() {
         <div className="mt-8 pt-6 border-t border-neutral-200 text-[11px] text-neutral-500 leading-relaxed space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <p>
-              Data scraped four times daily (9 AM, 1 PM, 5 PM, 9 PM ET) from official{" "}
+              Data scraped four times daily from official{" "}
               <a
-                href="https://www.senate.gov/senators/"
+                href="https://www.congress.gov/members"
                 className="underline hover:text-neutral-600"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                senate.gov
-              </a>{" "}
-              press pages. For journalism and public-records purposes. Not affiliated with the U.S. government.
+                House and Senate
+              </a>
+              .gov press pages. For journalism and public-records purposes. Not affiliated with the U.S. government.
             </p>
             <p className="whitespace-nowrap">
               Built by{" "}

@@ -19,7 +19,7 @@ import sys
 import argparse
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import logging
 
@@ -28,6 +28,10 @@ import psycopg2
 from bs4 import BeautifulSoup
 
 log = logging.getLogger("capitol.backfill")
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 # Load .env file if present (no dependency required)
 _env_path = Path(__file__).parent / ".env"
@@ -39,7 +43,7 @@ if _env_path.exists():
 
 DB_URL = os.environ["DATABASE_URL"]
 
-MAX_CONCURRENT = 6
+MAX_CONCURRENT = 2
 REQUEST_TIMEOUT = 20.0
 CUTOFF_DATE = datetime(2025, 1, 1, tzinfo=timezone.utc)
 
@@ -108,6 +112,61 @@ def parse_date(text: str):
         except (ValueError, KeyError):
             continue
     return None
+
+
+def _first_date_text(text: str) -> str:
+    """Return the first date-looking substring in text."""
+    if not text:
+        return ""
+    for pat, _ in DATE_PATTERNS:
+        m = pat.search(text)
+        if m:
+            return m.group(0)
+    return ""
+
+
+def _nearby_date_text(item) -> str:
+    """Find dates outside a heading-only listing row.
+
+    Several House listings expose each release as only an h2.title link while
+    the date lives on a parent wrapper or adjacent sibling. Keep the search
+    local so page chrome and archive filters do not become release dates.
+    """
+    candidates = []
+
+    parent = item.parent
+    for _ in range(3):
+        if not parent or getattr(parent, "name", None) in ("body", "html"):
+            break
+        candidates.append(parent)
+        parent = parent.parent
+
+    for sibling in (item.find_previous_sibling(), item.find_next_sibling()):
+        if sibling:
+            candidates.append(sibling)
+
+    for candidate in candidates:
+        text = candidate.get_text(" ", strip=True)
+        date_text = _first_date_text(text)
+        if date_text:
+            return date_text
+    return ""
+
+
+def _is_external_detail_url(url: str) -> bool:
+    """Reject social/share/mail links that selectors can accidentally grab."""
+    if not url:
+        return True
+    parsed = urlparse(url)
+    if parsed.scheme and parsed.scheme not in ("http", "https"):
+        return True
+    host = parsed.netloc.lower()
+    if not host:
+        return False
+    allowed_suffixes = (".senate.gov", ".house.gov", "whitehouse.gov")
+    if host.endswith(allowed_suffixes):
+        return False
+    return True
 
 
 def extract_listing_items(soup, selectors):
@@ -242,11 +301,9 @@ def extract_item_data(item, base_url, selectors):
                 date_text = date_el.get_text(strip=True)
         if not date_text:
             block = item.get_text(" ", strip=True)
-            for pat, _ in DATE_PATTERNS:
-                m = pat.search(block)
-                if m:
-                    date_text = m.group(0)
-                    break
+            date_text = _first_date_text(block)
+        if not date_text:
+            date_text = _nearby_date_text(item)
         # Only return if we got a title AND link — otherwise let the
         # heuristic branches below take a shot too.
         if title and detail_url:
@@ -330,6 +387,8 @@ def extract_item_data(item, base_url, selectors):
         prev = item.find_previous_sibling("span", class_="date")
         if prev:
             date_text = prev.get_text(strip=True)
+        if not date_text:
+            date_text = _nearby_date_text(item)
         return title, date_text, detail_url
 
     # Kelly: JetEngine custom listing
@@ -466,11 +525,9 @@ def extract_item_data(item, base_url, selectors):
                 break
         if not date_text:
             block = item.get_text(" ", strip=True) if item.name != "a" else ""
-            for pat, _ in DATE_PATTERNS:
-                m = pat.search(block)
-                if m:
-                    date_text = m.group(0)
-                    break
+            date_text = _first_date_text(block)
+        if not date_text:
+            date_text = _nearby_date_text(item)
 
     return title, date_text, detail_url
 
@@ -630,7 +687,7 @@ def find_next_page(soup, current_url):
     return None
 
 
-async def scrape_senator(client, semaphore, senator, run_id, max_pages, _conn_unused):
+async def scrape_senator(client, semaphore, senator, run_id, max_pages, repair_null_dates, _conn_unused):
     """Scrape all press releases for one senator."""
     async with semaphore:
         sid = senator["id"]
@@ -677,25 +734,37 @@ async def scrape_senator(client, semaphore, senator, run_id, max_pages, _conn_un
                 if not title or len(title) < 5:
                     continue
 
-                pub_date = parse_date(date_text)
-
-                # Stop if we've gone past the cutoff
-                if pub_date and pub_date < CUTOFF_DATE:
-                    stop_pagination = True
-                    break
-
                 # Skip if no detail URL
                 if not detail_url:
                     continue
+                if _is_external_detail_url(detail_url):
+                    continue
+
+                pub_date = parse_date(date_text)
+                date_source = "listing_page" if pub_date else None
+                date_confidence = 0.6 if pub_date else None
 
                 # Check if already in DB
                 cur = conn.cursor()
-                cur.execute("SELECT 1 FROM official_site_items WHERE source_url = %s", (detail_url,))
-                if cur.fetchone():
+                cur.execute("SELECT published_at FROM official_site_items WHERE source_url = %s", (detail_url,))
+                existing = cur.fetchone()
+                if existing and existing[0] is not None:
                     skipped += 1
                     cur.close()
                     continue
                 cur.close()
+                if repair_null_dates and existing is None:
+                    continue
+
+                # Stop if we've gone past the cutoff, except in targeted
+                # null-date repair mode where the row already exists and only
+                # needs its missing date filled.
+                if pub_date and pub_date < CUTOFF_DATE:
+                    if repair_null_dates and existing and existing[0] is None:
+                        pass
+                    else:
+                        stop_pagination = True
+                        break
 
                 # Fetch detail page for body text
                 body_text = ""
@@ -705,6 +774,13 @@ async def scrape_senator(client, semaphore, senator, run_id, max_pages, _conn_un
                     if detail_resp.status_code == 200:
                         detail_soup = BeautifulSoup(detail_resp.text, "lxml")
                         body_text = extract_body_text(detail_soup)
+                        if not pub_date:
+                            from pipeline.lib.dates import extract_date_from_html
+                            html_date = extract_date_from_html(detail_soup)
+                            if html_date:
+                                pub_date = html_date.value
+                                date_source = html_date.source
+                                date_confidence = html_date.confidence
                 except Exception as e:
                     log.warning("Detail page fetch failed for %s: %s: %s", detail_url, type(e).__name__, e)
 
@@ -712,10 +788,29 @@ async def scrape_senator(client, semaphore, senator, run_id, max_pages, _conn_un
                 cur = conn.cursor()
                 try:
                     cur.execute("""
-                        INSERT INTO press_releases (official_id, title, published_at, body_text, source_url, scrape_run, date_source, date_confidence)
+                        INSERT INTO official_site_items (official_id, title, published_at, body_text, source_url, scrape_run, date_source, date_confidence)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                        ON CONFLICT (source_url) DO NOTHING
-                    """, (sid, title, pub_date, body_text or None, detail_url, run_id, "listing_page", 0.6))
+                        ON CONFLICT (source_url) DO UPDATE
+                        SET published_at = COALESCE(official_site_items.published_at, EXCLUDED.published_at),
+                            date_source = CASE
+                                WHEN official_site_items.published_at IS NULL AND EXCLUDED.published_at IS NOT NULL
+                                THEN EXCLUDED.date_source
+                                ELSE official_site_items.date_source
+                            END,
+                            date_confidence = CASE
+                                WHEN official_site_items.published_at IS NULL AND EXCLUDED.published_at IS NOT NULL
+                                THEN EXCLUDED.date_confidence
+                                ELSE official_site_items.date_confidence
+                            END,
+                            body_text = COALESCE(official_site_items.body_text, EXCLUDED.body_text),
+                            updated_at = CASE
+                                WHEN official_site_items.published_at IS NULL AND EXCLUDED.published_at IS NOT NULL
+                                THEN NOW()
+                                ELSE official_site_items.updated_at
+                            END
+                        WHERE official_site_items.published_at IS NULL
+                          AND EXCLUDED.published_at IS NOT NULL
+                    """, (sid, title, pub_date, body_text or None, detail_url, run_id, date_source, date_confidence))
                     conn.commit()
                     if cur.rowcount > 0:
                         inserted += 1
@@ -743,6 +838,8 @@ async def main():
     parser.add_argument("--senators", nargs="*", help="Specific senator IDs to scrape")
     parser.add_argument("--limit", type=int, help="Limit to N senators (highest confidence first)")
     parser.add_argument("--max-pages", type=int, default=5, help="Max pages to paginate per senator")
+    parser.add_argument("--max-concurrent", type=int, default=MAX_CONCURRENT, help="Max concurrent officials to scrape")
+    parser.add_argument("--repair-null-dates", action="store_true", help="Keep walking past the cutoff to date existing null-date rows")
     args = parser.parse_args()
 
     conn = psycopg2.connect(DB_URL)
@@ -781,13 +878,16 @@ async def main():
     print(f"  Cutoff: {CUTOFF_DATE.strftime('%Y-%m-%d')}")
     print(f"{'='*70}\n")
 
-    semaphore = asyncio.Semaphore(MAX_CONCURRENT)
+    semaphore = asyncio.Semaphore(args.max_concurrent)
     async with httpx.AsyncClient(
         headers=HEADERS,
         timeout=httpx.Timeout(REQUEST_TIMEOUT),
         follow_redirects=True,
     ) as client:
-        tasks = [scrape_senator(client, semaphore, s, run_id, args.max_pages, conn) for s in senators]
+        tasks = [
+            scrape_senator(client, semaphore, s, run_id, args.max_pages, args.repair_null_dates, conn)
+            for s in senators
+        ]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
     total_inserted = 0

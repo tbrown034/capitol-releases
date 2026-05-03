@@ -82,7 +82,11 @@ def upsert_release(conn, release: ReleaseRecord) -> tuple[bool, bool]:
     cur = conn.cursor()
     try:
         cur.execute(
-            "SELECT id, content_hash, body_text FROM official_site_items WHERE source_url = %s",
+            """
+            SELECT id, content_hash, body_text, published_at, date_source, date_confidence
+            FROM official_site_items
+            WHERE source_url = %s
+            """,
             (canonical,),
         )
         existing = cur.fetchone()
@@ -114,7 +118,7 @@ def upsert_release(conn, release: ReleaseRecord) -> tuple[bool, bool]:
             conn.commit()
             return (cur.rowcount > 0, False)
 
-        existing_id, existing_hash, existing_body = existing
+        existing_id, existing_hash, existing_body, existing_published_at, existing_date_source, existing_date_confidence = existing
         new_hash = release.content_hash or None
 
         # Always bump last_seen_live so the deletion detector knows the URL is
@@ -123,6 +127,27 @@ def upsert_release(conn, release: ReleaseRecord) -> tuple[bool, bool]:
             "UPDATE press_releases SET last_seen_live = NOW() WHERE id = %s",
             (existing_id,),
         )
+
+        filled_missing_date = False
+        if existing_published_at is None and release.published_at is not None:
+            cur.execute(
+                """
+                UPDATE press_releases
+                SET published_at = %s,
+                    date_source = %s,
+                    date_confidence = %s,
+                    updated_at = NOW()
+                WHERE id = %s
+                  AND published_at IS NULL
+                """,
+                (
+                    release.published_at,
+                    release.date_source or existing_date_source,
+                    release.date_confidence or existing_date_confidence,
+                    existing_id,
+                ),
+            )
+            filled_missing_date = cur.rowcount > 0
 
         # If we have hashes on both sides and they differ, archive the old
         # version then update the main row. If either hash is missing we
@@ -174,10 +199,10 @@ def upsert_release(conn, release: ReleaseRecord) -> tuple[bool, bool]:
                 (release.title, release.raw_html or None, existing_id, release.title),
             )
             conn.commit()
-            return (False, cur.rowcount > 0)
+            return (False, filled_missing_date or cur.rowcount > 0)
 
         conn.commit()
-        return (False, False)
+        return (False, filled_missing_date)
     except Exception as e:
         conn.rollback()
         log.error("Upsert failed for %s: %s", release.source_url, e)

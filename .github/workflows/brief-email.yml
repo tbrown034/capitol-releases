@@ -8,7 +8,7 @@ name: Daily brief email
 
 on:
   schedule:
-    - cron: "30 10 * * 3-7"
+    - cron: "30 10 * * 0,3-6"
   workflow_dispatch:
     inputs:
       date:
