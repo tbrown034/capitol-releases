@@ -578,11 +578,13 @@
       },
       "confidence": 0.95,
       "notes": "Found 15 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 8,
       "collection_method": "httpx",
-      "bioguide_id": "H001098"
+      "bioguide_id": "H001098",
+      "coverage_status": "scraper_bug_pending",
+      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
     },
     {
       "member_id": "gosar-paul",
@@ -1136,11 +1138,13 @@
       },
       "confidence": 0.8,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 21,
       "collection_method": "httpx",
-      "bioguide_id": "C001059"
+      "bioguide_id": "C001059",
+      "coverage_status": "scraper_bug_pending",
+      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
     },
     {
       "member_id": "valadao-david",
@@ -2602,11 +2606,13 @@
       },
       "confidence": 1.0,
       "notes": "Found 11 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 7,
       "collection_method": "httpx",
-      "bioguide_id": "M001216"
+      "bioguide_id": "M001216",
+      "coverage_status": "scraper_bug_pending",
+      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
     },
     {
       "member_id": "haridopolos-mike",
@@ -2964,11 +2970,13 @@
       },
       "confidence": 0.8,
       "notes": "Found 10 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 20,
       "collection_method": "httpx",
-      "bioguide_id": "C001127"
+      "bioguide_id": "C001127",
+      "expected_low_volume": true,
+      "low_volume_reason": "Resigned April 21, 2026 while facing House Ethics action and federal charges. Coverage stops at resignation date."
     },
     {
       "member_id": "mast-brian",
@@ -3563,11 +3571,13 @@
       },
       "confidence": 0.9,
       "notes": "Found 5 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 14,
       "collection_method": "httpx",
-      "bioguide_id": "F000485"
+      "bioguide_id": "F000485",
+      "expected_low_volume": true,
+      "low_volume_reason": "Sworn in April 14, 2026 after winning special election to replace Marjorie Taylor Greene (GA-14). Limited archive expected \u2014 recent appointment."
     },
     {
       "member_id": "moylan-james",
@@ -3761,7 +3771,9 @@
       "district": 4,
       "collection_method": "rss",
       "rss_feed_url": "https://feenstra.house.gov/rss.xml",
-      "bioguide_id": "F000446"
+      "bioguide_id": "F000446",
+      "coverage_status": "scraper_bug_pending",
+      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
     },
     {
       "member_id": "fulcher-russ",
@@ -4289,7 +4301,9 @@
       "recon_status": "verified",
       "district": 17,
       "collection_method": "httpx",
-      "bioguide_id": "S001225"
+      "bioguide_id": "S001225",
+      "coverage_status": "scraper_bug_pending",
+      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
     },
     {
       "member_id": "mrvan-frank",
@@ -5645,7 +5659,9 @@
       "district": 5,
       "collection_method": "rss",
       "rss_feed_url": "https://walberg.house.gov/rss.xml",
-      "bioguide_id": "W000798"
+      "bioguide_id": "W000798",
+      "coverage_status": "scraper_bug_pending",
+      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
     },
     {
       "member_id": "dingell-debbie",
@@ -6309,11 +6325,13 @@
       },
       "confidence": 0.35,
       "notes": "",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 8,
       "bioguide_id": "S001195",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "coverage_status": "scraper_bug_pending",
+      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
     },
     {
       "member_id": "kinghinds-kimberlyn",
@@ -7178,11 +7196,13 @@
       },
       "confidence": 0.85,
       "notes": "Found 6 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 4,
       "bioguide_id": "S000522",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "coverage_status": "scraper_bug_pending",
+      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
     },
     {
       "member_id": "gottheimer-josh",
@@ -7534,11 +7554,13 @@
       },
       "confidence": 0.8,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 3,
       "collection_method": "httpx",
-      "bioguide_id": "L000590"
+      "bioguide_id": "L000590",
+      "coverage_status": "scraper_bug_pending",
+      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
     },
     {
       "member_id": "horsford-steven",
@@ -8394,13 +8416,15 @@
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 4,
       "collection_method": "httpx",
       "bioguide_id": "J000289",
       "expected_low_volume": false,
-      "low_volume_reason": "Active scraper bug \u2014 chairman Jim Jordan publishes regularly but our collector returns 0 (verified 2026-05-03). Tracked as known scraper issue, not a real silence."
+      "low_volume_reason": "Active scraper bug \u2014 chairman Jim Jordan publishes regularly but our collector returns 0 (verified 2026-05-03). Tracked as known scraper issue, not a real silence.",
+      "coverage_status": "scraper_bug_pending",
+      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
     },
     {
       "member_id": "latta-robert",
@@ -9191,11 +9215,13 @@
       },
       "confidence": 0.8,
       "notes": "Found 15 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 7,
       "collection_method": "httpx",
-      "bioguide_id": "M001230"
+      "bioguide_id": "M001230",
+      "coverage_status": "scraper_bug_pending",
+      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
     },
     {
       "member_id": "bresnahan-robert",
@@ -9385,11 +9411,13 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 14,
       "bioguide_id": "R000610",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "coverage_status": "scraper_bug_pending",
+      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
     },
     {
       "member_id": "thompson-glenn",
@@ -9638,11 +9666,13 @@
       },
       "confidence": 1.0,
       "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 3,
       "collection_method": "httpx",
-      "bioguide_id": "B001325"
+      "bioguide_id": "B001325",
+      "coverage_status": "scraper_bug_pending",
+      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
     },
     {
       "member_id": "timmons-william",
@@ -9831,11 +9861,13 @@
       },
       "confidence": 0.8,
       "notes": "Found 16 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 2,
       "collection_method": "httpx",
-      "bioguide_id": "B001309"
+      "bioguide_id": "B001309",
+      "coverage_status": "scraper_bug_pending",
+      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
     },
     {
       "member_id": "fleischmann-charles",
@@ -10529,7 +10561,9 @@
       "recon_status": "verified",
       "district": 18,
       "collection_method": "httpx",
-      "bioguide_id": "M001245"
+      "bioguide_id": "M001245",
+      "expected_low_volume": true,
+      "low_volume_reason": "Sworn in February 2, 2026 after winning special election for Sylvester Turner's former Houston seat (TX-18). Limited archive expected \u2014 recent appointment."
     },
     {
       "member_id": "arrington-jodey",
