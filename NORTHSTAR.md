@@ -288,6 +288,28 @@ Today's wave: 3 deep-pagination batches (15 + 10 + 21 + 20 members at max-pages 
 
 **Remaining 63 unaccounted-for House members** are mostly: senate-generic parser members where pagination is configured but doesn't actually walk deeper pages on the live site. These need per-member URL-pattern audit (~2-4 hours of focused work) — defer to next session.
 
+## EvoGov wave 2 + WP-JSON rescue (1:35 PM EDT)
+
+**More wins:**
+- Probed all 23 stuck senate-drupal House members; **17 fit the EvoGov-Drupal pattern** (just had stale generic selectors). Bulk-patched + backfilled. Includes high-profile: AOC, Pappas, Matsui, Crank, Walberg, Sorensen.
+- Probed 23 non-GraphQL stuck members for WP-JSON eligibility; **3 candidates** (clyburn, jayapal, loudermilk).
+  - **Jayapal: +238 records via WP-JSON.** Now at 30 → 238 records, deep coverage.
+  - Clyburn: WP-JSON locked by "Solid Security" plugin (HTTP 401).
+  - Loudermilk: WP-JSON returns Akamai 403.
+- Extra-deep pass (max-pages 50) on the 9 highest-yield wave-2 members. Pappas now holds 273, Bresnahan 119, Moylan 89.
+
+**Final coverage state:**
+
+| Status | Count | % |
+|---|---:|---:|
+| House active | 437 | 100% |
+| Records total | **40,500** | (was 35,687 yesterday) |
+| Reaches Jan 2025 | **361** | **82.6%** |
+| + Documented gaps (18 GraphQL + 1 Jordan) | **380** | **86.9% accounted-for** |
+| Unaccounted-for | 57 | 13.1% |
+
+**The unaccounted-for 57 are mostly:** members whose listing pages only serve recent items (no deeper pagination), even when properly configured. Some may be genuinely "this office only publishes ~30 items per year" — need Codex D4 web research to verify.
+
 ## Lessons learned (live, append as we go)
 
 - **Codex 5.5 high is excellent at exhaustive read-only audits.** The D1 brief was 70 lines; the report is 250 lines covering 222 queries with consistent classification. Use it for this kind of work liberally — much better than Claude doing the same sweep manually.
