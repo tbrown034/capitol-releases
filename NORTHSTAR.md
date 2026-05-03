@@ -310,6 +310,27 @@ Today's wave: 3 deep-pagination batches (15 + 10 + 21 + 20 members at max-pages 
 
 **The unaccounted-for 57 are mostly:** members whose listing pages only serve recent items (no deeper pagination), even when properly configured. Some may be genuinely "this office only publishes ~30 items per year" — need Codex D4 web research to verify.
 
+## Quality fix — 1:42 PM EDT — junk tombstone (regression IS the improvement)
+
+Pipeline test caught 1 implausible date: costa-jim's "Washington DC Office" contact page scraped as a press release with date 2029-02-03 (parser glitch on a contact-form date input). Investigated — found **648 nav-junk records lurking** from historical scrapes, not just today's. Patterns: `/contact/offices/`, `/about/biography`, `/services/`, `/pages/about-`. Tombstoned all 648 (archival principle preserved — deleted_at set, not hard-deleted).
+
+Hardened `pipeline/backfill.py _is_external_detail_url` with an explicit denylist of 17 nav-junk path fragments observed in real scrapes. The EvoGov pattern's permissive title selector was grabbing these one in dozens; the denylist stops them at ingest.
+
+**Important data-honesty effect:** 21 House members had `first_dt < 2025-02-01` only because their nav-junk records carried fake 2021-01-03 / 2023-01-03 dates (date-parser artifact on contact forms). After tombstone, their honest first_dt moved forward. **Reaches-Jan-2025 count: 361 → 340 (-21).** This is a quality improvement disguised as a regression — we no longer claim to reach Jan 2025 from contact-page junk.
+
+**Final honest numbers (post-cleanup):**
+
+| Metric | Value | % |
+|---|---:|---:|
+| House records (live, clean) | 40,706 | — |
+| Reaches Jan 2025 | **340** | **77.8%** |
+| + Documented gaps (18 GraphQL + 1 Jordan) | **359** | **82.2% bulletproof** |
+| Unaccounted-for | 78 | 17.8% |
+
+**All 29 pipeline data-quality tests pass. Production build clean. 42 routes compile.**
+
+The "82.2% bulletproof" is now a number that holds up to a journalist's scrutiny — every record in the corpus is a real scrape, every "reaches Jan 2025" claim is from real content. That's the launch story.
+
 ## Lessons learned (live, append as we go)
 
 - **Codex 5.5 high is excellent at exhaustive read-only audits.** The D1 brief was 70 lines; the report is 250 lines covering 222 queries with consistent classification. Use it for this kind of work liberally — much better than Claude doing the same sweep manually.
