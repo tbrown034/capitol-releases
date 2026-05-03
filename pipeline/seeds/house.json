@@ -653,12 +653,14 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mb-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\ndiv.mt-6.mb-3.last:mb-0\n                  ^",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "collection_method": "rss",
       "rss_feed_url": "https://kiley.house.gov/feed",
       "district": "3",
-      "bioguide_id": "K000401"
+      "bioguide_id": "K000401",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "thompson-mike",
@@ -2932,11 +2934,13 @@
       },
       "confidence": 0.95,
       "notes": "Found 15 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 19,
       "bioguide_id": "D000032",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "cherfilusmccormick-sheila",
@@ -3036,12 +3040,14 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mr-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\narticle.flex-1.last-card.last:mr-0.mr-4.xl:max-w-[50%].xl:box-content.utility-font.w-full.min-h-[48px].min-w-[48px]\n                             ^",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "collection_method": "rss",
       "rss_feed_url": "https://moskowitz.house.gov/feed",
       "district": "23",
-      "bioguide_id": "M001217"
+      "bioguide_id": "M001217",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "wilson-frederica",
@@ -3308,12 +3314,14 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "district": 5,
       "collection_method": "rss",
       "rss_feed_url": "https://nikemawilliams.house.gov/feed",
-      "bioguide_id": "W000788"
+      "bioguide_id": "W000788",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "mcbath-lucy",
@@ -4162,12 +4170,14 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "district": 13,
       "collection_method": "rss",
       "rss_feed_url": "https://budzinski.house.gov/feed",
-      "bioguide_id": "B001315"
+      "bioguide_id": "B001315",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "underwood-lauren",
@@ -4324,12 +4334,14 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "district": 2,
       "collection_method": "rss",
       "rss_feed_url": "https://yakym.house.gov/feed",
-      "bioguide_id": "Y000067"
+      "bioguide_id": "Y000067",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "stutzman-marlin",
@@ -4685,11 +4697,13 @@
       },
       "confidence": 0.95,
       "notes": "Found 15 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 2,
       "collection_method": "httpx",
-      "bioguide_id": "G000558"
+      "bioguide_id": "G000558",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "mcgarvey-morgan",
@@ -5816,12 +5830,14 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "district": 12,
       "collection_method": "rss",
       "rss_feed_url": "https://tlaib.house.gov/feed",
-      "bioguide_id": "T000481"
+      "bioguide_id": "T000481",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "thanedar-shri",
@@ -7183,12 +7199,14 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mr-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\narticle.flex-1.last-card.last:mr-0.mr-4.xl:max-w-[50%].xl:box-content.utility-font.w-full.min-h-[48px].min-w-[48px]\n                             ^",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "collection_method": "rss",
       "rss_feed_url": "https://gottheimer.house.gov/feed",
       "district": "5",
-      "bioguide_id": "G000583"
+      "bioguide_id": "G000583",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "pallone-frank",
@@ -7685,11 +7703,13 @@
       },
       "confidence": 1.0,
       "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 5,
       "collection_method": "httpx",
-      "bioguide_id": "M001137"
+      "bioguide_id": "M001137",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "meng-grace",
@@ -7958,12 +7978,14 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "district": 15,
       "collection_method": "rss",
       "rss_feed_url": "https://ritchietorres.house.gov/feed",
-      "bioguide_id": "T000486"
+      "bioguide_id": "T000486",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "latimer-george",
@@ -8285,12 +8307,14 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "district": 1,
       "collection_method": "rss",
       "rss_feed_url": "https://landsman.house.gov/feed",
-      "bioguide_id": "L000601"
+      "bioguide_id": "L000601",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "taylor-david",
@@ -8447,12 +8471,14 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mr-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\narticle.flex-1.last-card.last:mr-0.mr-4.xl:max-w-[50%].xl:box-content.utility-font.w-full.min-h-[48px].min-w-[48px]\n                             ^",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "collection_method": "rss",
       "rss_feed_url": "https://maxmiller.house.gov/feed",
       "district": "7",
-      "bioguide_id": "M001222"
+      "bioguide_id": "M001222",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "davidson-warren",
@@ -8636,12 +8662,14 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "district": 14,
       "collection_method": "rss",
       "rss_feed_url": "https://joyce.house.gov/feed",
-      "bioguide_id": "J000295"
+      "bioguide_id": "J000295",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "carey-mike",
@@ -8739,12 +8767,14 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "district": 3,
       "collection_method": "rss",
       "rss_feed_url": "https://lucas.house.gov/feed",
-      "bioguide_id": "L000491"
+      "bioguide_id": "L000491",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "cole-tom",
@@ -10710,12 +10740,14 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "Exception during recon: SelectorSyntaxError: ':mr-0' was detected as a pseudo-class and is either unsupported or invalid. If the syntax was not intended to be recognized as a pseudo-class, please escape the colon.\n  line 1:\narticle.flex-1.last-card.last:mr-0.mr-4.xl:max-w-[50%].xl:box-content.utility-font.w-full.min-h-[48px].min-w-[48px]\n                             ^",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "collection_method": "rss",
       "rss_feed_url": "https://cloud.house.gov/feed",
       "district": "27",
-      "bioguide_id": "C001115"
+      "bioguide_id": "C001115",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "cuellar-henry",
@@ -11124,12 +11156,14 @@
       },
       "confidence": 0.3,
       "notes": "",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "district": 4,
       "collection_method": "rss",
       "rss_feed_url": "https://owens.house.gov/feed",
-      "bioguide_id": "O000086"
+      "bioguide_id": "O000086",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "wittman-robert",
@@ -11551,12 +11585,14 @@
       "selectors": {},
       "confidence": 0.6,
       "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "needs_attention",
       "district": 3,
       "collection_method": "rss",
       "rss_feed_url": "https://gluesenkampperez.house.gov/feed",
-      "bioguide_id": "G000600"
+      "bioguide_id": "G000600",
+      "coverage_status": "playwright_required",
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "newhouse-dan",
