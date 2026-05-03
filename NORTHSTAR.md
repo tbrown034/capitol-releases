@@ -204,6 +204,11 @@ Sequence: **D1 → D2 → D4 → D3** (D3 needs Track B1 seed schema landed firs
   - `pipeline/commands/health_report.py` is internally inconsistent — federal roster filter but universal corpus totals. Fix in Track C cleanup pass.
   - 14 leaks in `pipeline/tests/test_data_quality.py` — universal scans that should be federal-scoped. Fix as a batch after UI ships (not launch-blocking; tests still pass on real data because the universe is overwhelmingly federal).
 - **12:55 PM EDT** — Sending Codex D2 (methodology page draft) now. D3 still queued behind Track B1.
+- **1:00 PM EDT** — Track A wave 1 done. Probed 16 null-date House members; 15 fit the EvoGov-Drupal universal pattern (`.evo-views-row` rows, titles in `.h3` or `.h5` wrappers, dates in `.media-body .row .col-auto:first-child`). Bulk-patched all 15 in `house.json` with permissive `.h3, .h4, .h5` title selector. Bulk backfill: **+682 records, 0 errors.** Coverage delta: 73.9% → 75.7% reaching Jan 2025.
+- **1:05 PM EDT** — Codex working in parallel on `pipeline/backfill.py` (added date-from-parent fallback + external-URL filter for share links — exactly Track A3 work). Plus `pipeline/commands/update.py` got a missing-date repair path. Codex ALSO updated `app/components/footer.tsx` (Senate→Congress copy + /methodology link), `.github/workflows/brief-email.yml` (Sunday cron added). I haven't reviewed/committed Codex's WIP yet — flagged one bug: `update.py` UPDATEs through the `press_releases` compat view which won't work; needs to target `official_site_items` directly.
+- **1:10 PM EDT** — Track C foundation landed. Added `"us-congress"` RosterScope. Made it the default for `getFeed`/`getSearchFacets`. Converted `getStats`, `getTopSenators`, `getLeastActiveSenators` to Congress-wide with `senate_count`/`house_count`/`chamber`/`district` columns. Fixed related-releases jurisdiction match. Scoped social to Senate-US explicitly. **Closes 24 of 28 user-facing leaks from D1 audit.**
+- **1:15 PM EDT** — Track C UI wave 1 landed. Homepage shows Congress+Senate+House split. /search has a Chamber facet (All / Senate / House). /feed has chamber pills. All propagate via `?chamber=` and route through the new roster scope.
+- **1:15 PM EDT** — Deeper backfill (max-pages 15) running in background on the same 15 EvoGov members to push depth past Jan 2025.
 
 ## Lessons learned (live, append as we go)
 
@@ -214,3 +219,29 @@ Sequence: **D1 → D2 → D4 → D3** (D3 needs Track B1 seed schema landed firs
 ## Issues / blockers (live)
 
 *(none active)*
+
+## Live data snapshot (12:58 PM EDT)
+
+**House coverage as of right now:**
+
+| Status | Count | % |
+|---|---:|---:|
+| Active House members | 437 | — |
+| Zero records | 1 | 0.2% |
+| Low (1-4) | 22 | 5.0% |
+| Shallow (5-9) | 16 | 3.7% |
+| Mid (10-49) | 131 | 30.0% |
+| Healthy (50-199) | 233 | 53.3% |
+| Deep (200+) | 34 | 7.8% |
+| **Reaches Jan 2025** | **323 / 437** | **73.9%** |
+
+**Bar gap:** need 350 (80%) reaching Jan 2025 → recover 27 more members.
+
+**Trouble list = 39 members** (zero + low + shallow). Patterns visible:
+
+1. **~15 null-date members** (`first=-/last=-`) — scraper grabs title but can't parse date. Track A3 (date-from-parent fallback) recovers most.
+2. **~10 wrong-element members** (records all dated 2023-01-03 or 2021-01-03) — scraper hitting nav/menu items, not real releases. Selector hardening needed.
+3. **~5 pagination/short-list members** (a few records, all 2025-01-03) — listing returned but pagination not walked.
+4. **~5 likely real low-volume** — need web-research verification (Track D4 / Codex).
+
+**Adjustment from yesterday's plan:** the "58 zero'd Bucket A members" mostly recovered themselves via the overnight + morning cron (Akamai cleared, daily collector picked them up). Track A1 is largely done passively. Track A5 (Playwright triage of trouble sites) becomes the meaningful coverage push — focused on the 39-member trouble list, not the imagined 80-100.
