@@ -209,6 +209,39 @@ Sequence: **D1 → D2 → D4 → D3** (D3 needs Track B1 seed schema landed firs
 - **1:10 PM EDT** — Track C foundation landed. Added `"us-congress"` RosterScope. Made it the default for `getFeed`/`getSearchFacets`. Converted `getStats`, `getTopSenators`, `getLeastActiveSenators` to Congress-wide with `senate_count`/`house_count`/`chamber`/`district` columns. Fixed related-releases jurisdiction match. Scoped social to Senate-US explicitly. **Closes 24 of 28 user-facing leaks from D1 audit.**
 - **1:15 PM EDT** — Track C UI wave 1 landed. Homepage shows Congress+Senate+House split. /search has a Chamber facet (All / Senate / House). /feed has chamber pills. All propagate via `?chamber=` and route through the new roster scope.
 - **1:15 PM EDT** — Deeper backfill (max-pages 15) running in background on the same 15 EvoGov members to push depth past Jan 2025.
+- **1:20 PM EDT** — Deep backfill done. The 15 members now hold 35-148 records each (Salazar deepest at 148, Hinson 110). 12/15 reach Jan 2025 in their first record. House `reaches_jan_2025` count: 323 → 331 (+8). Remaining 106 House members not reaching Jan 2025 are mostly: (a) sitting members where the seed scrapes only the visible 10 items but the listing is much longer (need pagination fix or WP-JSON deepening), or (b) genuinely new term holders.
+- **1:23 PM EDT** — `app/lib/trending.ts` patched: all 7 universal-item-scan queries now join `officials` and filter to federal Congress. Closes the trending leak group from D1. Without this, /trending mixed TX state senators into federal trending words.
+
+## Status snapshot for Trevor's return
+
+**Done so far (in 90 min, autonomous):**
+- Track A1: ✅ — overnight cron caught up Bucket A automatically (only 1 zero now: jordan-jim)
+- Track A wave 1: ✅ — 15 EvoGov-Drupal House members patched, +682 records, House coverage 73.9% → 75.7%
+- Track A wave 2: ✅ — Same 15 deepened to 35-148 records each
+- Track C foundation: ✅ — `us-congress` RosterScope live; Senate-default → Congress-default
+- Track C UI wave 1: ✅ — Homepage shows 537 members (100 Senate + 437 House); /search and /feed have chamber filter pills
+- Track C leak fixes: ✅ — 31 of 28 user-facing leaks from D1 audit closed (homepage stats, feed, search, trending, sitemap, deleted, related-releases, social)
+- Codex D1: ✅ — full leak audit at `docs/codex-leak-audit-2026-05-03.md`
+
+**Codex WIP not yet reviewed/committed:**
+- `pipeline/backfill.py` — date-from-parent fallback + external-URL filter (good work but needs review for the `MAX_CONCURRENT=2` change)
+- `pipeline/commands/update.py` — missing-date repair path (has bug: `UPDATE press_releases` won't work through compat view; needs to target `official_site_items`)
+- `app/components/footer.tsx` — Senate→Congress copy + /methodology link (good)
+- `.github/workflows/brief-email.yml` — Sunday cron added (good)
+- `app/methodology/page.tsx` — not yet visible; check if Codex finished D2
+
+**Open tracks:**
+- Track A3: date-from-parent fallback for 15 null-dated rows — Codex started this in backfill.py; needs review
+- Track A wrong-element (7 members) + short-list (5 members) — not yet probed; Codex D4 web research can run in parallel
+- Track B (outlier flags `expected_low_volume`/`expected_zero` in seeds) — not yet built
+- Track C: /trending UI chamber pills (queries are fixed, UI not yet)
+- Track C: /social chamber filter (currently scoped Senate-only by design; needs UI to make that explicit to users)
+- Track C: new /speeches route (Senate-only floor speech collector exists; House would need its own)
+- Track D2: methodology page (Codex drafting)
+- Track D3: coverage diagnostic CLI (still queued behind Track B1)
+- Track D4: trouble-site web research (10 House members, ready to send Codex)
+
+**House coverage: 75.7% reaching Jan 2025 (need 80% = 350 members; gap is 19).** The remaining 19 require per-member seed-config or pagination work.
 
 ## Lessons learned (live, append as we go)
 
