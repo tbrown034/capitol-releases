@@ -1913,7 +1913,9 @@
       "district": 49,
       "bioguide_id": "L000593",
       "collection_method": "httpx",
-      "low_volume_reason": "Holdover D-CA-49; 20 records starting April 28, 2026 \u2014 almost certainly a recent site migration (record count too low to be real)."
+      "low_volume_reason": "Holdover D-CA-49; 20 records starting April 28, 2026 \u2014 almost certainly a recent site migration (record count too low to be real).",
+      "coverage_status": "pagination_js_required",
+      "coverage_note": "Site uses JavaScript-driven pagination \u2014 server returns the same 20 items regardless of ?page=N param. Server-side scraping caps at the visible 20. Full coverage requires a Playwright collector (Phase 2)."
     },
     {
       "member_id": "peters-scott",
@@ -3663,7 +3665,9 @@
       "district": 2,
       "bioguide_id": "T000487",
       "collection_method": "httpx",
-      "low_volume_reason": "Holdover D-HI-2; 20 records starting Feb 2026 strongly suggests scraper or pagination issue. Re-probe needed."
+      "low_volume_reason": "Holdover D-HI-2; 20 records starting Feb 2026 strongly suggests scraper or pagination issue. Re-probe needed.",
+      "coverage_status": "pagination_js_required",
+      "coverage_note": "Site uses JavaScript-driven pagination \u2014 server returns the same 20 items regardless of ?page=N param. Server-side scraping caps at the visible 20. Full coverage requires a Playwright collector (Phase 2)."
     },
     {
       "member_id": "millermeeks-mariannette",
@@ -5101,11 +5105,13 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 4,
       "bioguide_id": "A000148",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "coverage_status": "pagination_js_required",
+      "coverage_note": "Site uses JavaScript-driven pagination \u2014 server returns the same 20 items regardless of ?page=N param. Server-side scraping caps at the visible 20. Full coverage requires a Playwright collector (Phase 2)."
     },
     {
       "member_id": "clark-katherine",
@@ -7312,8 +7318,9 @@
       "district": 8,
       "bioguide_id": "M001226",
       "collection_method": "httpx",
-      "expected_low_volume": true,
-      "low_volume_reason": "First-term D-NJ-8, sworn in January 2025. 20 records starting April 2026 suggests very recent activation of press operations or fresh CMS rollout."
+      "low_volume_reason": "First-term D-NJ-8, sworn in January 2025. 20 records starting April 2026 suggests very recent activation of press operations or fresh CMS rollout.",
+      "coverage_status": "pagination_js_required",
+      "coverage_note": "Site uses JavaScript-driven pagination \u2014 server returns the same 20 items regardless of ?page=N param. Server-side scraping caps at the visible 20. Full coverage requires a Playwright collector (Phase 2)."
     },
     {
       "member_id": "pou-nellie",
@@ -7365,11 +7372,13 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 10,
       "bioguide_id": "M001229",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "coverage_status": "pagination_js_required",
+      "coverage_note": "Site uses JavaScript-driven pagination \u2014 server returns the same 20 items regardless of ?page=N param. Server-side scraping caps at the visible 20. Full coverage requires a Playwright collector (Phase 2)."
     },
     {
       "member_id": "coleman-bonnie",
@@ -11113,7 +11122,9 @@
       "district": 1,
       "bioguide_id": "M001213",
       "collection_method": "httpx",
-      "low_volume_reason": "First-term R-UT-1; 20 records starting Jan 2026 likely reflects a 2026 CMS migration. Worth a per-member URL probe."
+      "low_volume_reason": "First-term R-UT-1; 20 records starting Jan 2026 likely reflects a 2026 CMS migration. Worth a per-member URL probe.",
+      "coverage_status": "pagination_js_required",
+      "coverage_note": "Site uses JavaScript-driven pagination \u2014 server returns the same 20 items regardless of ?page=N param. Server-side scraping caps at the visible 20. Full coverage requires a Playwright collector (Phase 2)."
     },
     {
       "member_id": "maloy-celeste",
