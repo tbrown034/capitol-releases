@@ -1912,10 +1912,11 @@
       "recon_status": "verified",
       "district": 49,
       "bioguide_id": "L000593",
-      "collection_method": "httpx",
+      "collection_method": "rss",
       "low_volume_reason": "Holdover D-CA-49; 20 records starting April 28, 2026 \u2014 almost certainly a recent site migration (record count too low to be real).",
-      "coverage_status": "pagination_js_required",
-      "coverage_note": "Site uses JavaScript-driven pagination \u2014 server returns the same 20 items regardless of ?page=N param. Server-side scraping caps at the visible 20. Full coverage requires a Playwright collector (Phase 2)."
+      "coverage_status": "rss_feed_static",
+      "coverage_note": "Site exposes /rss/feeds/ with 25 most-recent items but no pagination (query params like ?paged, ?page, ?offset, ?limit, ?count all return the same first 25). Front-end pagination is JS-only against a private data API. Verified 2026-05-03. RSS gives daily-cron freshness; deep back-coverage requires Playwright.",
+      "rss_feed_url": "https://levin.house.gov/rss/feeds/"
     },
     {
       "member_id": "peters-scott",
@@ -3664,10 +3665,11 @@
       "recon_status": "verified",
       "district": 2,
       "bioguide_id": "T000487",
-      "collection_method": "httpx",
+      "collection_method": "rss",
       "low_volume_reason": "Holdover D-HI-2; 20 records starting Feb 2026 strongly suggests scraper or pagination issue. Re-probe needed.",
-      "coverage_status": "pagination_js_required",
-      "coverage_note": "Site uses JavaScript-driven pagination \u2014 server returns the same 20 items regardless of ?page=N param. Server-side scraping caps at the visible 20. Full coverage requires a Playwright collector (Phase 2)."
+      "coverage_status": "rss_feed_static",
+      "coverage_note": "Site exposes /rss/feeds/ with 25 most-recent items but no pagination (query params like ?paged, ?page, ?offset, ?limit, ?count all return the same first 25). Front-end pagination is JS-only against a private data API. Verified 2026-05-03. RSS gives daily-cron freshness; deep back-coverage requires Playwright.",
+      "rss_feed_url": "https://tokuda.house.gov/rss/feeds/"
     },
     {
       "member_id": "millermeeks-mariannette",
@@ -5107,9 +5109,10 @@
       "recon_status": "verified",
       "district": 4,
       "bioguide_id": "A000148",
-      "collection_method": "httpx",
-      "coverage_status": "pagination_js_required",
-      "coverage_note": "Site uses JavaScript-driven pagination \u2014 server returns the same 20 items regardless of ?page=N param. Server-side scraping caps at the visible 20. Full coverage requires a Playwright collector (Phase 2)."
+      "collection_method": "rss",
+      "coverage_status": "rss_feed_static",
+      "coverage_note": "Site exposes /rss/feeds/ with 25 most-recent items but no pagination (query params like ?paged, ?page, ?offset, ?limit, ?count all return the same first 25). Front-end pagination is JS-only against a private data API. Verified 2026-05-03. RSS gives daily-cron freshness; deep back-coverage requires Playwright.",
+      "rss_feed_url": "https://auchincloss.house.gov/rss/feeds/"
     },
     {
       "member_id": "clark-katherine",
@@ -7321,10 +7324,11 @@
       "recon_status": "verified",
       "district": 8,
       "bioguide_id": "M001226",
-      "collection_method": "httpx",
+      "collection_method": "rss",
       "low_volume_reason": "First-term D-NJ-8, sworn in January 2025. 20 records starting April 2026 suggests very recent activation of press operations or fresh CMS rollout.",
-      "coverage_status": "pagination_js_required",
-      "coverage_note": "Site uses JavaScript-driven pagination \u2014 server returns the same 20 items regardless of ?page=N param. Server-side scraping caps at the visible 20. Full coverage requires a Playwright collector (Phase 2)."
+      "coverage_status": "rss_feed_static",
+      "coverage_note": "Site exposes /rss/feeds/ with 25 most-recent items but no pagination (query params like ?paged, ?page, ?offset, ?limit, ?count all return the same first 25). Front-end pagination is JS-only against a private data API. Verified 2026-05-03. RSS gives daily-cron freshness; deep back-coverage requires Playwright.",
+      "rss_feed_url": "https://menendez.house.gov/rss/feeds/"
     },
     {
       "member_id": "pou-nellie",
@@ -7380,9 +7384,10 @@
       "recon_status": "verified",
       "district": 10,
       "bioguide_id": "M001229",
-      "collection_method": "httpx",
-      "coverage_status": "pagination_js_required",
-      "coverage_note": "Site uses JavaScript-driven pagination \u2014 server returns the same 20 items regardless of ?page=N param. Server-side scraping caps at the visible 20. Full coverage requires a Playwright collector (Phase 2)."
+      "collection_method": "rss",
+      "coverage_status": "rss_feed_static",
+      "coverage_note": "Site exposes /rss/feeds/ with 25 most-recent items but no pagination (query params like ?paged, ?page, ?offset, ?limit, ?count all return the same first 25). Front-end pagination is JS-only against a private data API. Verified 2026-05-03. RSS gives daily-cron freshness; deep back-coverage requires Playwright.",
+      "rss_feed_url": "https://mciver.house.gov/rss/feeds/"
     },
     {
       "member_id": "coleman-bonnie",
@@ -11126,10 +11131,11 @@
       "recon_status": "verified",
       "district": 1,
       "bioguide_id": "M001213",
-      "collection_method": "httpx",
+      "collection_method": "rss",
       "low_volume_reason": "First-term R-UT-1; 20 records starting Jan 2026 likely reflects a 2026 CMS migration. Worth a per-member URL probe.",
-      "coverage_status": "pagination_js_required",
-      "coverage_note": "Site uses JavaScript-driven pagination \u2014 server returns the same 20 items regardless of ?page=N param. Server-side scraping caps at the visible 20. Full coverage requires a Playwright collector (Phase 2)."
+      "coverage_status": "rss_feed_static",
+      "coverage_note": "Site exposes /rss/feeds/ with 25 most-recent items but no pagination (query params like ?paged, ?page, ?offset, ?limit, ?count all return the same first 25). Front-end pagination is JS-only against a private data API. Verified 2026-05-03. RSS gives daily-cron freshness; deep back-coverage requires Playwright.",
+      "rss_feed_url": "https://blakemoore.house.gov/rss/feeds/"
     },
     {
       "member_id": "maloy-celeste",
