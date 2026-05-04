@@ -6642,13 +6642,11 @@
       },
       "confidence": 0.95,
       "notes": "Found 20 items on listing page. ",
-      "last_verified": "2026-05-03",
+      "last_verified": "2026-05-04",
       "recon_status": "verified",
       "district": 4,
       "bioguide_id": "F000477",
-      "collection_method": "httpx",
-      "coverage_status": "listing_horizon",
-      "coverage_note": "Listing returns 120 records starting 2025-02-19; deeper pages don't surface pre-Feb 2025 content."
+      "collection_method": "httpx"
     },
     {
       "member_id": "foxx-virginia",
