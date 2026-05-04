@@ -664,9 +664,7 @@
       "collection_method": "rss",
       "rss_feed_url": "https://kiley.house.gov/feed",
       "district": "3",
-      "bioguide_id": "K000401",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "K000401"
     },
     {
       "member_id": "thompson-mike",
@@ -2785,9 +2783,7 @@
       "district": 13,
       "collection_method": "rss",
       "rss_feed_url": "https://luna.house.gov/feed",
-      "bioguide_id": "L000596",
-      "coverage_status": "playwright_required",
-      "coverage_note": "luna.house.gov is on the NextJS+GraphQL stack \u2014 confirmed shallow listing returns ~10 SSR'd items. Same pattern as the 18 GraphQL members. Should have been in that bucket originally; tagging now."
+      "bioguide_id": "L000596"
     },
     {
       "member_id": "castor-kathy",
@@ -2951,9 +2947,10 @@
       "recon_status": "verified",
       "district": 19,
       "bioguide_id": "D000032",
-      "collection_method": "httpx",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "collection_method": "rss",
+      "coverage_status": "rss_feed_static",
+      "coverage_note": "Site exposes /news/rss.aspx with 20 most-recent items but pagination doesn't advance (Page=2/5/10 all return same items). NextJS+GraphQL site under that. We collect the 20 most recent via RSS; older content requires Playwright. Verified 2026-05-03.",
+      "rss_feed_url": "https://donalds.house.gov/news/rss.aspx"
     },
     {
       "member_id": "cherfilusmccormick-sheila",
@@ -3060,9 +3057,7 @@
       "collection_method": "rss",
       "rss_feed_url": "https://moskowitz.house.gov/feed",
       "district": "23",
-      "bioguide_id": "M001217",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "M001217"
     },
     {
       "member_id": "wilson-frederica",
@@ -3334,9 +3329,7 @@
       "district": 5,
       "collection_method": "rss",
       "rss_feed_url": "https://nikemawilliams.house.gov/feed",
-      "bioguide_id": "W000788",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "W000788"
     },
     {
       "member_id": "mcbath-lucy",
@@ -4201,9 +4194,7 @@
       "district": 13,
       "collection_method": "rss",
       "rss_feed_url": "https://budzinski.house.gov/feed",
-      "bioguide_id": "B001315",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "B001315"
     },
     {
       "member_id": "underwood-lauren",
@@ -4365,9 +4356,7 @@
       "district": 2,
       "collection_method": "rss",
       "rss_feed_url": "https://yakym.house.gov/feed",
-      "bioguide_id": "Y000067",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "Y000067"
     },
     {
       "member_id": "stutzman-marlin",
@@ -4726,10 +4715,11 @@
       "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 2,
-      "collection_method": "httpx",
+      "collection_method": "rss",
       "bioguide_id": "G000558",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "coverage_status": "rss_feed_static",
+      "coverage_note": "Site exposes /news/rss.aspx with 20 most-recent items but pagination doesn't advance (Page=2/5/10 all return same items). NextJS+GraphQL site under that. We collect the 20 most recent via RSS; older content requires Playwright. Verified 2026-05-03.",
+      "rss_feed_url": "https://guthrie.house.gov/news/rss.aspx"
     },
     {
       "member_id": "mcgarvey-morgan",
@@ -5870,9 +5860,7 @@
       "district": 12,
       "collection_method": "rss",
       "rss_feed_url": "https://tlaib.house.gov/feed",
-      "bioguide_id": "T000481",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "T000481"
     },
     {
       "member_id": "thanedar-shri",
@@ -7248,9 +7236,7 @@
       "collection_method": "rss",
       "rss_feed_url": "https://gottheimer.house.gov/feed",
       "district": "5",
-      "bioguide_id": "G000583",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "G000583"
     },
     {
       "member_id": "pallone-frank",
@@ -8035,9 +8021,7 @@
       "district": 15,
       "collection_method": "rss",
       "rss_feed_url": "https://ritchietorres.house.gov/feed",
-      "bioguide_id": "T000486",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "T000486"
     },
     {
       "member_id": "latimer-george",
@@ -8366,9 +8350,7 @@
       "district": 1,
       "collection_method": "rss",
       "rss_feed_url": "https://landsman.house.gov/feed",
-      "bioguide_id": "L000601",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "L000601"
     },
     {
       "member_id": "taylor-david",
@@ -8534,9 +8516,7 @@
       "collection_method": "rss",
       "rss_feed_url": "https://maxmiller.house.gov/feed",
       "district": "7",
-      "bioguide_id": "M001222",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "M001222"
     },
     {
       "member_id": "davidson-warren",
@@ -8725,9 +8705,7 @@
       "district": 14,
       "collection_method": "rss",
       "rss_feed_url": "https://joyce.house.gov/feed",
-      "bioguide_id": "J000295",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "J000295"
     },
     {
       "member_id": "carey-mike",
@@ -8830,9 +8808,7 @@
       "district": 3,
       "collection_method": "rss",
       "rss_feed_url": "https://lucas.house.gov/feed",
-      "bioguide_id": "L000491",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "L000491"
     },
     {
       "member_id": "cole-tom",
@@ -10815,9 +10791,7 @@
       "collection_method": "rss",
       "rss_feed_url": "https://cloud.house.gov/feed",
       "district": "27",
-      "bioguide_id": "C001115",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "C001115"
     },
     {
       "member_id": "cuellar-henry",
@@ -11236,9 +11210,7 @@
       "district": 4,
       "collection_method": "rss",
       "rss_feed_url": "https://owens.house.gov/feed",
-      "bioguide_id": "O000086",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "O000086"
     },
     {
       "member_id": "wittman-robert",
@@ -11665,9 +11637,7 @@
       "district": 3,
       "collection_method": "rss",
       "rss_feed_url": "https://gluesenkampperez.house.gov/feed",
-      "bioguide_id": "G000600",
-      "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "bioguide_id": "G000600"
     },
     {
       "member_id": "newhouse-dan",
