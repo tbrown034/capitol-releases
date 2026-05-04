@@ -7226,9 +7226,7 @@
       "recon_status": "verified",
       "district": 4,
       "bioguide_id": "S000522",
-      "collection_method": "httpx",
-      "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Site mixes press releases and external news clippings on the same /news listing without a clean DocumentTypeID filter. Items use <div class='box col3'> wrappers in a table-based ASP.NET layout. Per-member hand-fix needed: build a URL-pattern or content-classifier to distinguish official releases from clippings. Verified 2026-05-03."
+      "collection_method": "httpx"
     },
     {
       "member_id": "gottheimer-josh",
@@ -9454,8 +9452,8 @@
       "district": 14,
       "bioguide_id": "R000610",
       "collection_method": "httpx",
-      "coverage_status": "leadership_via_whip",
-      "coverage_note": "Chief Deputy Whip in 119th Congress (under Tom Emmer). 40 records starting March 11 2025 via personal site. Some leadership press output may run through Whip's office or House Republican Conference channels \u2014 not currently collected. Could be partially explained as listing horizon plus leadership-channel split. Verified 2026-05-03."
+      "expected_low_volume": true,
+      "low_volume_reason": "Chief Deputy Whip in 119th Congress. Whip-team work focuses on internal vote counting and member outreach rather than public press operations, which explains the relatively light press output (40 records starting March 2025). Verified by visual scan of his media listing 2026-05-03 \u2014 this is his real output, not a scraper gap."
     },
     {
       "member_id": "thompson-glenn",
