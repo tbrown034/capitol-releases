@@ -3787,9 +3787,7 @@
       "district": 4,
       "collection_method": "rss",
       "rss_feed_url": "https://feenstra.house.gov/rss.xml",
-      "bioguide_id": "F000446",
-      "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
+      "bioguide_id": "F000446"
     },
     {
       "member_id": "fulcher-russ",
@@ -7230,7 +7228,7 @@
       "bioguide_id": "S000522",
       "collection_method": "httpx",
       "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
+      "coverage_note": "Site mixes press releases and external news clippings on the same /news listing without a clean DocumentTypeID filter. Items use <div class='box col3'> wrappers in a table-based ASP.NET layout. Per-member hand-fix needed: build a URL-pattern or content-classifier to distinguish official releases from clippings. Verified 2026-05-03."
     },
     {
       "member_id": "gottheimer-josh",
@@ -9456,8 +9454,8 @@
       "district": 14,
       "bioguide_id": "R000610",
       "collection_method": "httpx",
-      "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
+      "coverage_status": "leadership_via_whip",
+      "coverage_note": "Chief Deputy Whip in 119th Congress (under Tom Emmer). 40 records starting March 11 2025 via personal site. Some leadership press output may run through Whip's office or House Republican Conference channels \u2014 not currently collected. Could be partially explained as listing horizon plus leadership-channel split. Verified 2026-05-03."
     },
     {
       "member_id": "thompson-glenn",
