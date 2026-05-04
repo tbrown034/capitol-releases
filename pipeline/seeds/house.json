@@ -8460,7 +8460,9 @@
       "expected_low_volume": false,
       "coverage_status": "publishes_via_committee",
       "coverage_note": "House Judiciary chairman. Personal site /media/press-releases stopped publishing at December 5, 2024; all current press operations run through judiciary.house.gov/media/press-releases. Verified 2026-05-03: 10 listing items on personal site, newest is December 2024. Not a scraper bug \u2014 real publication shift to the committee site after he became chair.",
-      "expected_zero": true
+      "expected_zero": true,
+      "committee_chair_url": "https://judiciary.house.gov/media/press-releases",
+      "committee_chair_name": "House Judiciary Committee"
     },
     {
       "member_id": "latta-robert",

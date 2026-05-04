@@ -9,6 +9,41 @@ import { TypeBadge } from "../../components/type-badge";
 import { EmptyState } from "../../components/empty-state";
 import { STATE_NAMES } from "../../lib/states";
 import { formatLongMonthYear, formatReleaseDate } from "../../lib/dates";
+import houseSeed from "../../../pipeline/seeds/house.json";
+
+// Seed-side coverage flags surfaced in the page banner. Methodology page
+// reads the same fields. Single source of truth: pipeline/seeds/house.json.
+type CoverageFlags = {
+  coverage_status?: string;
+  coverage_note?: string;
+  expected_zero?: boolean;
+  expected_low_volume?: boolean;
+  low_volume_reason?: string;
+  committee_chair_url?: string;
+  committee_chair_name?: string;
+};
+function getCoverageFlags(memberId: string): CoverageFlags | null {
+  for (const m of (houseSeed as { members: Array<CoverageFlags & { member_id?: string; official_id?: string }> }).members) {
+    if (m.member_id === memberId || m.official_id === memberId) {
+      const hasFlag =
+        m.coverage_status ||
+        m.expected_zero ||
+        m.expected_low_volume ||
+        m.committee_chair_url;
+      if (!hasFlag) return null;
+      return {
+        coverage_status: m.coverage_status,
+        coverage_note: m.coverage_note,
+        expected_zero: m.expected_zero,
+        expected_low_volume: m.expected_low_volume,
+        low_volume_reason: m.low_volume_reason,
+        committee_chair_url: m.committee_chair_url,
+        committee_chair_name: m.committee_chair_name,
+      };
+    }
+  }
+  return null;
+}
 
 export const revalidate = 600;
 
@@ -100,6 +135,7 @@ export default async function HouseMemberPage({
         : "text-amber-600";
 
   const releases = items as unknown as PressRelease[];
+  const coverage = getCoverageFlags(id);
 
   const buildTypeHref = (t?: ContentType) => {
     const params = new URLSearchParams();
@@ -179,6 +215,74 @@ export default async function HouseMemberPage({
         record{grandTotal !== 1 ? "s" : ""} archived
         {sinceLabel && <> since {sinceLabel}</>}.
       </p>
+
+      {/* Coverage transparency banner — surfaced when the seed has a
+          coverage_status, expected_low_volume, or expected_zero flag.
+          Methodology page documents the full taxonomy; this is the
+          per-member explanation a journalist sees on landing. */}
+      {coverage && (
+        <aside className="mb-6 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-neutral-800">
+          <p className="text-xs uppercase tracking-wider text-amber-900 font-semibold mb-2">
+            Coverage note
+          </p>
+          {coverage.coverage_status === "publishes_via_committee" && coverage.committee_chair_url ? (
+            <>
+              <p className="mb-2">
+                {member.full_name.split(" ").slice(-1)[0]}&rsquo;s personal
+                site has not posted original press releases since late 2024.
+                As {coverage.committee_chair_name
+                  ? `chair of the ${coverage.committee_chair_name}`
+                  : "a committee chair"}
+                , current press output runs through the committee site:
+              </p>
+              <p>
+                <a
+                  href={coverage.committee_chair_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-amber-900 font-[family-name:var(--font-dm-mono)] text-[13px]"
+                >
+                  {coverage.committee_chair_url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                  <span aria-hidden="true"> ↗</span>
+                </a>
+              </p>
+              <p className="mt-2 text-xs text-neutral-600">
+                Committee output is not currently included in this archive
+                — that&rsquo;s scoped for v2. See the{" "}
+                <Link href="/methodology" className="underline">methodology page</Link>{" "}
+                for the full coverage taxonomy.
+              </p>
+            </>
+          ) : coverage.coverage_status === "playwright_required" ? (
+            <p>
+              This member&rsquo;s site uses a JavaScript-rendered listing
+              (Next.js + GraphQL) that returns only the most recent ~10
+              items via standard scraping. Full archive collection requires
+              a Playwright collector — tracked as v2 work. The records
+              shown are real; they&rsquo;re just the visible recent slice.
+            </p>
+          ) : coverage.coverage_status === "pagination_js_required" ? (
+            <p>
+              This member&rsquo;s listing is JavaScript-paginated — the
+              server returns the same 20 items at every page request.
+              Full archive collection requires a Playwright collector
+              (v2 work). Records shown are real; they&rsquo;re the
+              visible recent slice.
+            </p>
+          ) : coverage.coverage_status === "listing_horizon" ? (
+            <p>
+              This member&rsquo;s site listing caps at the records shown
+              — deeper pagination doesn&rsquo;t expose earlier content.
+              Likely a CMS migration cutoff. The records shown are real
+              and complete from the listing&rsquo;s earliest visible date.
+            </p>
+          ) : coverage.expected_zero || coverage.expected_low_volume ? (
+            <p>{coverage.low_volume_reason || coverage.coverage_note}</p>
+          ) : (
+            <p>{coverage.coverage_note}</p>
+          )}
+        </aside>
+      )}
 
       {/* Type filter chips */}
       {grandTotal > 0 && (
