@@ -4695,17 +4695,19 @@
       "party": "R",
       "state": "KY",
       "official_url": "https://guthrie.house.gov",
-      "press_release_url": "https://guthrie.house.gov/news",
+      "press_release_url": "https://guthrie.house.gov/news/documentquery.aspx?DocumentTypeID=27",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "Page",
+        "starts_at": 1
       },
       "selectors": {
-        "list_item": "article",
-        "title": "h2 a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": "article.newsblocker",
+        "title": "h2.newsie-titler a, .newsie-titler a",
+        "date": ".newsie-details time, time, span.date",
+        "detail_link": "h2.newsie-titler a[href], .newsie-titler a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 15 items on listing page. ",
@@ -4714,8 +4716,6 @@
       "district": 2,
       "collection_method": "rss",
       "bioguide_id": "G000558",
-      "coverage_status": "rss_feed_static",
-      "coverage_note": "Site exposes /news/rss.aspx with 20 most-recent items but pagination doesn't advance (Page=2/5/10 all return same items). NextJS+GraphQL site under that. We collect the 20 most recent via RSS; older content requires Playwright. Verified 2026-05-03.",
       "rss_feed_url": "https://guthrie.house.gov/news/rss.aspx"
     },
     {
@@ -5036,10 +5036,10 @@
         "starts_at": 1
       },
       "selectors": {
-        "list_item": ".article_wrap",
-        "title": ".article_title",
-        "date": ".article_date",
-        "detail_link": "a.link-block[href]"
+        "list_item": "article.newsblocker",
+        "title": "h2.newsie-titler a, .newsie-titler a",
+        "date": ".newsie-details time, time, span.date",
+        "detail_link": "h2.newsie-titler a[href], .newsie-titler a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 15 items on listing page. ",
@@ -5048,8 +5048,6 @@
       "district": 2,
       "collection_method": "rss",
       "bioguide_id": "M000312",
-      "coverage_status": "listing_horizon",
-      "coverage_note": "Listing returns 50 records starting 2025-02-04; one record short of strict Jan 2025 bar. RSS feed at /news/rss.aspx supplements with 10 most-recent items but doesn't paginate. Verified 2026-05-03.",
       "rss_feed_url": "https://mcgovern.house.gov/news/rss.aspx"
     },
     {
@@ -5478,17 +5476,19 @@
       "party": "D",
       "state": "ME",
       "official_url": "https://pingree.house.gov",
-      "press_release_url": "https://pingree.house.gov/news",
+      "press_release_url": "https://pingree.house.gov/news/documentquery.aspx?DocumentTypeID=27",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "Page",
+        "starts_at": 1
       },
       "selectors": {
-        "list_item": "article",
-        "title": "h2 a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": "article.newsblocker",
+        "title": "h2.newsie-titler a, .newsie-titler a",
+        "date": ".newsie-details time, time, span.date",
+        "detail_link": "h2.newsie-titler a[href], .newsie-titler a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 15 items on listing page. ",
@@ -5497,8 +5497,6 @@
       "district": 1,
       "bioguide_id": "P000597",
       "collection_method": "rss",
-      "coverage_status": "listing_horizon",
-      "coverage_note": "Listing returns 19 records starting 2025-02-22. Long-serving member; Codex D4 web research found no scandal/absence \u2014 likely real low office volume. RSS feed at /news/rss.aspx supplements with 10 most-recent items but doesn't paginate. Verified 2026-05-03.",
       "rss_feed_url": "https://pingree.house.gov/news/rss.aspx"
     },
     {
@@ -6467,10 +6465,10 @@
         "starts_at": 1
       },
       "selectors": {
-        "list_item": ".article_wrap",
-        "title": ".article_title",
-        "date": ".article_date",
-        "detail_link": "a.link-block[href]"
+        "list_item": "article.newsblocker",
+        "title": "h2.newsie-titler a, .newsie-titler a",
+        "date": ".newsie-details time, time, span.date",
+        "detail_link": "h2.newsie-titler a[href], .newsie-titler a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 15 items on listing page. ",
@@ -6479,8 +6477,6 @@
       "district": 4,
       "collection_method": "rss",
       "bioguide_id": "E000235",
-      "coverage_status": "listing_horizon",
-      "coverage_note": "Listing returns 50 records starting 2025-05-14; deeper pages don't surface earlier content. RSS feed at /news/rss.aspx supplements with 10 most-recent items but doesn't paginate. Verified 2026-05-03.",
       "rss_feed_url": "https://ezell.house.gov/news/rss.aspx"
     },
     {
@@ -10881,14 +10877,15 @@
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
-        "type": "link_follow",
-        "next_selector": "a.next, a.older"
+        "type": "query_param",
+        "param": "Page",
+        "starts_at": 1
       },
       "selectors": {
-        "list_item": "article",
-        "title": "h2 a",
-        "date": null,
-        "detail_link": "a[href]"
+        "list_item": "article.newsblocker",
+        "title": "h2.newsie-titler a, .newsie-titler a",
+        "date": ".newsie-details time, time, span.date",
+        "detail_link": "h2.newsie-titler a[href], .newsie-titler a[href]"
       },
       "confidence": 0.95,
       "notes": "Found 5 items on listing page. ",
@@ -10897,8 +10894,6 @@
       "district": 31,
       "collection_method": "rss",
       "bioguide_id": "C001051",
-      "coverage_status": "listing_horizon",
-      "coverage_note": "Listing returns 16 records starting 2025-03-04. RSS feed at /news/rss.aspx supplements with 10 most-recent items but doesn't paginate. Verified 2026-05-03.",
       "rss_feed_url": "https://carter.house.gov/news/rss.aspx"
     },
     {
