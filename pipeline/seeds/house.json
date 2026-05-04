@@ -3496,10 +3496,9 @@
       "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 11,
-      "collection_method": "httpx",
+      "collection_method": "rss",
       "bioguide_id": "L000583",
-      "coverage_status": "listing_horizon",
-      "coverage_note": "WordPress site with JS-driven pagination + Akamai-blocked REST API. Server-side HTML caps at 18 records."
+      "rss_feed_url": "https://loudermilk.house.gov/feed"
     },
     {
       "member_id": "allen-rick",
@@ -5049,10 +5048,11 @@
       "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 2,
-      "collection_method": "httpx",
+      "collection_method": "rss",
       "bioguide_id": "M000312",
       "coverage_status": "listing_horizon",
-      "coverage_note": "Listing returns 50 records starting 2025-02-04; one record short of strict Jan 2025 bar."
+      "coverage_note": "Listing returns 50 records starting 2025-02-04; one record short of strict Jan 2025 bar. RSS feed at /news/rss.aspx supplements with 10 most-recent items but doesn't paginate. Verified 2026-05-03.",
+      "rss_feed_url": "https://mcgovern.house.gov/news/rss.aspx"
     },
     {
       "member_id": "trahan-lori",
@@ -5499,9 +5499,10 @@
       "recon_status": "verified",
       "district": 1,
       "bioguide_id": "P000597",
-      "collection_method": "httpx",
+      "collection_method": "rss",
       "coverage_status": "listing_horizon",
-      "coverage_note": "Listing returns 19 records starting 2025-02-22. Long-serving member; Codex D4 web research found no scandal/absence \u2014 likely real low office volume."
+      "coverage_note": "Listing returns 19 records starting 2025-02-22. Long-serving member; Codex D4 web research found no scandal/absence \u2014 likely real low office volume. RSS feed at /news/rss.aspx supplements with 10 most-recent items but doesn't paginate. Verified 2026-05-03.",
+      "rss_feed_url": "https://pingree.house.gov/news/rss.aspx"
     },
     {
       "member_id": "golden-jared",
@@ -6479,10 +6480,11 @@
       "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 4,
-      "collection_method": "httpx",
+      "collection_method": "rss",
       "bioguide_id": "E000235",
       "coverage_status": "listing_horizon",
-      "coverage_note": "Listing returns 50 records starting 2025-05-14; deeper pages don't surface earlier content."
+      "coverage_note": "Listing returns 50 records starting 2025-05-14; deeper pages don't surface earlier content. RSS feed at /news/rss.aspx supplements with 10 most-recent items but doesn't paginate. Verified 2026-05-03.",
+      "rss_feed_url": "https://ezell.house.gov/news/rss.aspx"
     },
     {
       "member_id": "zinke-ryan",
@@ -9762,10 +9764,8 @@
       "recon_status": "verified",
       "district": 6,
       "collection_method": "rss",
-      "rss_feed_url": "https://clyburn.house.gov/category/press-release/feed/",
-      "bioguide_id": "C000537",
-      "coverage_status": "listing_horizon",
-      "coverage_note": "WordPress site with JS-driven pagination + REST API blocked by Solid Security plugin. Server-side HTML caps at 26 records."
+      "rss_feed_url": "https://clyburn.house.gov/feed",
+      "bioguide_id": "C000537"
     },
     {
       "member_id": "fry-russell",
@@ -10900,10 +10900,11 @@
       "last_verified": "2026-05-03",
       "recon_status": "verified",
       "district": 31,
-      "collection_method": "httpx",
+      "collection_method": "rss",
       "bioguide_id": "C001051",
       "coverage_status": "listing_horizon",
-      "coverage_note": "Listing returns 16 records starting 2025-03-04."
+      "coverage_note": "Listing returns 16 records starting 2025-03-04. RSS feed at /news/rss.aspx supplements with 10 most-recent items but doesn't paginate. Verified 2026-05-03.",
+      "rss_feed_url": "https://carter.house.gov/news/rss.aspx"
     },
     {
       "member_id": "johnson-julie",
