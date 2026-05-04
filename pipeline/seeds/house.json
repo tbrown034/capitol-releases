@@ -8458,9 +8458,9 @@
       "collection_method": "httpx",
       "bioguide_id": "J000289",
       "expected_low_volume": false,
-      "low_volume_reason": "Active scraper bug \u2014 chairman Jim Jordan publishes regularly but our collector returns 0 (verified 2026-05-03). Tracked as known scraper issue, not a real silence.",
-      "coverage_status": "scraper_bug_pending",
-      "coverage_note": "Codex D4 web research (2026-05-03): no real-world reason for shallow coverage. Member is active and publishing; archive shortfall is on our side. Pending per-member URL/selector probe."
+      "coverage_status": "publishes_via_committee",
+      "coverage_note": "House Judiciary chairman. Personal site /media/press-releases stopped publishing at December 5, 2024; all current press operations run through judiciary.house.gov/media/press-releases. Verified 2026-05-03: 10 listing items on personal site, newest is December 2024. Not a scraper bug \u2014 real publication shift to the committee site after he became chair.",
+      "expected_zero": true
     },
     {
       "member_id": "latta-robert",
