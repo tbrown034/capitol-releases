@@ -100,7 +100,7 @@ def collect_silo(
         "skipped_non_gov": 0,
     }
 
-    run_id = f"silo-{official_id}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+    run_id = f"silo-{official_id}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
     if not dry_run:
         cur = conn.cursor()
         cur.execute(
