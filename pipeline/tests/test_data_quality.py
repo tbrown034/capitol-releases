@@ -279,6 +279,7 @@ def test_no_suspicious_round_counts():
         "baldwin-tammy",     # 350 -- healthy 14-35/mo across 16 months
         "moran-jerry",       # 250 -- post-backfill on 2026-04-25, 8-30/mo
         "scott-rick",        # 400 -- healthy 8-52/mo across 17 months back to Jan 2025
+        "crapo-mike",        # 400 -- healthy 3-44/mo across 17 months back to Jan 2025, httpx not RSS
         "johnson-ron",       # 100 -- healthy 1-16/mo across 17 months back to Jan 2025
         # TX state senators verified live against senate.texas.gov on
         # 2026-04-29 — 30/30 senator counts match the actual pressroom.

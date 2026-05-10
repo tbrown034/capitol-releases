@@ -654,8 +654,8 @@ def main():
     try:
         releases = fetch_day_releases(conn, brief_day)
         if not releases:
-            log.warning("No releases for %s — refusing to generate empty brief", brief_day)
-            sys.exit(2)
+            log.info("No releases for %s — skipping brief (likely weekend or recess)", brief_day)
+            sys.exit(0)
 
         baseline = compute_volume_baseline(conn, brief_day)
         silent = fetch_silent_senators(conn, brief_day)
