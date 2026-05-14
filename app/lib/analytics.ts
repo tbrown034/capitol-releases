@@ -11,6 +11,7 @@ export async function getSenatorActivity() {
     FROM official_site_items pr
     JOIN officials s ON s.id = pr.official_id
     WHERE pr.published_at IS NOT NULL
+      AND pr.published_at <= NOW()
       AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
       AND pr.published_at >= '2025-01-01'
       AND s.status = 'active'
@@ -49,6 +50,7 @@ export async function getTopicTrends() {
       FROM official_site_items pr
       JOIN officials s ON s.id = pr.official_id
       WHERE pr.published_at >= NOW() - interval '30 days'
+        AND pr.published_at <= NOW()
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
         AND s.status = 'active'
         AND s.chamber IN ('senate','house')
@@ -98,6 +100,7 @@ export async function getSenatorDailyActivity(officialId: string) {
     FROM official_site_items
     WHERE official_id = ${officialId}
       AND published_at IS NOT NULL
+      AND published_at <= NOW()
       AND deleted_at IS NULL
       AND content_type != 'photo_release'
       AND published_at >= '2025-01-01'
@@ -196,6 +199,7 @@ export async function getSenatorTopicTrends(
       WHERE pr.official_id = ${officialId}
         AND pr.deleted_at IS NULL AND pr.content_type != 'photo_release'
         AND pr.published_at >= NOW() - interval '60 days'
+        AND pr.published_at <= NOW()
     )
     SELECT word,
            count(*) FILTER (WHERE published_at >= NOW() - interval '30 days')::int as recent_count,
@@ -229,6 +233,7 @@ export async function getChamberActivity(days = 7, chamber: "senate" | "house" =
       SELECT official_id, count(*)::int as count
       FROM official_site_items
       WHERE published_at >= NOW() - make_interval(days => ${days})
+        AND published_at <= NOW()
         AND published_at IS NOT NULL
         AND deleted_at IS NULL
         AND content_type != 'photo_release'
@@ -249,6 +254,7 @@ export async function getMailbag(days = 7) {
     FROM official_site_items pr
     JOIN officials s ON s.id = pr.official_id
     WHERE pr.published_at >= NOW() - make_interval(days => ${days})
+      AND pr.published_at <= NOW()
       AND pr.published_at IS NOT NULL
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
@@ -267,6 +273,7 @@ export async function getDailyVolume(days = 90) {
     FROM official_site_items pr
     JOIN officials s ON s.id = pr.official_id
     WHERE pr.published_at >= NOW() - make_interval(days => ${days})
+      AND pr.published_at <= NOW()
       AND pr.published_at IS NOT NULL
       AND pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'

@@ -46,6 +46,7 @@ export async function getTrendingWithDelta(
         FROM official_site_items pr
         JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= NOW() - interval '7 days'
+        AND pr.published_at <= NOW()
           AND s.status = 'active'
           AND s.jurisdiction = 'us'
           AND s.chamber = ANY(${chambers}::text[])
@@ -58,6 +59,7 @@ export async function getTrendingWithDelta(
         FROM official_site_items pr
         JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= NOW() - interval '14 days'
+        AND pr.published_at <= NOW()
           AND pr.published_at < NOW() - interval '7 days'
           AND s.status = 'active'
           AND s.jurisdiction = 'us'
@@ -142,6 +144,7 @@ export async function getTrendingWithDelta(
         FROM official_site_items pr
         JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= '2025-01-01'
+        AND pr.published_at <= NOW()
           AND s.status = 'active'
           AND s.jurisdiction = 'us'
           AND s.chamber = ANY(${chambers}::text[])
@@ -166,6 +169,7 @@ export async function getTrendingWithDelta(
       FROM official_site_items pr
       JOIN officials s ON s.id = pr.official_id
       WHERE pr.published_at >= NOW() - interval '30 days'
+      AND pr.published_at <= NOW()
         AND s.status = 'active'
         AND s.jurisdiction = 'us'
         AND s.chamber = ANY(${chambers}::text[])
@@ -178,6 +182,7 @@ export async function getTrendingWithDelta(
       FROM official_site_items pr
       JOIN officials s ON s.id = pr.official_id
       WHERE pr.published_at >= NOW() - interval '60 days'
+      AND pr.published_at <= NOW()
         AND pr.published_at < NOW() - interval '30 days'
         AND s.status = 'active'
         AND s.jurisdiction = 'us'
@@ -236,6 +241,7 @@ export async function getTopicOwnership(
           AND pr.content_type != 'photo_release'
           AND pr.published_at IS NOT NULL
           AND pr.published_at >= '2025-01-01'
+          AND pr.published_at <= NOW()
           AND pr.fts @@ websearch_to_tsquery('english', ${term})
         GROUP BY s.id, s.full_name, s.party, s.state
         ORDER BY count DESC
@@ -279,6 +285,7 @@ export async function getPartySkew(
       WHERE pr.deleted_at IS NULL
         AND pr.content_type != 'photo_release'
         AND pr.published_at >= '2025-01-01'
+        AND pr.published_at <= NOW()
         AND s.status = 'active'
         AND s.chamber = ANY(${chambers}::text[])
         AND s.jurisdiction = 'us'
@@ -339,6 +346,7 @@ export async function getTermTimeline(term: string) {
            count(*)::int as count
     FROM official_site_items
     WHERE published_at >= '2025-01-01'
+    AND published_at <= NOW()
       AND published_at IS NOT NULL
       AND deleted_at IS NULL
       AND content_type != 'photo_release'
@@ -368,6 +376,7 @@ export async function getTermTimeline(term: string) {
           FROM official_site_items pr
           JOIN officials s ON s.id = pr.official_id
           WHERE pr.published_at >= '2025-01-01'
+          AND pr.published_at <= NOW()
             AND pr.published_at IS NOT NULL
             AND pr.deleted_at IS NULL
             AND pr.content_type != 'photo_release'

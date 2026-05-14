@@ -76,6 +76,11 @@ function buildFeedPredicates(f: FeedFilters): {
     "pr.deleted_at IS NULL",
     "pr.content_type != 'photo_release'",
     "s.status = 'active'",
+    // Clip future-dated rows. A handful of records have published_at in the
+    // future (parser pulled a "scheduled" date or the page used MM/DD/YY
+    // ambiguously). Until those are repaired in the pipeline, never let
+    // them reach a public surface.
+    "(pr.published_at IS NULL OR pr.published_at <= NOW())",
   ];
   const params: unknown[] = [];
   const push = (pred: string, value: unknown) => {
