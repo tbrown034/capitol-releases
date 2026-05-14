@@ -10,10 +10,13 @@ function sanitize(term: string): string {
 
 type Scope = "recent" | "alltime" | "ytd";
 
+type Chamber = "senate" | "house";
+
 function buildChamberCountsQuery(
   scope: Scope,
   term: string,
-  days: number
+  days: number,
+  chamber: Chamber
 ): { text: string; params: unknown[] } {
   let dateClause: string;
   const params: unknown[] = [];
@@ -43,7 +46,7 @@ function buildChamberCountsQuery(
     LEFT JOIN official_site_items pr
       ON pr.official_id = s.id
       AND ${joinPreds.join(" AND ")}
-    WHERE s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us' AND s.jurisdiction = 'us'
+    WHERE s.status = 'active' AND s.chamber = '${chamber}' AND s.jurisdiction = 'us'
     GROUP BY s.id
   `;
 
@@ -61,15 +64,17 @@ export async function GET(request: NextRequest) {
   const term = sanitize(request.nextUrl.searchParams.get("q") ?? "");
   const daysParam = parseInt(request.nextUrl.searchParams.get("days") ?? "30", 10);
   const days = ALLOWED_DAYS.has(daysParam) ? daysParam : 30;
+  const chamberParam = request.nextUrl.searchParams.get("chamber");
+  const chamber: Chamber = chamberParam === "house" ? "house" : "senate";
 
-  const { text, params } = buildChamberCountsQuery(scope, term, days);
+  const { text, params } = buildChamberCountsQuery(scope, term, days, chamber);
   const rows = (await sql.query(text, params)) as { id: string; count: number }[];
 
   const counts: Record<string, number> = {};
   for (const r of rows) counts[r.id] = r.count;
 
   return NextResponse.json(
-    { scope, term, days, counts },
+    { scope, term, days, chamber, counts },
     { headers: { "Cache-Control": "public, max-age=600, s-maxage=600" } }
   );
 }

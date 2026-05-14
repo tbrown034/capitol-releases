@@ -222,7 +222,7 @@ export async function getSenatorTopicTrends(
 
 export async function getChamberActivity(days = 7, chamber: "senate" | "house" = "senate") {
   return sql`
-    SELECT s.id, s.full_name, s.party, s.state, s.district,
+    SELECT s.id, s.full_name, s.party, s.state, s.district, s.bioguide_id,
            coalesce(rc.count, 0)::int as count
     FROM officials s
     LEFT JOIN (

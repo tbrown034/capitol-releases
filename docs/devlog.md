@@ -4,6 +4,61 @@ A chronological record of development sessions and significant changes.
 
 ---
 
+## 2026-05-14 — House chamber parity + touch tap-twice fix
+
+**Session Summary:**
+Brought the House chamber on the homepage up to parity with the Senate chamber, then fixed a touch-device race that was making the first tap on a seat navigate immediately instead of previewing.
+
+**House chamber parity (`app/components/house-chamber.tsx`):**
+Full rewrite to mirror `senate-chamber.tsx`:
+- Search-term chips (None / Trump / Tariffs / Iran / Ukraine / Israel / Medicaid / Supreme Court) plus a custom-term input.
+- Time-window dropdown (7d / 30d / 90d / YTD / since Jan 2025) wired to the same API.
+- "X of 437 House members mentioned 'Trump' in their press releases" headline with the most-active member linked.
+- Hover card with photo, party, state, count, scope label.
+- Party legend + intensity scale (`max ${max}`).
+- Top 10 list with photos.
+- Removed the old `max-w-3xl` width cap on the SVG, raised `max-h` to 560px.
+- Photos resolve via `getMemberPhotoUrl(..., "house", bioguide_id)` so House headshots (`/house/<bioguide>.jpg`) load.
+
+**API (`app/api/chamber/counts/route.ts`):**
+Now accepts `chamber=senate|house`. Also dropped a duplicated `jurisdiction = 'us'` clause.
+
+**Analytics (`app/lib/analytics.ts`):**
+`getChamberActivity` now returns `bioguide_id` so the House chamber can resolve member photos.
+
+**Homepage layout (`app/page.tsx`):**
+- Tried an aggressive negative-margin breakout for House view — broke on lg/md viewports, reverted.
+- Settled on `xl:-mx-12` (only kicks in at ≥1280px, gentle).
+- Senate view stays at column width.
+
+**Touch tap-twice bug (the real fix):**
+The "first tap previews, second tap navigates" pattern was broken on mobile — the first tap was navigating immediately, with only a brief flash of the preview card.
+
+Root cause: synthetic `mouseenter` fires on touch tap, which set `hover` to the tapped member's id; the click handler then checked `sameOpen = hover.member.id === member.id`, saw `true`, treated it as a second tap, and let the `<a>` navigate. The hover state had been mutated by the same tap that was supposed to be the *first* tap.
+
+Fix (applied to both `house-chamber.tsx` and `senate-chamber.tsx`):
+1. `showHover` / `hideHover` bail early when `isTouch` — touch devices don't drive preview via mouseenter.
+2. Track the previewed seat in a `useRef` (`previewedIdRef`) — synchronous reads, immune to React state timing.
+3. Click handler: first tap sets the ref and `preventDefault()`s navigation; second tap on the same seat clears the ref and lets the `<a>` proceed.
+4. Outside-tap listener clears both the card and the ref so the same seat can be re-previewed.
+
+**Other (already done by Trevor mid-session):**
+- `app/components/nav.tsx` Members menu structure flattened — `<a>` no longer nested inside `<button>`, which was throwing a hydration mismatch in dev.
+
+**Files changed:**
+- `app/components/house-chamber.tsx` — full rewrite for parity.
+- `app/components/senate-chamber.tsx` — touch tap-twice fix.
+- `app/api/chamber/counts/route.ts` — chamber param.
+- `app/lib/analytics.ts` — return `bioguide_id`.
+- `app/page.tsx` — xl breakout for House view.
+
+**Verification:**
+- `pnpm exec tsc --noEmit` clean.
+- Visual verification of the search-term + hover + Top 10 affordances done in screenshots.
+- Touch fix needs a real-phone verification pass; logic-traced.
+
+---
+
 ## 2026-05-03 (early morning) — Post-cooldown House gap fill
 
 **Session Summary:**

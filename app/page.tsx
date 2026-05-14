@@ -200,7 +200,12 @@ export default async function Home({
       {/* Chamber — visual anchor of the page. Toggle between Senate (100
           seats, default) and House (437 seats). Both render as semicircle
           heatmaps colored by party with opacity = activity. */}
-      <section className="mb-10 md:mb-14">
+      {/* House view gets a modest breakout on xl+ screens (just enough to
+          give 437 dots a bit of breathing room without breaking smaller
+          layouts). Senate stays at column width. */}
+      <section
+        className={`mb-10 md:mb-14 ${chamberView === "house" ? "xl:-mx-12" : ""}`}
+      >
         <div className="flex items-center justify-between border-b border-neutral-900 pb-2 mb-3 md:mb-4">
           <h2 className="text-xs uppercase tracking-wider text-neutral-500">
             The Chamber
@@ -228,7 +233,7 @@ export default async function Home({
             />
           ) : (
             <HouseChamber
-              members={houseChamber as { id: string; full_name: string; party: "D" | "R" | "I"; state: string; count: number }[]}
+              members={houseChamber as { id: string; full_name: string; party: "D" | "R" | "I"; state: string; count: number; bioguide_id: string | null }[]}
             />
           )}
         </Suspense>

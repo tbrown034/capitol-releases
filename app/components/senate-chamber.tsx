@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { familyName } from "../lib/names";
 import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
@@ -145,6 +145,11 @@ export function SenateChamber({
   const [overrideCounts, setOverrideCounts] = useState<Record<string, number> | null>(null);
   const [input, setInput] = useState("");
   const [isTouch, setIsTouch] = useState(false);
+  // See house-chamber.tsx for the rationale — ref-based preview tracking
+  // avoids a touch race where synthetic mouseenter sets `hover` before the
+  // click handler runs, defeating the first-tap-previews / second-tap-opens
+  // pattern.
+  const previewedIdRef = useRef<string | null>(null);
 
   // Keep mode.scope in sync with the active window option.
   useEffect(() => {
@@ -187,6 +192,7 @@ export function SenateChamber({
       if (!target) return;
       if (target.closest('a[href^="/senators/"]')) return;
       if (target.closest('[role="tooltip"]')) return;
+      previewedIdRef.current = null;
       setHover(null);
     };
     window.addEventListener("click", handler);
@@ -276,6 +282,9 @@ export function SenateChamber({
 
   const showHover =
     (senator: Senator) => (e: React.SyntheticEvent<SVGCircleElement>) => {
+      // Skip on touch — synthetic mouseenter would otherwise pre-populate
+      // hover state and make the click handler think it's the second tap.
+      if (isTouch) return;
       const rect = e.currentTarget.getBoundingClientRect();
       setHover({
         senator,
@@ -283,16 +292,22 @@ export function SenateChamber({
         y: rect.top,
       });
     };
-  const hideHover = () => setHover(null);
+  const hideHover = () => {
+    if (isTouch) return;
+    setHover(null);
+  };
 
-  // Touch: tap-to-preview, second-tap-to-open. If a different senator's card
-  // is showing or none is, this tap previews instead of navigating.
+  // Touch: tap-to-preview, second-tap-to-open. Tracks the previewed id in a
+  // ref so the check is synchronous and immune to mouseenter ordering.
   const handleSeatClick =
     (senator: Senator) => (e: React.MouseEvent<HTMLAnchorElement>) => {
       if (!isTouch) return;
-      const sameOpen = hover && hover.senator.id === senator.id;
-      if (sameOpen) return; // second tap → allow navigation
+      if (previewedIdRef.current === senator.id) {
+        previewedIdRef.current = null;
+        return; // second tap → allow navigation
+      }
       e.preventDefault();
+      previewedIdRef.current = senator.id;
       const circle = e.currentTarget.querySelector("circle");
       const rect = (circle ?? e.currentTarget).getBoundingClientRect();
       setHover({
