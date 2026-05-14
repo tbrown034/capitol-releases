@@ -21,7 +21,7 @@ on:
         description: "Promote to published instead of draft"
         required: false
         type: boolean
-        default: false
+        default: true
 
 concurrency:
   group: pipeline-brief-weekly
@@ -50,7 +50,9 @@ jobs:
 
       - name: Generate weekly brief
         run: |
+          # Cron defaults to --publish; workflow_dispatch can opt out by
+          # setting publish=false.
           ARGS="--weekly"
+          if [ "${{ inputs.publish }}" != "false" ]; then ARGS="$ARGS --publish"; fi
           if [ -n "${{ inputs.week_ending }}" ]; then ARGS="$ARGS --week-ending ${{ inputs.week_ending }}"; fi
-          if [ "${{ inputs.publish }}" = "true" ]; then ARGS="$ARGS --publish"; fi
           python -m pipeline brief $ARGS

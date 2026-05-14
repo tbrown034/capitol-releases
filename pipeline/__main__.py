@@ -111,6 +111,10 @@ def main():
         from pipeline.commands.brief_send import main as brief_send_main
         brief_send_main()
 
+    elif command == "publish-drafts":
+        from pipeline.commands.publish_drafts import main as publish_drafts_main
+        sys.exit(publish_drafts_main())
+
     elif command == "source-profiles":
         from pipeline.commands.source_profiles import main as source_profiles_main
         source_profiles_main()
