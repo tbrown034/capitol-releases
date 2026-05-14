@@ -1,9 +1,10 @@
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
   getSenator,
+  getHouseMember,
   getSenatorReleases,
   getSenatorTypeBreakdown,
   getSenatorSections,
@@ -42,7 +43,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const senator = await getSenator(id);
+  const senator = (await getSenator(id)) ?? (await getHouseMember(id));
   if (!senator) return { title: "Not Found" };
   return {
     title: `${senator.full_name} — Capitol Releases`,
@@ -67,7 +68,16 @@ export default async function SenatorPage({
   const perPage = 25;
 
   const senator = await getSenator(id);
-  if (!senator) notFound();
+  if (!senator) {
+    // Legacy /senators/[id] links that point to a House member are common in
+    // older components that hardcoded `/senators/...`. Redirect to /house/[id]
+    // so the link still resolves instead of 404ing in front of new visitors.
+    const houseMember = await getHouseMember(id);
+    if (houseMember) {
+      redirect(`/house/${id}`);
+    }
+    notFound();
+  }
 
   // Derive name tokens to exclude from signature topics (senator's own name +
   // common nicknames, e.g. "Chuck" for "Charles E. Schumer").
