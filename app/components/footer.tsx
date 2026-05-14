@@ -26,7 +26,7 @@ export function Footer() {
             <Link href="/speeches" className="hover:text-neutral-900 transition-colors">Speeches</Link>
             <Link href="/social" className="hover:text-neutral-900 transition-colors">Social</Link>
             <Link href="/texas" className="hover:text-neutral-900 transition-colors">Texas Senate</Link>
-            <Link href="/methodology" className="hover:text-neutral-900 transition-colors">Methodology</Link>
+            <Link href="/about" className="hover:text-neutral-900 transition-colors">About</Link>
             <Link href="/status" className="hover:text-neutral-900 transition-colors">Run history</Link>
             <Link href="/admin" className="hover:text-neutral-900 transition-colors">Admin</Link>
           </nav>

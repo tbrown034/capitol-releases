@@ -35,7 +35,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Promote draft briefs to published")
     parser.add_argument("--since", help="Only consider drafts with brief_date >= YYYY-MM-DD")
     parser.add_argument("--dry-run", action="store_true", help="Show planned changes, write nothing")
-    args = parser.parse_args(sys.argv[2:])
+    args = parser.parse_args(sys.argv[1:])
 
     since = date.fromisoformat(args.since) if args.since else None
 

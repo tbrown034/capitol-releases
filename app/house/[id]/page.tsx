@@ -249,7 +249,7 @@ export default async function HouseMemberPage({
               <p className="mt-2 text-xs text-neutral-600">
                 Committee output is not currently included in this archive
                 — that&rsquo;s scoped for v2. See the{" "}
-                <Link href="/methodology" className="underline">methodology page</Link>{" "}
+                <Link href="/about" className="underline">about page</Link>{" "}
                 for the full coverage taxonomy.
               </p>
             </>

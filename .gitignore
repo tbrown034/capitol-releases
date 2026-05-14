@@ -87,3 +87,11 @@ notebooks/
 
 # Claude Code session state (not project state)
 .claude/scheduled_tasks.lock
+.claude/skills/
+.env.local
+
+# Editor settings (per-developer)
+.vscode/
+
+# Agent-generated scratch reports
+posthog-setup-report.md

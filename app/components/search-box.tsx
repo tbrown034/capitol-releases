@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import posthog from "posthog-js";
 
 export function SearchBox({
   basePath = "/search",
@@ -23,6 +24,7 @@ export function SearchBox({
       const v = searchParams.get(key);
       if (v) params.set(key, v);
     }
+    posthog.capture("search_submitted", { query: query.trim(), base_path: basePath });
     router.push(`${basePath}?${params.toString()}`);
   }
 

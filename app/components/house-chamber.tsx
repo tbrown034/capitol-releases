@@ -40,6 +40,7 @@ const DEFAULT_TERMS = [
   DEFAULT_TERM,
   "Tariffs",
   "Iran",
+  "Gas prices",
   "Ukraine",
   "Israel",
   "Medicaid",
@@ -503,18 +504,7 @@ export function HouseChamber({ members }: { members: Member[] }) {
             );
           })}
 
-          <text
-            x={VIEW_W - 8}
-            y={VIEW_H - 12}
-            textAnchor="end"
-            fontSize="11"
-            fill="#a3a3a3"
-            fontFamily="system-ui, -apple-system, sans-serif"
-          >
-            {isTerm
-              ? `Mentions of "${mode.term}" · ${scopePhrase} · n=${max}`
-              : `Press releases · ${scopePhrase} · n=${max}`}
-          </text>
+          {/* Right-side metric caption removed — redundant with headline. */}
           <text
             x={8}
             y={VIEW_H - 12}

@@ -206,10 +206,16 @@ export default async function Home({
       <section
         className={`mb-10 md:mb-14 ${chamberView === "house" ? "xl:-mx-12" : ""}`}
       >
+        <h2 className="text-3xl md:text-5xl font-serif tracking-tight mb-3">
+          What is Congress talking about?
+        </h2>
+        <p className="text-lg md:text-2xl text-neutral-700 leading-snug mb-6 max-w-3xl">
+          Tracking topics across every press release in the last 90 days — pick a term and see who's talking about it, by chamber.
+        </p>
         <div className="flex items-center justify-between border-b border-neutral-900 pb-2 mb-3 md:mb-4">
-          <h2 className="text-xs uppercase tracking-wider text-neutral-500">
-            The Chamber
-          </h2>
+          <h3 className="text-xs uppercase tracking-wider text-neutral-500">
+            {chamberView === "house" ? "U.S. House" : "U.S. Senate"}
+          </h3>
           <div className="flex gap-1">
             <Link
               href="/"

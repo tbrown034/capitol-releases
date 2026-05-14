@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import posthog from "posthog-js";
 
 type State =
   | { kind: "idle" }
@@ -26,15 +27,18 @@ export function BriefSignup({ source = "brief-page" }: { source?: string }) {
         const data = (await res.json().catch(() => ({}))) as {
           error?: string;
         };
-        setState({
-          kind: "error",
-          message: data.error ?? "Something went wrong.",
-        });
+        const message = data.error ?? "Something went wrong.";
+        setState({ kind: "error", message });
+        posthog.capture("newsletter_subscribe_error", { source, error: message });
         return;
       }
+      posthog.identify(email, { email });
+      posthog.capture("newsletter_subscribed", { source });
       setState({ kind: "success" });
     } catch {
-      setState({ kind: "error", message: "Network error. Try again." });
+      const message = "Network error. Try again.";
+      setState({ kind: "error", message });
+      posthog.capture("newsletter_subscribe_error", { source, error: message });
     }
   }
 

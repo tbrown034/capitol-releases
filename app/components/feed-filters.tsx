@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { getStates } from "../lib/states";
 import { CONTENT_TYPE_ORDER, CONTENT_TYPE_LABEL } from "../lib/content-types";
+import posthog from "posthog-js";
 
 export function FeedFilters({ basePath = "/feed" }: { basePath?: string }) {
   const router = useRouter();
@@ -17,6 +18,7 @@ export function FeedFilters({ basePath = "/feed" }: { basePath?: string }) {
       params.delete(key);
     }
     params.delete("page");
+    posthog.capture("feed_filtered", { filter_key: key, filter_value: value || null, base_path: basePath });
     router.push(`${basePath}?${params.toString()}`);
   }
 

@@ -86,6 +86,18 @@ export default async function BriefIndexPage() {
         </Link>
       </div>
 
+      <p className="mb-6 max-w-xl border-l-2 border-neutral-200 pl-3 text-[0.82rem] leading-relaxed text-neutral-600">
+        An AI-synthesized digest of every U.S. senator&apos;s official
+        communications from the past {brief.edition === "weekly" ? "week" : "day"} — every claim cites its source record.{" "}
+        <Link
+          href="/methodology"
+          className="text-neutral-500 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-900 hover:decoration-neutral-500"
+        >
+          How this is made
+        </Link>
+        .
+      </p>
+
       <h1 className="font-[family-name:var(--font-source-serif)] text-[2.5rem] leading-[1.15] text-neutral-900 mb-6">
         {brief.headline}
       </h1>

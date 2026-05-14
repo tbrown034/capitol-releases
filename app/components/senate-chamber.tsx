@@ -41,6 +41,7 @@ const DEFAULT_TERMS = [
   DEFAULT_TERM,
   "Tariffs",
   "Iran",
+  "Gas prices",
   "Ukraine",
   "Israel",
   "Medicaid",
@@ -524,21 +525,9 @@ export function SenateChamber({
             );
           })}
 
-          {/* Source attribution baked into the SVG so it survives a
-              screenshot crop. r/dataisbeautiful mods remove charts where
-              source isn't visible on the image. */}
-          <text
-            x={VIEW_W - 8}
-            y={VIEW_H - 12}
-            textAnchor="end"
-            fontSize="11"
-            fill="#a3a3a3"
-            fontFamily="system-ui, -apple-system, sans-serif"
-          >
-            {isTerm
-              ? `Mentions of "${mode.term}" · ${scopePhrase} · n=${max}`
-              : `Press releases · ${scopePhrase} · n=${max}`}
-          </text>
+          {/* Right-side metric caption removed — the headline above the chart
+              ("X of 100 senators mentioned …") already states it; repeating
+              it as "n=…" only confuses (n is max-per-member, not the total). */}
           <text
             x={8}
             y={VIEW_H - 12}

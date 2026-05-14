@@ -1,8 +1,8 @@
 import Link from "next/link";
 import type { FeedItem } from "../lib/db";
-import { getSenatorPhotoUrl, getInitials, getSenatorHref } from "../lib/photos";
+import { getMemberPhotoUrl, getInitials, getMemberHref } from "../lib/photos";
 import { normalizeTitle } from "../lib/titles";
-import { formatReleaseDate, isFutureDated } from "../lib/dates";
+import { formatFeedDate, formatReleaseDate, isFutureDated } from "../lib/dates";
 import { TypeBadge } from "./type-badge";
 import { TypeIcon } from "./type-icon";
 
@@ -61,7 +61,13 @@ export function ReleaseCard({
   item: FeedItem;
   snippet?: string | null;
 }) {
-  const photoUrl = getSenatorPhotoUrl(item.senator_name, item.official_id);
+  const photoUrl = getMemberPhotoUrl(
+    item.senator_name,
+    item.official_id,
+    item.chamber,
+    item.bioguide_id
+  );
+  const memberHref = getMemberHref(item.official_id, item.chamber);
   const partyRing =
     item.party === "D"
       ? "ring-blue-500"
@@ -84,7 +90,7 @@ export function ReleaseCard({
     >
       <div className="flex items-start gap-2.5">
         <Link
-          href={getSenatorHref(item.official_id)}
+          href={memberHref}
           className="shrink-0 mt-0.5"
         >
           {photoUrl ? (
@@ -110,25 +116,25 @@ export function ReleaseCard({
               <span className="text-[10px] uppercase tracking-wider text-neutral-400">From</span>
             </span>
             <Link
-              href={getSenatorHref(item.official_id)}
+              href={memberHref}
               className="text-neutral-700 font-[family-name:var(--font-source-serif)] hover:text-neutral-900 transition-colors"
             >
               {item.senator_name}
             </Link>
             <span>·</span>
             <span>{item.party}-{item.state}</span>
-            {item.published_at && (
+            {(item.published_at || item.scraped_at) && (
               <>
                 <span>·</span>
                 <time
-                  dateTime={item.published_at}
+                  dateTime={item.published_at ?? item.scraped_at}
                   className="font-[family-name:var(--font-dm-mono)] tabular-nums"
                 >
-                  {formatReleaseDate(item.published_at)}
+                  {formatFeedDate(item.published_at, item.scraped_at)}
                 </time>
                 {isFutureDated(item.published_at, item.scraped_at) && (
                   <span
-                    title={`Office-published date is in the future (likely upstream typo); we captured this on ${formatReleaseDate(item.scraped_at)}.`}
+                    title={`Office-published date (${formatReleaseDate(item.published_at)}) is in the future; we captured this on ${formatReleaseDate(item.scraped_at)}.`}
                     className="text-amber-700 cursor-help"
                   >
                     *
