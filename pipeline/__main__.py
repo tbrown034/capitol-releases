@@ -115,6 +115,10 @@ def main():
         from pipeline.commands.publish_drafts import main as publish_drafts_main
         sys.exit(publish_drafts_main())
 
+    elif command == "daily-report":
+        from pipeline.commands.daily_report import main as daily_report_main
+        sys.exit(daily_report_main())
+
     elif command == "source-profiles":
         from pipeline.commands.source_profiles import main as source_profiles_main
         source_profiles_main()
