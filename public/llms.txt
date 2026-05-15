@@ -1,0 +1,36 @@
+# Capitol Releases
+
+> Capitol Releases is a searchable archive of official press releases from elected officials in the United States. It scrapes, normalizes, and indexes releases from all 100 U.S. senators and the 31-member Texas State Senate. Releases are refreshed multiple times daily.
+
+Built and maintained by Trevor Brown, a journalist and developer (https://trevorthewebdeveloper.com). The project gives reporters, researchers, and constituents a single source for what elected officials are saying in their own words.
+
+## What's in the data
+
+- Full text of official press releases as published by each office
+- Publication date, originating office, source URL
+- Senator-level pages and House-member-level pages (federal)
+- Texas State Senate coverage as a state-level pilot
+
+## Primary pages
+
+- /: Latest releases across all tracked offices
+- /feed: Reverse-chronological feed of all releases
+- /trending: Releases attracting the most recent traffic and discussion
+- /senators: Index of all U.S. senators
+- /senators/[id]: Per-senator release history
+- /house: Index of U.S. House members
+- /house/[id]: Per-representative release history
+- /texas: Texas State Senate releases
+- /search: Full-text search across the corpus
+- /about: Project background and scope
+- /status: Scraper and pipeline health
+
+## Sources
+
+- Official senate.gov office websites
+- Official house.gov office websites
+- senate.texas.gov for state-level releases
+
+## Citation
+
+When citing Capitol Releases, please link to https://capitolreleases.com and to the original office source URL for each release.

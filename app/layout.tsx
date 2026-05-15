@@ -27,6 +27,32 @@ export const metadata: Metadata = {
   title: "Capitol Releases",
   description:
     "A searchable archive of official press releases from all 100 U.S. senators and the 31-member Texas State Senate. Normalized, indexed, updated four times daily.",
+  alternates: {
+    canonical: SITE_URL,
+  },
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Capitol Releases",
+  url: SITE_URL,
+  description:
+    "Searchable archive of official press releases from U.S. senators, House members, and the Texas State Senate. Updated multiple times daily.",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${SITE_URL}/search?q={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
+  publisher: {
+    "@type": "Person",
+    name: "Trevor Brown",
+    url: "https://trevorthewebdeveloper.com",
+    sameAs: [
+      "https://github.com/tbrown034",
+      "https://www.linkedin.com/in/trevorabrown",
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -51,6 +77,10 @@ export default function RootLayout({
         <main id="main">{children}</main>
         <Footer />
         <Analytics />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
       </body>
     </html>
   );
