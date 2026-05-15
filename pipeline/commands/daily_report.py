@@ -277,7 +277,14 @@ def _send(subject: str, body: str) -> None:
     smtp_port = int(os.environ.get("SMTP_PORT", "587"))
     smtp_user = os.environ.get("SMTP_USER", "")
     smtp_pass = os.environ.get("SMTP_PASS", "")
-    from_addr = os.environ.get("SMTP_USER", "alerts@capitol-releases.com")
+    # Resend (and most providers) require From to be a verified domain
+    # address, not the SMTP username. Match brief-send.py's BRIEF_FROM_ADDR
+    # secret so we don't have to provision a second verified sender.
+    from_addr = (
+        os.environ.get("BRIEF_FROM_ADDR")
+        or os.environ.get("SMTP_USER")
+        or "alerts@capitol-releases.com"
+    )
 
     msg = MIMEText(body)
     msg["Subject"] = subject
