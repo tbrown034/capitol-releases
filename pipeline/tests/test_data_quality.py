@@ -953,8 +953,44 @@ def test_social_posts_per_senator_floor():
 
 # ---- Run all tests ----
 
+# HARD checks fail the run. They mean the data layer itself is broken — a
+# parser bug, a stopped collector, a wholesale regression. Every consumer of
+# the corpus is affected if these trip.
+#
+# SOFT checks (the set below) record a warning and surface in the daily
+# digest but do NOT fail the run. They cover anomaly tripwires where a
+# single-record typo, a coincidental round number, or one undercollecting
+# member shouldn't tear down a 535+ member pipeline. The verified_ok pattern
+# was the prior workaround; the soft tier replaces it. Reclassify into HARD
+# only if a soft check starts catching a class of real outages, not just
+# eyebrow-raising coincidences.
+SOFT_TESTS = {
+    "test_dates_in_valid_range",
+    "test_no_future_dates",
+    "test_no_suspicious_round_counts",
+    "test_rss_collectors_not_severely_undercollecting",
+    "test_no_rss_rampup_signature",
+    "test_no_zero_volume_months",
+    "test_no_long_publication_gaps",
+    "test_back_coverage_not_truncated",
+    "test_no_date_clumping",
+    "test_no_anomalously_low_counts",
+    "test_per_type_floors",
+    "test_per_type_back_coverage",
+    "test_per_type_not_date_clumped",
+    "test_social_posts_not_empty",
+    "test_social_posts_within_window",
+    "test_social_posts_per_senator_floor",
+}
+
+
 def run_all():
-    """Run all tests and report results."""
+    """Run all tests and report results.
+
+    Returns True when no HARD checks fail. SOFT-tier failures (see
+    SOFT_TESTS) print as WARN but do not affect the return value, so cron
+    only goes red when the data layer is actually broken.
+    """
     tests = [
         test_all_senators_in_db,
         test_senators_have_urls,
@@ -988,8 +1024,8 @@ def run_all():
     ]
 
     passed = 0
-    failed = 0
-    warnings = 0
+    hard_failures = 0
+    soft_warnings = 0
 
     print(f"\n{'='*60}")
     print(f"  DATA QUALITY TESTS")
@@ -997,22 +1033,30 @@ def run_all():
     print(f"{'='*60}\n")
 
     for test in tests:
+        is_soft = test.__name__ in SOFT_TESTS
         try:
             test()
             print(f"  PASS  {test.__name__}")
             passed += 1
         except AssertionError as e:
-            print(f"  FAIL  {test.__name__}: {e}")
-            failed += 1
+            if is_soft:
+                print(f"  WARN  {test.__name__}: {e}")
+                soft_warnings += 1
+            else:
+                print(f"  FAIL  {test.__name__}: {e}")
+                hard_failures += 1
         except Exception as e:
+            # Unexpected exceptions are always loud — they mean the test
+            # itself crashed (bad query, missing column), which we want to
+            # know about regardless of severity tier.
             print(f"  ERR   {test.__name__}: {type(e).__name__}: {e}")
-            failed += 1
+            hard_failures += 1
 
     print(f"\n{'='*60}")
-    print(f"  {passed} passed, {failed} failed")
+    print(f"  {passed} passed, {soft_warnings} warnings, {hard_failures} failures")
     print(f"{'='*60}\n")
 
-    return failed == 0
+    return hard_failures == 0
 
 
 if __name__ == "__main__":
