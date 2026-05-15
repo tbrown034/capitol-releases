@@ -720,32 +720,72 @@ def test_no_anomalously_low_counts():
 
 
 def test_no_stale_senators():
-    """Every active US senator should have a release in the last 60 days.
+    """Normally-active US senators must have a CAPTURE in the last 14 days.
 
-    Scoped to chamber='senate' — TX state legislators publish in bursts
-    aligned with biennial sessions and many are legitimately silent for
-    half the year. A stale-detection floor that works for the federal
-    Senate doesn't apply to state chambers.
+    Scoped to chamber='senate' AND jurisdiction='us'. Tightened on
+    2026-05-15 after this test's previous "60 days, allow up to 9 stale"
+    threshold missed four collectors that silently broke for 14-26 days
+    (lujan-ben, tuberville-tommy, hagerty-bill, plus state-side hits).
+    The new shape mirrors daily_report._silent_members so the digest and
+    the test agree on what "broken" means:
+
+        - chamber = 'senate' AND jurisdiction = 'us'
+        - status = 'active' (so freshly-departed members don't haunt us)
+        - normally-active: >= 161 captures in the last 90 days
+          (~25 expected captures in any given 14-day window — below
+          this, a senator can be naturally quiet for 14 days during
+          recess. Hagerty at 182, Lujan at 459, Tuberville at 391 all
+          clear the bar; Rounds at 145 and Sheehy at 80 do not, so
+          they surface only in the digest's silent-members list, not
+          as a HARD CI failure.)
+        - exempt anyone whose seed flags expect_empty=true (Armstrong)
+        - bad signal: MAX(scraped_at) older than 14 days
+
+    A real upstream silence would still produce captures (we'd be
+    re-touching the listing page). Zero captures in 14 days for an
+    otherwise-active senator means the COLLECTOR is broken, not the
+    senator. That is a HARD failure now — it's how data loss starts.
     """
+    # expect_empty lives in seed JSON, not on the officials table. The
+    # single current exemption is Armstrong (R-OK) — appointed 2026-03-24
+    # to a seat with no inherited press archive and a brand-new bare-bones
+    # site. Add others here if they appear in seed senate.json with
+    # expect_empty=true; the IN clause keeps the hardcoded list short.
+    EXEMPT = {"armstrong-alan"}
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
-        SELECT s.id, s.full_name, MAX(pr.published_at) as last_release
+        WITH historical AS (
+            SELECT official_id,
+                   COUNT(*) FILTER (WHERE scraped_at > NOW() - INTERVAL '90 days') AS last_90,
+                   MAX(scraped_at) AS last_scrape
+            FROM official_site_items
+            WHERE deleted_at IS NULL
+            GROUP BY official_id
+        )
+        SELECT s.id, s.full_name, h.last_scrape::date, h.last_90
         FROM officials s
-        JOIN official_site_items pr ON s.id = pr.official_id
-        WHERE s.collection_method IS NOT NULL AND s.chamber = 'senate' AND s.jurisdiction = 'us'
-        GROUP BY s.id, s.full_name
-        HAVING MAX(pr.published_at) < NOW() - INTERVAL '60 days'
-    """)
+        JOIN historical h ON h.official_id = s.id
+        WHERE s.collection_method IS NOT NULL
+          AND s.chamber = 'senate' AND s.jurisdiction = 'us'
+          AND s.status = 'active'
+          AND NOT (s.id = ANY(%s))
+          AND h.last_90 >= 161  -- expected ~25 captures in 14d at this volume
+          AND h.last_scrape < NOW() - INTERVAL '14 days'
+        ORDER BY h.last_scrape
+    """, (list(EXEMPT),))
     stale = cur.fetchall()
     cur.close()
     conn.close()
     if stale:
-        print(f"WARNING: {len(stale)} senators have no releases in 60 days:")
-        for sid, name, last in stale:
-            print(f"  {name}: last release {last.date() if last else 'never'}")
-    # Soft assertion -- allow some stale senators
-    assert len(stale) < 10, f"{len(stale)} senators are stale (no releases in 60 days)"
+        print(f"FAIL: {len(stale)} normally-active US senators with no captures in 14 days:")
+        for sid, name, last_scrape, last_90 in stale:
+            print(f"  {name} ({sid}): last_scrape={last_scrape}, last_90={last_90}")
+    assert not stale, (
+        f"{len(stale)} normally-active US senators went silent for 14+ days "
+        f"(likely broken collectors): "
+        + ", ".join(f"{n}({lc})" for _, n, lc, _ in stale)
+    )
 
 
 # ---- Per-content-type coverage tests ----
@@ -975,9 +1015,13 @@ SOFT_TESTS = {
     "test_back_coverage_not_truncated",
     "test_no_date_clumping",
     "test_no_anomalously_low_counts",
-    "test_per_type_floors",
-    "test_per_type_back_coverage",
-    "test_per_type_not_date_clumped",
+    # test_per_type_floors and test_no_stale_senators were SOFT before
+    # 2026-05-15. Both catch real data loss — a collapsed content_type
+    # (the classifier silently regressing 'op_ed' to 0) and a broken
+    # collector (lujan-ben/tuberville-tommy went silent for 26 days).
+    # Promoted to HARD after the digest exposed the second class.
+    "test_per_type_back_coverage",   # historical back-coverage drift, still SOFT
+    "test_per_type_not_date_clumped", # known issues on a few state-side IDs
     "test_social_posts_not_empty",
     "test_social_posts_within_window",
     "test_social_posts_per_senator_floor",

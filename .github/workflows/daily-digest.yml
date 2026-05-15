@@ -12,8 +12,12 @@ name: Daily pipeline digest
 
 on:
   schedule:
-    # 22:30 UTC = 6:30pm ET, ~60 min after the 21:00 UTC collector.
-    - cron: "30 22 * * *"
+    # 02:00 UTC = 10pm ET (EDT) / 9pm ET (EST), 60 min after the
+    # 01:00 UTC daily collector — the actual end of the East Coast
+    # business day. The previous 22:30 UTC slot was 6:30pm ET, which
+    # ran BEFORE the 21:00 UTC and 01:00 UTC collectors, so the
+    # "today's captures" line was missing the evening's work.
+    - cron: "0 2 * * *"
   workflow_dispatch:
     inputs:
       date:
@@ -56,10 +60,20 @@ jobs:
         run: pip install -r pipeline/requirements.txt
 
       - name: Regenerate data-quality JSON
-        # Don't fail the digest on hard failures — they belong IN the
-        # digest, not as a missing email. daily.yml is responsible for
-        # going red when the data layer is broken.
-        run: python -m pipeline test || true
+        # Exit code 1 = HARD assertion fired; we want those IN the
+        # digest body, not as a silent CI red. Anything else (2 =
+        # crash, 137 = OOM, 130 = SIGINT, 124 = timeout) means the
+        # test runner itself broke and the digest will lie. Fail the
+        # workflow so the missing-digest email comes through GH.
+        run: |
+          set +e
+          python -m pipeline test
+          rc=$?
+          set -e
+          if [ "$rc" -ne 0 ] && [ "$rc" -ne 1 ]; then
+            echo "::error::pipeline test exited $rc (not a normal HARD failure); refusing to send a misleading digest"
+            exit "$rc"
+          fi
 
       - name: Send digest
         run: |

@@ -39,23 +39,38 @@ ET = ZoneInfo("America/New_York")
 REPORT_PATH = Path(__file__).resolve().parents[2] / "docs" / "data_quality_run.json"
 
 
+def _et_day_bounds(target: date) -> tuple[datetime, datetime]:
+    """Return (start, end) timestamptz bounds for the ET calendar day `target`.
+
+    `started_at` and `scraped_at` are TIMESTAMPTZ; comparing against
+    `target::date` would silently use the database session's UTC clock,
+    so a 9pm-ET capture (01:00 UTC the next day) would be filed under
+    tomorrow. Using explicit ET-anchored datetimes converted to UTC
+    keeps the digest aligned with the human "today ET" claim.
+    """
+    start_et = datetime(target.year, target.month, target.day, 0, 0, tzinfo=ET)
+    end_et = start_et + timedelta(days=1)
+    return start_et.astimezone(timezone.utc), end_et.astimezone(timezone.utc)
+
+
 def _aggregate_runs(cur, target: date) -> dict:
-    """Sum capture stats across every daily scrape_runs row for the date.
+    """Sum capture stats across every daily scrape_runs row for the ET date.
 
     The cron fires four times a day; each run records its own stats blob.
     Summing gives the day's total, which is what an end-of-day reader
     actually wants to see.
     """
+    start, end = _et_day_bounds(target)
     cur.execute(
         """
         SELECT stats
         FROM scrape_runs
         WHERE run_type = 'daily'
           AND finished_at IS NOT NULL
-          AND started_at >= %s::date
-          AND started_at <  (%s::date + interval '1 day')
+          AND started_at >= %s
+          AND started_at <  %s
         """,
-        (target, target),
+        (start, end),
     )
     rows = cur.fetchall()
     inserted = updated = skipped = errors = 0
@@ -80,34 +95,38 @@ def _aggregate_runs(cur, target: date) -> dict:
 
 
 def _per_chamber_today(cur, target: date) -> list[tuple[str, int]]:
-    """How many new rows landed today, broken out by chamber.
+    """How many new rows landed during the ET day, broken out by chamber.
 
     Uses scraped_at because published_at lags reality (members publish
     yesterday's news today, etc.) — capture activity is what we care
     about for "what did the pipeline do today."
     """
+    start, end = _et_day_bounds(target)
     cur.execute(
         """
-        SELECT COALESCE(o.chamber, 'unknown') AS chamber, COUNT(*)::int
+        SELECT COALESCE(o.chamber, o.branch, 'unknown') AS bucket, COUNT(*)::int
         FROM official_site_items i
         JOIN officials o ON o.id = i.official_id
-        WHERE i.scraped_at >= %s::date
-          AND i.scraped_at <  (%s::date + interval '1 day')
+        WHERE i.scraped_at >= %s
+          AND i.scraped_at <  %s
           AND i.deleted_at IS NULL
         GROUP BY 1
         ORDER BY 2 DESC
         """,
-        (target, target),
+        (start, end),
     )
     return [(c, n) for c, n in cur.fetchall()]
 
 
-def _silent_members(cur, days: int = 14) -> list[tuple[str, str, int]]:
-    """Active members with no captures in the last N days.
+def _silent_members(cur, days: int = 14) -> list[tuple[str, str, str, int]]:
+    """Active US Congress members with no captures in the last N days.
 
-    Filters to members with >= 30 records over the last 90 days so we
-    don't flag genuinely low-volume offices (Armstrong, recess weeks,
-    etc.) — same threshold as alerts.check_anomalies, intentionally.
+    Filters to chamber IN ('senate','house') and jurisdiction='us'. State
+    legislators (TX biennial sessions etc.) and exec sources have legitimate
+    multi-month silences and would pollute the daily Congress digest.
+    Filters to >= 30 records over the last 90 days so we don't flag
+    genuinely low-volume offices (Armstrong, recess weeks, etc.) — same
+    threshold as alerts.check_anomalies. Returns (id, name, chamber, last_90).
     """
     cur.execute(
         """
@@ -125,19 +144,21 @@ def _silent_members(cur, days: int = 14) -> list[tuple[str, str, int]]:
               AND deleted_at IS NULL
             GROUP BY official_id
         )
-        SELECT o.id, o.full_name, COALESCE(h.last_90, 0)
+        SELECT o.id, o.full_name, o.chamber, COALESCE(h.last_90, 0)
         FROM officials o
         JOIN historical h ON h.official_id = o.id
         LEFT JOIN recent r ON r.official_id = o.id
         WHERE h.last_90 >= 30
           AND COALESCE(r.cnt, 0) = 0
           AND o.status = 'active'
-        ORDER BY h.last_90 DESC
+          AND o.chamber IN ('senate', 'house')
+          AND o.jurisdiction = 'us'
+        ORDER BY o.chamber, h.last_90 DESC
         LIMIT 25
         """,
         (str(days),),
     )
-    return [(sid, name, last_90) for sid, name, last_90 in cur.fetchall()]
+    return [(sid, name, chamber, last_90) for sid, name, chamber, last_90 in cur.fetchall()]
 
 
 def _coverage_snapshot(cur) -> dict:
@@ -146,7 +167,7 @@ def _coverage_snapshot(cur) -> dict:
     members = cur.fetchone()[0]
     cur.execute(
         """
-        SELECT COALESCE(chamber, 'unknown'), COUNT(*)::int
+        SELECT COALESCE(chamber, branch, 'unknown'), COUNT(*)::int
         FROM officials
         WHERE status = 'active'
         GROUP BY 1
@@ -165,14 +186,23 @@ def _coverage_snapshot(cur) -> dict:
     }
 
 
-def _read_quality_report() -> dict | None:
+def _read_quality_report() -> tuple[dict | None, str | None]:
+    """Return (parsed_report, error_string). One of them is always None.
+
+    error_string is set when the file is missing or unparseable so the
+    digest can surface the failure loudly in the subject + body instead
+    of silently presenting "0 warnings, 0 failures" — which would lie.
+    """
     if not REPORT_PATH.exists():
-        return None
+        return None, f"missing ({REPORT_PATH.name} not written by `pipeline test`)"
     try:
-        return json.loads(REPORT_PATH.read_text())
+        data = json.loads(REPORT_PATH.read_text())
     except (OSError, json.JSONDecodeError) as e:
-        log.warning("Could not read %s: %s", REPORT_PATH, e)
-        return None
+        return None, f"unreadable: {type(e).__name__}: {e}"
+    # Tolerate older reports that may not have every key.
+    if not isinstance(data, dict):
+        return None, f"malformed: top-level was {type(data).__name__}, expected object"
+    return data, None
 
 
 def render(target: date) -> tuple[str, str]:
@@ -187,9 +217,9 @@ def render(target: date) -> tuple[str, str]:
     finally:
         conn.close()
 
-    quality = _read_quality_report()
-    failures = quality["failures"] if quality else []
-    warnings = quality["warnings"] if quality else []
+    quality, quality_err = _read_quality_report()
+    failures = (quality or {}).get("failures", []) if quality else []
+    warnings = (quality or {}).get("warnings", []) if quality else []
 
     pretty_date = target.strftime("%A, %B %-d")
     new_total = runs["inserted"] + runs["updated"]
@@ -198,6 +228,10 @@ def render(target: date) -> tuple[str, str]:
 
     subject_bits = [f"Capitol Releases — {target.isoformat()}"]
     subject_bits.append(f"{new_total} captures")
+    if quality_err:
+        # Surface infrastructure problems loudly. A missing JSON usually
+        # means the test step crashed in CI.
+        subject_bits.append("REPORT MISSING")
     if fail_count:
         subject_bits.append(f"{fail_count} FAIL")
     if warn_count:
@@ -250,17 +284,22 @@ def render(target: date) -> tuple[str, str]:
         lines.append("  None.")
     lines.append("")
 
-    lines.append(f"SILENT MEMBERS — no captures in 14 days, normally active ({len(silent)})")
+    lines.append(f"SILENT MEMBERS — no captures in 14 days, normally active US Congress ({len(silent)})")
     lines.append("-" * 60)
     if silent:
-        for sid, name, last_90 in silent:
-            lines.append(f"  - {name} ({sid}) — {last_90} records in last 90 days")
+        for sid, name, chamber, last_90 in silent:
+            lines.append(f"  - [{chamber}] {name} ({sid}) — {last_90} records in last 90 days")
     else:
         lines.append("  None.")
     lines.append("")
 
-    if quality is None:
-        lines.append("(No data_quality_run.json found — pipeline test step did not write a report this cycle.)")
+    if quality_err:
+        lines.append("REPORT INTEGRITY")
+        lines.append("-" * 60)
+        lines.append(f"  Data-quality report could NOT be loaded: {quality_err}")
+        lines.append("  This usually means the `pipeline test` step crashed in CI;")
+        lines.append("  check the daily-digest workflow logs. Counts above are still")
+        lines.append("  accurate, but the warnings/failures section is empty by default.")
         lines.append("")
 
     return subject, "\n".join(lines)
