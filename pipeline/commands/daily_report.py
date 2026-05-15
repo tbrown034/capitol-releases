@@ -278,12 +278,14 @@ def _send(subject: str, body: str) -> None:
     smtp_user = os.environ.get("SMTP_USER", "")
     smtp_pass = os.environ.get("SMTP_PASS", "")
     # Resend (and most providers) require From to be a verified domain
-    # address, not the SMTP username. Match brief-send.py's BRIEF_FROM_ADDR
-    # secret so we don't have to provision a second verified sender.
+    # address, not the SMTP username. Prefer the same BRIEF_FROM_ADDR
+    # secret brief-send.py uses; fall back to onboarding@resend.dev
+    # (Resend's universal unverified sender — works for sends to a
+    # verified account address) so this can ship before a domain is
+    # verified on the Resend account. Swap by setting BRIEF_FROM_ADDR.
     from_addr = (
         os.environ.get("BRIEF_FROM_ADDR")
-        or os.environ.get("SMTP_USER")
-        or "alerts@capitol-releases.com"
+        or "onboarding@resend.dev"
     )
 
     msg = MIMEText(body)
