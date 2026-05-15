@@ -984,12 +984,19 @@ SOFT_TESTS = {
 }
 
 
+REPORT_PATH = Path(__file__).resolve().parents[2] / "docs" / "data_quality_run.json"
+
+
 def run_all():
-    """Run all tests and report results.
+    """Run all tests, write a structured report, and return success bool.
 
     Returns True when no HARD checks fail. SOFT-tier failures (see
     SOFT_TESTS) print as WARN but do not affect the return value, so cron
     only goes red when the data layer is actually broken.
+
+    Side effect: writes docs/data_quality_run.json with the run summary
+    so the daily-report email step can include warnings without re-running
+    the suite.
     """
     tests = [
         test_all_senators_in_db,
@@ -1023,9 +1030,9 @@ def run_all():
         test_social_posts_per_senator_floor,
     ]
 
-    passed = 0
-    hard_failures = 0
-    soft_warnings = 0
+    passed: list[str] = []
+    warnings: list[dict] = []
+    failures: list[dict] = []
 
     print(f"\n{'='*60}")
     print(f"  DATA QUALITY TESTS")
@@ -1037,26 +1044,50 @@ def run_all():
         try:
             test()
             print(f"  PASS  {test.__name__}")
-            passed += 1
+            passed.append(test.__name__)
         except AssertionError as e:
+            entry = {"name": test.__name__, "message": str(e)}
             if is_soft:
                 print(f"  WARN  {test.__name__}: {e}")
-                soft_warnings += 1
+                warnings.append(entry)
             else:
                 print(f"  FAIL  {test.__name__}: {e}")
-                hard_failures += 1
+                failures.append(entry)
         except Exception as e:
             # Unexpected exceptions are always loud — they mean the test
             # itself crashed (bad query, missing column), which we want to
             # know about regardless of severity tier.
             print(f"  ERR   {test.__name__}: {type(e).__name__}: {e}")
-            hard_failures += 1
+            failures.append({
+                "name": test.__name__,
+                "message": f"{type(e).__name__}: {e}",
+                "kind": "exception",
+            })
 
     print(f"\n{'='*60}")
-    print(f"  {passed} passed, {soft_warnings} warnings, {hard_failures} failures")
+    print(f"  {len(passed)} passed, {len(warnings)} warnings, {len(failures)} failures")
     print(f"{'='*60}\n")
 
-    return hard_failures == 0
+    report = {
+        "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "counts": {
+            "passed": len(passed),
+            "warnings": len(warnings),
+            "failures": len(failures),
+        },
+        "passed": passed,
+        "warnings": warnings,
+        "failures": failures,
+    }
+    try:
+        REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        REPORT_PATH.write_text(json.dumps(report, indent=2))
+    except OSError as e:
+        # Don't let a write failure break the test exit code — the report
+        # is a side effect for the daily digest, not a correctness signal.
+        print(f"  (report write skipped: {e})")
+
+    return len(failures) == 0
 
 
 if __name__ == "__main__":
