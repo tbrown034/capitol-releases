@@ -1354,21 +1354,21 @@
       "official_url": "https://www.lujan.senate.gov",
       "press_release_url": "https://www.lujan.senate.gov/newsroom/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": true,
+      "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
-        "title": null,
+        "list_item": ".jet-listing-grid__item",
+        "title": "h3 a, h2 a, .elementor-widget-heading a",
         "date": null,
-        "detail_link": null
+        "detail_link": "h3 a, h2 a, .elementor-widget-heading a"
       },
       "confidence": 0.55,
-      "notes": "Found 12 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
+      "notes": "JetEngine listing grid; httpx works. Date is split across multiple post-info widgets on the listing card (month/day/year separate), so leave date None and let the detail-page meta extractor fill published_at. Site-wide /feed/ returns 2 stale 2023 items, so RSS is not viable. Fixed 2026-05-15.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "playwright",
+      "collection_method": "httpx",
       "rss_feed_url": "https://www.lujan.senate.gov/feed/"
     },
     {
@@ -2257,21 +2257,21 @@
       "official_url": "https://www.tuberville.senate.gov",
       "press_release_url": "https://www.tuberville.senate.gov/newsroom/press-releases/",
       "parser_family": "senate-wordpress",
-      "requires_js": true,
+      "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
-        "title": null,
-        "date": null,
-        "detail_link": null
+        "list_item": ".jet-listing-grid__item",
+        "title": "h2 a, h3 a, .elementor-widget-heading a",
+        "date": "time",
+        "detail_link": "h2 a, h3 a, .elementor-widget-heading a"
       },
       "confidence": 0.6,
-      "notes": "Found 10 items on listing page. ",
+      "notes": "JetEngine listing grid; httpx works after switching list_item from span.elementor-grid-item (footer social icons) to .jet-listing-grid__item (real cards). Fixed 2026-05-15.",
       "last_verified": "2026-04-15",
       "recon_status": "discovered",
-      "collection_method": "playwright"
+      "collection_method": "httpx"
     },
     {
       "official_id": "hollen-chris",

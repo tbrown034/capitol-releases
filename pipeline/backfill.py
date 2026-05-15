@@ -285,6 +285,14 @@ def extract_listing_items(soup, selectors):
         ".views-row", "article",
         ".element-list .element", "li.press-release", ".record",
         ".entry", ".list-item", ".news-item",
+        # Elementor + JetEngine listing grids (Lujan, Tuberville, etc.).
+        # Real cards. Don't confuse with span.elementor-grid-item, which
+        # matches social-icon containers in the page footer/header — that
+        # one is in `bad_selectors` above. Added 2026-05-15 after a recon
+        # error in the original wave-1 seeds left two senators silent for
+        # 26+ days behind a `span.elementor-grid-item` selector that hit
+        # zero real items.
+        ".jet-listing-grid__item",
     ]:
         items = soup.select(sel)
         if len(items) >= 2:
