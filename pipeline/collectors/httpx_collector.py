@@ -124,7 +124,14 @@ class HttpxCollector:
                     # don't drop later in-window items.
                     if since and pub_date:
                         pub_ts = pub_date if pub_date.tzinfo else pub_date.replace(tzinfo=timezone.utc)
-                        if (since - pub_ts).total_seconds() > 7 * 86400:
+                        # Tier by confidence. URL-path dates (~0.7) often
+                        # default the day to 1 when the slug is /YYYY/M/...
+                        # so a mid-month item lands at the 1st and would be
+                        # falsely filtered. Detail-page meta tags below
+                        # resolve the real date at ~0.95, so let those
+                        # through with a wider window.
+                        threshold_days = 7 if date_confidence >= 0.85 else 45
+                        if (since - pub_ts).total_seconds() > threshold_days * 86400:
                             continue
 
                     # Classify content type
