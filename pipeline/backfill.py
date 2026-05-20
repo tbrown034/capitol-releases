@@ -448,20 +448,32 @@ def extract_item_data(item, base_url, selectors):
             date_text = date_el.get_text(strip=True)
         return title, date_text, detail_url
 
-    # JetEngine listing (Whitehouse)
+    # JetEngine listing (Whitehouse, Scott-Tim, Warnock, Padilla, Marshall).
+    # Whitehouse renders titles inside .jet-listing-dynamic-link; other JetEngine
+    # senators on senate-wordpress use plain anchors with no JetEngine class.
+    # Fall back to the first substantive anchor before giving up.
     if "jet-listing-grid__item" in item_classes:
         link = item.select_one(".jet-listing-dynamic-link a, a[href*='/news/release/']")
+        if not link:
+            for a in item.select("a[href]"):
+                href = (a.get("href") or "").strip()
+                text = a.get_text(strip=True)
+                if href and not href.startswith("#") and len(text) > 15:
+                    link = a
+                    break
         if link:
             title = link.get_text(strip=True)
             detail_url = urljoin(base_url, link.get("href", ""))
-        # Date is often in the first heading
-        headings = item.select("h3")
-        for h in headings:
+        for h in item.select("h3, h4, time, .date, .post-date"):
             text = h.get_text(strip=True)
-            parsed = parse_date(text)
-            if parsed:
+            if parse_date(text):
                 date_text = text
                 break
+        if not date_text:
+            for line in item.get_text("\n", strip=True).split("\n")[:3]:
+                if parse_date(line):
+                    date_text = line
+                    break
         return title, date_text, detail_url
 
     # Senate custom CMS: ArticleBlock pattern (four layouts observed)

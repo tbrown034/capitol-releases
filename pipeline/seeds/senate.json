@@ -1217,11 +1217,11 @@
         "detail_link": "td a[href]"
       },
       "confidence": 0.55,
-      "notes": "Fixed 2026-04-18: ColdFusion table. 223 pages.",
-      "last_verified": "2026-04-15",
+      "notes": "Fixed 2026-04-18: ColdFusion table. 223 pages. Patched 2026-05-20 after the daily test flagged a stale collector: see PR/commit for root cause. RSS feed has malformed pubDates; HTML listing works via recordList waterfall.",
+      "last_verified": "2026-05-20",
       "recon_status": "discovered",
-      "collection_method": "rss",
-      "rss_feed_url": "https://www.kennedy.senate.gov/public/?a=RSS.Feed"
+      "collection_method": "httpx",
+      "rss_feed_url": null
     },
     {
       "official_id": "kim-andy",
@@ -1435,17 +1435,17 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".jet-listing-grid__item",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.6,
-      "notes": "Found 13 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
-      "last_verified": "2026-04-15",
+      "notes": "Found 13 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill. Patched 2026-05-20 after the daily test flagged a stale collector: see PR/commit for root cause. playwright was never implemented; routed to stale WP /feed/. Now httpx + jet-listing-grid__item.",
+      "last_verified": "2026-05-20",
       "recon_status": "discovered",
-      "collection_method": "playwright",
-      "rss_feed_url": "https://www.marshall.senate.gov/feed/"
+      "collection_method": "httpx",
+      "rss_feed_url": null
     },
     {
       "official_id": "mcconnell-mitch",
@@ -1714,17 +1714,17 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".jet-listing-grid__item",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.6,
-      "notes": "Found 9 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
-      "last_verified": "2026-04-15",
+      "notes": "Found 9 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill. Patched 2026-05-20 after the daily test flagged a stale collector: see PR/commit for root cause. playwright was never implemented; routed to stale WP /feed/. Now httpx + jet-listing-grid__item.",
+      "last_verified": "2026-05-20",
       "recon_status": "discovered",
-      "collection_method": "playwright",
-      "rss_feed_url": "https://www.padilla.senate.gov/feed/"
+      "collection_method": "httpx",
+      "rss_feed_url": null
     },
     {
       "official_id": "paul-rand",
@@ -2062,14 +2062,14 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".jet-listing-grid__item",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.6,
-      "notes": "Found 5 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Found 5 items on listing page.  Patched 2026-05-20 after the daily test flagged a stale collector: see PR/commit for root cause. list_item was span.elementor-grid-item (blocklisted, matches footer social row).",
+      "last_verified": "2026-05-20",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },
@@ -2334,17 +2334,17 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".jet-listing-grid__item",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.6,
-      "notes": "Found 15 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Found 15 items on listing page.  Patched 2026-05-20 after the daily test flagged a stale collector: see PR/commit for root cause. playwright was never implemented; routed to stale WP /feed/. Now httpx + jet-listing-grid__item.",
+      "last_verified": "2026-05-20",
       "recon_status": "discovered",
-      "collection_method": "playwright",
-      "rss_feed_url": "https://www.warnock.senate.gov/feed/"
+      "collection_method": "httpx",
+      "rss_feed_url": null
     },
     {
       "official_id": "warren-elizabeth",
