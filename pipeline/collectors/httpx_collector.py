@@ -111,16 +111,21 @@ class HttpxCollector:
                         date_source = date_result.source
                         date_confidence = date_result.confidence
 
-                    # Check cutoff. Compare on date boundaries because many
-                    # listing pages emit dates with no time component, so
-                    # parse_date_text returns midnight UTC. A timestamp-level
-                    # compare against `since` (the previous run's finished_at)
-                    # would always evaluate True and cause the loop to break
-                    # on item 0, silently truncating collection.
-                    # Use `continue` rather than `break` so out-of-order
-                    # listings don't cause us to miss later items.
-                    if since and pub_date and pub_date.date() < since.date():
-                        continue
+                    # Check cutoff with a 7-day grace window. The daily cron
+                    # runs 4x/day so `since` rolls forward to the previous
+                    # run's finished_at — always within hours of "now". A
+                    # strict same-day cutoff (pub_date.date() < since.date())
+                    # silently filters out anything published yesterday or
+                    # earlier, which traps a senator in stale state forever
+                    # once they fall behind. Source-URL dedup at upsert time
+                    # already prevents real duplicates; widening the window
+                    # only costs a few extra detail fetches per run.
+                    # Use `continue` not `break` so out-of-order listings
+                    # don't drop later in-window items.
+                    if since and pub_date:
+                        pub_ts = pub_date if pub_date.tzinfo else pub_date.replace(tzinfo=timezone.utc)
+                        if (since - pub_ts).total_seconds() > 7 * 86400:
+                            continue
 
                     # Classify content type
                     ctype = classify_content_type(title=title, url=detail_url)
