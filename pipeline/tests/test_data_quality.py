@@ -788,6 +788,265 @@ def test_no_stale_senators():
     )
 
 
+# ---- Bulletproofing checks (added 2026-05-20) ----
+#
+# These exist because the May 2 -> May 20 silent-collector incident
+# (six senators returning 0 records on every cron for 18 days while the
+# listing pages were healthy) only tripped the existing 14-day stale
+# test, which made detection 13 days slower than it needed to be. The
+# checks below catch the same class of failure on day 3, plus surface
+# the leading indicators that were buried in the run logs.
+
+_EXEMPT_PARITY = {"armstrong-alan"}  # known zero-volume seat
+
+
+def test_collector_extraction_parity():
+    """HARD. Pre-scrape health check found items; collector inserted nothing.
+
+    If the most recent health_checks row for a senator shows >=3 listing
+    items in the last 24 hours, the listing page is alive and parseable.
+    If MAX(last_seen_live) -- bumped on every successful dedupe match in
+    update.py -- is more than 36 hours old, the collector ran four times
+    against a healthy listing and matched nothing. That is the failure
+    mode that hid for 18 days in May 2026 behind selector + RSS-fallback
+    breakage.
+
+    last_seen_live is the right signal, not scraped_at: scraped_at only
+    moves on NEW inserts, so a senator whose listing carries only old
+    (already-stored) items would false-positive on a scraped_at check.
+    last_seen_live moves whenever the collector successfully processes
+    ANY item, so a stale value means the collector is dropping the
+    listing wholesale.
+
+    The 36-hour window leaves a full daily cycle of slack but trips far
+    earlier than test_no_stale_senators (14 days). Scoped to active US
+    senators with last_90 >= 161 so naturally low-volume members stay
+    in the softer per-member silence flow.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        WITH latest_health AS (
+            SELECT DISTINCT ON (official_id)
+                official_id, items_found, checked_at
+            FROM health_checks
+            WHERE checked_at > NOW() - INTERVAL '24 hours'
+            ORDER BY official_id, checked_at DESC
+        ),
+        touch AS (
+            SELECT official_id,
+                   COUNT(*) FILTER (WHERE scraped_at > NOW() - INTERVAL '90 days') AS last_90,
+                   MAX(last_seen_live) AS last_touch
+            FROM official_site_items
+            WHERE deleted_at IS NULL
+            GROUP BY official_id
+        )
+        SELECT s.id, s.full_name, lh.items_found, t.last_touch, t.last_90
+        FROM officials s
+        JOIN latest_health lh ON lh.official_id = s.id
+        JOIN touch t ON t.official_id = s.id
+        WHERE s.collection_method IS NOT NULL
+          AND s.chamber = 'senate' AND s.jurisdiction = 'us'
+          AND s.status = 'active'
+          AND NOT (s.id = ANY(%s))
+          AND lh.items_found >= 3
+          AND t.last_90 >= 161
+          AND (t.last_touch IS NULL OR t.last_touch < NOW() - INTERVAL '36 hours')
+        ORDER BY t.last_touch NULLS FIRST
+    """, (list(_EXEMPT_PARITY),))
+    broken = cur.fetchall()
+    cur.close()
+    conn.close()
+    if broken:
+        print(f"FAIL: {len(broken)} senators where listing is alive but collector matched nothing:")
+        for sid, name, items, last_touch, last_90 in broken:
+            lt = last_touch.strftime('%Y-%m-%d %H:%M') if last_touch else 'never'
+            print(f"  {name} ({sid}): health_items={items}, last_touch={lt}, last_90={last_90}")
+    assert not broken, (
+        f"{len(broken)} collectors silently dropped every item from healthy listings: "
+        + ", ".join(f"{n}(items={i})" for _, n, i, _, _ in broken)
+    )
+
+
+def test_cutoff_filter_not_starving_senators():
+    """SOFT. Senators whose listings consistently had items found by the
+    health check but where MAX(last_seen_live) is more than 3 days old.
+
+    A senator with no new content but a working collector will still
+    have fresh last_seen_live values from dedupe matches. A stale
+    last_seen_live across multiple healthy checks means the collector
+    is producing nothing the upsert can touch. The signal we care about
+    is the cluster shape: multiple senators tripping at once almost
+    always means a systemic filter regression (the May 2026 cutoff bug
+    affected six senators simultaneously).
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        WITH recent_health AS (
+            SELECT official_id,
+                   COUNT(*) AS checks,
+                   COUNT(*) FILTER (WHERE items_found >= 3) AS healthy
+            FROM health_checks
+            WHERE checked_at > NOW() - INTERVAL '5 days'
+            GROUP BY official_id
+        ),
+        touch AS (
+            SELECT official_id, MAX(last_seen_live) AS last_touch
+            FROM official_site_items
+            WHERE deleted_at IS NULL
+            GROUP BY official_id
+        )
+        SELECT s.id, s.full_name, rh.healthy, rh.checks, t.last_touch
+        FROM officials s
+        JOIN recent_health rh ON rh.official_id = s.id
+        JOIN touch t ON t.official_id = s.id
+        WHERE s.collection_method IS NOT NULL
+          AND s.chamber = 'senate' AND s.jurisdiction = 'us'
+          AND s.status = 'active'
+          AND NOT (s.id = ANY(%s))
+          AND rh.checks >= 3
+          AND rh.healthy = rh.checks  -- every check saw items
+          AND (t.last_touch IS NULL OR t.last_touch < NOW() - INTERVAL '3 days')
+        ORDER BY t.last_touch NULLS FIRST
+    """, (list(_EXEMPT_PARITY),))
+    starved = cur.fetchall()
+    cur.close()
+    conn.close()
+    if starved:
+        print(f"WARNING: {len(starved)} senators with healthy listings but no collector touches in 3 days:")
+        for sid, name, healthy, checks, last_touch in starved:
+            lt = last_touch.strftime('%Y-%m-%d %H:%M') if last_touch else 'never'
+            print(f"  {name} ({sid}): listing_healthy={healthy}/{checks}, last_touch={lt}")
+    assert len(starved) < 5, (
+        f"{len(starved)} senators look starved -- cluster suggests a filter regression"
+    )
+
+
+def test_no_blocklisted_seed_selectors():
+    """SOFT. Surface seeds whose list_item selector is in the parser
+    blocklist. These senators are silently running on the waterfall
+    fallback; that has worked historically but the signal is worth
+    keeping visible because it is exactly how four senators broke in
+    May 2026 (span.elementor-grid-item was in the blocklist; the
+    waterfall caught .jet-listing-grid__item; then extract_item_data
+    only handled the Whitehouse JetEngine shape and dropped everything
+    from non-Whitehouse senators on the same code path).
+
+    Mirror the blocklist literal here -- importing from backfill.py at
+    test-collection time pulls in the whole HTTP stack and slows the
+    suite. Keep this set in sync if backfill.bad_selectors changes.
+    """
+    BAD = {"span.elementor-grid-item", "li.page-item"}
+    flagged = []
+    for m in _load_seeds():
+        sel = (m.get("selectors") or {}).get("list_item")
+        if sel and sel in BAD:
+            flagged.append((m["official_id"], m["full_name"], sel))
+    if flagged:
+        print(f"WARNING: {len(flagged)} seeds use a blocklisted list_item (running on waterfall fallback):")
+        for sid, name, sel in flagged:
+            print(f"  {name} ({sid}): list_item={sel!r}")
+    assert len(flagged) == 0, (
+        f"{len(flagged)} seeds rely on the fallback waterfall via blocklisted list_item: "
+        + ", ".join(f"{n}({s})" for _, n, s in flagged)
+    )
+
+
+def test_date_confidence_floor():
+    """SOFT. Median date_confidence across the last 7 days of inserts
+    must stay >= 0.85 per senator.
+
+    Anchors against the Kennedy-style upstream degradation: the senate.gov
+    RSS feed started emitting day-of-month values like 138, which
+    feedparser drops, which collapsed every Kennedy item's confidence to
+    fallbacks. Catches the gradual case where text parsing degrades
+    enough that we rely on URL-path defaults (confidence 0.7) -- which
+    in turn opens the day-1 truncation hole the cutoff fix patched.
+
+    Only flag senators with >=5 inserts in the window so a single
+    low-confidence record does not trip the test.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        WITH recent AS (
+            SELECT official_id,
+                   COUNT(*) AS n,
+                   percentile_cont(0.5) WITHIN GROUP (ORDER BY date_confidence) AS median_conf
+            FROM official_site_items
+            WHERE scraped_at > NOW() - INTERVAL '7 days'
+              AND deleted_at IS NULL
+              AND date_confidence IS NOT NULL
+            GROUP BY official_id
+        )
+        SELECT s.full_name, s.id, r.n, r.median_conf
+        FROM officials s
+        JOIN recent r ON r.official_id = s.id
+        WHERE s.chamber = 'senate' AND s.jurisdiction = 'us'
+          AND r.n >= 5 AND r.median_conf < 0.85
+        ORDER BY r.median_conf
+    """)
+    low = cur.fetchall()
+    cur.close()
+    conn.close()
+    if low:
+        print(f"WARNING: {len(low)} senators with median date_confidence < 0.85 over last 7 days:")
+        for name, sid, n, mc in low:
+            print(f"  {name} ({sid}): median={float(mc):.2f} over {n} inserts")
+    assert len(low) < 10, (
+        f"{len(low)} senators degraded below 0.85 median confidence -- upstream date format drift"
+    )
+
+
+def test_pre_scrape_failure_surface():
+    """SOFT. Hoist pre-scrape health-check failures into the test gate.
+
+    The 'Pre-scrape health check' workflow step prints '--- FAILED (N) ---'
+    inline and exits 0 regardless. That meant today's run logged 7
+    failed health checks and the visible signal was 'data-quality tests
+    failed' four steps later. Mirror them here so the digest sees them.
+
+    A health-check failure is the listing page returning non-200, or
+    timing out, or producing zero items. Sub-counted by reason for the
+    digest.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        WITH latest AS (
+            SELECT DISTINCT ON (official_id)
+                official_id, passed, url_status, items_found,
+                error_message, checked_at
+            FROM health_checks
+            WHERE checked_at > NOW() - INTERVAL '24 hours'
+            ORDER BY official_id, checked_at DESC
+        )
+        SELECT s.full_name, s.id, l.passed, l.url_status, l.items_found, l.error_message
+        FROM officials s
+        JOIN latest l ON l.official_id = s.id
+        WHERE s.chamber = 'senate' AND s.jurisdiction = 'us'
+          AND s.status = 'active'
+          AND s.collection_method IS NOT NULL
+          AND NOT (s.id = ANY(%s))
+          AND l.passed = FALSE
+        ORDER BY l.url_status NULLS LAST, s.full_name
+    """, (list(_EXEMPT_PARITY),))
+    failed = cur.fetchall()
+    cur.close()
+    conn.close()
+    if failed:
+        print(f"WARNING: {len(failed)} senators failed pre-scrape health check in last 24h:")
+        for name, sid, passed, status, items, err in failed:
+            tag = f"http={status}" if status else "no_response"
+            extra = f" items={items}" if items is not None else ""
+            errf = f" err={err[:60]}" if err else ""
+            print(f"  {name} ({sid}): {tag}{extra}{errf}")
+    assert len(failed) < 10, (
+        f"{len(failed)} senators failed pre-scrape health check -- check listing URLs/selectors"
+    )
+
+
 # ---- Per-content-type coverage tests ----
 #
 # These exist because aggregate tests hide silent collapses of specific types.
@@ -1025,6 +1284,14 @@ SOFT_TESTS = {
     "test_social_posts_not_empty",
     "test_social_posts_within_window",
     "test_social_posts_per_senator_floor",
+    # Bulletproofing tests added 2026-05-20. The parity test is HARD --
+    # same class as test_no_stale_senators, catches the May 2 silent-
+    # collector failure on day 3 instead of day 14. The rest are
+    # leading indicators that surface in the digest.
+    "test_cutoff_filter_not_starving_senators",
+    "test_no_blocklisted_seed_selectors",
+    "test_date_confidence_floor",
+    "test_pre_scrape_failure_surface",
 }
 
 
@@ -1066,6 +1333,11 @@ def run_all():
         test_body_coverage_above_threshold,
         test_no_anomalously_low_counts,
         test_no_stale_senators,
+        test_collector_extraction_parity,
+        test_cutoff_filter_not_starving_senators,
+        test_no_blocklisted_seed_selectors,
+        test_date_confidence_floor,
+        test_pre_scrape_failure_surface,
         test_per_type_floors,
         test_per_type_back_coverage,
         test_per_type_not_date_clumped,
