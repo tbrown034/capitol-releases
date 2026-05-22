@@ -361,8 +361,8 @@ function SummaryLine({
   return (
     <p className="text-sm text-neutral-600 leading-relaxed mb-2 max-w-2xl">
       {lede} {total} {includeReplies ? "posts and replies" : "posts"} from{" "}
-      {stats.senators_active} {senatorWord} ({stats.party.D} D, {stats.party.I} I,{" "}
-      {stats.party.R} R).{" "}
+      {stats.senators_active} {senatorWord} ({stats.party.D.toLocaleString()} D,{" "}
+      {stats.party.I.toLocaleString()} I, {stats.party.R.toLocaleString()} R).{" "}
       {!includeReplies && "Replies and reposts excluded by default."}
     </p>
   );

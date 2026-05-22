@@ -154,8 +154,13 @@ def extract_date_from_html(soup) -> DateResult | None:
         soup: BeautifulSoup object of the page.
     """
     # 1. OpenGraph / meta tags (highest confidence)
+    # `datewritten` is the ColdFusion-stack convention used by Kennedy,
+    # Thune, Cassidy and several other senate.gov ColdFusion sites.
+    # Adding it lifts those senators from page_text/0.75 to meta_tag/0.95
+    # without touching the heuristic chain.
     for attr in ["article:published_time", "og:article:published_time",
-                 "datePublished", "date", "DC.date.issued", "pubdate"]:
+                 "datePublished", "date", "DC.date.issued", "pubdate",
+                 "datewritten"]:
         meta = (soup.find("meta", property=attr)
                 or soup.find("meta", attrs={"name": attr}))
         if meta and meta.get("content"):

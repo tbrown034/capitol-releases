@@ -69,9 +69,21 @@ class RSSCollector:
                     log.debug("Skipping listing-page URL: %s", item.url)
                     continue
 
-                # Skip items before the cutoff
-                if since and item.published_at and item.published_at < since:
-                    continue
+                # Skip items before the cutoff with a 7-day grace window.
+                # The daily cron runs 4x/day, so `since` rolls forward to
+                # the previous run's finished_at — always within hours of
+                # "now". A strict `published_at < since` cutoff filters
+                # out anything published more than a few hours ago, which
+                # traps an RSS-collected senator in stale state forever
+                # once they fall behind by even one cycle. Source-URL
+                # dedup at upsert time already prevents real duplicates,
+                # so widening the window only costs a handful of extra
+                # detail fetches per run. Mirrors the httpx cutoff fix
+                # from commit 57552f2 (2026-05-20).
+                if since and item.published_at:
+                    pub_ts = item.published_at if item.published_at.tzinfo else item.published_at.replace(tzinfo=timezone.utc)
+                    if (since - pub_ts).total_seconds() > 7 * 86400:
+                        continue
 
                 # Classify content type
                 ctype = classify_content_type(

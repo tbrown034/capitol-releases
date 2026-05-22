@@ -273,10 +273,10 @@ export default async function AboutPage({
         How Capitol Releases works
       </h1>
       <p className="mb-8 max-w-2xl text-sm leading-relaxed text-neutral-600">
-        Capitol Releases archives official press output from the 535 voting
-        seats in the U.S. Congress, with 437 House member rows configured for
-        launch. The goal is a searchable public record with enough provenance
-        that a reporter can cite it and a developer can audit it.
+        Capitol Releases archives official press output from all 100 U.S.
+        senators and 435 U.S. representatives. The goal is a searchable public
+        record with enough provenance that a reporter can cite it and a
+        developer can audit it.
       </p>
 
       <Section title="What we collect">
