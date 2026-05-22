@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ContentType } from "../lib/db";
-import { CONTENT_TYPE_PLURAL } from "../lib/content-types";
+import { contentTypeLabel } from "../lib/content-types";
 import { TypeIcon } from "./type-icon";
 
 type MailbagRow = { content_type: ContentType; count: number };
@@ -57,7 +57,7 @@ export function MailbagStrip({
                 {count.toLocaleString()}
               </span>
               <span className="text-neutral-500 group-hover:text-neutral-700 transition-colors">
-                {CONTENT_TYPE_PLURAL[type] ?? type}
+                {contentTypeLabel(type, count)}
               </span>
             </Link>
           );

@@ -41,6 +41,22 @@ export const CONTENT_TYPE_PLURAL: Record<ContentType, string> = {
   other: "other",
 };
 
+const CONTENT_TYPE_SINGULAR: Record<ContentType, string> = {
+  press_release: "press release",
+  statement: "statement",
+  op_ed: "op-ed",
+  blog: "blog post",
+  letter: "letter",
+  photo_release: "photo release",
+  floor_statement: "floor statement",
+  presidential_action: "presidential action",
+  other: "other",
+};
+
+export function contentTypeLabel(type: ContentType, count: number): string {
+  return count === 1 ? CONTENT_TYPE_SINGULAR[type] : CONTENT_TYPE_PLURAL[type];
+}
+
 // Display order for filter chips + breakdowns. press_release leads.
 // photo_release is intentionally omitted — excluded from every UI surface.
 export const CONTENT_TYPE_ORDER: ContentType[] = [

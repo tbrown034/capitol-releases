@@ -78,8 +78,8 @@ export default async function SenateDirectoryPage({
         they&apos;re talking about right now.
       </p>
       <p className="text-xs text-neutral-500 leading-relaxed mb-6 max-w-2xl">
-        Tracking all 100 senators. {withReleases.length} publish press releases;
-        Sen. Armstrong&apos;s office hasn&apos;t yet.{" "}
+        Tracking all 100 senators. {withReleases.length}{" "}publish press
+        releases; Sen. Armstrong&apos;s office hasn&apos;t yet.{" "}
         <Link href="/members" className="underline hover:text-neutral-900">
           Browse by state →
         </Link>
