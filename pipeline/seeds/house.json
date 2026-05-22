@@ -560,7 +560,7 @@
       "collection_method": "httpx",
       "bioguide_id": "G000606",
       "expected_low_volume": true,
-      "low_volume_reason": "Sworn in 2025-09 after winning special election to replace her father Ra\u00fal Grijalva (died March 2025). Limited archive expected \u2014 64 records since first day."
+      "low_volume_reason": "Sworn in 2025-09 after winning special election to replace her father Raúl Grijalva (died March 2025). Limited archive expected — 64 records since first day."
     },
     {
       "member_id": "hamadeh-abraham",
@@ -1591,7 +1591,7 @@
     },
     {
       "member_id": "snchez-linda",
-      "full_name": "Linda T. S\u00e1nchez",
+      "full_name": "Linda T. Sánchez",
       "party": "D",
       "state": "CA",
       "official_url": "https://snchez.house.gov",
@@ -1757,7 +1757,7 @@
     },
     {
       "member_id": "barragn-nanette",
-      "full_name": "Nanette Diaz Barrag\u00e1n",
+      "full_name": "Nanette Diaz Barragán",
       "party": "D",
       "state": "CA",
       "official_url": "https://barragn.house.gov",
@@ -1913,7 +1913,7 @@
       "district": 49,
       "bioguide_id": "L000593",
       "collection_method": "rss",
-      "low_volume_reason": "Holdover D-CA-49; 20 records starting April 28, 2026 \u2014 almost certainly a recent site migration (record count too low to be real).",
+      "low_volume_reason": "Holdover D-CA-49; 20 records starting April 28, 2026 — almost certainly a recent site migration (record count too low to be real).",
       "rss_feed_url": "https://levin.house.gov/rss/feeds/"
     },
     {
@@ -2147,7 +2147,7 @@
       "party": "D",
       "state": "CO",
       "official_url": "https://crow.house.gov",
-      "press_release_url": "https://crow.house.gov/media/press-releases",
+      "press_release_url": "https://crow.house.gov/news/press-releases",
       "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
@@ -2162,8 +2162,8 @@
         "detail_link": ".media-body .h3 a[href]"
       },
       "confidence": 1.0,
-      "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "notes": "Found 14 items on listing page. URL updated 2026-05-21; previous https://crow.house.gov/media/press-releases returned 404.",
+      "last_verified": "2026-05-21",
       "recon_status": "verified",
       "district": 6,
       "collection_method": "httpx",
@@ -2314,7 +2314,7 @@
       "party": "D",
       "state": "CT",
       "official_url": "https://himes.house.gov",
-      "press_release_url": "https://himes.house.gov/press-releases",
+      "press_release_url": "https://himes.house.gov/statements-and-releases/",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
@@ -2329,8 +2329,8 @@
         "detail_link": "a[href]"
       },
       "confidence": 0.55,
-      "notes": "Found 238 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "notes": "Found 238 items on listing page. URL updated 2026-05-21; previous https://himes.house.gov/press-releases returned 404.",
+      "last_verified": "2026-05-21",
       "recon_status": "verified",
       "district": 4,
       "bioguide_id": "H001047",
@@ -2448,7 +2448,7 @@
       "collection_method": "httpx",
       "bioguide_id": "P000622",
       "coverage_status": "listing_horizon",
-      "coverage_note": "Listing returns 80 records starting 2025-04-02. Patronis sworn in mid-2025 to fill McMurray vacancy \u2014 partially explained by term start."
+      "coverage_note": "Listing returns 80 records starting 2025-04-02. Patronis sworn in mid-2025 to fill McMurray vacancy — partially explained by term start."
     },
     {
       "member_id": "dunn-neal",
@@ -3336,7 +3336,7 @@
       "party": "D",
       "state": "GA",
       "official_url": "https://mcbath.house.gov",
-      "press_release_url": "https://mcbath.house.gov/press-releases",
+      "press_release_url": "https://mcbath.house.gov/media",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
@@ -3351,8 +3351,8 @@
         "detail_link": "a[href]"
       },
       "confidence": 0.55,
-      "notes": "Found 118 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "notes": "Found 118 items on listing page. URL updated 2026-05-21; previous https://mcbath.house.gov/press-releases returned 404.",
+      "last_verified": "2026-05-21",
       "recon_status": "verified",
       "district": 6,
       "bioguide_id": "M001208",
@@ -3579,7 +3579,7 @@
       "collection_method": "httpx",
       "bioguide_id": "F000485",
       "expected_low_volume": true,
-      "low_volume_reason": "Sworn in April 14, 2026 after winning special election to replace Marjorie Taylor Greene (GA-14). Limited archive expected \u2014 recent appointment."
+      "low_volume_reason": "Sworn in April 14, 2026 after winning special election to replace Marjorie Taylor Greene (GA-14). Limited archive expected — recent appointment."
     },
     {
       "member_id": "moylan-james",
@@ -3921,7 +3921,7 @@
     },
     {
       "member_id": "garca-jess",
-      "full_name": "Jes\u00fas G. Garc\u00eda",
+      "full_name": "Jesús G. García",
       "party": "D",
       "state": "IL",
       "official_url": "https://chuygarcia.house.gov",
@@ -4468,7 +4468,7 @@
     },
     {
       "member_id": "carson-andr",
-      "full_name": "Andr\u00e9 Carson",
+      "full_name": "André Carson",
       "party": "D",
       "state": "IN",
       "official_url": "https://carson.house.gov",
@@ -5112,7 +5112,7 @@
       "party": "D",
       "state": "MA",
       "official_url": "https://katherineclark.house.gov",
-      "press_release_url": "https://katherineclark.house.gov/press-releases",
+      "press_release_url": "https://katherineclark.house.gov/newsroom",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
@@ -5127,8 +5127,8 @@
         "detail_link": "a[href]"
       },
       "confidence": 0.55,
-      "notes": "Found 120 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "notes": "Found 120 items on listing page. URL updated 2026-05-21; previous https://katherineclark.house.gov/press-releases returned 404.",
+      "last_verified": "2026-05-21",
       "recon_status": "verified",
       "district": 5,
       "bioguide_id": "C001101",
@@ -7738,7 +7738,7 @@
       "collection_method": "httpx",
       "bioguide_id": "M001137",
       "coverage_status": "playwright_required",
-      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly \u2014 silence here is a scraper limitation, not the office."
+      "coverage_note": "Site uses Next.js + WPGraphQL stack with private admin subdomain. httpx returns ~6 SSR'd items; full coverage requires a Playwright collector (Phase 2 work). Member publishes regularly — silence here is a scraper limitation, not the office."
     },
     {
       "member_id": "meng-grace",
@@ -7770,11 +7770,11 @@
     },
     {
       "member_id": "velzquez-nydia",
-      "full_name": "Nydia M. Vel\u00e1zquez",
+      "full_name": "Nydia M. Velázquez",
       "party": "D",
       "state": "NY",
       "official_url": "https://velzquez.house.gov",
-      "press_release_url": "https://velazquez.house.gov/media/press-releases",
+      "press_release_url": "https://velazquez.house.gov/media-center/press-releases",
       "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
@@ -7789,8 +7789,8 @@
         "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.6,
-      "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. ",
-      "last_verified": "2026-05-03",
+      "notes": "Timeout/error on /newsroom/press-releases. Timeout/error on /news/press-releases. Timeout/error on /media/press-releases. Timeout/error on /media-center/press-releases. Timeout/error on /press-releases. Timeout/error on /newsroom/press. Timeout/error on /newsroom. Timeout/error on /news. Timeout/error on /media. Timeout/error on /media-center. Timeout/error on /public/index.cfm/press-releases. Timeout/error on /public/index.cfm/news-releases. Timeout/error on /public/index.cfm/pressreleases. Timeout/error on /public/index.cfm/news. Timeout/error on /public/index.cfm/newsroom. Timeout/error on /public/press-releases. Timeout/error on /public/news-releases. Timeout/error on /press/press-releases. Timeout/error on /news/documentquery.aspx?DocumentTypeID=27. Timeout/error on /media/press-releases. No press-release section discovered via URL probing. URL updated 2026-05-21; previous https://velazquez.house.gov/media/press-releases returned 404.",
+      "last_verified": "2026-05-21",
       "recon_status": "verified",
       "district": 7,
       "bioguide_id": "V000081",
@@ -8428,7 +8428,7 @@
       "bioguide_id": "J000289",
       "expected_low_volume": false,
       "coverage_status": "publishes_via_committee",
-      "coverage_note": "House Judiciary chairman. Personal site /media/press-releases stopped publishing at December 5, 2024; all current press operations run through judiciary.house.gov/media/press-releases. Verified 2026-05-03: 10 listing items on personal site, newest is December 2024. Not a scraper bug \u2014 real publication shift to the committee site after he became chair.",
+      "coverage_note": "House Judiciary chairman. Personal site /media/press-releases stopped publishing at December 5, 2024; all current press operations run through judiciary.house.gov/media/press-releases. Verified 2026-05-03: 10 listing items on personal site, newest is December 2024. Not a scraper bug — real publication shift to the committee site after he became chair.",
       "expected_zero": true,
       "committee_chair_url": "https://judiciary.house.gov/media/press-releases",
       "committee_chair_name": "House Judiciary Committee"
@@ -8571,7 +8571,7 @@
       "party": "R",
       "state": "OH",
       "official_url": "https://turner.house.gov",
-      "press_release_url": "https://turner.house.gov/press-releases",
+      "press_release_url": "https://turner.house.gov/media-center/press-releases",
       "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
@@ -8586,8 +8586,8 @@
         "detail_link": "a[href]"
       },
       "confidence": 0.55,
-      "notes": "Found 200 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "notes": "Found 200 items on listing page. URL updated 2026-05-21; previous https://turner.house.gov/press-releases returned 404.",
+      "last_verified": "2026-05-21",
       "recon_status": "verified",
       "district": 10,
       "bioguide_id": "T000463",
@@ -9420,7 +9420,7 @@
       "bioguide_id": "R000610",
       "collection_method": "httpx",
       "expected_low_volume": true,
-      "low_volume_reason": "Chief Deputy Whip in 119th Congress. Whip-team work focuses on internal vote counting and member outreach rather than public press operations, which explains the relatively light press output (40 records starting March 2025). Verified by visual scan of his media listing 2026-05-03 \u2014 this is his real output, not a scraper gap."
+      "low_volume_reason": "Chief Deputy Whip in 119th Congress. Whip-team work focuses on internal vote counting and member outreach rather than public press operations, which explains the relatively light press output (40 records starting March 2025). Verified by visual scan of his media listing 2026-05-03 — this is his real output, not a scraper gap."
     },
     {
       "member_id": "thompson-glenn",
@@ -9508,7 +9508,7 @@
     },
     {
       "member_id": "hernndez-pablo",
-      "full_name": "Pablo Jose Hern\u00e1ndez",
+      "full_name": "Pablo Jose Hernández",
       "party": "D",
       "state": "PR",
       "official_url": "https://hernndez.house.gov",
@@ -10564,7 +10564,7 @@
       "collection_method": "httpx",
       "bioguide_id": "M001245",
       "expected_low_volume": true,
-      "low_volume_reason": "Sworn in February 2, 2026 after winning special election for Sylvester Turner's former Houston seat (TX-18). Limited archive expected \u2014 recent appointment."
+      "low_volume_reason": "Sworn in February 2, 2026 after winning special election for Sylvester Turner's former Houston seat (TX-18). Limited archive expected — recent appointment."
     },
     {
       "member_id": "arrington-jodey",
