@@ -54,7 +54,7 @@ export function BriefSignup({ source = "brief-page" }: { source?: string }) {
   return (
     <form
       onSubmit={onSubmit}
-      className="rounded border border-neutral-200 bg-neutral-50 px-4 py-4"
+      className="rounded border border-neutral-200 bg-neutral-50 p-4"
     >
       <label
         htmlFor="brief-email"
@@ -63,7 +63,7 @@ export function BriefSignup({ source = "brief-page" }: { source?: string }) {
         Get the brief in your inbox
       </label>
       <p className="text-xs text-neutral-600 mb-3 leading-relaxed">
-        One email per weekday morning, 6:30 a.m. ET. Tuesday-Saturday's Senate
+        One email per weekday morning, 6:30 a.m. ET. Tuesday-Saturday&rsquo;s Senate
         activity, sent the next morning. No tracking, no marketing, no resale.
       </p>
       <div className="flex gap-2">

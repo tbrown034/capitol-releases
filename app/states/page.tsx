@@ -101,7 +101,7 @@ function StateCard({ row }: { row: StateRow }) {
   const inner = (
     <div className="flex items-center gap-4 border border-neutral-200 px-4 py-3 transition-colors hover:border-neutral-400">
       <div
-        className={`flex h-10 w-10 items-center justify-center border text-xs font-[family-name:var(--font-dm-mono)] font-medium ${
+        className={`flex size-10 items-center justify-center border text-xs font-[family-name:var(--font-dm-mono)] font-medium ${
           row.status === "live"
             ? "bg-emerald-100 border-emerald-300 text-emerald-900"
             : row.status === "in_progress"

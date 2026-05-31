@@ -211,6 +211,39 @@ def upsert_release(conn, release: ReleaseRecord) -> tuple[bool, bool]:
         cur.close()
 
 
+def touch_seen_urls(conn, official_id: str, urls: set[str]) -> int:
+    """Mark existing source URLs as seen on the live listing/feed.
+
+    Collectors intentionally skip old listing items before fetching detail
+    pages. The quality suite still needs to know that those already-archived
+    URLs are present upstream, so touch last_seen_live independently of the
+    incremental detail-fetch cutoff.
+    """
+    if not urls:
+        return 0
+
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            UPDATE press_releases
+            SET last_seen_live = NOW()
+            WHERE official_id = %s
+              AND source_url = ANY(%s)
+            """,
+            (official_id, list(urls)),
+        )
+        touched = cur.rowcount
+        conn.commit()
+        return touched
+    except Exception as e:
+        conn.rollback()
+        log.warning("Failed to touch seen URLs for %s: %s", official_id, e)
+        return 0
+    finally:
+        cur.close()
+
+
 def record_run(conn, run_id: str, stats: dict, started_at: datetime):
     """Record this scrape run in the scrape_runs table."""
     cur = conn.cursor()
@@ -281,6 +314,10 @@ async def run_update(
             inserted = 0
             updated = 0
             skipped = 0
+            touched_seen = 0
+            if not dry_run:
+                touched_seen = touch_seen_urls(conn, sid, result.seen_urls)
+
             for release in result.releases:
                 if dry_run:
                     date_str = release.published_at.strftime("%Y-%m-%d") if release.published_at else "no date"
@@ -310,6 +347,8 @@ async def run_update(
                 "inserted": inserted,
                 "updated": updated,
                 "skipped": skipped,
+                "seen": len(result.seen_urls),
+                "touched_seen": touched_seen,
                 "duration_s": round(result.duration_seconds, 1),
                 "errors": result.errors,
             })

@@ -13,7 +13,7 @@ import { formatShortDate, formatMonthYear } from "../lib/dates";
 import type { SenatorWithCount, ContentType } from "../lib/db";
 
 export const metadata = {
-  title: "Members — Capitol Releases",
+  title: "Members, Capitol Releases",
   description:
     "All 100 U.S. senators and 437 U.S. House members, browsable by state, chamber, or party.",
 };
@@ -288,11 +288,11 @@ export default async function MembersIndexPage({
                             alt={m.full_name}
                             width={32}
                             height={32}
-                            className="h-8 w-8 object-cover object-top"
+                            className="size-8 object-cover object-top"
                             unoptimized
                           />
                         ) : (
-                          <div className="h-8 w-8 bg-neutral-200 flex items-center justify-center text-[10px] text-neutral-400">
+                          <div className="size-8 bg-neutral-200 flex items-center justify-center text-[10px] text-neutral-400">
                             {m.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                           </div>
                         )}
@@ -333,7 +333,7 @@ export default async function MembersIndexPage({
                       {m.release_count > 0 ? (
                         m.release_count.toLocaleString()
                       ) : (
-                        <span className="text-neutral-300">—</span>
+                        <span className="text-neutral-300">0</span>
                       )}
                     </td>
                     <td className="hidden sm:table-cell py-2.5 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-400 whitespace-nowrap align-top">

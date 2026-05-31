@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import Link from "next/link";
 import { getFeed } from "../../lib/queries";
 import { getTxRoster, getTxSearchFacets } from "../../lib/texas";
@@ -40,6 +40,33 @@ const EXAMPLE_TOPICS = [
 ];
 
 type SearchFeedItem = Awaited<ReturnType<typeof getFeed>>["items"][number];
+
+function Snippet({ text }: { text: string }) {
+  const parts = text.split(/(<mark>|<\/mark>)/g);
+  let inMark = false;
+  const nodes: ReactNode[] = [];
+  for (const part of parts) {
+    if (part === "<mark>") {
+      inMark = true;
+      continue;
+    }
+    if (part === "</mark>") {
+      inMark = false;
+      continue;
+    }
+    if (!part) continue;
+    nodes.push(
+      inMark ? (
+        <mark key={`mark-${nodes.length}`} className="bg-yellow-100 text-yellow-950 px-0.5">
+          {part}
+        </mark>
+      ) : (
+        <span key={`text-${nodes.length}`}>{part}</span>
+      )
+    );
+  }
+  return <>{nodes}</>;
+}
 
 type Params = {
   q?: string;
@@ -237,10 +264,7 @@ function ReleaseCardWithSnippet({ item }: { item: SearchFeedItem }) {
       <ReleaseCard item={item} />
       {item.snippet && (
         <div className="mb-4 -mt-3 ml-14 pl-4 border-l-2 border-neutral-200 text-sm text-neutral-600 leading-relaxed">
-          <span
-            className="[&>mark]:bg-yellow-100 [&>mark]:text-neutral-900 [&>mark]:px-0.5"
-            dangerouslySetInnerHTML={{ __html: item.snippet }}
-          />
+          <Snippet text={item.snippet} />
         </div>
       )}
     </div>

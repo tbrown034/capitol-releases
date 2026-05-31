@@ -58,8 +58,7 @@ export default async function SenatorPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const { id } = await params;
-  const sp = await searchParams;
+  const [{ id }, sp] = await Promise.all([params, searchParams]);
   const page = Number(sp.page ?? "1");
   const activeType =
     sp.type && VALID_TYPES.has(sp.type as ContentType)
@@ -147,11 +146,11 @@ export default async function SenatorPage({
             alt={senator.full_name}
             width={72}
             height={72}
-            className="h-[72px] w-[72px] object-cover object-top shrink-0"
+            className="size-[72px] object-cover object-top shrink-0"
             unoptimized
           />
         ) : (
-          <div className="h-[72px] w-[72px] bg-neutral-200 flex items-center justify-center text-neutral-400 text-lg shrink-0">
+          <div className="size-[72px] bg-neutral-200 flex items-center justify-center text-neutral-400 text-lg shrink-0">
             {senator.full_name.split(" ").map(n => n[0]).join("").slice(0, 2)}
           </div>
         )}

@@ -17,6 +17,26 @@ export type TrendingScope = "week" | "month" | "ytd" | "all";
 
 export type TrendingChamber = "all" | "senate" | "house";
 
+export type TermSeries = Record<string, { week: string; count: number }[]>;
+
+const MAX_SERIES_TERMS = 8;
+const MAX_TERM_LEN = 40;
+
+function sanitizeTrendingTerm(term: string): string {
+  return term.trim().replace(/[^a-zA-Z0-9 \-']/g, "").slice(0, MAX_TERM_LEN);
+}
+
+export function sanitizeTrendingTerms(raw: string): string[] {
+  return Array.from(
+    new Set(
+      raw
+        .split(",")
+        .map(sanitizeTrendingTerm)
+        .filter((term) => term.length > 0)
+    )
+  ).slice(0, MAX_SERIES_TERMS);
+}
+
 // Returns the chamber filter as a string array suitable for `= ANY($)`.
 // "all" → both chambers; "senate" / "house" → single-chamber array. Lets
 // every trending query take a single chamber arg without rewriting the
@@ -217,9 +237,10 @@ export async function getTopicOwnership(
   chamber: TrendingChamber = "all"
 ) {
   if (terms.length === 0) return [] as TopicOwnerRow[];
-  const cleaned = terms
-    .map((t) => t.trim().replace(/[^a-zA-Z0-9 \-']/g, "").slice(0, 40))
-    .filter(Boolean);
+  const cleaned = terms.flatMap((term) => {
+    const normalized = term.trim().replace(/[^a-zA-Z0-9 \-']/g, "").slice(0, 40);
+    return normalized ? [normalized] : [];
+  });
   if (cleaned.length === 0) return [] as TopicOwnerRow[];
   const chambers = chamberArray(chamber);
 
@@ -333,12 +354,48 @@ export async function getPartySkew(
   `;
 }
 
+export async function getTermSeries(terms: string[]): Promise<TermSeries> {
+  const cleaned = Array.from(
+    new Set(
+      terms.flatMap((term) => {
+        const normalized = sanitizeTrendingTerm(term);
+        return normalized ? [normalized] : [];
+      })
+    )
+  ).slice(0, MAX_SERIES_TERMS);
+
+  if (cleaned.length === 0) return {};
+
+  const results = await Promise.all(
+    cleaned.map(
+      (term) => sql`
+        SELECT to_char(date_trunc('week', published_at), 'YYYY-MM-DD') as week,
+               count(*)::int as count
+        FROM official_site_items
+        WHERE published_at >= '2025-01-01'
+          AND published_at IS NOT NULL
+          AND deleted_at IS NULL
+          AND content_type != 'photo_release'
+          AND fts @@ websearch_to_tsquery('english', ${term})
+        GROUP BY week
+        ORDER BY week
+      `
+    )
+  );
+
+  const series: TermSeries = {};
+  cleaned.forEach((term, index) => {
+    series[term] = results[index] as { week: string; count: number }[];
+  });
+  return series;
+}
+
 /**
  * For a single term: weekly counts since Jan 2025 + top 1 headline per
  * spike week (highest-volume weeks).
  */
 export async function getTermTimeline(term: string) {
-  const cleaned = term.trim().replace(/[^a-zA-Z0-9 \-']/g, "").slice(0, 40);
+  const cleaned = sanitizeTrendingTerm(term);
   if (!cleaned) return { weekly: [], spikeHeadlines: [], term: "" };
 
   const weekly = (await sql`
@@ -355,8 +412,8 @@ export async function getTermTimeline(term: string) {
     ORDER BY week
   `) as { week: string; count: number }[];
 
-  const top5 = [...weekly]
-    .sort((a, b) => b.count - a.count)
+  const top5 = weekly
+    .toSorted((a, b) => b.count - a.count)
     .slice(0, 5)
     .map((r) => r.week);
 

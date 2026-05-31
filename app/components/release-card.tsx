@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { FeedItem } from "../lib/db";
 import { getMemberPhotoUrl, getInitials, getMemberHref } from "../lib/photos";
 import { normalizeTitle } from "../lib/titles";
@@ -17,17 +18,19 @@ function sourceHost(url: string): string {
 // ts_headline output is server-trusted Postgres output that we explicitly
 // asked to wrap matches in <mark>. We escape the rest, then re-inject mark
 // tags. Anything else is rendered as text.
-function renderSnippet(snippet: string): React.ReactNode {
-  const escape = (s: string) =>
-    s
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+function escapeSnippetText(s: string) {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function Snippet({ text }: { text: string }) {
   // Split on our known mark tokens (we set StartSel/StopSel ourselves).
-  const parts = snippet.split(/(<mark>|<\/mark>)/g);
+  const parts = text.split(/(<mark>|<\/mark>)/g);
   let inMark = false;
   const nodes: React.ReactNode[] = [];
-  parts.forEach((p, i) => {
+  parts.forEach((p) => {
     if (p === "<mark>") {
       inMark = true;
       return;
@@ -37,21 +40,21 @@ function renderSnippet(snippet: string): React.ReactNode {
       return;
     }
     if (!p) return;
-    const safe = escape(p)
+    const safe = escapeSnippetText(p)
       .replace(/&amp;/g, "&")
       .replace(/&lt;/g, "<")
       .replace(/&gt;/g, ">");
     nodes.push(
       inMark ? (
-        <mark key={i} className="bg-yellow-100 text-neutral-900 px-0.5 rounded-sm">
+        <mark key={`mark-${safe}-${nodes.length}`} className="bg-yellow-100 text-yellow-950 px-0.5 rounded-sm">
           {safe}
         </mark>
       ) : (
-        <span key={i}>{safe}</span>
+        <span key={`text-${safe}-${nodes.length}`}>{safe}</span>
       )
     );
   });
-  return nodes;
+  return <>{nodes}</>;
 }
 
 export function ReleaseCard({
@@ -94,16 +97,17 @@ export function ReleaseCard({
           className="shrink-0 mt-0.5"
         >
           {photoUrl ? (
-            <img
+            <Image
               src={photoUrl}
               alt={item.senator_name}
               width={28}
               height={28}
-              className={`h-7 w-7 rounded-full object-cover ring-1.5 ${partyRing}`}
+              className={`size-7 rounded-full object-cover ring-1.5 ${partyRing}`}
+              unoptimized
             />
           ) : (
             <span
-              className={`flex h-7 w-7 items-center justify-center rounded-full bg-neutral-100 text-[10px] font-medium text-neutral-500 ring-1.5 ${partyRing}`}
+              className={`flex size-7 items-center justify-center rounded-full bg-neutral-100 text-[10px] font-medium text-neutral-500 ring-1.5 ${partyRing}`}
             >
               {getInitials(item.senator_name)}
             </span>
@@ -160,7 +164,7 @@ export function ReleaseCard({
           </h3>
           {snippet && snippet.trim().length > 0 && (
             <p className="mt-1 text-[12px] text-neutral-600 leading-relaxed line-clamp-3">
-              {renderSnippet(snippet)}
+              <Snippet text={snippet} />
             </p>
           )}
           <div className="mt-0.5 text-[10px] text-neutral-400 flex items-center gap-2">

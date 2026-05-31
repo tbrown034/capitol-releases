@@ -4,6 +4,8 @@
 
 type Point = { date: string; count: number };
 
+const SPARKLINE_PADDING = { top: 4, right: 4, bottom: 4, left: 4 };
+
 export function ThemeSparkline({
   data,
   width = 220,
@@ -17,22 +19,21 @@ export function ThemeSparkline({
 }) {
   if (!data || data.length === 0) return null;
 
-  const padding = { top: 4, right: 4, bottom: 4, left: 4 };
-  const innerW = width - padding.left - padding.right;
-  const innerH = height - padding.top - padding.bottom;
+  const innerW = width - SPARKLINE_PADDING.left - SPARKLINE_PADDING.right;
+  const innerH = height - SPARKLINE_PADDING.top - SPARKLINE_PADDING.bottom;
   const maxCount = Math.max(1, ...data.map((d) => d.count));
 
-  const x = (i: number) => padding.left + (i / Math.max(1, data.length - 1)) * innerW;
-  const y = (c: number) => padding.top + innerH - (c / maxCount) * innerH;
+  const x = (i: number) => SPARKLINE_PADDING.left + (i / Math.max(1, data.length - 1)) * innerW;
+  const y = (c: number) => SPARKLINE_PADDING.top + innerH - (c / maxCount) * innerH;
 
   const linePath = data
     .map((d, i) => `${i === 0 ? "M" : "L"} ${x(i).toFixed(2)} ${y(d.count).toFixed(2)}`)
     .join(" ");
 
   const areaPath =
-    `M ${x(0).toFixed(2)} ${(padding.top + innerH).toFixed(2)} ` +
+    `M ${x(0).toFixed(2)} ${(SPARKLINE_PADDING.top + innerH).toFixed(2)} ` +
     data.map((d, i) => `L ${x(i).toFixed(2)} ${y(d.count).toFixed(2)}`).join(" ") +
-    ` L ${x(data.length - 1).toFixed(2)} ${(padding.top + innerH).toFixed(2)} Z`;
+    ` L ${x(data.length - 1).toFixed(2)} ${(SPARKLINE_PADDING.top + innerH).toFixed(2)} Z`;
 
   const total = data.reduce((s, d) => s + d.count, 0);
   const todayIdx = highlightDate

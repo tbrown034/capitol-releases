@@ -23,7 +23,7 @@ const VALID_TYPES = new Set<ContentType>([
 const ARCHIVE_START = "2025-01-01";
 
 export const metadata = {
-  title: "Search — Capitol Releases",
+  title: "Search, Capitol Releases",
 };
 
 const EXAMPLE_TOPICS = [
@@ -153,7 +153,7 @@ export default async function SearchPage({
       </h1>
       <p className="text-sm text-neutral-600 leading-relaxed mb-6 max-w-2xl">
         Full-text search across every press release in the archive. Matches the
-        title and body, with English stemming — &ldquo;vote&rdquo; catches
+        title and body, with English stemming, &ldquo;vote&rdquo; catches
         &ldquo;voted&rdquo; and &ldquo;voting.&rdquo;
       </p>
 

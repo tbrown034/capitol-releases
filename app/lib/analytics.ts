@@ -116,9 +116,10 @@ export async function getSenatorSignatureTopics(
 ) {
   // Log-odds ratio with Laplace smoothing: words this senator uses
   // disproportionately vs the rest of the chamber. Titles only to keep it cheap.
-  const exclusions = excludeNames
-    .map((n) => n.toLowerCase())
-    .filter((n) => n.length > 0);
+  const exclusions = excludeNames.flatMap((name) => {
+    const normalized = name.toLowerCase();
+    return normalized.length > 0 ? [normalized] : [];
+  });
   return sql`
     WITH all_words AS (
       SELECT pr.id,
@@ -181,9 +182,10 @@ export async function getSenatorTopicTrends(
   excludeNames: string[] = [],
   limit = 12
 ) {
-  const exclusions = excludeNames
-    .map((n) => n.toLowerCase())
-    .filter((n) => n.length > 0);
+  const exclusions = excludeNames.flatMap((name) => {
+    const normalized = name.toLowerCase();
+    return normalized.length > 0 ? [normalized] : [];
+  });
   return sql`
     WITH word_releases AS (
       SELECT DISTINCT pr.id,
@@ -263,22 +265,5 @@ export async function getMailbag(days = 7) {
       AND s.jurisdiction = 'us'
     GROUP BY pr.content_type
     ORDER BY count DESC
-  `;
-}
-
-export async function getDailyVolume(days = 90) {
-  return sql`
-    SELECT to_char(pr.published_at, 'YYYY-MM-DD') as day,
-           count(*)::int as count
-    FROM official_site_items pr
-    JOIN officials s ON s.id = pr.official_id
-    WHERE pr.published_at >= NOW() - make_interval(days => ${days})
-      AND pr.published_at <= NOW()
-      AND pr.published_at IS NOT NULL
-      AND pr.deleted_at IS NULL
-      AND pr.content_type != 'photo_release'
-      AND s.status = 'active' AND s.chamber = 'senate' AND s.jurisdiction = 'us'
-    GROUP BY day
-    ORDER BY day
   `;
 }

@@ -1,17 +1,32 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { CONTENT_TYPE_LABEL } from "../lib/content-types";
 import type { ContentType } from "../lib/db";
 
 // Filter row for /texas/feed and /texas/search. Drops the state selector
 // (TX is implied) and adds a senator selector. Content types in the
-// dropdown are restricted to ones present in the TX corpus — showing
+// dropdown are restricted to ones present in the TX corpus, showing
 // "Presidential action" or "Floor statement" as filter options is
 // confusing when no record matches them.
 const TX_TYPES: ContentType[] = ["press_release", "other"];
 
 export function TxFeedFilters({
+  basePath,
+  senators,
+}: {
+  basePath: string;
+  senators: { id: string; full_name: string; district: number }[];
+}) {
+  return (
+    <Suspense fallback={null}>
+      <TxFeedFiltersInner basePath={basePath} senators={senators} />
+    </Suspense>
+  );
+}
+
+function TxFeedFiltersInner({
   basePath,
   senators,
 }: {
@@ -34,7 +49,7 @@ export function TxFeedFilters({
   const senator = searchParams.get("senator") ?? "";
   const type = searchParams.get("type") ?? "";
 
-  const sortedSenators = [...senators].sort((a, b) => a.district - b.district);
+  const sortedSenators = senators.toSorted((a, b) => a.district - b.district);
 
   return (
     <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -73,12 +88,13 @@ export function TxFeedFilters({
         <option value="">All senators</option>
         {sortedSenators.map((s) => (
           <option key={s.id} value={s.id}>
-            D{String(s.district).padStart(2, "0")} — {s.full_name}
+            D{String(s.district).padStart(2, "0")}, {s.full_name}
           </option>
         ))}
       </select>
       {(party || senator || type) && (
         <button
+          type="button"
           onClick={() => router.push(basePath)}
           className="text-sm text-neutral-500 underline hover:text-neutral-900 transition-colors ml-1"
         >

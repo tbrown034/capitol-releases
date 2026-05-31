@@ -141,7 +141,8 @@ def build_message(
     citations: dict[str, dict],
     subscriber: dict,
 ) -> MIMEMultipart:
-    unsubscribe_url = f"{SITE_URL}/api/newsletter/unsubscribe?token={subscriber['unsubscribe_token']}"
+    unsubscribe_url = f"{SITE_URL}/newsletter/unsubscribe?token={subscriber['unsubscribe_token']}"
+    one_click_unsubscribe_url = f"{SITE_URL}/api/newsletter/unsubscribe?token={subscriber['unsubscribe_token']}"
     subject = render_subject(brief)
     html_body = render_html(
         brief,
@@ -161,7 +162,7 @@ def build_message(
     msg["From"] = f"{FROM_NAME} <{FROM_ADDR}>"
     msg["To"] = subscriber["email"]
     # RFC 8058 / 2369 one-click unsubscribe headers
-    msg["List-Unsubscribe"] = f"<{unsubscribe_url}>"
+    msg["List-Unsubscribe"] = f"<{one_click_unsubscribe_url}>"
     msg["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
     msg.attach(MIMEText(text_body, "plain", "utf-8"))
     msg.attach(MIMEText(html_body, "html", "utf-8"))

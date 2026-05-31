@@ -1,10 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getSocialFeed, getSocialStats, getSocialActiveSenators } from "../lib/queries";
 import { getSenatorPhotoUrl, getInitials, getSenatorHref } from "../lib/photos";
 import type { SocialFeedItem } from "../lib/db";
 
 export const metadata = {
-  title: "Social — Capitol Releases",
+  title: "Social, Capitol Releases",
   description:
     "Senator-authored Bluesky posts, archived since January 1, 2026. Separate from the press release corpus.",
 };
@@ -65,7 +66,7 @@ export default async function SocialPage({
     <div className="mx-auto max-w-3xl px-4 py-10">
       <div className="mb-3">
         <span className="inline-block text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
-          Beta — separate from main feed
+          Beta, separate from main feed
         </span>
       </div>
       <h1 className="font-[family-name:var(--font-source-serif)] text-4xl text-neutral-900 mb-3">
@@ -79,7 +80,7 @@ export default async function SocialPage({
         includeReplies={includeReplies}
       />
       <p className="text-xs text-neutral-500 leading-relaxed mb-8 max-w-2xl">
-        Verified handles only — confirmed via senate.gov footer link, .senate.gov
+        Verified handles only, confirmed via senate.gov footer link, .senate.gov
         domain handle, or appearance in two or more independent curated starter
         packs. Republican accounts that meet that bar are eligible; almost none
         currently exist on the platform.
@@ -101,7 +102,7 @@ export default async function SocialPage({
         <div className="border-t border-neutral-200 py-10 text-center text-sm text-neutral-500">
           <p className="font-medium text-neutral-900 mb-1">House Bluesky coming in Phase 2</p>
           <p className="text-xs">
-            Verified House handles aren&rsquo;t collected yet — we&rsquo;re currently
+            Verified House handles aren&rsquo;t collected yet, we&rsquo;re currently
             tracking 44 verified Senate accounts. Switch to{" "}
             <Link href={buildHref({ chamber: undefined })} className="underline hover:text-neutral-900">
               All Congress
@@ -231,15 +232,16 @@ function PostRow({ post }: { post: SocialFeedItem }) {
     <li className="py-4 flex gap-3">
       <Link href={senatorHref} className="shrink-0">
         {photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={photo}
             alt={post.senator_name}
-            className="w-10 h-10 rounded-full object-cover bg-neutral-100"
-            loading="lazy"
+            width={40}
+            height={40}
+            className="size-10 rounded-full object-cover bg-neutral-100"
+            unoptimized
           />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center text-xs text-neutral-700">
+          <div className="size-10 rounded-full bg-neutral-200 flex items-center justify-center text-xs text-neutral-700">
             {getInitials(post.senator_name)}
           </div>
         )}

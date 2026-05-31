@@ -42,8 +42,10 @@ export default async function BriefDatePage({
   params: Promise<{ date: string }>;
   searchParams: Promise<{ edition?: string }>;
 }) {
-  const { date } = await params;
-  const { edition: editionParam } = await searchParams;
+  const [{ date }, { edition: editionParam }] = await Promise.all([
+    params,
+    searchParams,
+  ]);
   if (!DATE_RE.test(date)) notFound();
 
   const edition: "daily" | "weekly" =
@@ -116,12 +118,10 @@ export default async function BriefDatePage({
             Other briefs
           </h2>
           <ul className="space-y-2 text-sm">
-            {recent
-              .filter(
-                (r) =>
-                  !(r.brief_date === brief.brief_date && r.edition === brief.edition)
-              )
-              .map((r) => (
+            {recent.flatMap((r) =>
+              r.brief_date === brief.brief_date && r.edition === brief.edition
+                ? []
+                : [
                 <li key={r.id}>
                   <Link
                     href={`/brief/${r.brief_date}${r.edition === "weekly" ? "?edition=weekly" : ""}`}
@@ -141,8 +141,9 @@ export default async function BriefDatePage({
                     </span>
                     <span className="group-hover:underline">{r.headline}</span>
                   </Link>
-                </li>
-              ))}
+                </li>,
+              ]
+            )}
           </ul>
           <Link
             href="/brief/archive"

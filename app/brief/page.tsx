@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import {
   getLatestBrief,
   getRecentBriefs,
@@ -10,7 +9,7 @@ import { BriefBody, type ThemeSeries } from "../components/brief-body";
 import { BriefSignup } from "../components/brief-signup";
 
 export const metadata = {
-  title: "Daily Brief — Capitol Releases",
+  title: "Daily Brief, Capitol Releases",
   description:
     "An AI-generated daily brief summarizing every U.S. senator's official communications, with every claim grounded in source records.",
 };
@@ -88,7 +87,7 @@ export default async function BriefIndexPage() {
 
       <p className="mb-6 max-w-xl border-l-2 border-neutral-200 pl-3 text-[0.82rem] leading-relaxed text-neutral-600">
         An AI-synthesized digest of every U.S. senator&apos;s official
-        communications from the past {brief.edition === "weekly" ? "week" : "day"} — every claim cites its source record.{" "}
+        communications from the past {brief.edition === "weekly" ? "week" : "day"}, every claim cites its source record.{" "}
         <Link
           href="/methodology"
           className="text-neutral-500 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-900 hover:decoration-neutral-500"
@@ -114,12 +113,10 @@ export default async function BriefIndexPage() {
             Earlier briefs
           </h2>
           <ul className="space-y-2 text-sm">
-            {recent
-              .filter(
-                (r) =>
-                  !(r.brief_date === brief.brief_date && r.edition === brief.edition)
-              )
-              .map((r) => (
+            {recent.flatMap((r) =>
+              r.brief_date === brief.brief_date && r.edition === brief.edition
+                ? []
+                : [
                 <li key={r.id}>
                   <Link
                     href={`/brief/${r.brief_date}${r.edition === "weekly" ? "?edition=weekly" : ""}`}
@@ -139,8 +136,9 @@ export default async function BriefIndexPage() {
                     </span>
                     <span className="group-hover:underline">{r.headline}</span>
                   </Link>
-                </li>
-              ))}
+                </li>,
+              ]
+            )}
           </ul>
           <Link
             href="/brief/archive"

@@ -5,10 +5,10 @@ import { ThemeSparkline } from "./theme-sparkline";
 export type ThemeSeries = { date: string; count: number }[];
 
 function paragraphs(text: string): string[] {
-  return text
-    .split(/\n\n+/)
-    .map((p) => p.trim())
-    .filter(Boolean);
+  return text.split(/\n\n+/).flatMap((p) => {
+    const trimmed = p.trim();
+    return trimmed ? [trimmed] : [];
+  });
 }
 
 const PARTY_DOT: Record<string, string> = {
@@ -38,7 +38,7 @@ function CitationCards({
         >
           <span
             aria-hidden
-            className={`mt-1 h-2 w-2 shrink-0 rounded-full ${PARTY_DOT[c.party] ?? "bg-neutral-400"}`}
+            className={`mt-1 size-2 shrink-0 rounded-full ${PARTY_DOT[c.party] ?? "bg-neutral-400"}`}
           />
           <span className="flex-1">
             <span className="font-medium text-neutral-900">
@@ -71,9 +71,10 @@ export function BriefBody({
   const themeCount = brief.sections?.length ?? 0;
   const sectionsWithReleases = brief.sections.flatMap((s) => s.release_ids);
   const senatorsCount = new Set(
-    sectionsWithReleases
-      .map((id) => citations.get(id)?.senator_name)
-      .filter(Boolean)
+    sectionsWithReleases.flatMap((id) => {
+      const senatorName = citations.get(id)?.senator_name;
+      return senatorName ? [senatorName] : [];
+    })
   ).size;
 
   return (
@@ -112,10 +113,10 @@ export function BriefBody({
       </div>
 
       <div className="mb-12">
-        {paragraphs(brief.lede).map((p, i) => (
+        {paragraphs(brief.lede).map((p) => (
           <p
-            key={i}
-            className={`leading-[1.7] mb-4 text-neutral-900 ${i === 0 ? "text-[1.1rem]" : "text-[1.05rem]"}`}
+            key={p}
+            className={`leading-[1.7] mb-4 text-neutral-900 ${p === paragraphs(brief.lede)[0] ? "text-[1.1rem]" : "text-[1.05rem]"}`}
           >
             {p}
           </p>
@@ -127,7 +128,7 @@ export function BriefBody({
         const hasSeries = series && series.length > 0;
         return (
           <section
-            key={i}
+            key={`${sec.theme}-${sec.release_ids.join("-")}`}
             className="border-t border-neutral-200 pt-7 mb-9"
           >
             <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
@@ -141,9 +142,9 @@ export function BriefBody({
                 />
               )}
             </div>
-            {paragraphs(sec.body).map((p, j) => (
+            {paragraphs(sec.body).map((p) => (
               <p
-                key={j}
+                key={p}
                 className="leading-[1.7] mb-3 text-neutral-800"
               >
                 {p}
@@ -160,9 +161,9 @@ export function BriefBody({
             Signals
           </h2>
           <ul className="space-y-3">
-            {brief.signals.map((s, i) => (
+            {brief.signals.map((s) => (
               <li
-                key={i}
+                key={`${s.kind}-${s.note}`}
                 className="flex gap-3 rounded border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm leading-relaxed"
               >
                 <span className="mt-0.5 inline-block shrink-0 rounded bg-neutral-900 px-1.5 py-0.5 font-[family-name:var(--font-dm-mono)] text-[0.6rem] uppercase tracking-wide text-white">
@@ -181,10 +182,10 @@ export function BriefBody({
             Five quotes that defined the week
           </h2>
           <ul className="space-y-5">
-            {brief.quotes.map((q, i) => {
+            {brief.quotes.map((q) => {
               const cite = q.release_id ? citations.get(q.release_id) : null;
               return (
-                <li key={i} className="border-l-2 border-neutral-900 pl-4">
+                <li key={q.release_id ?? `${q.speaker}-${q.text}`} className="border-l-2 border-neutral-900 pl-4">
                   <p className="font-[family-name:var(--font-source-serif)] text-lg italic leading-snug text-neutral-900">
                     &ldquo;{q.text}&rdquo;
                   </p>
@@ -220,7 +221,7 @@ export function BriefBody({
               : "Senators with no release in two weeks or more."}
           </p>
           <ul className="grid gap-1 text-sm text-neutral-700 sm:grid-cols-2">
-            {brief.silent.map((s, i) => {
+            {brief.silent.map((s) => {
               type SilentLike = {
                 senator: string;
                 days_quiet?: number;
@@ -230,7 +231,7 @@ export function BriefBody({
               const days = sl.days_quiet_in_window ?? sl.days_quiet ?? 0;
               return (
                 <li
-                  key={i}
+                  key={sl.senator}
                   className="flex items-baseline justify-between gap-3 border-b border-neutral-100 py-1"
                 >
                   <span>{sl.senator}</span>

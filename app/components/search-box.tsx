@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import posthog from "posthog-js";
 
 export function SearchBox({
@@ -10,6 +10,20 @@ export function SearchBox({
 }: {
   basePath?: string;
   placeholder?: string;
+}) {
+  return (
+    <Suspense fallback={null}>
+      <SearchBoxInner basePath={basePath} placeholder={placeholder} />
+    </Suspense>
+  );
+}
+
+function SearchBoxInner({
+  basePath,
+  placeholder,
+}: {
+  basePath: string;
+  placeholder: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,6 +45,7 @@ export function SearchBox({
   return (
     <form onSubmit={handleSubmit} className="flex gap-3 items-end">
       <input
+        aria-label="Search release text"
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}

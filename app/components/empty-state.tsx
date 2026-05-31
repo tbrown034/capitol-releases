@@ -5,10 +5,12 @@ type Suggestion = {
   href: string;
 };
 
+const EMPTY_SUGGESTIONS: Suggestion[] = [];
+
 export function EmptyState({
   message,
   clearHref,
-  suggestions = [],
+  suggestions = EMPTY_SUGGESTIONS,
   showTrending = true,
 }: {
   message: string;

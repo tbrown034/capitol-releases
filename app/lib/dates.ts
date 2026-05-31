@@ -56,7 +56,7 @@ export function formatFeedDate(
 // Returns the date we should display to the reader. Prefers published_at,
 // but if that's clearly future-dated relative to scrape time, falls back to
 // the scrape date so the feed stays coherent.
-export function effectiveDate(
+function effectiveDate(
   publishedAt: string | Date | null | undefined,
   scrapedAt: string | Date | null | undefined
 ): Date | null {

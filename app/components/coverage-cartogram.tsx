@@ -104,15 +104,15 @@ export function CoverageCartogram({
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500">
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-3 bg-emerald-100 border border-emerald-300" />
+          <span className="inline-block size-3 bg-emerald-100 border border-emerald-300" />
           Live
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-3 bg-amber-50 border border-amber-200" />
+          <span className="inline-block size-3 bg-amber-50 border border-amber-200" />
           Backfill in progress
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-3 bg-neutral-50 border border-neutral-200" />
+          <span className="inline-block size-3 bg-neutral-50 border border-neutral-200" />
           Planned
         </span>
       </div>

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { getMemberPhotoUrl, getMemberHref, getInitials } from "../lib/photos";
 
 type SenatorRow = {
@@ -67,15 +68,16 @@ function SenatorList({
                 {startIndex + i}
               </span>
               {photoUrl ? (
-                <img
+                <Image
                   src={photoUrl}
                   alt={`${row.full_name} (${row.party}-${row.state})`}
                   width={20}
                   height={20}
-                  className="h-5 w-5 rounded-full object-cover"
+                  className="size-5 rounded-full object-cover"
+                  unoptimized
                 />
               ) : (
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-100 text-[8px] font-medium text-neutral-400">
+                <span className="flex size-5 items-center justify-center rounded-full bg-neutral-100 text-[8px] font-medium text-neutral-400">
                   {getInitials(row.full_name)}
                 </span>
               )}
@@ -118,47 +120,37 @@ export function SenatorActivity({
   const [bottom, setBottom] = useState(initialBottom);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // initialTop/initialBottom are stable on the server but become a new array
-    // reference each parent render; including them in deps refires this effect
-    // every time Home() re-renders. They are only consulted on the "all" branch
-    // (synchronous, no fetch), so excluding them is safe.
-    if (range === "all") {
+  async function selectRange(nextRange: Range) {
+    setRange(nextRange);
+    if (nextRange === "all") {
       setTop(initialTop);
       setBottom(initialBottom);
       return;
     }
 
-    let cancelled = false;
     setLoading(true);
-
-    fetch(`/api/senators/activity?range=${range}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (cancelled) return;
-        setTop(data.top);
-        setBottom(data.bottom);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [range]);
+    try {
+      const response = await fetch(`/api/senators/activity?range=${nextRange}`);
+      const data = await response.json();
+      setTop(data.top);
+      setBottom(data.bottom);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <aside className={loading ? "opacity-60 transition-opacity" : ""}>
       {/* Range filter */}
-      <div role="group" aria-label="Time range" className="flex items-center gap-1 mb-4 border-b border-neutral-900 pb-2">
+      <address aria-label="Time range" className="flex items-center gap-1 mb-4 border-b border-neutral-900 pb-2 not-italic">
         {RANGE_LABELS.map((r) => (
           <button
             key={r.value}
             type="button"
             aria-pressed={range === r.value}
-            onClick={() => setRange(r.value)}
+            onClick={() => {
+              void selectRange(r.value);
+            }}
             className={`px-2 py-0.5 text-xs rounded transition-colors ${
               range === r.value
                 ? "bg-neutral-900 text-white"
@@ -168,7 +160,7 @@ export function SenatorActivity({
             {r.label}
           </button>
         ))}
-      </div>
+      </address>
 
       {/* Most Active */}
       <h2 className="text-xs uppercase tracking-wider text-neutral-500 mb-3">

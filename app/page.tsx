@@ -12,6 +12,12 @@ import { HeroLetter } from "./components/hero-letter";
 import { formatTimestamp } from "./lib/dates";
 import type { FeedItem, ContentType } from "./lib/db";
 
+export const metadata = {
+  title: "Capitol Releases",
+  description:
+    "Search and analyze official press releases from members of Congress, updated daily from source websites.",
+};
+
 // Daily-cron data; 10-min ISR is plenty and keeps the homepage off the
 // request-time DB path (was 9 sequential SQL round-trips per visitor).
 export const revalidate = 600;
@@ -31,7 +37,13 @@ function diversifyFeed(items: FeedItem[], maxRun: number): FeedItem[] {
     })();
     let pickIdx = 0;
     if (lastId && runLength >= maxRun) {
-      const alt = queue.findIndex((it) => it.official_id !== lastId);
+      let alt = -1;
+      for (let i = 0; i < queue.length; i++) {
+        if (queue[i].official_id !== lastId) {
+          alt = i;
+          break;
+        }
+      }
       pickIdx = alt === -1 ? 0 : alt;
     }
     out.push(queue.splice(pickIdx, 1)[0]);
@@ -141,7 +153,7 @@ export default async function Home({
             </p>
             <p className="text-sm md:text-base text-neutral-500 max-w-2xl leading-relaxed">
               Every record each member&rsquo;s office publishes on their own
-              .gov site — all 100 senators and 437 House representatives.
+              .gov site, all 100 senators and 437 House representatives.
               Normalized, searchable, updated multiple times daily.
             </p>
           </div>
@@ -197,7 +209,7 @@ export default async function Home({
         </p>
       </div>
 
-      {/* Chamber — visual anchor of the page. Toggle between Senate (100
+      {/* Chamber, visual anchor of the page. Toggle between Senate (100
           seats, default) and House (437 seats). Both render as semicircle
           heatmaps colored by party with opacity = activity. */}
       {/* House view gets a modest breakout on xl+ screens (just enough to
@@ -210,7 +222,7 @@ export default async function Home({
           What is Congress talking about?
         </h2>
         <p className="text-lg md:text-2xl text-neutral-700 leading-snug mb-6 max-w-3xl">
-          Tracking topics across every press release in the last 90 days — pick a term and see who's talking about it, by chamber.
+          Tracking topics across every press release in the last 90 days, pick a term and see who&rsquo;s talking about it, by chamber.
         </p>
         <div className="flex items-center justify-between border-b border-neutral-900 pb-2 mb-3 md:mb-4">
           <h3 className="text-xs uppercase tracking-wider text-neutral-500">
@@ -251,7 +263,7 @@ export default async function Home({
         days={7}
       />
 
-      {/* Trending Topics — curated to ~10 chips so it fits one to two rows.
+      {/* Trending Topics, curated to ~10 chips so it fits one to two rows.
           Senator surnames + procedural vocabulary are filtered server-side
           (see analytics.ts). The "Explore all" link goes to the deeper
           /trending view. */}
@@ -314,7 +326,7 @@ export default async function Home({
         />
       </div>
 
-      {/* Member Rankings — moved to bottom as the deep-dive view. */}
+      {/* Member Rankings, moved to bottom as the deep-dive view. */}
       <section className="mb-10 md:mb-16">
         <div className="flex items-center justify-between border-b border-neutral-900 pb-2 mb-4 md:mb-6">
           <h2 className="text-xs uppercase tracking-wider text-neutral-500">
@@ -333,15 +345,15 @@ export default async function Home({
           Top 15 members of Congress by release volume since January 2025
           <span className="ml-3 inline-flex items-center gap-3">
             <span className="inline-flex items-center gap-1">
-              <span className="inline-block h-2 w-2 rounded-full bg-blue-500" />{" "}
+              <span className="inline-block size-2 rounded-full bg-blue-500" />{" "}
               D
             </span>
             <span className="inline-flex items-center gap-1">
-              <span className="inline-block h-2 w-2 rounded-full bg-red-500" />{" "}
+              <span className="inline-block size-2 rounded-full bg-red-500" />{" "}
               R
             </span>
             <span className="inline-flex items-center gap-1">
-              <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />{" "}
+              <span className="inline-block size-2 rounded-full bg-amber-500" />{" "}
               I
             </span>
           </span>
@@ -361,4 +373,3 @@ export default async function Home({
     </div>
   );
 }
-

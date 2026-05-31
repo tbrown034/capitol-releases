@@ -55,7 +55,10 @@ export function SenatorHeatmap({
 
     svg.attr("viewBox", `0 0 ${width} ${height}`);
 
-    const maxCount = d3.max(data, (d) => d.count) ?? 1;
+    let maxCount = 1;
+    for (const point of data) {
+      if (point.count > maxCount) maxCount = point.count;
+    }
 
     const base = partyColor[party];
     // 5-step scale: empty → base (quantized for github-like banding)

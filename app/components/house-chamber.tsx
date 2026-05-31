@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { familyName } from "../lib/names";
 import { getMemberPhotoUrl, getInitials } from "../lib/photos";
 
@@ -48,6 +48,10 @@ const DEFAULT_TERMS = [
 ];
 const MAX_TERM_LEN = 40;
 
+function sanitizeTerm(s: string) {
+  return s.trim().replace(/[^a-zA-Z0-9 \-']/g, "").slice(0, MAX_TERM_LEN);
+}
+
 type Seat = { row: number; idx: number; angle: number; x: number; y: number };
 
 const round = (n: number) => Math.round(n * 1000) / 1000;
@@ -82,7 +86,10 @@ function fillFor(party: "D" | "R" | "I", count: number, max: number) {
 type HoverState = { member: Member; x: number; y: number } | null;
 
 type TimeScope = "recent" | "alltime" | "ytd";
-type Mode = { scope: TimeScope; term: string | null; loading: boolean };
+type Mode = { term: string | null; loading: boolean };
+function modeReducer(mode: Mode, patch: Partial<Mode>): Mode {
+  return { ...mode, ...patch };
+}
 
 const WINDOW_OPTIONS = [
   { key: "7d", label: "in the last 7 days", short: "last 7d", scope: "recent" as TimeScope, days: 7 },
@@ -94,18 +101,22 @@ const WINDOW_OPTIONS = [
 type WindowKey = (typeof WINDOW_OPTIONS)[number]["key"];
 const DEFAULT_WINDOW: WindowKey = "30d";
 
-export function HouseChamber({ members }: { members: Member[] }) {
-  const router = useRouter();
+export function HouseChamber(props: { members: Member[] }) {
+  return (
+    <Suspense fallback={null}>
+      <HouseChamberInner {...props} />
+    </Suspense>
+  );
+}
+
+function HouseChamberInner({ members }: { members: Member[] }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const initialTerm = (() => {
     const qParam = searchParams.get("q");
     if (qParam === null) return DEFAULT_TERM;
-    const raw = qParam
-      .trim()
-      .replace(/[^a-zA-Z0-9 \-']/g, "")
-      .slice(0, MAX_TERM_LEN);
+    const raw = sanitizeTerm(qParam);
     return raw || null;
   })();
 
@@ -117,47 +128,33 @@ export function HouseChamber({ members }: { members: Member[] }) {
   const [hover, setHover] = useState<HoverState>(null);
   const [windowKey, setWindowKey] = useState<WindowKey>(initialWindow);
   const currentWindow = WINDOW_OPTIONS.find((w) => w.key === windowKey)!;
-  const [mode, setMode] = useState<Mode>({
-    scope: currentWindow.scope,
+  const [mode, setMode] = useReducer(modeReducer, {
     term: initialTerm,
     loading: false,
   });
   const [overrideCounts, setOverrideCounts] = useState<Record<string, number> | null>(null);
   const [input, setInput] = useState("");
-  const [isTouch, setIsTouch] = useState(false);
+  const isTouch =
+    typeof window !== "undefined" &&
+    ("ontouchstart" in window || navigator.maxTouchPoints > 0);
   // Tracks which member is currently "previewed" on touch. Ref (not state)
   // so the click handler reads it synchronously and isn't fooled by a stale
   // hover state that was just set by a synthetic mouseenter in the same tap.
   const previewedIdRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    setMode((m) =>
-      m.scope === currentWindow.scope ? m : { ...m, scope: currentWindow.scope }
-    );
-  }, [currentWindow.scope]);
-
-  // URL state needs `chamber=house` plus the same q/window params Senate uses,
-  // so a deep-link round-trips to the House view.
-  useEffect(() => {
+  const syncUrl = (nextWindowKey: WindowKey, nextTerm: string | null) => {
     const params = new URLSearchParams();
     params.set("chamber", "house");
-    if (windowKey !== DEFAULT_WINDOW) params.set("window", windowKey);
-    if (mode.term === null) params.set("q", "");
-    else if (mode.term !== DEFAULT_TERM) params.set("q", mode.term);
+    if (nextWindowKey !== DEFAULT_WINDOW) params.set("window", nextWindowKey);
+    if (nextTerm === null) params.set("q", "");
+    else if (nextTerm !== DEFAULT_TERM) params.set("q", nextTerm);
     const qs = params.toString();
     const url = qs ? `${pathname}?${qs}` : pathname;
     if (typeof window !== "undefined") {
       const current = window.location.pathname + window.location.search;
-      if (current !== url) router.replace(url, { scroll: false });
+      if (current !== url) window.history.replaceState(null, "", url);
     }
-  }, [windowKey, mode.term, pathname, router]);
-
-  useEffect(() => {
-    setIsTouch(
-      typeof window !== "undefined" &&
-        ("ontouchstart" in window || navigator.maxTouchPoints > 0)
-    );
-  }, []);
+  };
 
   useEffect(() => {
     if (!isTouch || !hover) return;
@@ -173,47 +170,39 @@ export function HouseChamber({ members }: { members: Member[] }) {
     return () => window.removeEventListener("click", handler);
   }, [isTouch, hover]);
 
-  const isDefault = windowKey === DEFAULT_WINDOW && mode.term === null;
-
-  useEffect(() => {
-    if (isDefault) {
+  const refreshCounts = async (nextWindowKey: WindowKey, nextTerm: string | null) => {
+    const nextWindow = WINDOW_OPTIONS.find((w) => w.key === nextWindowKey)!;
+    if (nextWindowKey === DEFAULT_WINDOW && nextTerm === null) {
       setOverrideCounts(null);
       return;
     }
-    let cancelled = false;
-    setMode((m) => ({ ...m, loading: true }));
-    const params = new URLSearchParams({ scope: currentWindow.scope, chamber: "house" });
-    if (currentWindow.scope === "recent") {
-      params.set("days", String(currentWindow.days));
+    setMode({ loading: true });
+    const params = new URLSearchParams({ scope: nextWindow.scope, chamber: "house" });
+    if (nextWindow.scope === "recent") {
+      params.set("days", String(nextWindow.days));
     }
-    if (mode.term) params.set("q", mode.term);
-    fetch(`/api/chamber/counts?${params.toString()}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (cancelled) return;
-        setOverrideCounts(data.counts ?? {});
-        setMode((m) => ({ ...m, loading: false }));
-      })
-      .catch(() => {
-        if (!cancelled) setMode((m) => ({ ...m, loading: false }));
-      });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [windowKey, mode.term]);
-
-  const sanitize = (s: string) =>
-    s.trim().replace(/[^a-zA-Z0-9 \-']/g, "").slice(0, MAX_TERM_LEN);
+    if (nextTerm) params.set("q", nextTerm);
+    try {
+      const response = await fetch(`/api/chamber/counts?${params.toString()}`);
+      const data = await response.json();
+      setOverrideCounts(data.counts ?? {});
+    } finally {
+      setMode({ loading: false });
+    }
+  };
 
   const setTerm = (raw: string | null) => {
+    let nextTerm: string | null;
     if (raw === null) {
-      setMode((m) => ({ ...m, term: null }));
+      nextTerm = null;
     } else {
-      const t = sanitize(raw);
+      const t = sanitizeTerm(raw);
       if (!t) return;
-      setMode((m) => ({ ...m, term: t }));
+      nextTerm = t;
     }
+    setMode({ term: nextTerm });
+    syncUrl(windowKey, nextTerm);
+    void refreshCounts(windowKey, nextTerm);
     setHover(null);
   };
 
@@ -224,7 +213,7 @@ export function HouseChamber({ members }: { members: Member[] }) {
 
   const sorted = useMemo(
     () =>
-      [...membersWithCounts].sort((a, b) => {
+      membersWithCounts.toSorted((a, b) => {
         const r = PARTY_RANK[a.party] - PARTY_RANK[b.party];
         if (r !== 0) return r;
         if (a.state !== b.state) return a.state.localeCompare(b.state);
@@ -301,7 +290,12 @@ export function HouseChamber({ members }: { members: Member[] }) {
     <span className="relative inline-flex items-center align-baseline">
       <select
         value={windowKey}
-        onChange={(e) => setWindowKey(e.target.value as WindowKey)}
+        onChange={(e) => {
+          const nextWindowKey = e.target.value as WindowKey;
+          setWindowKey(nextWindowKey);
+          syncUrl(nextWindowKey, mode.term);
+          void refreshCounts(nextWindowKey, mode.term);
+        }}
         aria-label="Time window"
         className="appearance-none cursor-pointer rounded-full border border-neutral-400 bg-neutral-100 hover:bg-neutral-200 hover:border-neutral-900 focus:outline-none focus-visible:border-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/20 transition-colors font-semibold text-neutral-900 pl-2.5 pr-8 py-0 text-[0.95em] leading-tight"
       >
@@ -354,27 +348,37 @@ export function HouseChamber({ members }: { members: Member[] }) {
             </button>
           );
         })}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setTerm(input);
-            setInput("");
-          }}
-          className="inline-flex"
-        >
+        <div className="inline-flex gap-1">
           <input
+            aria-label="Custom House search term"
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setTerm(input);
+                setInput("");
+              }
+            }}
             placeholder="Custom term…"
             maxLength={MAX_TERM_LEN}
             className="rounded-full border border-dashed border-neutral-300 bg-white px-2.5 py-0.5 text-xs text-neutral-700 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-500 w-32"
           />
-        </form>
+          <button
+            type="button"
+            onClick={() => {
+              setTerm(input);
+              setInput("");
+            }}
+            className="rounded-full border border-neutral-300 px-2.5 py-0.5 text-xs text-neutral-600 hover:border-neutral-500"
+          >
+            Search term
+          </button>
+        </div>
       </div>
       <p className="text-[11px] text-neutral-500 mb-3 -mt-1">
         Searches the full text of every release (title + body), with stemming
-        — e.g. &ldquo;Iran&rdquo; matches &ldquo;Iranian&rdquo;.
+       , e.g. &ldquo;Iran&rdquo; matches &ldquo;Iranian&rdquo;.
       </p>
 
       {isTerm ? (
@@ -437,8 +441,8 @@ export function HouseChamber({ members }: { members: Member[] }) {
         >
           <title>
             {isTerm
-              ? `House chamber — mentions of "${mode.term}", ${scopePhrase}`
-              : `House chamber — press release activity, ${scopePhrase}`}
+              ? `House chamber, mentions of "${mode.term}", ${scopePhrase}`
+              : `House chamber, press release activity, ${scopePhrase}`}
           </title>
 
           <path
@@ -504,7 +508,7 @@ export function HouseChamber({ members }: { members: Member[] }) {
             );
           })}
 
-          {/* Right-side metric caption removed — redundant with headline. */}
+          {/* Right-side metric caption removed, redundant with headline. */}
           <text
             x={8}
             y={VIEW_H - 12}
@@ -524,7 +528,7 @@ export function HouseChamber({ members }: { members: Member[] }) {
         <div className="flex items-center gap-x-4 gap-y-1 flex-wrap">
           <span className="flex items-center gap-1.5">
             <span
-              className="inline-block h-2.5 w-2.5 rounded-full"
+              className="inline-block size-2.5 rounded-full"
               style={{ background: PARTY_COLOR.D }}
             />
             Democrats <span className="tabular-nums">{counts.D}</span>
@@ -532,7 +536,7 @@ export function HouseChamber({ members }: { members: Member[] }) {
           {counts.I > 0 && (
             <span className="flex items-center gap-1.5">
               <span
-                className="inline-block h-2.5 w-2.5 rounded-full"
+                className="inline-block size-2.5 rounded-full"
                 style={{ background: PARTY_COLOR.I }}
               />
               Independents <span className="tabular-nums">{counts.I}</span>
@@ -540,7 +544,7 @@ export function HouseChamber({ members }: { members: Member[] }) {
           )}
           <span className="flex items-center gap-1.5">
             <span
-              className="inline-block h-2.5 w-2.5 rounded-full"
+              className="inline-block size-2.5 rounded-full"
               style={{ background: PARTY_COLOR.R }}
             />
             Republicans <span className="tabular-nums">{counts.R}</span>
@@ -600,17 +604,17 @@ export function HouseChamber({ members }: { members: Member[] }) {
                     {i + 1}
                   </span>
                   {photo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={photo}
                       alt={`${s.full_name} (${s.party}-${s.state})`}
                       width={24}
                       height={24}
-                      className={`h-6 w-6 rounded-full object-cover ring-1 ${ringColor}`}
+                      className={`size-6 rounded-full object-cover ring-1 ${ringColor}`}
+                      unoptimized
                     />
                   ) : (
                     <span
-                      className={`flex h-6 w-6 items-center justify-center rounded-full bg-neutral-100 text-[9px] font-medium text-neutral-500 ring-1 ${ringColor}`}
+                      className={`flex size-6 items-center justify-center rounded-full bg-neutral-100 text-[9px] font-medium text-neutral-500 ring-1 ${ringColor}`}
                     >
                       {getInitials(s.full_name)}
                     </span>

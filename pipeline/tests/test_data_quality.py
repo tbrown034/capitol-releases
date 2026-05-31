@@ -805,18 +805,19 @@ def test_collector_extraction_parity():
 
     If the most recent health_checks row for a senator shows >=3 listing
     items in the last 24 hours, the listing page is alive and parseable.
-    If MAX(last_seen_live) -- bumped on every successful dedupe match in
-    update.py -- is more than 36 hours old, the collector ran four times
-    against a healthy listing and matched nothing. That is the failure
-    mode that hid for 18 days in May 2026 behind selector + RSS-fallback
-    breakage.
+    If MAX(last_seen_live) -- bumped whenever the daily collector sees a
+    known URL on the listing/feed, even when the item is older than the
+    incremental detail-fetch cutoff -- is more than 36 hours old, the
+    collector ran four times against a healthy listing and matched
+    nothing. That is the failure mode that hid for 18 days in May 2026
+    behind selector + RSS-fallback breakage.
 
     last_seen_live is the right signal, not scraped_at: scraped_at only
     moves on NEW inserts, so a senator whose listing carries only old
-    (already-stored) items would false-positive on a scraped_at check.
-    last_seen_live moves whenever the collector successfully processes
-    ANY item, so a stale value means the collector is dropping the
-    listing wholesale.
+    already-stored items would false-positive on a scraped_at check.
+    last_seen_live moves whenever the collector successfully recognizes
+    an archived URL in the live listing/feed, so a stale value means the
+    collector is dropping the listing wholesale.
 
     The 36-hour window leaves a full daily cycle of slack but trips far
     earlier than test_no_stale_senators (14 days). Scoped to active US

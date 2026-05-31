@@ -86,6 +86,7 @@ class HttpxCollector:
 
                     if not title or not detail_url:
                         continue
+                    result.seen_urls.add(normalize_url(detail_url))
 
                     # Skip external content (non-.gov, social media, news aggregators)
                     if is_external_content(detail_url, title):

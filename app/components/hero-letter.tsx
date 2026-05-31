@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { getMemberPhotoUrl, getMemberTitlePrefix, getInitials } from "../lib/photos";
 import { normalizeTitle } from "../lib/titles";
 import { TypeIcon } from "./type-icon";
@@ -56,22 +57,23 @@ function formatCaptured(dateStr: string | undefined): string {
 export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string | null }) {
   const [idx, setIdx] = useState(0);
   const [fade, setFade] = useState(true);
-  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
 
-  const advance = (delta: number) => {
+  const advance = useCallback((delta: number) => {
     setFade(false);
     setTimeout(() => {
       setIdx((i) => (i + delta + items.length) % items.length);
       setFade(true);
     }, 220);
-  };
+  }, [items.length]);
 
   useEffect(() => {
-    if (items.length <= 1 || paused) return;
-    const t = setInterval(() => advance(1), ROTATION_MS);
+    if (items.length <= 1) return;
+    const t = setInterval(() => {
+      if (!pausedRef.current) advance(1);
+    }, ROTATION_MS);
     return () => clearInterval(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items.length, paused]);
+  }, [advance, items.length]);
 
   if (items.length === 0) return null;
   const item = items[idx];
@@ -115,14 +117,18 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
         </div>
         <div
           className="flex items-center gap-1"
-          onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}
+          onMouseEnter={() => {
+            pausedRef.current = true;
+          }}
+          onMouseLeave={() => {
+            pausedRef.current = false;
+          }}
         >
           <button
             type="button"
             onClick={() => advance(-1)}
             aria-label="Previous release"
-            className="h-6 w-6 rounded border border-neutral-300 text-neutral-500 hover:text-neutral-900 hover:border-neutral-500 cursor-pointer flex items-center justify-center transition-colors"
+            className="size-6 rounded border border-neutral-300 text-neutral-500 hover:text-neutral-900 hover:border-neutral-500 cursor-pointer flex items-center justify-center transition-colors"
           >
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M6.5 2L3 5l3.5 3" />
@@ -132,7 +138,7 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
             type="button"
             onClick={() => advance(1)}
             aria-label="Next release"
-            className="h-6 w-6 rounded border border-neutral-300 text-neutral-500 hover:text-neutral-900 hover:border-neutral-500 cursor-pointer flex items-center justify-center transition-colors"
+            className="size-6 rounded border border-neutral-300 text-neutral-500 hover:text-neutral-900 hover:border-neutral-500 cursor-pointer flex items-center justify-center transition-colors"
           >
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M3.5 2L7 5l-3.5 3" />
@@ -143,8 +149,12 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
 
       <div
         className="relative"
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
+        onMouseEnter={() => {
+          pausedRef.current = true;
+        }}
+        onMouseLeave={() => {
+          pausedRef.current = false;
+        }}
       >
         <div className="relative bg-white border border-neutral-200 shadow-sm rounded-sm overflow-hidden">
           <div className={`h-[3px] ${partyAccent}`} />
@@ -178,16 +188,16 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
 
             <div className="flex items-start gap-3 mb-3">
               {photo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={photo}
                   alt={`${item.senator_name} (${item.party}-${item.state})`}
                   width={40}
                   height={40}
-                  className="h-10 w-10 rounded-full object-cover ring-1 ring-neutral-200"
+                  className="size-10 rounded-full object-cover ring-1 ring-neutral-200"
+                  unoptimized
                 />
               ) : (
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-100 text-xs font-medium text-neutral-500 ring-1 ring-neutral-200">
+                <span className="flex size-10 items-center justify-center rounded-full bg-neutral-100 text-xs font-medium text-neutral-500 ring-1 ring-neutral-200">
                   {getInitials(item.senator_name)}
                 </span>
               )}
@@ -231,9 +241,9 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
       </div>
 
       <div className="mt-2 flex gap-1">
-        {items.map((_, i) => (
+        {items.map((item, i) => (
           <button
-            key={i}
+            key={item.id}
             type="button"
             onClick={() => {
               setFade(false);

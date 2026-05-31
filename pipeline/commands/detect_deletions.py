@@ -186,10 +186,9 @@ async def run_deletion_check(
 ):
     conn = psycopg2.connect(DB_URL)
 
-    # Add deleted_at and last_seen_live columns if they don't exist
     cur = conn.cursor()
-    cur.execute("ALTER TABLE press_releases ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ")
-    cur.execute("ALTER TABLE press_releases ADD COLUMN IF NOT EXISTS last_seen_live TIMESTAMPTZ")
+    cur.execute("ALTER TABLE official_site_items ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ")
+    cur.execute("ALTER TABLE official_site_items ADD COLUMN IF NOT EXISTS last_seen_live TIMESTAMPTZ")
     conn.commit()
     cur.close()
 

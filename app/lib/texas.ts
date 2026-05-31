@@ -308,10 +308,3 @@ export async function getTxSearchFacets(filters: {
   }
   return { party, type };
 }
-
-// Active TX session windows (89th Legislature regular session + any specials
-// or interim periods). Used to annotate timelines. Hard-coded for now —
-// each Texas legislature is a 2-year span and dates are public record.
-export const TX_SESSION_WINDOWS = [
-  { name: "89th regular session", start: "2025-01-14", end: "2025-06-02" },
-];

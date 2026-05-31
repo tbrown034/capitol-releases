@@ -1,11 +1,20 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { getStates } from "../lib/states";
 import { CONTENT_TYPE_ORDER, CONTENT_TYPE_LABEL } from "../lib/content-types";
 import posthog from "posthog-js";
 
 export function FeedFilters({ basePath = "/feed" }: { basePath?: string }) {
+  return (
+    <Suspense fallback={null}>
+      <FeedFiltersInner basePath={basePath} />
+    </Suspense>
+  );
+}
+
+function FeedFiltersInner({ basePath }: { basePath: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const states = getStates();
@@ -69,6 +78,7 @@ export function FeedFilters({ basePath = "/feed" }: { basePath?: string }) {
 
       {(party || state || type) && (
         <button
+          type="button"
           onClick={() => {
             router.push(basePath);
           }}

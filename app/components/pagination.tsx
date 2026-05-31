@@ -1,9 +1,32 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, FormEvent } from "react";
+import { Suspense, useState, FormEvent } from "react";
 
 export function Pagination({
+  total,
+  perPage,
+  basePath,
+  currentPage: currentPageProp,
+}: {
+  total: number;
+  perPage: number;
+  basePath: string;
+  currentPage?: number;
+}) {
+  return (
+    <Suspense fallback={null}>
+      <PaginationInner
+        total={total}
+        perPage={perPage}
+        basePath={basePath}
+        currentPage={currentPageProp}
+      />
+    </Suspense>
+  );
+}
+
+function PaginationInner({
   total,
   perPage,
   basePath,

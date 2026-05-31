@@ -55,8 +55,7 @@ export default async function TxSenatorPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ page?: string }>;
 }) {
-  const { id } = await params;
-  const sp = await searchParams;
+  const [{ id }, sp] = await Promise.all([params, searchParams]);
   const page = Math.max(1, Number(sp.page ?? "1") || 1);
   const offset = (page - 1) * PER_PAGE;
 
@@ -151,7 +150,7 @@ export default async function TxSenatorPage({
           alt={senator.full_name}
           width={80}
           height={80}
-          className="h-20 w-20 object-cover object-top shrink-0 rounded"
+          className="size-20 object-cover object-top shrink-0 rounded"
           priority
           unoptimized
         />
@@ -447,7 +446,7 @@ function SilentEmptyState({
   if (expectEmpty) {
     const note = senator.scrape_config?.notes ?? null;
     return (
-      <div className="rounded-md border border-amber-200 bg-amber-50 px-5 py-5 max-w-2xl">
+      <div className="rounded-md border border-amber-200 bg-amber-50 p-5 max-w-2xl">
         <p className="text-[11px] uppercase tracking-wider text-amber-900 mb-1.5 font-semibold">
           Recently seated
         </p>
@@ -477,7 +476,7 @@ function SilentEmptyState({
   }
   if (total === 0) {
     return (
-      <div className="rounded-md border border-neutral-200 bg-neutral-50 px-5 py-5 max-w-2xl">
+      <div className="rounded-md border border-neutral-200 bg-neutral-50 p-5 max-w-2xl">
         <p className="text-[11px] uppercase tracking-wider text-neutral-500 mb-1.5 font-semibold">
           The silent caucus
         </p>

@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { familyName } from "../lib/names";
 import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
 
@@ -49,6 +49,10 @@ const DEFAULT_TERMS = [
 ];
 const MAX_TERM_LEN = 40;
 
+function sanitizeTerm(s: string) {
+  return s.trim().replace(/[^a-zA-Z0-9 \-']/g, "").slice(0, MAX_TERM_LEN);
+}
+
 type Seat = { row: number; idx: number; angle: number; x: number; y: number };
 
 // Rounded to 3 decimals so server and client serialize the same string.
@@ -93,7 +97,10 @@ function fillFor(party: "D" | "R" | "I", count: number, max: number) {
 type HoverState = { senator: Senator; x: number; y: number } | null;
 
 type TimeScope = "recent" | "alltime" | "ytd";
-type Mode = { scope: TimeScope; term: string | null; loading: boolean };
+type Mode = { term: string | null; loading: boolean };
+function modeReducer(mode: Mode, patch: Partial<Mode>): Mode {
+  return { ...mode, ...patch };
+}
 
 // Single source of truth for the time-window dropdown. Each option carries
 // its own prepositional phrase so the headline reads grammatically when the
@@ -109,24 +116,27 @@ const WINDOW_OPTIONS = [
 type WindowKey = (typeof WINDOW_OPTIONS)[number]["key"];
 const DEFAULT_WINDOW: WindowKey = "30d";
 
-export function SenateChamber({
+export function SenateChamber(props: { senators: Senator[]; days?: number }) {
+  return (
+    <Suspense fallback={null}>
+      <SenateChamberInner {...props} />
+    </Suspense>
+  );
+}
+
+function SenateChamberInner({
   senators,
-  days = 30,
 }: {
   senators: Senator[];
   days?: number;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const initialTerm = (() => {
     const qParam = searchParams.get("q");
     if (qParam === null) return DEFAULT_TERM;
-    const raw = qParam
-      .trim()
-      .replace(/[^a-zA-Z0-9 \-']/g, "")
-      .slice(0, MAX_TERM_LEN);
+    const raw = sanitizeTerm(qParam);
     return raw || null;
   })();
 
@@ -138,51 +148,33 @@ export function SenateChamber({
   const [hover, setHover] = useState<HoverState>(null);
   const [windowKey, setWindowKey] = useState<WindowKey>(initialWindow);
   const currentWindow = WINDOW_OPTIONS.find((w) => w.key === windowKey)!;
-  const [mode, setMode] = useState<Mode>({
-    scope: currentWindow.scope,
+  const [mode, setMode] = useReducer(modeReducer, {
     term: initialTerm,
     loading: false,
   });
   const [overrideCounts, setOverrideCounts] = useState<Record<string, number> | null>(null);
   const [input, setInput] = useState("");
-  const [isTouch, setIsTouch] = useState(false);
-  // See house-chamber.tsx for the rationale — ref-based preview tracking
+  const isTouch =
+    typeof window !== "undefined" &&
+    ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+  // See house-chamber.tsx for the rationale, ref-based preview tracking
   // avoids a touch race where synthetic mouseenter sets `hover` before the
   // click handler runs, defeating the first-tap-previews / second-tap-opens
   // pattern.
   const previewedIdRef = useRef<string | null>(null);
 
-  // Keep mode.scope in sync with the active window option.
-  useEffect(() => {
-    setMode((m) =>
-      m.scope === currentWindow.scope ? m : { ...m, scope: currentWindow.scope }
-    );
-  }, [currentWindow.scope]);
-
-  // Reflect mode → URL. Use `replace` so we don't pollute browser history on
-  // every chip click; default state strips params entirely.
-  useEffect(() => {
+  const syncUrl = (nextWindowKey: WindowKey, nextTerm: string | null) => {
     const params = new URLSearchParams();
-    if (windowKey !== DEFAULT_WINDOW) params.set("window", windowKey);
-    // Only write q to URL when the user has changed it from the default.
-    // mode.term === null means "all press releases" (must be reflected with q=);
-    // mode.term === DEFAULT_TERM is the landing state and stays implicit.
-    if (mode.term === null) params.set("q", "");
-    else if (mode.term !== DEFAULT_TERM) params.set("q", mode.term);
+    if (nextWindowKey !== DEFAULT_WINDOW) params.set("window", nextWindowKey);
+    if (nextTerm === null) params.set("q", "");
+    else if (nextTerm !== DEFAULT_TERM) params.set("q", nextTerm);
     const qs = params.toString();
     const url = qs ? `${pathname}?${qs}` : pathname;
     if (typeof window !== "undefined") {
       const current = window.location.pathname + window.location.search;
-      if (current !== url) router.replace(url, { scroll: false });
+      if (current !== url) window.history.replaceState(null, "", url);
     }
-  }, [windowKey, mode.term, pathname, router]);
-
-  useEffect(() => {
-    setIsTouch(
-      typeof window !== "undefined" &&
-        ("ontouchstart" in window || navigator.maxTouchPoints > 0)
-    );
-  }, []);
+  };
 
   // On touch devices: first tap on a seat shows the preview card; second tap
   // on the same seat navigates. Tapping outside closes the card.
@@ -200,49 +192,39 @@ export function SenateChamber({
     return () => window.removeEventListener("click", handler);
   }, [isTouch, hover]);
 
-  // Default state = the server-rendered counts (recent / 30d / no term).
-  // Anything else needs a client-side fetch from /api/chamber/counts.
-  const isDefault = windowKey === DEFAULT_WINDOW && mode.term === null;
-
-  useEffect(() => {
-    if (isDefault) {
+  const refreshCounts = async (nextWindowKey: WindowKey, nextTerm: string | null) => {
+    const nextWindow = WINDOW_OPTIONS.find((w) => w.key === nextWindowKey)!;
+    if (nextWindowKey === DEFAULT_WINDOW && nextTerm === null) {
       setOverrideCounts(null);
       return;
     }
-    let cancelled = false;
-    setMode((m) => ({ ...m, loading: true }));
-    const params = new URLSearchParams({ scope: currentWindow.scope });
-    if (currentWindow.scope === "recent") {
-      params.set("days", String(currentWindow.days));
+    setMode({ loading: true });
+    const params = new URLSearchParams({ scope: nextWindow.scope });
+    if (nextWindow.scope === "recent") {
+      params.set("days", String(nextWindow.days));
     }
-    if (mode.term) params.set("q", mode.term);
-    fetch(`/api/chamber/counts?${params.toString()}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (cancelled) return;
-        setOverrideCounts(data.counts ?? {});
-        setMode((m) => ({ ...m, loading: false }));
-      })
-      .catch(() => {
-        if (!cancelled) setMode((m) => ({ ...m, loading: false }));
-      });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [windowKey, mode.term]);
-
-  const sanitize = (s: string) =>
-    s.trim().replace(/[^a-zA-Z0-9 \-']/g, "").slice(0, MAX_TERM_LEN);
+    if (nextTerm) params.set("q", nextTerm);
+    try {
+      const response = await fetch(`/api/chamber/counts?${params.toString()}`);
+      const data = await response.json();
+      setOverrideCounts(data.counts ?? {});
+    } finally {
+      setMode({ loading: false });
+    }
+  };
 
   const setTerm = (raw: string | null) => {
+    let nextTerm: string | null;
     if (raw === null) {
-      setMode((m) => ({ ...m, term: null }));
+      nextTerm = null;
     } else {
-      const t = sanitize(raw);
+      const t = sanitizeTerm(raw);
       if (!t) return;
-      setMode((m) => ({ ...m, term: t }));
+      nextTerm = t;
     }
+    setMode({ term: nextTerm });
+    syncUrl(windowKey, nextTerm);
+    void refreshCounts(windowKey, nextTerm);
     setHover(null);
   };
 
@@ -253,7 +235,7 @@ export function SenateChamber({
 
   const sorted = useMemo(
     () =>
-      [...senatorsWithCounts].sort((a, b) => {
+      senatorsWithCounts.toSorted((a, b) => {
         const r = PARTY_RANK[a.party] - PARTY_RANK[b.party];
         if (r !== 0) return r;
         if (a.state !== b.state) return a.state.localeCompare(b.state);
@@ -283,7 +265,7 @@ export function SenateChamber({
 
   const showHover =
     (senator: Senator) => (e: React.SyntheticEvent<SVGCircleElement>) => {
-      // Skip on touch — synthetic mouseenter would otherwise pre-populate
+      // Skip on touch, synthetic mouseenter would otherwise pre-populate
       // hover state and make the click handler think it's the second tap.
       if (isTouch) return;
       const rect = e.currentTarget.getBoundingClientRect();
@@ -320,7 +302,7 @@ export function SenateChamber({
 
   const isTerm = mode.term !== null;
   const isLoading = mode.loading;
-  // "last 30d" / "YTD" / "since Jan 2025" — short label used in aria text and
+  // "last 30d" / "YTD" / "since Jan 2025", short label used in aria text and
   // the Top 10 subtitle.
   const scopePhrase = currentWindow.short;
 
@@ -331,7 +313,12 @@ export function SenateChamber({
     <span className="relative inline-flex items-center align-baseline">
       <select
         value={windowKey}
-        onChange={(e) => setWindowKey(e.target.value as WindowKey)}
+        onChange={(e) => {
+          const nextWindowKey = e.target.value as WindowKey;
+          setWindowKey(nextWindowKey);
+          syncUrl(nextWindowKey, mode.term);
+          void refreshCounts(nextWindowKey, mode.term);
+        }}
         aria-label="Time window"
         className="appearance-none cursor-pointer rounded-full border border-neutral-400 bg-neutral-100 hover:bg-neutral-200 hover:border-neutral-900 focus:outline-none focus-visible:border-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-900/20 transition-colors font-semibold text-neutral-900 pl-2.5 pr-8 py-0 text-[0.95em] leading-tight"
       >
@@ -384,30 +371,40 @@ export function SenateChamber({
             </button>
           );
         })}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setTerm(input);
-            setInput("");
-          }}
-          className="inline-flex"
-        >
+        <div className="inline-flex gap-1">
           <input
+            aria-label="Custom Senate search term"
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setTerm(input);
+                setInput("");
+              }
+            }}
             placeholder="Custom term…"
             maxLength={MAX_TERM_LEN}
             className="rounded-full border border-dashed border-neutral-300 bg-white px-2.5 py-0.5 text-xs text-neutral-700 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-500 w-32"
           />
-        </form>
+          <button
+            type="button"
+            onClick={() => {
+              setTerm(input);
+              setInput("");
+            }}
+            className="rounded-full border border-neutral-300 px-2.5 py-0.5 text-xs text-neutral-600 hover:border-neutral-500"
+          >
+            Search term
+          </button>
+        </div>
       </div>
       <p className="text-[11px] text-neutral-500 mb-3 -mt-1">
         Searches the full text of every release (title + body), with stemming
-        — e.g. &ldquo;Iran&rdquo; matches &ldquo;Iranian&rdquo;.
+       , e.g. &ldquo;Iran&rdquo; matches &ldquo;Iranian&rdquo;.
       </p>
 
-      {/* Headline — "in the last [N days ▾]" is an inline dropdown. The
+      {/* Headline, "in the last [N days ▾]" is an inline dropdown. The
           phrasing names the source ("press releases") so a screenshot of the
           chamber alone reads as a complete claim. */}
       {isTerm ? (
@@ -470,8 +467,8 @@ export function SenateChamber({
         >
           <title>
             {isTerm
-              ? `Senate chamber — mentions of "${mode.term}", ${scopePhrase}`
-              : `Senate chamber — press release activity, ${scopePhrase}`}
+              ? `Senate chamber, mentions of "${mode.term}", ${scopePhrase}`
+              : `Senate chamber, press release activity, ${scopePhrase}`}
           </title>
 
           <path
@@ -525,7 +522,7 @@ export function SenateChamber({
             );
           })}
 
-          {/* Right-side metric caption removed — the headline above the chart
+          {/* Right-side metric caption removed, the headline above the chart
               ("X of 100 senators mentioned …") already states it; repeating
               it as "n=…" only confuses (n is max-per-member, not the total). */}
           <text
@@ -547,21 +544,21 @@ export function SenateChamber({
         <div className="flex items-center gap-x-4 gap-y-1 flex-wrap">
           <span className="flex items-center gap-1.5">
             <span
-              className="inline-block h-2.5 w-2.5 rounded-full"
+              className="inline-block size-2.5 rounded-full"
               style={{ background: PARTY_COLOR.D }}
             />
             Democrats <span className="tabular-nums">{counts.D}</span>
           </span>
           <span className="flex items-center gap-1.5">
             <span
-              className="inline-block h-2.5 w-2.5 rounded-full"
+              className="inline-block size-2.5 rounded-full"
               style={{ background: PARTY_COLOR.I }}
             />
             Independents <span className="tabular-nums">{counts.I}</span>
           </span>
           <span className="flex items-center gap-1.5">
             <span
-              className="inline-block h-2.5 w-2.5 rounded-full"
+              className="inline-block size-2.5 rounded-full"
               style={{ background: PARTY_COLOR.R }}
             />
             Republicans <span className="tabular-nums">{counts.R}</span>
@@ -621,17 +618,17 @@ export function SenateChamber({
                     {i + 1}
                   </span>
                   {photo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={photo}
                       alt={`${s.full_name} (${s.party}-${s.state})`}
                       width={24}
                       height={24}
-                      className={`h-6 w-6 rounded-full object-cover ring-1 ${ringColor}`}
+                      className={`size-6 rounded-full object-cover ring-1 ${ringColor}`}
+                      unoptimized
                     />
                   ) : (
                     <span
-                      className={`flex h-6 w-6 items-center justify-center rounded-full bg-neutral-100 text-[9px] font-medium text-neutral-500 ring-1 ${ringColor}`}
+                      className={`flex size-6 items-center justify-center rounded-full bg-neutral-100 text-[9px] font-medium text-neutral-500 ring-1 ${ringColor}`}
                     >
                       {getInitials(s.full_name)}
                     </span>

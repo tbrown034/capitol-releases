@@ -1,5 +1,10 @@
 import { redirect } from "next/navigation";
 
+export const metadata = {
+  title: "Methodology · Capitol Releases",
+  description: "Redirects to the Capitol Releases methodology and about page.",
+};
+
 export default async function MethodologyRedirect({
   searchParams,
 }: {

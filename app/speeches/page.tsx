@@ -4,7 +4,7 @@ import { Pagination } from "../components/pagination";
 import { EmptyState } from "../components/empty-state";
 
 export const metadata = {
-  title: "Speeches — Capitol Releases",
+  title: "Speeches, Capitol Releases",
   description:
     "U.S. Senate floor speeches from the Congressional Record, since January 1, 2025. House coverage in Phase 2.",
 };
@@ -46,7 +46,7 @@ export default async function SpeechesPage({
   const party = sp.party;
   const state = sp.state;
 
-  const { items, total, chamberAvailable } = await getFloorSpeeches({
+  const { items, total } = await getFloorSpeeches({
     chamber,
     page,
     perPage,
@@ -80,11 +80,11 @@ export default async function SpeechesPage({
           href="https://www.congress.gov/congressional-record"
           className="underline hover:text-neutral-900"
           target="_blank"
-          rel="noopener"
+          rel="noreferrer"
         >
           congress.gov
         </a>
-        . House coverage is Phase 2 — the GPO bulkdata path differs and the
+        . House coverage is Phase 2, the GPO bulkdata path differs and the
         parser isn&rsquo;t built yet.
       </p>
       <p className="text-xs text-neutral-500 leading-relaxed mb-6 max-w-2xl">

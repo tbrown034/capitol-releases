@@ -36,7 +36,7 @@ async function probe(url) {
     });
     clearTimeout(t);
     return res.status;
-  } catch (e) {
+  } catch {
     clearTimeout(t);
     return 0;
   }

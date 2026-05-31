@@ -469,31 +469,33 @@ export async function getDeletedReleases(
   perPage = 50
 ): Promise<{ items: ReleaseDetail[]; total: number }> {
   const offset = (page - 1) * perPage;
-  const countResult = await sql`
-    SELECT count(*)::int as total FROM official_site_items pr
-    JOIN officials s ON s.id = pr.official_id
-    WHERE pr.deleted_at IS NOT NULL
-      AND pr.content_type != 'photo_release'
-      AND s.status = 'active'
-      AND s.chamber IN ('senate','house')
-      AND s.jurisdiction = 'us'
-  `;
-  const items = await sql`
-    SELECT pr.id, pr.official_id, pr.title, pr.published_at, pr.body_text,
-           pr.source_url, pr.scraped_at, pr.content_type,
-           pr.deleted_at, pr.last_seen_live, pr.updated_at,
-           s.full_name as senator_name, s.party, s.state,
-           0 as version_count
-    FROM official_site_items pr
-    JOIN officials s ON s.id = pr.official_id
-    WHERE pr.deleted_at IS NOT NULL
-      AND pr.content_type != 'photo_release'
-      AND s.status = 'active'
-      AND s.chamber IN ('senate','house')
-      AND s.jurisdiction = 'us'
-    ORDER BY pr.deleted_at DESC
-    LIMIT ${perPage} OFFSET ${offset}
-  `;
+  const [countResult, items] = await Promise.all([
+    sql`
+      SELECT count(*)::int as total FROM official_site_items pr
+      JOIN officials s ON s.id = pr.official_id
+      WHERE pr.deleted_at IS NOT NULL
+        AND pr.content_type != 'photo_release'
+        AND s.status = 'active'
+        AND s.chamber IN ('senate','house')
+        AND s.jurisdiction = 'us'
+    `,
+    sql`
+      SELECT pr.id, pr.official_id, pr.title, pr.published_at, pr.body_text,
+             pr.source_url, pr.scraped_at, pr.content_type,
+             pr.deleted_at, pr.last_seen_live, pr.updated_at,
+             s.full_name as senator_name, s.party, s.state,
+             0 as version_count
+      FROM official_site_items pr
+      JOIN officials s ON s.id = pr.official_id
+      WHERE pr.deleted_at IS NOT NULL
+        AND pr.content_type != 'photo_release'
+        AND s.status = 'active'
+        AND s.chamber IN ('senate','house')
+        AND s.jurisdiction = 'us'
+      ORDER BY pr.deleted_at DESC
+      LIMIT ${perPage} OFFSET ${offset}
+    `,
+  ]);
   return {
     items: items as ReleaseDetail[],
     total: Number(countResult[0].total),
@@ -779,19 +781,19 @@ export async function getThemeSparkline({
   days?: number;
 }): Promise<{ date: string; count: number }[]> {
   if (!keywords || keywords.length === 0) return [];
-  const tsquery = keywords
-    .map((k) => k.trim().toLowerCase())
-    .filter(Boolean)
-    .map((k) =>
-      k
-        .split(/\s+/)
-        .map((w) => w.replace(/[^a-z0-9]/g, ""))
-        .filter(Boolean)
-        .join(" & ")
-    )
-    .filter(Boolean)
-    .map((q) => `(${q})`)
-    .join(" | ");
+  const parts: string[] = [];
+  for (const keyword of keywords) {
+    const words = keyword
+      .trim()
+      .toLowerCase()
+      .split(/\s+/)
+      .flatMap((word) => {
+        const cleaned = word.replace(/[^a-z0-9]/g, "");
+        return cleaned ? [cleaned] : [];
+      });
+    if (words.length > 0) parts.push(`(${words.join(" & ")})`);
+  }
+  const tsquery = parts.join(" | ");
   if (!tsquery) return [];
 
   const rows = (await sql`

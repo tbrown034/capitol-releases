@@ -3,16 +3,12 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getSenators, getHouseMembers, getFeed } from "../../lib/queries";
 import { sql } from "../../lib/db";
-import { STATE_NAMES, getStates } from "../../lib/states";
+import { STATE_NAMES } from "../../lib/states";
 import { ReleaseCard } from "../../components/release-card";
 import { formatMonthYear } from "../../lib/dates";
 import type { SenatorWithCount } from "../../lib/db";
 
-export const revalidate = 600;
-
-export async function generateStaticParams() {
-  return getStates().map((code) => ({ state: code.toLowerCase() }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -197,11 +193,11 @@ function MemberCard({
           alt={member.full_name}
           width={48}
           height={48}
-          className="h-12 w-12 object-cover object-top rounded-sm"
+          className="size-12 object-cover object-top rounded-sm"
           unoptimized
         />
       ) : (
-        <div className="h-12 w-12 bg-neutral-200 flex items-center justify-center text-xs text-neutral-500 rounded-sm">
+        <div className="size-12 bg-neutral-200 flex items-center justify-center text-xs text-neutral-500 rounded-sm">
           {member.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
         </div>
       )}
@@ -227,4 +223,3 @@ function MemberCard({
     </Link>
   );
 }
-

@@ -6,8 +6,11 @@ import { getSenatorPhotoUrl, getInitials } from "../../lib/photos";
 import { normalizeTitle } from "../../lib/titles";
 import { formatReleaseDate } from "../../lib/dates";
 
+// oxlint-disable-next-line react-doctor/only-export-components
 export const alt = "Capitol Releases — press release";
+// oxlint-disable-next-line react-doctor/only-export-components
 export const size = { width: 1200, height: 630 };
+// oxlint-disable-next-line react-doctor/only-export-components
 export const contentType = "image/png";
 
 const PARTY_COLOR = {
@@ -20,6 +23,69 @@ const PARTY_LABEL = {
   D: "Democrat",
   R: "Republican",
   I: "Independent",
+} as const;
+
+const fallbackStyle = {
+  display: "flex",
+  width: "100%",
+  height: "100%",
+  background: "#ffffff",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: 64,
+  color: "#171717",
+  fontFamily: "serif",
+} as const;
+
+const frameStyle = {
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  height: "100%",
+  background: "#ffffff",
+  padding: 60,
+  fontFamily: "system-ui, sans-serif",
+  color: "#171717",
+} as const;
+
+const topBarStyle = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  borderBottom: "2px solid #171717",
+  paddingBottom: 16,
+  marginBottom: 32,
+} as const;
+
+const senatorStripStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: 20,
+  marginBottom: 28,
+} as const;
+
+const fallbackPhotoStyle = {
+  display: "flex",
+  width: 88,
+  height: 88,
+  borderRadius: 999,
+  background: "#f5f5f5",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: 32,
+  fontWeight: 700,
+  color: "#525252",
+} as const;
+
+const footerStyle = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  borderTop: "1px solid #e5e5e5",
+  paddingTop: 18,
+  marginTop: 24,
+  fontSize: 18,
+  color: "#737373",
 } as const;
 
 async function loadPhoto(rel: { senator_name: string; official_id: string }) {
@@ -46,19 +112,7 @@ export default async function ReleaseOgImage({
   if (!rel) {
     return new ImageResponse(
       (
-        <div
-          style={{
-            display: "flex",
-            width: "100%",
-            height: "100%",
-            background: "#ffffff",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 64,
-            color: "#171717",
-            fontFamily: "serif",
-          }}
-        >
+        <div style={fallbackStyle}>
           Capitol Releases
         </div>
       ),
@@ -89,29 +143,9 @@ export default async function ReleaseOgImage({
 
   return new ImageResponse(
     (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          height: "100%",
-          background: "#ffffff",
-          padding: 60,
-          fontFamily: "system-ui, sans-serif",
-          color: "#171717",
-        }}
-      >
+      <div style={frameStyle}>
         {/* Top bar */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderBottom: "2px solid #171717",
-            paddingBottom: 16,
-            marginBottom: 32,
-          }}
-        >
+        <div style={topBarStyle}>
           <div
             style={{
               display: "flex",
@@ -137,16 +171,10 @@ export default async function ReleaseOgImage({
         </div>
 
         {/* Senator strip */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 20,
-            marginBottom: 28,
-          }}
-        >
+        <div style={senatorStripStyle}>
           {photo ? (
-            // eslint-disable-next-line @next/next/no-img-element
+            // ImageResponse renders raw HTML; next/image is not available here.
+            // oxlint-disable-next-line react-doctor/nextjs-no-img-element
             <img
               src={photo}
               alt=""
@@ -163,17 +191,8 @@ export default async function ReleaseOgImage({
           ) : (
             <div
               style={{
-                display: "flex",
-                width: 88,
-                height: 88,
-                borderRadius: 999,
-                background: "#f5f5f5",
+                ...fallbackPhotoStyle,
                 border: `4px solid ${partyColor}`,
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 32,
-                fontWeight: 700,
-                color: "#525252",
               }}
             >
               {getInitials(rel.senator_name)}
@@ -226,18 +245,7 @@ export default async function ReleaseOgImage({
         </div>
 
         {/* Footer */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderTop: "1px solid #e5e5e5",
-            paddingTop: 18,
-            marginTop: 24,
-            fontSize: 18,
-            color: "#737373",
-          }}
-        >
+        <div style={footerStyle}>
           <div style={{ display: "flex" }}>capitolreleases.com</div>
           <div style={{ display: "flex" }}>{sourceLine}</div>
         </div>

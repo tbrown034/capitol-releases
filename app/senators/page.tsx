@@ -1,5 +1,10 @@
 import { redirect } from "next/navigation";
 
+export const metadata = {
+  title: "Senators · Capitol Releases",
+  description: "Redirects to the U.S. Senate member directory.",
+};
+
 export default async function SenatorsDirectoryRedirect({
   searchParams,
 }: {

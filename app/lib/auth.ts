@@ -41,7 +41,3 @@ export const auth = betterAuth({
 export function isAdmin(email: string | undefined | null): boolean {
   return email === ADMIN_EMAIL;
 }
-
-export function isPaid(tier: string | undefined | null): boolean {
-  return tier === "paid" || tier === "pro";
-}

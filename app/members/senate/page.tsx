@@ -22,7 +22,7 @@ function formatBreakdown(
 }
 
 export const metadata = {
-  title: "Senate — Capitol Releases",
+  title: "Senate, Capitol Releases",
   description:
     "All 100 U.S. senators with publishing volume, latest release, and term info.",
 };
@@ -54,7 +54,7 @@ export default async function SenateDirectoryPage({
     ? senators.filter((s) => s.state === activeState)
     : senators;
 
-  const sorted = [...filtered].sort((a, b) => {
+  const sorted = filtered.toSorted((a, b) => {
     if (sortKey === "state") return a.state.localeCompare(b.state) || a.full_name.localeCompare(b.full_name);
     if (sortKey === "name") return a.full_name.localeCompare(b.full_name);
     return b.release_count - a.release_count;
@@ -145,11 +145,11 @@ export default async function SenateDirectoryPage({
                         alt={s.full_name}
                         width={32}
                         height={32}
-                        className="h-8 w-8 object-cover object-top"
+                        className="size-8 object-cover object-top"
                         unoptimized
                       />
                     ) : (
-                      <div className="h-8 w-8 bg-neutral-200 flex items-center justify-center text-[10px] text-neutral-400">
+                      <div className="size-8 bg-neutral-200 flex items-center justify-center text-[10px] text-neutral-400">
                         {s.full_name.split(" ").map(n => n[0]).join("").slice(0, 2)}
                       </div>
                     )}
@@ -179,7 +179,7 @@ export default async function SenateDirectoryPage({
                 </td>
                 <td className="py-2.5 pr-4 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-600 align-top">
                   {s.release_count > 0 ? s.release_count.toLocaleString() : (
-                    <span className="text-neutral-300">—</span>
+                    <span className="text-neutral-300">0</span>
                   )}
                 </td>
                 <td className="hidden sm:table-cell py-2.5 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-400 whitespace-nowrap align-top">

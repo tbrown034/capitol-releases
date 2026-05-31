@@ -49,7 +49,7 @@ export const revalidate = 600;
 
 // House bioguides whose photo is genuinely absent from the upstream
 // Library-of-Congress mirror at bioguide.congress.gov/bioguide/photo/...
-// AND from congress.gov/img/member/... — confirmed 2026-05-02 wave-3
+// AND from congress.gov/img/member/..., confirmed 2026-05-02 wave-3
 // during the bulk download of 437 photos. Treat these as photo-less
 // at render time so the page renders the initials placeholder rather
 // than a broken-image icon. Hand-source replacements in a follow-up
@@ -79,10 +79,10 @@ export async function generateMetadata({
 }) {
   const { id } = await params;
   const member = await getHouseMember(id);
-  if (!member) return { title: "Not Found — Capitol Releases" };
+  if (!member) return { title: "Not Found, Capitol Releases" };
   const district = formatDistrict(member.district);
   return {
-    title: `${member.full_name} — US House — Capitol Releases`,
+    title: `${member.full_name}, US House, Capitol Releases`,
     description: `Press releases, statements, and op-eds from Rep. ${member.full_name} (${member.party}-${member.state}${district ? `-${district}` : ""}), archived since January 2025.`,
   };
 }
@@ -94,8 +94,7 @@ export default async function HouseMemberPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const { id } = await params;
-  const sp = await searchParams;
+  const [{ id }, sp] = await Promise.all([params, searchParams]);
   const page = Number(sp.page ?? "1");
   const activeType =
     sp.type && VALID_TYPES.has(sp.type as ContentType)
@@ -161,11 +160,11 @@ export default async function HouseMemberPage({
             alt={member.full_name}
             width={72}
             height={72}
-            className="h-[72px] w-[72px] object-cover object-top shrink-0"
+            className="size-[72px] object-cover object-top shrink-0"
             unoptimized
           />
         ) : (
-          <div className="h-[72px] w-[72px] bg-neutral-200 flex items-center justify-center text-neutral-400 text-lg shrink-0">
+          <div className="size-[72px] bg-neutral-200 flex items-center justify-center text-neutral-400 text-lg shrink-0">
             {member.full_name
               .split(" ")
               .map((n) => n[0])
@@ -216,12 +215,12 @@ export default async function HouseMemberPage({
         {sinceLabel && <> since {sinceLabel}</>}.
       </p>
 
-      {/* Coverage transparency banner — surfaced when the seed has a
+      {/* Coverage transparency banner, surfaced when the seed has a
           coverage_status, expected_low_volume, or expected_zero flag.
           Methodology page documents the full taxonomy; this is the
           per-member explanation a journalist sees on landing. */}
       {coverage && (
-        <aside className="mb-6 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-neutral-800">
+        <aside className="mb-6 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-950">
           <p className="text-xs uppercase tracking-wider text-amber-900 font-semibold mb-2">
             Coverage note
           </p>
@@ -248,7 +247,7 @@ export default async function HouseMemberPage({
               </p>
               <p className="mt-2 text-xs text-neutral-600">
                 Committee output is not currently included in this archive
-                — that&rsquo;s scoped for v2. See the{" "}
+               , that&rsquo;s scoped for v2. See the{" "}
                 <Link href="/about" className="underline">about page</Link>{" "}
                 for the full coverage taxonomy.
               </p>
@@ -258,12 +257,12 @@ export default async function HouseMemberPage({
               This member&rsquo;s site uses a JavaScript-rendered listing
               (Next.js + GraphQL) that returns only the most recent ~10
               items via standard scraping. Full archive collection requires
-              a Playwright collector — tracked as v2 work. The records
+              a Playwright collector, tracked as v2 work. The records
               shown are real; they&rsquo;re just the visible recent slice.
             </p>
           ) : coverage.coverage_status === "pagination_js_required" ? (
             <p>
-              This member&rsquo;s listing is JavaScript-paginated — the
+              This member&rsquo;s listing is JavaScript-paginated, the
               server returns the same 20 items at every page request.
               Full archive collection requires a Playwright collector
               (v2 work). Records shown are real; they&rsquo;re the
@@ -272,7 +271,7 @@ export default async function HouseMemberPage({
           ) : coverage.coverage_status === "listing_horizon" ? (
             <p>
               This member&rsquo;s site listing caps at the records shown
-              — deeper pagination doesn&rsquo;t expose earlier content.
+             , deeper pagination doesn&rsquo;t expose earlier content.
               Likely a CMS migration cutoff. The records shown are real
               and complete from the listing&rsquo;s earliest visible date.
             </p>

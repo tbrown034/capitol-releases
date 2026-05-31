@@ -173,9 +173,9 @@ async function getCoverageRows(): Promise<[string, string, string][]> {
 }
 
 function normalizeRows(): LowVolumeRow[] {
-  const senateRows = (senateSeed.members as SeedMember[])
-    .filter((m) => m.expected_low_volume || m.expected_zero)
-    .map((m) => ({
+  const senateRows = (senateSeed.members as SeedMember[]).flatMap((m) =>
+    m.expected_low_volume || m.expected_zero
+      ? [{
       id: m.official_id ?? m.full_name,
       name: m.full_name,
       chamber: "Senate" as const,
@@ -183,11 +183,13 @@ function normalizeRows(): LowVolumeRow[] {
       status: m.expected_zero ? "Expected zero" : "Expected low volume",
       reason: m.low_volume_reason ?? m.notes ?? "Seed reason pending",
       lastVerified: m.last_verified ?? "Pending",
-    }));
+    }]
+      : []
+  );
 
-  const houseRows = (houseSeed.members as SeedMember[])
-    .filter((m) => m.expected_low_volume || m.expected_zero)
-    .map((m) => ({
+  const houseRows = (houseSeed.members as SeedMember[]).flatMap((m) =>
+    m.expected_low_volume || m.expected_zero
+      ? [{
       id: m.member_id ?? m.full_name,
       name: m.full_name,
       chamber: "House" as const,
@@ -196,13 +198,15 @@ function normalizeRows(): LowVolumeRow[] {
       status: m.expected_zero ? "Expected zero" : "Expected low volume",
       reason: m.low_volume_reason ?? m.notes ?? "Seed reason pending",
       lastVerified: m.last_verified ?? "Pending",
-    }));
+    }]
+      : []
+  );
 
   return [...senateRows, ...houseRows];
 }
 
 function sortRows(rows: LowVolumeRow[], sort: SortKey): LowVolumeRow[] {
-  return [...rows].sort((a, b) => {
+  return rows.toSorted((a, b) => {
     if (sort === "chamber") {
       return a.chamber.localeCompare(b.chamber) || a.name.localeCompare(b.name);
     }

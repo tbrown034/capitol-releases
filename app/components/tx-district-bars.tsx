@@ -13,6 +13,11 @@ type Row = {
 };
 
 const PARTY_COLOR = { D: "#3b82f6", R: "#ef4444", I: "#f59e0b" } as const;
+const ROW_HEIGHT = 22;
+const LABEL_WIDTH = 168;
+const VALUE_WIDTH = 36;
+const MARGIN = { top: 4, right: 8, bottom: 22, left: LABEL_WIDTH + 8 } as const;
+const SVG_WIDTH = 720;
 
 function familyName(full: string): string {
   // "Juan \"Chuy\" Hinojosa" -> "Hinojosa"; "José Menéndez" -> "Menéndez"
@@ -24,36 +29,28 @@ export function TxDistrictBars({ rows }: { rows: Row[] }) {
 
   // Sort highest-volume first; zero-record senators stack at the bottom in
   // district order so the "silent caucus" reads as a contiguous block.
-  const sorted = [...rows].sort((a, b) => {
+  const sorted = rows.toSorted((a, b) => {
     if (b.release_count !== a.release_count) return b.release_count - a.release_count;
     return a.district - b.district;
   });
 
   const max = Math.max(1, ...sorted.map((r) => r.release_count));
-  const rowHeight = 22;
-  const labelW = 168;
-  const valueW = 36;
-  // Bottom margin holds an in-SVG source credit so the chart survives a
-  // screenshot crop. r/dataisbeautiful and most reposters lose anything
-  // outside the image; baking attribution into the SVG keeps it visible.
-  const margin = { top: 4, right: 8, bottom: 22, left: labelW + 8 };
-  const svgW = 720;
-  const svgH = margin.top + sorted.length * rowHeight + margin.bottom;
+  const svgH = MARGIN.top + sorted.length * ROW_HEIGHT + MARGIN.bottom;
   const total = sorted.reduce((s, r) => s + r.release_count, 0);
   const silentCount = sorted.filter((r) => r.release_count === 0).length;
 
   useEffect(() => {
     if (!svgRef.current) return;
-    const innerW = svgW - margin.left - margin.right - valueW;
+    const innerW = SVG_WIDTH - MARGIN.left - MARGIN.right - VALUE_WIDTH;
     const x = d3.scaleLinear().domain([0, max]).range([0, innerW]);
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
-    svg.attr("viewBox", `0 0 ${svgW} ${svgH}`);
-    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+    svg.attr("viewBox", `0 0 ${SVG_WIDTH} ${svgH}`);
+    const g = svg.append("g").attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
 
     sorted.forEach((r, i) => {
-      const y = i * rowHeight;
+      const y = i * ROW_HEIGHT;
       const baseColor = PARTY_COLOR[r.party];
       const isZero = r.release_count === 0;
 
@@ -66,10 +63,10 @@ export function TxDistrictBars({ rows }: { rows: Row[] }) {
       // Hover band
       const band = link
         .append("rect")
-        .attr("x", -margin.left)
+        .attr("x", -MARGIN.left)
         .attr("y", y)
-        .attr("width", svgW)
-        .attr("height", rowHeight)
+        .attr("width", SVG_WIDTH)
+        .attr("height", ROW_HEIGHT)
         .attr("fill", i % 2 === 1 ? "#fafaf9" : "transparent")
         .style("transition", "fill 120ms");
       link
@@ -79,8 +76,8 @@ export function TxDistrictBars({ rows }: { rows: Row[] }) {
       // District badge
       link
         .append("text")
-        .attr("x", -margin.left + 6)
-        .attr("y", y + rowHeight / 2)
+        .attr("x", -MARGIN.left + 6)
+        .attr("y", y + ROW_HEIGHT / 2)
         .attr("dominant-baseline", "middle")
         .attr("font-size", 10)
         .attr("font-family", "ui-monospace,SFMono-Regular,Menlo,monospace")
@@ -91,7 +88,7 @@ export function TxDistrictBars({ rows }: { rows: Row[] }) {
       link
         .append("text")
         .attr("x", -8)
-        .attr("y", y + rowHeight / 2)
+        .attr("y", y + ROW_HEIGHT / 2)
         .attr("text-anchor", "end")
         .attr("dominant-baseline", "middle")
         .attr("font-size", 11)
@@ -105,8 +102,8 @@ export function TxDistrictBars({ rows }: { rows: Row[] }) {
           .append("line")
           .attr("x1", 0)
           .attr("x2", 28)
-          .attr("y1", y + rowHeight / 2)
-          .attr("y2", y + rowHeight / 2)
+          .attr("y1", y + ROW_HEIGHT / 2)
+          .attr("y2", y + ROW_HEIGHT / 2)
           .attr("stroke", "#d6d3d1")
           .attr("stroke-width", 1.5)
           .attr("stroke-dasharray", "2,2");
@@ -116,7 +113,7 @@ export function TxDistrictBars({ rows }: { rows: Row[] }) {
           .attr("x", 0)
           .attr("y", y + 4)
           .attr("width", x(r.release_count))
-          .attr("height", rowHeight - 8)
+          .attr("height", ROW_HEIGHT - 8)
           .attr("rx", 2)
           .attr("fill", baseColor)
           .attr("opacity", 0.85);
@@ -125,8 +122,8 @@ export function TxDistrictBars({ rows }: { rows: Row[] }) {
       // Count
       link
         .append("text")
-        .attr("x", innerW + valueW - 4)
-        .attr("y", y + rowHeight / 2)
+        .attr("x", innerW + VALUE_WIDTH - 4)
+        .attr("y", y + ROW_HEIGHT / 2)
         .attr("text-anchor", "end")
         .attr("dominant-baseline", "middle")
         .attr("font-size", 11)
@@ -137,22 +134,30 @@ export function TxDistrictBars({ rows }: { rows: Row[] }) {
     });
 
     // Source credit baked into the SVG bottom — survives a screenshot crop.
-    const creditY = sorted.length * rowHeight + 14;
+    const creditY = sorted.length * ROW_HEIGHT + 14;
     g.append("text")
-      .attr("x", -margin.left + 4)
+      .attr("x", -MARGIN.left + 4)
       .attr("y", creditY)
       .attr("font-size", 10)
       .attr("fill", "#a3a3a3")
       .attr("font-family", "system-ui, -apple-system, sans-serif")
       .text(`${silentCount} of ${sorted.length} senators have published nothing · n=${total} releases`);
     g.append("text")
-      .attr("x", innerW + valueW - 4)
+      .attr("x", innerW + VALUE_WIDTH - 4)
       .attr("y", creditY)
       .attr("text-anchor", "end")
       .attr("font-size", 10)
       .attr("fill", "#a3a3a3")
       .attr("font-family", "system-ui, -apple-system, sans-serif")
       .text("Capitol Releases · capitolreleases.com/texas");
+
+    return () => {
+      svg.selectAll("*")
+        .on("mouseenter", null)
+        .on("mouseleave", null)
+        .on("mousemove", null)
+        .remove();
+    };
   }, [sorted, max, svgH, total, silentCount]);
 
   return (
@@ -163,7 +168,7 @@ export function TxDistrictBars({ rows }: { rows: Row[] }) {
         aria-label={`Press release volume per Texas state senator since Jan 2025. ${sorted.filter((r) => r.release_count === 0).length} senators have published nothing.`}
         width="100%"
         height={svgH}
-        viewBox={`0 0 ${svgW} ${svgH}`}
+        viewBox={`0 0 ${SVG_WIDTH} ${svgH}`}
         preserveAspectRatio="xMinYMin meet"
         className="block w-full h-auto"
       />

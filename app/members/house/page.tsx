@@ -28,7 +28,7 @@ function formatDistrict(d: string | null | undefined): string {
 }
 
 export const metadata = {
-  title: "House — Capitol Releases",
+  title: "House, Capitol Releases",
   description:
     "All 437 U.S. House members with publishing volume, latest release, and district info.",
 };
@@ -60,7 +60,7 @@ export default async function HouseDirectoryPage({
     ? members.filter((m) => m.state === activeState)
     : members;
 
-  const sorted = [...filtered].sort((a, b) => {
+  const sorted = filtered.toSorted((a, b) => {
     if (sortKey === "state") {
       const s = a.state.localeCompare(b.state);
       if (s !== 0) return s;
@@ -161,11 +161,11 @@ export default async function HouseDirectoryPage({
                           alt={m.full_name}
                           width={32}
                           height={32}
-                          className="h-8 w-8 object-cover object-top"
+                          className="size-8 object-cover object-top"
                           unoptimized
                         />
                       ) : (
-                        <div className="h-8 w-8 bg-neutral-200 flex items-center justify-center text-[10px] text-neutral-400">
+                        <div className="size-8 bg-neutral-200 flex items-center justify-center text-[10px] text-neutral-400">
                           {m.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                         </div>
                       )}
@@ -206,7 +206,7 @@ export default async function HouseDirectoryPage({
                     {m.release_count > 0 ? (
                       m.release_count.toLocaleString()
                     ) : (
-                      <span className="text-neutral-300">—</span>
+                      <span className="text-neutral-300">0</span>
                     )}
                   </td>
                   <td className="hidden sm:table-cell py-2.5 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-400 whitespace-nowrap align-top">
@@ -220,8 +220,7 @@ export default async function HouseDirectoryPage({
       </div>
 
       <p className="text-xs text-neutral-500 mt-10 max-w-2xl leading-relaxed">
-        Coverage horizon: January 1, 2025 forward. Members showing &quot;—&quot;
-        for record count are recon-discovered but their listings need manual
+        Coverage horizon: January 1, 2025 forward. Members showing zero records are recon-discovered but their listings need manual
         triage; the daily collector picks them up automatically once promoted.
       </p>
     </div>

@@ -20,10 +20,10 @@ function rfc822(d: string | null): string {
 }
 
 function paragraphs(text: string): string[] {
-  return text
-    .split(/\n\n+/)
-    .map((p) => p.trim())
-    .filter(Boolean);
+  return text.split(/\n\n+/).flatMap((p) => {
+    const trimmed = p.trim();
+    return trimmed ? [trimmed] : [];
+  });
 }
 
 export async function GET() {

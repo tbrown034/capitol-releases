@@ -52,6 +52,7 @@ class WhitehouseCollector:
                 merged.errors.append(f"{url}: {type(e).__name__}: {e}")
                 continue
             merged.releases.extend(r.releases)
+            merged.seen_urls.update(r.seen_urls)
             merged.errors.extend(f"{url}: {err}" for err in r.errors)
             merged.pages_scraped += r.pages_scraped
 

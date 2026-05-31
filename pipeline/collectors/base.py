@@ -32,6 +32,7 @@ class CollectorResult:
     official_id: str
     method: str                          # rss, httpx, playwright
     releases: list[ReleaseRecord] = field(default_factory=list)
+    seen_urls: set[str] = field(default_factory=set)
     pages_scraped: int = 0
     inserted: int = 0
     skipped: int = 0

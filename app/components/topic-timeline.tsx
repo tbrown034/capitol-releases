@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef } from "react";
 import * as d3 from "d3";
 import Link from "next/link";
 import { normalizeTitle } from "../lib/titles";
@@ -28,30 +28,51 @@ type Hover = { week: string; count: number; cx: number; isSpike: boolean } | nul
 
 const PRESETS = ["Trump", "Iran", "Ukraine", "fentanyl", "Medicaid", "abortion"];
 
-export function TopicTimeline({ initialTerm }: { initialTerm: string }) {
-  const [term, setTerm] = useState(initialTerm);
-  const [data, setData] = useState<TimelineData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [input, setInput] = useState("");
-  const [hover, setHover] = useState<Hover>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
+type TimelineState = {
+  term: string;
+  data: TimelineData | null;
+  loading: boolean;
+  input: string;
+  hover: Hover;
+};
 
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    fetch(`/api/trending/timeline?term=${encodeURIComponent(term)}`)
-      .then((r) => r.json())
-      .then((d: TimelineData) => {
-        if (!cancelled) {
-          setData(d);
-          setLoading(false);
-        }
-      })
-      .catch(() => !cancelled && setLoading(false));
-    return () => {
-      cancelled = true;
-    };
-  }, [term]);
+type TimelineAction =
+  | { type: "input"; input: string }
+  | { type: "hover"; hover: Hover }
+  | { type: "loading"; term: string }
+  | { type: "loaded"; data: TimelineData };
+
+function timelineReducer(state: TimelineState, action: TimelineAction): TimelineState {
+  switch (action.type) {
+    case "input":
+      return { ...state, input: action.input };
+    case "hover":
+      return { ...state, hover: action.hover };
+    case "loading":
+      return { ...state, term: action.term, input: "", loading: true };
+    case "loaded":
+      return { ...state, data: action.data, loading: false };
+  }
+}
+
+export function TopicTimeline({
+  initialTerm,
+  initialData,
+}: {
+  initialTerm: string;
+  initialData: TimelineData;
+}) {
+  const [{ term, data, loading, input, hover }, dispatch] = useReducer(
+    timelineReducer,
+    {
+      term: initialTerm,
+      data: initialData,
+      loading: false,
+      input: "",
+      hover: null,
+    }
+  );
+  const svgRef = useRef<SVGSVGElement>(null);
 
   const spikeWeeks = useMemo(
     () => new Set(data?.spikeHeadlines.map((h) => h.week) ?? []),
@@ -131,23 +152,46 @@ export function TopicTimeline({ initialTerm }: { initialTerm: string }) {
       .style("cursor", "crosshair")
       .on("mouseenter", function (_event, d) {
         bars.filter((b) => b === d).attr("fill-opacity", 1);
-        setHover({
+        dispatch({
+          type: "hover",
+          hover: {
           week: d.week,
           count: d.count,
           cx: margin.left + x(d.date),
           isSpike: spikeWeeks.has(d.week),
+          },
         });
       })
       .on("mouseleave", function (_event, d) {
         bars.filter((b) => b === d).attr("fill-opacity", baseOpacity(d.week, d.count));
-        setHover(null);
+        dispatch({ type: "hover", hover: null });
       });
+
+    return () => {
+      svg.selectAll("*")
+        .on("mouseenter", null)
+        .on("mouseleave", null)
+        .on("mousemove", null)
+        .remove();
+    };
   }, [data, spikeWeeks]);
 
-  const submitTerm = (raw: string) => {
+  const submitTerm = async (raw: string) => {
     const cleaned = raw.trim().replace(/[^a-zA-Z0-9 \-']/g, "").slice(0, 40);
     if (!cleaned) return;
-    setTerm(cleaned);
+    dispatch({ type: "loading", term: cleaned });
+    try {
+      const response = await fetch(
+        `/api/trending/timeline?term=${encodeURIComponent(cleaned)}`
+      );
+      const nextData = (await response.json()) as TimelineData;
+      dispatch({ type: "loaded", data: nextData });
+    } catch {
+      dispatch({
+        type: "loaded",
+        data: data ?? { weekly: [], spikeHeadlines: [], term: cleaned },
+      });
+    }
   };
 
   return (
@@ -162,7 +206,7 @@ export function TopicTimeline({ initialTerm }: { initialTerm: string }) {
             <button
               key={t}
               type="button"
-              onClick={() => submitTerm(t)}
+              onClick={() => void submitTerm(t)}
               className={`text-xs rounded-full border px-2.5 py-0.5 transition-colors ${
                 selected
                   ? "border-neutral-900 bg-neutral-900 text-white"
@@ -173,23 +217,21 @@ export function TopicTimeline({ initialTerm }: { initialTerm: string }) {
             </button>
           );
         })}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            submitTerm(input);
-            setInput("");
-          }}
-          className="inline-flex"
-        >
+        <div className="inline-flex">
           <input
             type="text"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => dispatch({ type: "input", input: e.target.value })}
+            onKeyDown={async (e) => {
+              if (e.key !== "Enter") return;
+              await submitTerm(input);
+            }}
+            aria-label="Search custom topic"
             placeholder="Custom term…"
             maxLength={40}
-            className="rounded-full border border-dashed border-neutral-300 bg-white px-2.5 py-0.5 text-xs text-neutral-700 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-500 w-32"
+            className="w-32 rounded-full border border-dashed border-neutral-300 bg-white px-2.5 py-0.5 text-xs text-neutral-700 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-500"
           />
-        </form>
+        </div>
       </div>
 
       <div className="relative overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">

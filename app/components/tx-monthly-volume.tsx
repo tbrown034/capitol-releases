@@ -5,6 +5,10 @@ import { useEffect, useRef } from "react";
 
 type Bar = { month: string; count: number };
 
+const CHART_WIDTH = 720;
+const CHART_HEIGHT = 220;
+const CHART_MARGIN = { top: 18, right: 12, bottom: 48, left: 32 };
+
 // Vertical-bar monthly-volume chart with annotated session windows.
 // The Texas Legislature meets in regular session January-May of
 // odd-numbered years; the chart highlights the 2025 regular session and
@@ -12,30 +16,29 @@ type Bar = { month: string; count: number };
 export function TxMonthlyVolume({ data }: { data: Bar[] }) {
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const w = 720;
-  const h = 220;
-  // Bottom margin reserves space for both the X-axis month labels and an
-  // in-SVG source credit so the chart survives screenshot crops.
-  const margin = { top: 18, right: 12, bottom: 48, left: 32 };
-
   useEffect(() => {
     if (!svgRef.current || data.length === 0) return;
 
-    const innerW = w - margin.left - margin.right;
-    const innerH = h - margin.top - margin.bottom;
+    const innerW = CHART_WIDTH - CHART_MARGIN.left - CHART_MARGIN.right;
+    const innerH = CHART_HEIGHT - CHART_MARGIN.top - CHART_MARGIN.bottom;
 
-    const months = data.map((d) => d.month);
+    const months: string[] = [];
+    let maxCount = 1;
+    for (const point of data) {
+      months.push(point.month);
+      if (point.count > maxCount) maxCount = point.count;
+    }
     const x = d3.scaleBand<string>().domain(months).range([0, innerW]).padding(0.18);
     const y = d3
       .scaleLinear()
-      .domain([0, d3.max(data, (d) => d.count) ?? 1])
+      .domain([0, maxCount])
       .nice()
       .range([innerH, 0]);
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
-    svg.attr("viewBox", `0 0 ${w} ${h}`);
-    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+    svg.attr("viewBox", `0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`);
+    const g = svg.append("g").attr("transform", `translate(${CHART_MARGIN.left},${CHART_MARGIN.top})`);
 
     // Session band: 2025 regular session, Jan 14 -- June 2 (rendered as
     // shaded background spanning the months that fall in that window).
@@ -139,8 +142,8 @@ export function TxMonthlyVolume({ data }: { data: Bar[] }) {
       role="img"
       aria-label="Monthly press release volume from the Texas Senate, January 2025 through present, with the 2025 regular legislative session highlighted."
       width="100%"
-      height={h}
-      viewBox={`0 0 ${w} ${h}`}
+      height={CHART_HEIGHT}
+      viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
       preserveAspectRatio="xMinYMin meet"
       className="block w-full h-auto"
     />

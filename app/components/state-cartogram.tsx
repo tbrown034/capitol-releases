@@ -102,15 +102,15 @@ export function StateCartogram({
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500">
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-3 bg-blue-100 border border-blue-200" />
+          <span className="inline-block size-3 bg-blue-100 border border-blue-200" />
           Both Democrat
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-3 bg-red-100 border border-red-200" />
+          <span className="inline-block size-3 bg-red-100 border border-red-200" />
           Both Republican
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-3 bg-purple-100 border border-purple-200" />
+          <span className="inline-block size-3 bg-purple-100 border border-purple-200" />
           Split
         </span>
       </div>

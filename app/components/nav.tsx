@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 type NavItem = { href: string; label: string };
@@ -21,6 +22,10 @@ const trailing: NavItem[] = [
   { href: "/about", label: "About" },
 ];
 
+function linkClass(active: boolean) {
+  return `transition-colors ${active ? "text-neutral-900" : "hover:text-neutral-900"}`;
+}
+
 export function Nav() {
   const [open, setOpen] = useState(false);
   const [membersOpen, setMembersOpen] = useState(false);
@@ -39,15 +44,11 @@ export function Nav() {
     return () => document.removeEventListener("mousedown", onDocClick);
   }, [membersOpen]);
 
-  const linkClass = (active: boolean) =>
-    `transition-colors ${active ? "text-neutral-900" : "hover:text-neutral-900"}`;
-
   return (
     <header className="border-b border-neutral-200 relative">
-      <nav className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
+      <nav className="mx-auto max-w-5xl p-4 flex items-center justify-between">
         <Link href="/" aria-label="Capitol Releases home">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.svg" alt="Capitol Releases" className="h-8" />
+          <Image src="/logo.svg" alt="Capitol Releases" width={192} height={32} className="h-8 w-auto" />
         </Link>
 
         <div className="hidden md:flex items-center gap-5 text-sm text-neutral-500">
@@ -77,6 +78,7 @@ export function Nav() {
                 className="absolute left-0 top-full mt-2 min-w-[160px] rounded-md border border-neutral-200 bg-white py-1 shadow-sm z-40"
                 onMouseLeave={() => setMembersOpen(false)}
                 role="menu"
+                tabIndex={-1}
               >
                 <Link
                   href="/members"
@@ -126,6 +128,7 @@ export function Nav() {
 
         <div className="flex md:hidden items-center">
           <button
+            type="button"
             onClick={() => setOpen(!open)}
             className="p-1.5 -mr-1.5 cursor-pointer"
             aria-label={open ? "Close menu" : "Open menu"}
@@ -149,17 +152,20 @@ export function Nav() {
       </nav>
 
       {open && (
-        <div
-          className="md:hidden fixed inset-0 z-50 bg-white"
-          onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
-        >
-          <div className="border-b border-neutral-200">
-            <div className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
+        <div className="md:hidden fixed inset-0 z-50 bg-white">
+          <button
+            type="button"
+            className="absolute inset-0 cursor-default"
+            onClick={() => setOpen(false)}
+            aria-label="Close mobile menu"
+          />
+          <div className="relative border-b border-neutral-200 bg-white">
+            <div className="mx-auto max-w-5xl p-4 flex items-center justify-between">
               <Link href="/" aria-label="Capitol Releases home" onClick={() => setOpen(false)}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.svg" alt="Capitol Releases" className="h-8" />
+                <Image src="/logo.svg" alt="Capitol Releases" width={192} height={32} className="h-8 w-auto" />
               </Link>
               <button
+                type="button"
                 onClick={() => setOpen(false)}
                 className="p-1.5 -mr-1.5 cursor-pointer"
                 aria-label="Close menu"
@@ -171,7 +177,7 @@ export function Nav() {
               </button>
             </div>
           </div>
-          <div className="mx-auto max-w-5xl px-4 py-6 flex flex-col gap-1">
+          <div className="relative mx-auto max-w-5xl px-4 py-6 flex flex-col gap-1 bg-white">
             <div className="py-3 border-b border-neutral-100">
               <p className="text-[11px] uppercase tracking-wider text-neutral-400 mb-2">Members</p>
               <Link

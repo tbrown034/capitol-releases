@@ -36,6 +36,7 @@ export default function Error({
       </p>
       <div className="flex flex-wrap gap-3 mt-6">
         <button
+          type="button"
           onClick={reset}
           className="rounded-full border border-neutral-900 bg-neutral-900 text-white px-4 py-1.5 text-sm hover:bg-neutral-700 transition-colors cursor-pointer"
         >

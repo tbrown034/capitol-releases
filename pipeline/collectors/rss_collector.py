@@ -60,6 +60,9 @@ class RSSCollector:
             result.pages_scraped = 1
 
             for item in items:
+                if item.url:
+                    result.seen_urls.add(normalize_url(item.url))
+
                 # Skip external content (In the News links, social, non-.gov)
                 if is_external_content(item.url, item.title):
                     continue

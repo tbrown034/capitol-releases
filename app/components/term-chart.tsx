@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef } from "react";
 import * as d3 from "d3";
 import { formatReleaseDate } from "../lib/dates";
 import { drawYGrid, drawTimeAxis } from "./chart-axes";
@@ -16,37 +16,60 @@ const PALETTE = [
 ];
 
 type Series = Record<string, { week: string; count: number }[]>;
+type ChartState = {
+  terms: string[];
+  series: Series;
+  input: string;
+  loading: boolean;
+  hover: { week: string } | null;
+};
+type ChartAction =
+  | { type: "input"; input: string }
+  | { type: "hover"; hover: { week: string } | null }
+  | { type: "remove"; term: string }
+  | { type: "loading"; terms: string[] }
+  | { type: "loaded"; series: Series };
 
-export function TermChart({ initialTerms }: { initialTerms: string[] }) {
-  const [terms, setTerms] = useState<string[]>(initialTerms);
-  const [series, setSeries] = useState<Series>({});
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [hover, setHover] = useState<{ week: string } | null>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    if (terms.length === 0) {
-      setSeries({});
-      setLoading(false);
-      return;
+function chartReducer(state: ChartState, action: ChartAction): ChartState {
+  switch (action.type) {
+    case "input":
+      return { ...state, input: action.input };
+    case "hover":
+      return { ...state, hover: action.hover };
+    case "remove": {
+      const nextSeries = { ...state.series };
+      delete nextSeries[action.term];
+      return {
+        ...state,
+        terms: state.terms.filter((term) => term !== action.term),
+        series: nextSeries,
+      };
     }
-    setLoading(true);
-    fetch(`/api/trending/series?q=${encodeURIComponent(terms.join(","))}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (cancelled) return;
-        setSeries(data.series ?? {});
-        setLoading(false);
-      })
-      .catch(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [terms]);
+    case "loading":
+      return { ...state, terms: action.terms, input: "", loading: true };
+    case "loaded":
+      return { ...state, series: action.series, loading: false };
+  }
+}
+
+export function TermChart({
+  initialTerms,
+  initialSeries,
+}: {
+  initialTerms: string[];
+  initialSeries: Series;
+}) {
+  const [{ terms, series, input, loading, hover }, dispatch] = useReducer(
+    chartReducer,
+    {
+      terms: initialTerms,
+      series: initialSeries,
+      input: "",
+      loading: false,
+      hover: null,
+    }
+  );
+  const svgRef = useRef<SVGSVGElement>(null);
 
   const colorFor = useMemo(() => {
     const m = new Map<string, string>();
@@ -198,7 +221,7 @@ export function TermChart({ initialTerms }: { initialTerms: string[] }) {
       .on("mouseenter", () => focus.style("display", null))
       .on("mouseleave", () => {
         focus.style("display", "none");
-        setHover(null);
+        dispatch({ type: "hover", hover: null });
       })
       .on("mousemove", (event) => {
         const [mx] = d3.pointer(event);
@@ -221,16 +244,36 @@ export function TermChart({ initialTerms }: { initialTerms: string[] }) {
             const row = (series[t] ?? []).find((r) => r.week === nearestWeek);
             return row ? y(row.count) : -100;
           });
-        setHover({ week: nearestWeek });
+        dispatch({ type: "hover", hover: { week: nearestWeek } });
       });
+
+    return () => {
+      svg.selectAll("*")
+        .on("mouseenter", null)
+        .on("mouseleave", null)
+        .on("mousemove", null)
+        .remove();
+    };
   }, [series, terms, colorFor, allWeeks]);
 
-  const removeTerm = (t: string) => setTerms((cur) => cur.filter((x) => x !== t));
-  const addTerm = (raw: string) => {
+  const removeTerm = (t: string) => {
+    dispatch({ type: "remove", term: t });
+  };
+  const addTerm = async (raw: string) => {
     const cleaned = raw.trim().replace(/[^a-zA-Z0-9 \-']/g, "").slice(0, 40);
     if (!cleaned || terms.length >= MAX_TERMS) return;
     if (terms.some((t) => t.toLowerCase() === cleaned.toLowerCase())) return;
-    setTerms((cur) => [...cur, cleaned]);
+    const nextTerms = [...terms, cleaned];
+    dispatch({ type: "loading", terms: nextTerms });
+    try {
+      const response = await fetch(
+        `/api/trending/series?q=${encodeURIComponent(nextTerms.join(","))}`
+      );
+      const data = await response.json();
+      dispatch({ type: "loaded", series: data.series ?? {} });
+    } catch {
+      dispatch({ type: "loaded", series });
+    }
   };
 
   const hoverRow = hover ? matrix.get(hover.week) : null;
@@ -246,7 +289,7 @@ export function TermChart({ initialTerms }: { initialTerms: string[] }) {
             style={{ borderColor: colorFor(t), color: colorFor(t) }}
           >
             <span
-              className="inline-block h-2 w-2 rounded-full"
+              className="inline-block size-2 rounded-full"
               style={{ background: colorFor(t) }}
             />
             <span className="font-medium">{t}</span>
@@ -261,23 +304,21 @@ export function TermChart({ initialTerms }: { initialTerms: string[] }) {
           </span>
         ))}
         {terms.length < MAX_TERMS && (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              addTerm(input);
-              setInput("");
-            }}
-            className="inline-flex"
-          >
+          <div className="inline-flex">
             <input
               type="text"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => dispatch({ type: "input", input: e.target.value })}
+              onKeyDown={async (e) => {
+                if (e.key !== "Enter") return;
+                await addTerm(input);
+              }}
+              aria-label="Add comparison term"
               placeholder="Add term…"
               maxLength={40}
-              className="rounded-full border border-dashed border-neutral-300 bg-white px-2.5 py-0.5 text-xs text-neutral-700 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-500 w-28"
+              className="w-28 rounded-full border border-dashed border-neutral-300 bg-white px-2.5 py-0.5 text-xs text-neutral-700 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-500"
             />
-          </form>
+          </div>
         )}
       </div>
 
@@ -310,7 +351,7 @@ export function TermChart({ initialTerms }: { initialTerms: string[] }) {
           {terms.map((t) => (
             <span key={t} className="inline-flex items-center gap-1">
               <span
-                className="inline-block h-2 w-2 rounded-full"
+                className="inline-block size-2 rounded-full"
                 style={{ background: colorFor(t) }}
               />
               <span className="text-neutral-700">{t}</span>
@@ -324,7 +365,7 @@ export function TermChart({ initialTerms }: { initialTerms: string[] }) {
 
       <p className="mt-3 text-xs text-neutral-500">
         Weekly mentions in release titles + bodies, since Jan 2025. Stemming
-        included — e.g. <em>Iran</em> matches <em>Iranian</em>.
+        included, e.g. <em>Iran</em> matches <em>Iranian</em>.
       </p>
     </div>
   );

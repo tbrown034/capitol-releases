@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   getReleaseById,
   getRelatedReleases,
@@ -46,22 +47,30 @@ export async function generateMetadata({
   };
 }
 
-function renderBody(text: string | null) {
-  if (!text) return null;
+function ReleaseBody({ text }: { text: string }) {
   const paragraphs = text
     .split(/\n\s*\n/)
-    .map((p) => p.trim())
-    .filter(Boolean);
-  return paragraphs.map((p, i) => (
-    <p key={i} className="mb-4 last:mb-0">
-      {p.split(/\n/).map((line, j, arr) => (
-        <span key={j}>
-          {line}
-          {j < arr.length - 1 && <br />}
-        </span>
-      ))}
-    </p>
-  ));
+    .flatMap((p) => {
+      const trimmed = p.trim();
+      return trimmed ? [trimmed] : [];
+    });
+  return (
+    <>
+      {paragraphs.map((paragraph) => {
+        const lines = paragraph.split(/\n/);
+        return (
+          <p key={paragraph} className="mb-4 last:mb-0">
+            {lines.map((line, index) => (
+              <span key={`${line}-${index}`}>
+                {line}
+                {index < lines.length - 1 && <br />}
+              </span>
+            ))}
+          </p>
+        );
+      })}
+    </>
+  );
 }
 
 export default async function ReleasePage({
@@ -116,7 +125,7 @@ export default async function ReleasePage({
       </Link>
 
       {isFuture && (
-        <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 px-4 py-3">
+        <div className="mt-6 rounded border border-amber-200 bg-amber-50 px-4 py-3">
           <p className="text-sm text-amber-900">
             <span className="font-semibold">Date discrepancy.</span>{" "}
             The senator&apos;s office published this release with a date of{" "}
@@ -135,7 +144,7 @@ export default async function ReleasePage({
       )}
 
       {isDeleted && (
-        <div className="mt-6 border-l-4 border-amber-400 bg-amber-50 px-4 py-3">
+        <div className="mt-6 rounded border border-amber-200 bg-amber-50 px-4 py-3">
           <p className="text-sm text-amber-900">
             <span className="font-semibold">No longer reachable on{" "}{host}.</span>{" "}
             The source URL stopped resolving on repeated checks (first noted{" "}
@@ -156,17 +165,17 @@ export default async function ReleasePage({
       {/* Senator strip */}
       <div className="mt-6 flex items-center gap-3">
         {photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={photo}
             alt={`${release.senator_name} (${release.party}-${release.state})`}
             width={40}
             height={40}
-            className={`h-10 w-10 rounded-full object-cover ring-1 ${partyRing}`}
+            className={`size-10 rounded-full object-cover ring-1 ${partyRing}`}
+            unoptimized
           />
         ) : (
           <span
-            className={`flex h-10 w-10 items-center justify-center rounded-full bg-neutral-100 text-xs font-medium text-neutral-500 ring-1 ${partyRing}`}
+            className={`flex size-10 items-center justify-center rounded-full bg-neutral-100 text-xs font-medium text-neutral-500 ring-1 ${partyRing}`}
           >
             {getInitials(release.senator_name)}
           </span>
@@ -219,9 +228,11 @@ export default async function ReleasePage({
       {/* Body */}
       <div className="prose prose-neutral mt-6 max-w-none text-neutral-800 leading-relaxed">
         {release.body_text ? (
-          <div className="text-base">{renderBody(release.body_text)}</div>
+          <div className="text-base">
+            <ReleaseBody text={release.body_text} />
+          </div>
         ) : isTexas && release.source_url.includes("videoplayer.php") ? (
-          <div className="rounded-md border border-neutral-200 bg-neutral-50 px-5 py-5 text-sm text-neutral-700 leading-relaxed">
+          <div className="rounded-md border border-neutral-200 bg-neutral-50 p-5 text-sm text-neutral-700 leading-relaxed">
             <p className="mb-3">
               <span className="font-medium text-neutral-900">Video press conference.</span>{" "}
               This is a videoplayer.php item rather than a written press

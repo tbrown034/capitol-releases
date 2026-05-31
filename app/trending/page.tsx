@@ -1,5 +1,14 @@
 import Link from "next/link";
-import { getTrendingWithDelta, getTopicOwnership, getPartySkew, type TrendingScope, type TrendingChamber } from "../lib/trending";
+import Image from "next/image";
+import {
+  getTrendingWithDelta,
+  getTopicOwnership,
+  getPartySkew,
+  getTermSeries,
+  getTermTimeline,
+  type TrendingScope,
+  type TrendingChamber,
+} from "../lib/trending";
 import { TermChart } from "../components/term-chart";
 import { TopicTimeline } from "../components/topic-timeline";
 import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
@@ -62,7 +71,12 @@ export default async function TrendingPage({
   const skew = skewRaw as SkewRow[];
 
   const top5Terms = trending.slice(0, 5).map((t) => t.word);
-  const ownership = (await getTopicOwnership(top5Terms, chamber)) as OwnerRow[];
+  const initialTimelineTerm = trending[0]?.word ?? "Trump";
+  const [ownership, termSeries, timelineData] = await Promise.all([
+    getTopicOwnership(top5Terms, chamber) as Promise<OwnerRow[]>,
+    getTermSeries(top5Terms.length > 0 ? top5Terms : ["Trump"]),
+    getTermTimeline(initialTimelineTerm),
+  ]);
 
   const ownersByTerm = new Map<string, OwnerRow[]>();
   for (const row of ownership) {
@@ -74,15 +88,13 @@ export default async function TrendingPage({
   const dSkew = skew.filter((r) => r.side === "D");
   const rSkew = skew.filter((r) => r.side === "R");
 
-  const initialTimelineTerm = trending[0]?.word ?? "Trump";
-
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
       <h1 className="font-[family-name:var(--font-source-serif)] text-4xl md:text-5xl text-neutral-900 mb-3">
         Trending
       </h1>
       <p className="text-sm md:text-base text-neutral-600 leading-relaxed mb-2 max-w-2xl">
-        What members of Congress are talking about now — and how it&rsquo;s
+        What members of Congress are talking about now, and how it&rsquo;s
         changing. Word stems pulled from release titles across the U.S. Senate
         and U.S. House; trajectories use full text (title + body) with stemming.
       </p>
@@ -255,7 +267,10 @@ export default async function TrendingPage({
           Weekly mentions of selected terms across all 100 senators&rsquo;
           releases. Add or remove terms to compare.
         </p>
-        <TermChart initialTerms={top5Terms.length > 0 ? top5Terms : ["Trump"]} />
+        <TermChart
+          initialTerms={top5Terms.length > 0 ? top5Terms : ["Trump"]}
+          initialSeries={termSeries}
+        />
       </section>
 
       {/* Topic ownership */}
@@ -296,17 +311,17 @@ export default async function TrendingPage({
                             {i + 1}
                           </span>
                           {photo ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
+                            <Image
                               src={photo}
                               alt={`${o.full_name} (${o.party}-${o.state})`}
                               width={20}
                               height={20}
-                              className={`h-5 w-5 rounded-full object-cover ring-1 ${ringColor}`}
+                              className={`size-5 rounded-full object-cover ring-1 ${ringColor}`}
+                              unoptimized
                             />
                           ) : (
                             <span
-                              className={`flex h-5 w-5 items-center justify-center rounded-full bg-neutral-100 text-[8px] font-medium text-neutral-500 ring-1 ${ringColor}`}
+                              className={`flex size-5 items-center justify-center rounded-full bg-neutral-100 text-[8px] font-medium text-neutral-500 ring-1 ${ringColor}`}
                             >
                               {getInitials(o.full_name)}
                             </span>
@@ -408,7 +423,10 @@ export default async function TrendingPage({
           (top 5 highest-volume) are highlighted; the headline that led each
           spike is below.
         </p>
-        <TopicTimeline initialTerm={initialTimelineTerm} />
+        <TopicTimeline
+          initialTerm={initialTimelineTerm}
+          initialData={timelineData}
+        />
       </section>
     </div>
   );

@@ -3,7 +3,7 @@ import { getTxStats, getTxRoster } from "../../lib/texas";
 import { formatLongMonthYear, formatShortDate } from "../../lib/dates";
 
 export const metadata = {
-  title: "Texas Senate scraper — Methodology — Capitol Releases",
+  title: "Texas Senate scraper, Methodology, Capitol Releases",
   description:
     "How Capitol Releases archives every Texas state senator's press releases from senate.texas.gov: source, parsing, scope, verification, and known limits.",
 };
@@ -190,7 +190,7 @@ export default async function TexasMethodology() {
               &lt;main&gt;
             </code>{" "}
             with the predictable navigation preamble
-            (&ldquo;Press Items: Senator X — District N « Return to the
+            (&ldquo;Press Items: Senator X, District N « Return to the
             home page printer-friendly&rdquo;) stripped.
           </li>
           <li>

@@ -19,25 +19,25 @@ const partyColor = {
   R: "#ef4444",
   I: "#f59e0b",
 } as const;
+const ROW_HEIGHT = 24;
+const LABEL_WIDTH = 150;
+const TOTAL_WIDTH = 50;
+const MARGIN = { top: 24, right: 8, bottom: 4, left: LABEL_WIDTH + 16 } as const;
+const SVG_WIDTH = 800;
 
 export function SenatorBars({ data }: { data: SenatorRow[] }) {
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const rowHeight = 24;
-  const labelWidth = 150;
-  const totalWidth = 50;
-  const margin = { top: 24, right: 8, bottom: 4, left: labelWidth + 16 };
-  const svgWidth = 800;
-  const svgHeight = margin.top + data.length * rowHeight + margin.bottom;
+  const svgHeight = MARGIN.top + data.length * ROW_HEIGHT + MARGIN.bottom;
 
   useEffect(() => {
     if (!svgRef.current || data.length === 0) return;
 
-    const innerW = svgWidth - margin.left - margin.right - totalWidth;
+    const innerW = SVG_WIDTH - MARGIN.left - MARGIN.right - TOTAL_WIDTH;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
-    svg.attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`);
+    svg.attr("viewBox", `0 0 ${SVG_WIDTH} ${svgHeight}`);
 
     // Collect all unique weeks across all senators
     const allWeeks = new Set<string>();
@@ -48,7 +48,7 @@ export function SenatorBars({ data }: { data: SenatorRow[] }) {
 
     const g = svg
       .append("g")
-      .attr("transform", `translate(${margin.left},${margin.top})`);
+      .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
 
     // X scale: weeks
     const x = d3
@@ -89,7 +89,7 @@ export function SenatorBars({ data }: { data: SenatorRow[] }) {
     // to the senator page.
     for (let i = 0; i < data.length; i++) {
       const senator = data[i];
-      const yPos = i * rowHeight;
+      const yPos = i * ROW_HEIGHT;
       const weekMap = new Map(senator.weeks.map((w) => [w.week, w.count]));
       const baseColor = partyColor[senator.party];
       const isTopThree = i < 3;
@@ -105,10 +105,10 @@ export function SenatorBars({ data }: { data: SenatorRow[] }) {
       // mouseover lift the row out of the alt stripe).
       const bgRow = rowLink
         .append("rect")
-        .attr("x", -margin.left)
+        .attr("x", -MARGIN.left)
         .attr("y", yPos)
-        .attr("width", svgWidth)
-        .attr("height", rowHeight)
+        .attr("width", SVG_WIDTH)
+        .attr("height", ROW_HEIGHT)
         .attr("fill", i % 2 === 0 ? "#fafaf9" : "transparent")
         .style("transition", "fill 120ms");
       rowLink
@@ -121,7 +121,7 @@ export function SenatorBars({ data }: { data: SenatorRow[] }) {
       rowLink
         .append("text")
         .attr("x", -8)
-        .attr("y", yPos + rowHeight / 2)
+        .attr("y", yPos + ROW_HEIGHT / 2)
         .attr("text-anchor", "end")
         .attr("dominant-baseline", "middle")
         .attr("font-size", 11)
@@ -134,8 +134,8 @@ export function SenatorBars({ data }: { data: SenatorRow[] }) {
       // Party dot
       rowLink
         .append("circle")
-        .attr("cx", -margin.left + 8)
-        .attr("cy", yPos + rowHeight / 2)
+        .attr("cx", -MARGIN.left + 8)
+        .attr("cy", yPos + ROW_HEIGHT / 2)
         .attr("r", 3.5)
         .attr("fill", baseColor);
 
@@ -158,7 +158,7 @@ export function SenatorBars({ data }: { data: SenatorRow[] }) {
           .attr("x", x(week)!)
           .attr("y", yPos + 3)
           .attr("width", x.bandwidth())
-          .attr("height", rowHeight - 6)
+          .attr("height", ROW_HEIGHT - 6)
           .attr("rx", 2)
           .attr("fill", colorScale(count))
           .attr("opacity", 0.9);
@@ -167,8 +167,8 @@ export function SenatorBars({ data }: { data: SenatorRow[] }) {
       // Total label — heavier weight, darker; tabular-aligned.
       rowLink
         .append("text")
-        .attr("x", innerW + totalWidth - 4)
-        .attr("y", yPos + rowHeight / 2)
+        .attr("x", innerW + TOTAL_WIDTH - 4)
+        .attr("y", yPos + ROW_HEIGHT / 2)
         .attr("text-anchor", "end")
         .attr("dominant-baseline", "middle")
         .attr("font-size", 11)
@@ -177,6 +177,14 @@ export function SenatorBars({ data }: { data: SenatorRow[] }) {
         .attr("fill", isTopThree ? "#171717" : "#525252")
         .text(senator.total);
     }
+
+    return () => {
+      svg.selectAll("*")
+        .on("mouseenter", null)
+        .on("mouseleave", null)
+        .on("mousemove", null)
+        .remove();
+    };
   }, [data, svgHeight]);
 
   return (
@@ -185,7 +193,7 @@ export function SenatorBars({ data }: { data: SenatorRow[] }) {
         ref={svgRef}
         width="100%"
         height={svgHeight}
-        viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+        viewBox={`0 0 ${SVG_WIDTH} ${svgHeight}`}
         preserveAspectRatio="xMinYMin meet"
       />
     </div>

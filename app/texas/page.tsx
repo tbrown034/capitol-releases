@@ -36,6 +36,55 @@ function familyName(full: string): string {
   return full.replace(/"[^"]+"/g, "").trim().split(/\s+/).at(-1) ?? full;
 }
 
+function SortLink({
+  value,
+  label,
+  sortKey,
+}: {
+  value: SortKey;
+  label: string;
+  sortKey: SortKey;
+}) {
+  const params = new URLSearchParams();
+  if (value !== "district") params.set("sort", value);
+  const q = params.toString();
+  const active = sortKey === value;
+  return (
+    <Link
+      href={q ? `/texas?${q}` : "/texas"}
+      aria-current={active ? "page" : undefined}
+      className={`rounded-full border px-2.5 py-1 transition-colors ${
+        active
+          ? "border-neutral-900 bg-neutral-900 text-white"
+          : "border-neutral-200 text-neutral-500 hover:border-neutral-400 hover:text-neutral-900"
+      }`}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function diversify<T extends { official_id: string }>(items: T[], maxRun: number): T[] {
+  const out: T[] = [];
+  const queue = [...items];
+  while (queue.length) {
+    const lastId = out[out.length - 1]?.official_id;
+    let run = 0;
+    for (let i = out.length - 1; i >= 0 && out[i].official_id === lastId; i--) run++;
+    let pickIdx = 0;
+    if (lastId && run >= maxRun) {
+      for (let i = 0; i < queue.length; i++) {
+        if (queue[i].official_id !== lastId) {
+          pickIdx = i;
+          break;
+        }
+      }
+    }
+    out.push(queue.splice(pickIdx, 1)[0]);
+  }
+  return out;
+}
+
 export default async function TexasHubPage({
   searchParams,
 }: {
@@ -58,25 +107,6 @@ export default async function TexasHubPage({
     getTxMonthlyVolume(),
     getTxTopicTrends(10),
   ]);
-
-  // Reorder so no senator appears more than maxRun times in a row in the
-  // Latest section, preserving recency.
-  function diversify<T extends { official_id: string }>(items: T[], maxRun: number): T[] {
-    const out: T[] = [];
-    const queue = [...items];
-    while (queue.length) {
-      const lastId = out[out.length - 1]?.official_id;
-      let run = 0;
-      for (let i = out.length - 1; i >= 0 && out[i].official_id === lastId; i--) run++;
-      let pickIdx = 0;
-      if (lastId && run >= maxRun) {
-        const alt = queue.findIndex((it) => it.official_id !== lastId);
-        pickIdx = alt === -1 ? 0 : alt;
-      }
-      out.push(queue.splice(pickIdx, 1)[0]);
-    }
-    return out;
-  }
 
   const totalReleases = stats.total_releases;
   const publishing = stats.senators_with_releases;
@@ -124,7 +154,7 @@ export default async function TexasHubPage({
   // Diversify with maxRun=2 so Blanco-flooded weeks don't fill the section.
   const latestForFeed = diversify(latestPool, 2).slice(0, 6) as FeedItem[];
 
-  const sortedTable = [...roster].sort((a, b) => {
+  const sortedTable = roster.toSorted((a, b) => {
     if (sortKey === "count") return b.release_count - a.release_count;
     if (sortKey === "name") return a.full_name.localeCompare(b.full_name);
     if (sortKey === "party") {
@@ -133,26 +163,6 @@ export default async function TexasHubPage({
     }
     return a.district - b.district;
   });
-
-  const SortLink = ({ value, label }: { value: SortKey; label: string }) => {
-    const params = new URLSearchParams();
-    if (value !== "district") params.set("sort", value);
-    const q = params.toString();
-    const active = sortKey === value;
-    return (
-      <Link
-        href={q ? `/texas?${q}` : "/texas"}
-        aria-current={active ? "page" : undefined}
-        className={`rounded-full border px-2.5 py-1 transition-colors ${
-          active
-            ? "border-neutral-900 bg-neutral-900 text-white"
-            : "border-neutral-200 text-neutral-500 hover:border-neutral-400 hover:text-neutral-900"
-        }`}
-      >
-        {label}
-      </Link>
-    );
-  };
 
   return (
     <div className="mx-auto max-w-5xl px-4">
@@ -381,7 +391,7 @@ export default async function TexasHubPage({
                       alt={r.full_name}
                       width={32}
                       height={32}
-                      className={`h-8 w-8 object-cover object-top rounded-full ring-1 ${ringColor}`}
+                      className={`size-8 object-cover object-top rounded-full ring-1 ${ringColor}`}
                       unoptimized
                     />
                     <div className="flex-1 min-w-0">
@@ -476,10 +486,10 @@ export default async function TexasHubPage({
         </div>
         <div className="mb-4 flex flex-wrap items-center gap-2 text-xs">
           <span className="uppercase tracking-wider text-neutral-400">Sort</span>
-          <SortLink value="district" label="By district" />
-          <SortLink value="count" label="By volume" />
-          <SortLink value="party" label="By party" />
-          <SortLink value="name" label="A–Z" />
+          <SortLink value="district" label="By district" sortKey={sortKey} />
+          <SortLink value="count" label="By volume" sortKey={sortKey} />
+          <SortLink value="party" label="By party" sortKey={sortKey} />
+          <SortLink value="name" label="A–Z" sortKey={sortKey} />
         </div>
         <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
           <table className="w-full min-w-[640px] text-sm">
@@ -513,7 +523,7 @@ export default async function TexasHubPage({
                           alt={r.full_name}
                           width={32}
                           height={32}
-                          className="h-8 w-8 object-cover object-top"
+                          className="size-8 object-cover object-top"
                           unoptimized
                         />
                         <span className={isZero ? "text-neutral-500 font-medium" : "text-neutral-900 font-medium"}>
@@ -525,7 +535,7 @@ export default async function TexasHubPage({
                       {partyLabel(r.party)}
                     </td>
                     <td className="py-2.5 pr-4 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-600 align-top">
-                      {isZero ? <span className="text-neutral-300">—</span> : r.release_count.toLocaleString()}
+                      {isZero ? <span className="text-neutral-300">0</span> : r.release_count.toLocaleString()}
                     </td>
                     <td className="hidden sm:table-cell py-2.5 text-right font-[family-name:var(--font-dm-mono)] tabular-nums text-neutral-500 whitespace-nowrap align-top">
                       {r.latest_release ? formatShortDate(r.latest_release) : "—"}
