@@ -41,14 +41,22 @@ def _load_seeds():
 # ---- Senator coverage tests ----
 
 def test_all_senators_in_db():
-    """Every senator should have a record in the senators table."""
+    """The full US Senate roster must be present in the officials table.
+
+    Scoped to chamber='senate' AND jurisdiction='us' so the 435 House +
+    state/exec rows can't mask a wiped Senate corpus. There are 100 seats;
+    counting active+former (seats that changed hands mid-window leave a
+    former row) keeps the floor robust against a single vacancy.
+    """
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT count(*) FROM officials")
+    cur.execute(
+        "SELECT count(*) FROM officials WHERE chamber = 'senate' AND jurisdiction = 'us'"
+    )
     count = cur.fetchone()[0]
     cur.close()
     conn.close()
-    assert count >= 100, f"Expected >= 100 senators (includes former), got {count}"
+    assert count >= 100, f"Expected >= 100 US senators (includes former), got {count}"
 
 
 def test_senators_have_urls():
@@ -71,14 +79,26 @@ def test_senators_have_urls():
 
 
 def test_minimum_senator_coverage():
-    """At least 95 senators should have press releases."""
+    """At least 95 of the 100 US senators should have press releases.
+
+    Scoped to chamber='senate' AND jurisdiction='us'. Without the scope the
+    hundreds of House/state officials with items keep the DISTINCT count far
+    above 95 even if the entire Senate corpus dropped out. 99 currently have
+    items (Armstrong is the expected zero-release gap).
+    """
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT count(DISTINCT official_id) FROM official_site_items WHERE deleted_at IS NULL")
+    cur.execute("""
+        SELECT count(DISTINCT i.official_id)
+        FROM official_site_items i
+        JOIN officials o ON o.id = i.official_id
+        WHERE i.deleted_at IS NULL
+          AND o.chamber = 'senate' AND o.jurisdiction = 'us'
+    """)
     count = cur.fetchone()[0]
     cur.close()
     conn.close()
-    assert count >= 95, f"Only {count} senators have releases, expected >= 95"
+    assert count >= 95, f"Only {count} US senators have releases, expected >= 95"
 
 
 # ---- Data volume tests ----
@@ -1265,7 +1285,11 @@ def test_social_posts_per_senator_floor():
 # only if a soft check starts catching a class of real outages, not just
 # eyebrow-raising coincidences.
 SOFT_TESTS = {
-    "test_dates_in_valid_range",
+    # test_dates_in_valid_range is HARD as of 2026-05-31: it only asserts on
+    # genuine parser errors (pre-2010 or >1yr-future published_at), which are
+    # data-layer breakage, not upstream typos. Near-future typos (1 day to
+    # 1 year) are handled as a warning by test_no_future_dates below, which
+    # stays SOFT. 0 offending records at promotion time.
     "test_no_future_dates",
     "test_no_suspicious_round_counts",
     "test_rss_collectors_not_severely_undercollecting",

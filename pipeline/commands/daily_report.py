@@ -23,6 +23,7 @@ import logging
 import os
 import smtplib
 import sys
+import time
 from datetime import date, datetime, timedelta, timezone
 from email.mime.text import MIMEText
 from pathlib import Path
@@ -332,18 +333,37 @@ def _send(subject: str, body: str) -> None:
     msg["From"] = from_addr
     msg["To"] = to_addr
 
-    if smtp_port == 465:
-        with smtplib.SMTP_SSL(smtp_host, smtp_port) as s:
-            if smtp_user and smtp_pass:
-                s.login(smtp_user, smtp_pass)
-            s.sendmail(from_addr, [to_addr], msg.as_string())
-    else:
-        with smtplib.SMTP(smtp_host, smtp_port) as s:
-            s.starttls()
-            if smtp_user and smtp_pass:
-                s.login(smtp_user, smtp_pass)
-            s.sendmail(from_addr, [to_addr], msg.as_string())
-    log.info("Sent daily report to %s", to_addr)
+    def _attempt() -> None:
+        # 30s socket timeout so a hung connection can't wedge the CI job for
+        # the full 10-minute workflow budget without ever raising.
+        if smtp_port == 465:
+            with smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=30) as s:
+                if smtp_user and smtp_pass:
+                    s.login(smtp_user, smtp_pass)
+                s.sendmail(from_addr, [to_addr], msg.as_string())
+        else:
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=30) as s:
+                s.starttls()
+                if smtp_user and smtp_pass:
+                    s.login(smtp_user, smtp_pass)
+                s.sendmail(from_addr, [to_addr], msg.as_string())
+
+    # This is the only operational alert channel, so a transient Resend or
+    # network blip must not silently drop the digest. Retry with a short
+    # backoff; re-raise on the final failure so CI goes red and the missing
+    # email is itself a signal.
+    last_err: Exception | None = None
+    for attempt in range(1, 4):
+        try:
+            _attempt()
+            log.info("Sent daily report to %s", to_addr)
+            return
+        except (smtplib.SMTPException, OSError) as e:
+            last_err = e
+            log.warning("SMTP send attempt %d/3 failed: %s", attempt, e)
+            if attempt < 3:
+                time.sleep(5 * attempt)
+    raise RuntimeError(f"daily-report SMTP send failed after 3 attempts: {last_err}")
 
 
 def main() -> int:
