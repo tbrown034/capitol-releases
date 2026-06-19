@@ -14,6 +14,11 @@ export const metadata = {
     "An AI-generated daily brief summarizing every U.S. senator's official communications, with every claim grounded in source records.",
 };
 
+// Without this, the index is statically generated at build time and pins to
+// whatever brief was latest at deploy — it sat 3 weeks stale on May 29 while
+// the cron kept publishing. 10-min ISR matches the homepage and keeps it live.
+export const revalidate = 600;
+
 function fmtDate(d: string): string {
   return new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", {
     weekday: "long",

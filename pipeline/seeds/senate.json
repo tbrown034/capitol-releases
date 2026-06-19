@@ -1104,25 +1104,24 @@
       "party": "R",
       "state": "WI",
       "official_url": "https://www.ronjohnson.senate.gov",
-      "press_release_url": "https://www.ronjohnson.senate.gov/press-releases",
-      "parser_family": "senate-generic",
+      "press_release_url": "https://www.ronjohnson.senate.gov/category/press-releases/",
+      "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
-        "type": "query_param",
-        "param": "page",
-        "starts_at": 1
+        "type": "unknown"
       },
       "selectors": {
-        "list_item": "li.page-item",
+        "list_item": null,
         "title": null,
         "date": null,
         "detail_link": null
       },
-      "confidence": 0.65,
-      "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "confidence": 0.9,
+      "notes": "Fixed 2026-06-19: site migrated to WordPress; old /press-releases path now 404s and collector went silent. Switched to WP RSS feed (category/press-releases/feed/), dated through current.",
+      "last_verified": "2026-06-19",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.ronjohnson.senate.gov/category/press-releases/feed/"
     },
     {
       "official_id": "justice-james",

@@ -759,12 +759,19 @@ def test_no_stale_senators():
           they surface only in the digest's silent-members list, not
           as a HARD CI failure.)
         - exempt anyone whose seed flags expect_empty=true (Armstrong)
-        - bad signal: MAX(scraped_at) older than 14 days
+        - bad signal: MAX(last_seen_live) older than 14 days
 
-    A real upstream silence would still produce captures (we'd be
-    re-touching the listing page). Zero captures in 14 days for an
-    otherwise-active senator means the COLLECTOR is broken, not the
-    senator. That is a HARD failure now — it's how data loss starts.
+    The freshness signal is MAX(last_seen_live), not MAX(scraped_at).
+    last_seen_live is bumped every time the collector SEES a known URL on
+    the listing/feed, even when nothing new is inserted; scraped_at only
+    moves when a row is actually written. A healthy-but-quiet senator
+    (Boozman, last post 2026-06-05) keeps a fresh last_seen_live while his
+    scraped_at goes stale — keying on scraped_at flagged him as broken
+    when his collector was fine. A genuinely broken collector (Johnson's
+    2026-05 site migration 404'd the seeded URL) goes stale on BOTH. So a
+    stale last_seen_live for an otherwise-active senator means the
+    COLLECTOR is broken, not the senator. That is a HARD failure — it's
+    how data loss starts.
     """
     # expect_empty lives in seed JSON, not on the officials table. The
     # single current exemption is Armstrong (R-OK) — appointed 2026-03-24
@@ -778,7 +785,7 @@ def test_no_stale_senators():
         WITH historical AS (
             SELECT official_id,
                    COUNT(*) FILTER (WHERE scraped_at > NOW() - INTERVAL '90 days') AS last_90,
-                   MAX(scraped_at) AS last_scrape
+                   MAX(last_seen_live) AS last_scrape
             FROM official_site_items
             WHERE deleted_at IS NULL
             GROUP BY official_id

@@ -139,9 +139,13 @@ def _silent_members(cur, days: int = 14) -> list[tuple[str, str, str, int]]:
             GROUP BY official_id
         ),
         recent AS (
+            -- last_seen_live (not scraped_at): a healthy-but-quiet office
+            -- keeps re-touching its listing without writing new rows, so
+            -- scraped_at would false-flag it as silent. Mirrors the
+            -- test_no_stale_senators hard gate.
             SELECT official_id, COUNT(*) AS cnt
             FROM official_site_items
-            WHERE scraped_at > NOW() - (%s || ' days')::interval
+            WHERE last_seen_live > NOW() - (%s || ' days')::interval
               AND deleted_at IS NULL
             GROUP BY official_id
         )
