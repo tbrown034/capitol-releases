@@ -785,27 +785,26 @@
       "party": "D",
       "state": "CA",
       "official_url": "https://garamendi.house.gov",
-      "press_release_url": "https://garamendi.house.gov/media/press-releases",
-      "parser_family": "senate-drupal",
+      "press_release_url": "https://garamendi.house.gov/category/press-release/",
+      "parser_family": "wordpress",
       "requires_js": false,
       "pagination": {
-        "type": "query_param",
-        "param": "page",
-        "starts_at": 0
+        "type": "unknown"
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
+        "list_item": null,
+        "title": null,
         "date": null,
-        "detail_link": "a[href]"
+        "detail_link": null
       },
       "confidence": 1.0,
-      "notes": "Found 14 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "notes": "Site migrated to WordPress ~2026-07; old /media/press-releases 404. Category archive is JS-rendered; use WP category RSS feed.",
+      "last_verified": "2026-07-19",
       "recon_status": "verified",
       "district": 8,
-      "collection_method": "httpx",
-      "bioguide_id": "G000559"
+      "collection_method": "rss",
+      "bioguide_id": "G000559",
+      "rss_feed_url": "https://garamendi.house.gov/category/press-release/feed/"
     },
     {
       "member_id": "harder-josh",
@@ -2972,14 +2971,15 @@
         "date": ".media-body .row .col-auto:first-child"
       },
       "confidence": 0.8,
-      "notes": "Found 10 items on listing page. ",
-      "last_verified": "2026-05-03",
+      "notes": "FL-20 VACANT: Cherfilus-McCormick resigned 2026-04-21 (verified 2026-07-19 via her office site, now Clerk-supervised). Skip collection until a successor is sworn in. Archive through 2026-04-21 retained.",
+      "last_verified": "2026-07-19",
       "recon_status": "verified",
       "district": 20,
-      "collection_method": "httpx",
+      "collection_method": null,
       "bioguide_id": "C001127",
       "expected_low_volume": true,
-      "low_volume_reason": "Resigned April 21, 2026 while facing House Ethics action and federal charges. Coverage stops at resignation date."
+      "low_volume_reason": "Resigned April 21, 2026 while facing House Ethics action and federal charges. Coverage stops at resignation date.",
+      "expect_empty": true
     },
     {
       "member_id": "mast-brian",
@@ -3546,12 +3546,13 @@
         "detail_link": "a[href]"
       },
       "confidence": 0.95,
-      "notes": "Found 15 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "notes": "GA-13 VACANT per House Clerk (verified 2026-07-19); davidscott.house.gov redirects to clerk.house.gov/members/GA13/vacancy. Skip collection until a successor is sworn in.",
+      "last_verified": "2026-07-19",
       "recon_status": "verified",
       "district": 13,
-      "collection_method": "httpx",
-      "bioguide_id": "S001157"
+      "collection_method": null,
+      "bioguide_id": "S001157",
+      "expect_empty": true
     },
     {
       "member_id": "fuller-clay",
@@ -11206,22 +11207,23 @@
       "party": "R",
       "state": "VA",
       "official_url": "https://wittman.house.gov",
-      "press_release_url": "https://wittman.house.gov/news/documentquery.aspx?DocumentTypeID=2670",
-      "parser_family": "senate-generic",
+      "press_release_url": "https://wittman.house.gov/newsroom/press-releases",
+      "parser_family": "senate-drupal",
       "requires_js": false,
       "pagination": {
-        "type": "link_follow",
-        "next_selector": "a.next, a.older"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
       "selectors": {
-        "list_item": "article",
-        "title": "h2 a",
+        "list_item": null,
+        "title": null,
         "date": null,
-        "detail_link": "a[href]"
+        "detail_link": null
       },
       "confidence": 0.3,
-      "notes": "",
-      "last_verified": "2026-05-02",
+      "notes": "Site redesigned ~2026-07; old /news/documentquery.aspx now 403. New /newsroom/press-releases extracts via waterfall (13 items). /rss.xml carries only op-eds — do not use as press source.",
+      "last_verified": "2026-07-19",
       "recon_status": "verified",
       "district": 1,
       "collection_method": "httpx",
@@ -11283,27 +11285,26 @@
       "party": "D",
       "state": "VA",
       "official_url": "https://mcclellan.house.gov",
-      "press_release_url": "https://mcclellan.house.gov/media/press-releases",
-      "parser_family": "senate-drupal",
+      "press_release_url": "https://mcclellan.house.gov/category/press-releases/",
+      "parser_family": "wordpress",
       "requires_js": false,
       "pagination": {
-        "type": "query_param",
-        "param": "page",
-        "starts_at": 0
+        "type": "unknown"
       },
       "selectors": {
-        "list_item": ".views-row",
-        "title": "a",
+        "list_item": null,
+        "title": null,
         "date": null,
-        "detail_link": "a[href]"
+        "detail_link": null
       },
       "confidence": 1.0,
-      "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "notes": "Site migrated to WordPress ~2026-07; old /media/press-releases 404. Category RSS primary; category archive also extracts via waterfall (httpx fallback OK).",
+      "last_verified": "2026-07-19",
       "recon_status": "verified",
       "district": 4,
-      "collection_method": "httpx",
-      "bioguide_id": "M001227"
+      "collection_method": "rss",
+      "bioguide_id": "M001227",
+      "rss_feed_url": "https://mcclellan.house.gov/category/press-releases/feed/"
     },
     {
       "member_id": "mcguire-john",

@@ -136,7 +136,8 @@
       "collection_method": "tx_senate",
       "requires_js": false,
       "confidence": 0.95,
-      "expect_empty": false
+      "expect_empty": true,
+      "notes": "Pressroom empty as of 2026-07-19 (control d=5 shows 74 links; this district shows nav only). Member publishes nothing to senate.texas.gov pressroom. Expected-empty, monitor."
     },
     {
       "official_id": "tx-d11-middleton",
@@ -306,7 +307,8 @@
       "collection_method": "tx_senate",
       "requires_js": false,
       "confidence": 0.95,
-      "expect_empty": false
+      "expect_empty": true,
+      "notes": "Pressroom empty as of 2026-07-19 (control d=5 shows 74 links; this district shows nav only). Member publishes nothing to senate.texas.gov pressroom. Expected-empty, monitor."
     },
     {
       "official_id": "tx-d23-west",
