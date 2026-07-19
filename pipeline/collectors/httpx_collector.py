@@ -30,6 +30,7 @@ from pipeline.backfill import (
     extract_body_text,
     find_next_page,
     parse_date,
+    _is_external_detail_url,
 )
 
 log = logging.getLogger("capitol.collector.httpx")
@@ -95,6 +96,15 @@ class HttpxCollector:
                     # Skip listing/index pages misclassified as detail URLs
                     if is_listing_url(detail_url):
                         log.debug("Skipping listing-page URL: %s", detail_url)
+                        continue
+
+                    # Skip off-domain and nav/contact junk (office locators,
+                    # forms, biography pages). Backfill already applies this
+                    # denylist; without it here the daily run re-admits the
+                    # same junk whenever a site changes URL shape (e.g.
+                    # costa.house.gov growing an /index.php/ path prefix).
+                    if _is_external_detail_url(detail_url):
+                        log.debug("Skipping nav-junk URL: %s", detail_url)
                         continue
 
                     # Parse date with provenance

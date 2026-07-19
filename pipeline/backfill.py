@@ -509,11 +509,14 @@ def extract_item_data(item, base_url, selectors):
 
     # Elementor loop item pattern (e.g., Banks)
     if "e-loop-item" in " ".join(item.get("class", [])):
-        # Title is in an anchor with heading inside, or the first substantial link
+        # Title is in an anchor with heading inside, or the first substantial link.
+        # Nav/button text must match exactly, not as a substring — a substring
+        # check rejects real titles ("...Concerns About Anti-Competitive...").
+        nav_link_text = {"home", "about", "contact", "menu", "continue reading", "read more", "learn more"}
         for el in item.select("a"):
             text = el.get_text(strip=True)
             href = el.get("href", "")
-            if len(text) > 15 and href and "senate.gov" in href and not any(s in text.lower() for s in ["home", "about", "contact", "menu"]):
+            if len(text) > 15 and href and "senate.gov" in href and text.lower() not in nav_link_text:
                 title = text
                 detail_url = urljoin(base_url, href)
                 break
