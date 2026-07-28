@@ -224,15 +224,44 @@ def test_no_future_dates():
 
 # ---- URL quality tests ----
 
+# The only sanctioned non-.gov publishers. Colorado is the first
+# jurisdiction where no officeholder has a .gov pressroom at all: verified
+# 2026-07-25, leg.colorado.gov publishes biography pages only, /news and
+# /press-releases both 404, and 100% of legislative press output comes from
+# these four party caucus organizations on commercial domains. Exempting
+# them by office_type alone would let any future non-.gov URL through, so
+# the host is pinned here instead.
+CAUCUS_PRESS_HOSTS = (
+    "cohousedems.com",
+    "coloradohouserepublicans.com",
+    "senatedems.co",
+    "coloradosenaterepublicans.com",
+)
+
+
 def test_all_urls_are_government():
-    """All source URLs should be .gov domains."""
+    """All source URLs should be .gov, except pinned caucus press hosts.
+
+    A caucus record is only allowed off-.gov when it is BOTH published by a
+    caucus_pressroom official AND on one of the pinned hosts above. A
+    caucus row pointing somewhere else is still a failure.
+    """
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("""
-        SELECT source_url FROM official_site_items WHERE deleted_at IS NULL
-        AND source_url NOT LIKE '%.gov%'
+    host_clause = " OR ".join(["i.source_url LIKE %s"] * len(CAUCUS_PRESS_HOSTS))
+    # The literal wildcards must be doubled: this query now carries bind
+    # parameters, so psycopg2 reads a bare % in the SQL as a placeholder.
+    cur.execute(f"""
+        SELECT i.source_url FROM official_site_items i
+        JOIN officials o ON o.id = i.official_id
+        WHERE i.deleted_at IS NULL
+          AND i.source_url NOT LIKE '%%.gov%%'
+          AND NOT (
+            o.office_type = 'caucus_pressroom'
+            AND ({host_clause})
+          )
         LIMIT 10
-    """)
+    """, tuple(f"%{host}%" for host in CAUCUS_PRESS_HOSTS))
     bad = cur.fetchall()
     cur.close()
     conn.close()
