@@ -34,6 +34,13 @@ _SEED_FILES: list[tuple[str, dict]] = [
     ("oh_senate.json",     {"branch": "legislative", "jurisdiction": "oh", "chamber": "senate",     "office_type": "state_senator"}),
     ("mo_senate.json",     {"branch": "legislative", "jurisdiction": "mo", "chamber": "senate",     "office_type": "state_senator"}),
     ("wv_legislature.json",{"branch": "legislative", "jurisdiction": "wv", "chamber": "senate",     "office_type": "state_senator"}),
+    # Colorado is the first jurisdiction with no per-member pressroom at all.
+    # The four caucus organizations are the publishers; the 100 legislators
+    # are identities only (collection_method=None, so load_members() skips
+    # them unless include_unconfigured=True). chamber is declared per entry
+    # in both files, so the default here stays None.
+    ("co_legislature.json", {"branch": "legislative", "jurisdiction": "co", "chamber": None,        "office_type": "caucus_pressroom"}),
+    ("co_legislators_raw.json", {"branch": "legislative", "jurisdiction": "co", "chamber": None,    "office_type": "state_senator"}),
 ]
 
 

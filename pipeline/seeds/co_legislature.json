@@ -1,0 +1,228 @@
+{
+  "_meta": {
+    "chamber": "co_legislature",
+    "level": "state",
+    "state": "CO",
+    "platform": "party caucus websites (four separate CMS families)",
+    "verified": "2026-07-25",
+    "status": "DRAFT — not registered in pipeline/lib/seeds.py, not on the daily cron",
+    "attribution_model": "caucus",
+    "notes": "Colorado has NO per-member pressroom. Verified 2026-07-25 against leg.colorado.gov: the official roster (100 seats) links each legislator to a /legislators/{slug} biography page that carries committee assignments, sponsored bills, phone and email — and no news, press or media section of any kind. leg.colorado.gov/news and /press-releases both 404. One hundred percent of Colorado legislative press output is published by the four party caucus organizations listed below. Each entry here is a CAUCUS SOURCE, not a member. Do not attribute a record from these sources to a single legislator. See attribution_warning.",
+    "attribution_warning": "Measured on 239 Colorado Senate Democrats releases published 2026-01-01 to 2026-07-25: only 25 (10.5%) name any sitting legislator in the TITLE, while 236 (99.2%) name at least one in the BODY. The mean is 3.2 distinct sitting legislators named per release; just 19 of 239 (8%) name exactly one. Body mentions also routinely include members of the OTHER party as bipartisan bill sponsors. Title-prefix attribution — the strategy the 2026-05-01 recon assumed — does not work here and would misattribute roughly nine releases in ten. Treat these as caucus-authored records with a multi-member 'mentioned' relation, resolved against co_legislators_raw.json.",
+    "duplication_warning": "The two Democratic caucus sites cross-post joint releases. Of 238 Senate Democrats items and 256 House Democrats items published in 2026, 68 share an identical normalized title slug after stripping the 'JOINT RELEASE:' prefix — about 28% of the Senate Democrats 2026 output. Dedup on normalized title plus published date before insert, or the same release lands twice under two different caucus sources.",
+    "collector_status": "No Colorado collector exists yet. The three collection_method values below are placeholders for collectors that still need to be written. Reusing collection_method='rss' will NOT work: pipeline/collectors/rss_collector.py line 67 calls is_external_content(), which allowlists only senate.gov, house.gov and whitehouse.gov, so every Colorado caucus URL (.com / .co) would be dropped silently. Either add a per-member allowed_domains field consumed by is_external_content(), or follow the pattern in pipeline/collectors/state_legislature_collectors.py, which does not call that filter at all.",
+    "seeds_py_note": "Registering this file needs a defaults row that does not assume per-member shape, e.g. {branch: legislative, jurisdiction: co, chamber: null, office_type: caucus_pressroom}. chamber is set per entry below because two caucuses sit in each chamber.",
+    "out_of_scope_silos": "coloradohouserepublicans.com/notable-press (83 URLs) is third-party clippings — verified to link out to Denver Post, Colorado Politics and Reporter Herald. coloradosenaterepublicans.com category in-the-news (id 17, 14 posts) is the same thing. Both excluded per the project's original-content-only rule. coloradohouserepublicans.com/representative-videos (50 URLs) is video only.",
+    "press_contacts": {
+      "co-house-dem-caucus": "Mallory Feeney, Media Relations Director, mallory.feeney@coleg.gov (also Kaitlin Begin, Communications Advisor, kaitlin.begin@coleg.gov) — published at cohousedems.com/contact",
+      "co-house-gop-caucus": "Laurel Boyle, Communications Director, laurel.boyle@coleg.gov — published at coloradohouserepublicans.com/about",
+      "co-senate-dem-caucus": "Ellie Lapp, listed under 'Press', ellie.lapp@coleg.gov — published at senatedems.co/contact-us",
+      "co-senate-gop-caucus": "Chad Knasinski, listed under 'Email the Press Office', chad.knasinski@coleg.gov — published at coloradosenaterepublicans.com/contact",
+      "caveat": "All four addresses are on the official @coleg.gov legislature domain, but they are published on party caucus websites (.com / .co), not on a .gov page. The only press-contact-bearing .gov page in this tier is leg.colorado.gov/legislators, which publishes member inboxes rather than press staff."
+    }
+  },
+  "members": [
+    {
+      "official_id": "co-house-dem-caucus",
+      "full_name": "Colorado House Democrats",
+      "party": "D",
+      "state": "CO",
+      "chamber": "house",
+      "district": null,
+      "office_type": "caucus_pressroom",
+      "is_member": false,
+      "attribution": "caucus",
+      "official_url": "https://www.cohousedems.com",
+      "press_release_url": "https://www.cohousedems.com/news",
+      "parser_family": "co_caucus_wix",
+      "collection_method": "co_caucus_wix",
+      "requires_js": false,
+      "rss_feed_url": null,
+      "pagination": {
+        "type": "sitemap",
+        "discovery": "https://www.cohousedems.com/sitemap.xml",
+        "note": "No RSS, no JSON API. Wix. The /news listing server-renders only the newest 12 items; older pages load via JS. Discover the full archive from the dynamic-news sitemap, then fetch each detail page for title and date. The sitemap filename embeds a Wix collection GUID that can rotate, so always resolve it from /sitemap.xml rather than hardcoding it."
+      },
+      "scrape_config": {
+        "sitemap_index": "https://www.cohousedems.com/sitemap.xml",
+        "sources": [
+          {
+            "sitemap_match": "dynamic-news_p_",
+            "url_prefix": "https://www.cohousedems.com/news/",
+            "content_type": "press_release"
+          },
+          {
+            "sitemap_match": "dynamic-news-1_p_",
+            "url_prefix": "https://www.cohousedems.com/news-1/",
+            "content_type": "op_ed"
+          }
+        ],
+        "date_strategy": "detail_page_text",
+        "date_note": "Sitemap <lastmod> is an edit timestamp, not a publish date. Verified against https://www.cohousedems.com/news/mauro%2C-hinrichsen-statement-on-aspen-acres-wildfire — lastmod 2026-07-07, body text 'July 7, 2026'. They agree on that sample but lastmod is not authoritative; parse the 'Month D, YYYY' string from the detail page body and fall back to lastmod with lowered date_confidence."
+      },
+      "archive": {
+        "sitemap_entries": 2641,
+        "op_ed_sitemap_entries": 55,
+        "oldest_lastmod": "2022-07-28",
+        "newest_lastmod": "2026-07-23"
+      },
+      "confidence": 0.75,
+      "expect_empty": false,
+      "notes": "Highest-volume Colorado legislative source. 256 sitemap entries carry a 2026 lastmod. Lowest confidence of the four because it is the only one with no machine-readable feed and because published dates must come from detail-page text."
+    },
+    {
+      "official_id": "co-house-gop-caucus",
+      "full_name": "Colorado House Republicans",
+      "party": "R",
+      "state": "CO",
+      "chamber": "house",
+      "district": null,
+      "office_type": "caucus_pressroom",
+      "is_member": false,
+      "attribution": "caucus",
+      "official_url": "https://www.coloradohouserepublicans.com",
+      "press_release_url": "https://www.coloradohouserepublicans.com/news",
+      "parser_family": "co_caucus_squarespace",
+      "collection_method": "co_caucus_squarespace",
+      "requires_js": false,
+      "rss_feed_url": "https://www.coloradohouserepublicans.com/news?format=rss",
+      "pagination": {
+        "type": "squarespace_offset",
+        "pattern": "?format=json&offset={publishOn_ms_of_last_item}",
+        "page_size": 20,
+        "note": "Squarespace. ?format=rss returns the newest 20 items and is enough for the daily run. ?format=json returns the same 20 with a millisecond publishOn timestamp; pass the last item's publishOn as &offset to walk back. Verified: 141 items retrieved in 8 requests, oldest 2023-07-06."
+      },
+      "scrape_config": {
+        "sources": [
+          {
+            "url": "https://www.coloradohouserepublicans.com/news",
+            "content_type": "press_release"
+          }
+        ],
+        "excluded_sources": [
+          "https://www.coloradohouserepublicans.com/notable-press",
+          "https://www.coloradohouserepublicans.com/representative-videos"
+        ],
+        "date_field": "publishOn",
+        "date_note": "publishOn is epoch milliseconds UTC. Authoritative; date_confidence 1.0."
+      },
+      "archive": {
+        "items_retrieved": 141,
+        "oldest": "2023-07-06",
+        "newest": "2026-05-12",
+        "by_year": { "2023": 12, "2024": 75, "2025": 45, "2026": 9 }
+      },
+      "confidence": 0.9,
+      "expect_empty": false,
+      "notes": "Very low current volume: 9 items in 2026 and nothing newer than 2026-05-12 as of 2026-07-25. That is a real editorial pattern for a minority caucus out of session, not a broken collector — do not let a stale-source alert fire on this one without a long threshold. Set expected cadence to roughly monthly."
+    },
+    {
+      "official_id": "co-senate-dem-caucus",
+      "full_name": "Colorado Senate Democrats",
+      "party": "D",
+      "state": "CO",
+      "chamber": "senate",
+      "district": null,
+      "office_type": "caucus_pressroom",
+      "is_member": false,
+      "attribution": "caucus",
+      "official_url": "https://www.senatedems.co",
+      "press_release_url": "https://www.senatedems.co/newsroom",
+      "parser_family": "co_caucus_squarespace",
+      "collection_method": "co_caucus_squarespace",
+      "requires_js": false,
+      "rss_feed_url": "https://www.senatedems.co/newsroom?format=rss",
+      "pagination": {
+        "type": "squarespace_offset",
+        "pattern": "?format=json&offset={publishOn_ms_of_last_item}",
+        "page_size": 20,
+        "note": "Same Squarespace shape as the House Republicans entry. Verified: 800 items retrieved in 40 requests without hitting the end of the archive; the sitemap lists 2,356 /newsroom URLs, so the full archive is deeper than the walk went."
+      },
+      "scrape_config": {
+        "sources": [
+          {
+            "url": "https://www.senatedems.co/newsroom",
+            "content_type": "press_release"
+          }
+        ],
+        "date_field": "publishOn",
+        "date_note": "publishOn is epoch milliseconds UTC. Authoritative; date_confidence 1.0."
+      },
+      "archive": {
+        "sitemap_newsroom_urls": 2356,
+        "items_retrieved": 800,
+        "oldest_retrieved": "2024-04-26",
+        "newest": "2026-07-23",
+        "by_year_in_sample": { "2024": 214, "2025": 347, "2026": 239 }
+      },
+      "confidence": 0.92,
+      "expect_empty": false,
+      "notes": "Highest-confidence Colorado legislative source and the one to build against first. Roughly 34 items per month in 2026. Body text names a mean of 3.2 sitting legislators per release — see _meta.attribution_warning. Cross-posts heavily with co-house-dem-caucus."
+    },
+    {
+      "official_id": "co-senate-gop-caucus",
+      "full_name": "Colorado Senate Republicans",
+      "party": "R",
+      "state": "CO",
+      "chamber": "senate",
+      "district": null,
+      "office_type": "caucus_pressroom",
+      "is_member": false,
+      "attribution": "caucus",
+      "official_url": "https://www.coloradosenaterepublicans.com",
+      "press_release_url": "https://www.coloradosenaterepublicans.com/pressreleases/",
+      "parser_family": "co_caucus_wp",
+      "collection_method": "co_caucus_wp",
+      "requires_js": false,
+      "rss_feed_url": "https://www.coloradosenaterepublicans.com/feed/",
+      "pagination": {
+        "type": "wp_json_page",
+        "pattern": "/wp-json/wp/v2/posts?per_page=100&page=N",
+        "page_size": 100,
+        "note": "WordPress with the Divi 5.9.0 theme. wp-json is open and unauthenticated. 247 posts total across all categories, back to 2019-01-09."
+      },
+      "scrape_config": {
+        "wp_json_base": "https://www.coloradosenaterepublicans.com/wp-json/wp/v2",
+        "sources": [
+          {
+            "url": "https://www.coloradosenaterepublicans.com/wp-json/wp/v2/posts?categories=7",
+            "category_slug": "pressrelease",
+            "category_id": 7,
+            "content_type": "press_release"
+          },
+          {
+            "url": "https://www.coloradosenaterepublicans.com/wp-json/wp/v2/posts?categories=8",
+            "category_slug": "mediaadvisory",
+            "category_id": 8,
+            "content_type": "press_release"
+          },
+          {
+            "url": "https://www.coloradosenaterepublicans.com/wp-json/wp/v2/posts?categories=9",
+            "category_slug": "opinion",
+            "category_id": 9,
+            "content_type": "op_ed"
+          }
+        ],
+        "excluded_categories": [
+          { "slug": "in-the-news", "id": 17, "count": 14, "reason": "third-party clippings" },
+          { "slug": "civics", "id": 16, "count": 50, "reason": "general civic-education content, not press output" }
+        ],
+        "date_field": "date",
+        "date_note": "WP `date` is local (America/Denver); `date_gmt` is also present. Authoritative; date_confidence 1.0."
+      },
+      "archive": {
+        "posts_all_categories": 247,
+        "posts_pressrelease_category": 140,
+        "oldest": "2019-01-09",
+        "newest": "2026-07-23",
+        "pressrelease_by_year": {
+          "2019": 21, "2020": 6, "2021": 8, "2022": 28,
+          "2023": 28, "2024": 20, "2025": 22, "2026": 7
+        }
+      },
+      "confidence": 0.9,
+      "expect_empty": false,
+      "notes": "Only Colorado caucus source with a real WP-JSON API and the deepest archive (2019). Category filtering is mandatory: the site-wide /feed/ mixes press releases with 'PRINT:' and 'VIDEO:' clippings that the project's original-content-only rule excludes. Low volume — 7 press releases in 2026 — so use a long stale threshold."
+    }
+  ]
+}
