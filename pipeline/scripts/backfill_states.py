@@ -55,7 +55,7 @@ async def _collect_one(sem, registry, member, max_pages, dry_run, conn, totals):
             result = await collector.collect(member, since=None, max_pages=max_pages)
         except Exception as e:
             totals["errored"] += 1
-            print(f"{sid:28} ERROR {type(e).__name__}: {e}")
+            print(f"{sid:28} ERROR {type(e).__name__}: {e}", flush=True)
             return
 
         new = updated = 0
@@ -72,8 +72,13 @@ async def _collect_one(sem, registry, member, max_pages, dry_run, conn, totals):
         totals["new"] += new
         totals["updated"] += updated
         flag = " ERR" if result.errors else ""
+        # flush: a full-corpus walk runs for the better part of an hour,
+        # and Python block-buffers stdout when it is a pipe rather than a
+        # TTY. Without this the operator sees nothing at all until the
+        # process exits, which is indistinguishable from a hang.
         print(f"{sid:28} collected={len(result.releases):4} new={new:4} "
-              f"updated={updated:3}{flag} {result.errors[:1] if result.errors else ''}")
+              f"updated={updated:3}{flag} {result.errors[:1] if result.errors else ''}",
+              flush=True)
 
 
 async def run(jurisdictions, only, max_pages, dry_run, concurrency):
@@ -86,7 +91,7 @@ async def run(jurisdictions, only, max_pages, dry_run, concurrency):
         sys.exit("No matching state sources")
 
     print(f"Backfilling {len(members)} sources, max_pages={max_pages}"
-          f"{' (DRY RUN)' if dry_run else ''}\n")
+          f"{' (DRY RUN)' if dry_run else ''}\n", flush=True)
 
     registry = CollectorRegistry()
     sem = asyncio.Semaphore(concurrency)

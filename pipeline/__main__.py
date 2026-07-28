@@ -7,6 +7,7 @@ Usage:
     python -m pipeline health                    # run health checks
     python -m pipeline health --method rss       # check RSS senators only
     python -m pipeline test                      # run data quality tests
+    python -m pipeline tiers                     # federal vs state quality comparison
     python -m pipeline back-coverage             # flag senators missing 2025 back-coverage
     python -m pipeline health-report             # write docs/data_health.{md,json}
     python -m pipeline tx-truth                  # verify TX corpus against live senate.texas.gov
@@ -86,6 +87,10 @@ def main():
     elif command == "review":
         from pipeline.commands.review import main as review_main
         review_main()
+
+    elif command == "tiers":
+        from pipeline.commands.tier_report import main as tiers_main
+        tiers_main()
 
     elif command == "back-coverage":
         from pipeline.commands.check_back_coverage import main as bc_main
