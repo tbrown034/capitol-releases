@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { CoverageCartogram } from "../components/coverage-cartogram";
-import { COVERAGE, PLANNED, type StateRow } from "../lib/state-coverage";
-import { sql } from "../lib/db";
+import {
+  PLANNED,
+  getLiveStateCoverage,
+  type StateRow,
+} from "../lib/state-coverage";
 
 export const metadata = {
   title: "States — Capitol Releases",
@@ -9,47 +12,25 @@ export const metadata = {
 
 export const revalidate = 600;
 
-// Map state code -> jurisdiction value used in the officials table.
-// Post-2026-05-02 schema: state legislators sit under jurisdiction='<state>'
-// rather than the legacy overloaded chamber='<state>_senate' value.
-const STATE_JURISDICTION: Record<string, string> = { TX: "tx" };
-
 export default async function StatesPage() {
-  // Live release counts and member counts for each covered state. Pulling
-  // from DB avoids drift when the static config falls out of sync with what
-  // the daily collector actually has on file.
-  const liveStats = (await sql`
-    SELECT s.jurisdiction,
-           count(DISTINCT s.id)::int AS members,
-           count(pr.id)::int AS releases
-    FROM officials s
-    LEFT JOIN official_site_items pr
-      ON pr.official_id = s.id
-     AND pr.deleted_at IS NULL
-     AND pr.content_type != 'photo_release'
-    WHERE s.jurisdiction IN ('tx')
-      AND s.branch = 'legislative'
-    GROUP BY s.jurisdiction
-  `) as { jurisdiction: string; members: number; releases: number }[];
-  const byJurisdiction = new Map(liveStats.map((r) => [r.jurisdiction, r]));
-  const live = (code: string) =>
-    byJurisdiction.get(STATE_JURISDICTION[code] ?? "");
+  // Every state jurisdiction in the corpus, counted at request time. The
+  // previous version read a hand-edited list that only knew about Texas,
+  // so California and Ohio were advertised as "planned, 0 releases" while
+  // the collector was already storing thousands of their records.
+  const enrichedCoverage = await getLiveStateCoverage();
+  const liveCodes = new Set(enrichedCoverage.map((s) => s.code));
+  const stillPlanned = PLANNED.filter((s) => !liveCodes.has(s.code));
 
-  const enrichedCoverage = COVERAGE.map((s) => {
-    const stats = live(s.code);
-    return stats
-      ? { ...s, members: stats.members, releases: stats.releases }
-      : s;
-  });
-
-  const cartogramData = enrichedCoverage.map((s) => ({
-    code: s.code,
-    name: s.name,
-    href: s.href ?? "#",
-    members: s.members,
-    releases: s.releases,
-    status: s.status as "live" | "in_progress",
-  }));
+  const cartogramData = enrichedCoverage
+    .filter((s) => s.status === "live")
+    .map((s) => ({
+      code: s.code,
+      name: s.name,
+      href: s.href ?? "#",
+      members: s.members,
+      releases: s.releases,
+      status: s.status as "live" | "in_progress",
+    }));
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
@@ -59,7 +40,7 @@ export default async function StatesPage() {
       <p className="text-sm text-neutral-600 leading-relaxed mb-2 max-w-2xl">
         Capitol Releases archives the official press output of all 100 U.S.
         senators. We&apos;re extending the same treatment to state senates,
-        starting with Texas.
+        starting with the chambers below.
       </p>
       <p className="text-xs text-neutral-500 leading-relaxed mb-8 max-w-2xl">
         Free tier covers every senator at every level. Original press releases,
@@ -84,7 +65,7 @@ export default async function StatesPage() {
         Planned next
       </h2>
       <div className="space-y-3">
-        {PLANNED.map((s) => (
+        {stillPlanned.map((s) => (
           <StateCard key={s.code} row={s} />
         ))}
       </div>
@@ -123,7 +104,12 @@ function StateCard({ row }: { row: StateRow }) {
         </p>
       </div>
       <div className="hidden sm:flex flex-col items-end text-xs text-neutral-500 font-[family-name:var(--font-dm-mono)] tabular-nums">
-        <span>{row.members} senators</span>
+        {/* "senators" is wrong for two of the live rows: Nebraska's chamber
+            is unicameral and Colorado's sources are four party caucuses,
+            not members. Count what the row actually holds. */}
+        <span>
+          {row.members} {row.members === 1 ? "source" : "sources"}
+        </span>
         {row.releases > 0 && (
           <span className="text-neutral-400">
             {row.releases.toLocaleString()} releases
