@@ -147,19 +147,71 @@ export async function getReleasesMentioning(
   `) as (FeedItem & { mention_role: MentionRole })[];
 }
 
-/** Recent caucus output for the Colorado landing page. */
-export async function getColoradoFeed(limit = 40): Promise<FeedItem[]> {
+// Strips the caucus prefix convention ("JOINT RELEASE:", "ICYMI:") and
+// slugifies what is left. The two Democratic caucuses cross-post joint
+// releases under different URLs, so source_url dedup stores both copies:
+// 117 of 120 duplicate groups in the corpus span two different caucuses.
+//
+// Both copies are kept. Each caucus really did publish it, and deleting one
+// would falsify that caucus's own archive. They are collapsed at the
+// surface instead, with the co-publishers named.
+export type CoFeedItem = FeedItem & {
+  /** Every caucus that published this release, including the byline one. */
+  publishers: string[];
+  copies: number;
+};
+
+/**
+ * Recent caucus output, with cross-posted joint releases collapsed.
+ *
+ * Collapsing requires the same normalized title AND the same calendar day.
+ * Two looser signals were measured on 2026-07-28 and rejected:
+ *
+ *   content_hash  0 cross-caucus matches. Each site wraps the release in
+ *                 its own page furniture, so extracted bodies never agree.
+ *   title alone   195 cross-caucus matches vs 117 that also share a date.
+ *                 The extra 78 include entries like "Bill to Safeguard
+ *                 Constitutional Rights Passes Committee" 78 days apart --
+ *                 a House committee and a Senate committee, two real
+ *                 events with one headline. Collapsing those would delete
+ *                 news, so the date stays in the key.
+ *
+ * The key expression is written inline rather than passed as a value: the
+ * Neon driver binds every ${} as a parameter, so a SQL fragment has to be
+ * literal template text.
+ */
+export async function getColoradoFeed(limit = 40): Promise<CoFeedItem[]> {
   return (await sql`
-    SELECT i.*, o.full_name AS senator_name, o.party, o.state, o.chamber,
-           o.bioguide_id
-    FROM official_site_items i
-    JOIN officials o ON o.id = i.official_id
-    WHERE o.jurisdiction = 'co'
-      AND o.office_type = ${CAUCUS}
-      AND i.deleted_at IS NULL
-    ORDER BY i.published_at DESC NULLS LAST
+    WITH keyed AS (
+      SELECT i.*, o.full_name AS senator_name, o.party, o.state, o.chamber,
+             o.bioguide_id,
+             lower(regexp_replace(regexp_replace(
+               i.title,
+               '^\s*(JOINT RELEASE|JOINT STATEMENT|PRESS RELEASE|RELEASE|STATEMENT|MEDIA ADVISORY|ICYMI)\s*:\s*',
+               '', 'i'),
+               '[^a-zA-Z0-9]+', '-', 'g')) AS cross_post_key
+      FROM official_site_items i
+      JOIN officials o ON o.id = i.official_id
+      WHERE o.jurisdiction = 'co'
+        AND o.office_type = ${CAUCUS}
+        AND i.deleted_at IS NULL
+    ),
+    grouped AS (
+      SELECT keyed.*,
+             COUNT(*) OVER w AS copies,
+             ARRAY_AGG(senator_name) OVER w AS publishers,
+             ROW_NUMBER() OVER (
+               PARTITION BY cross_post_key, published_at::date
+               ORDER BY published_at, id
+             ) AS rn
+      FROM keyed
+      WINDOW w AS (PARTITION BY cross_post_key, published_at::date)
+    )
+    SELECT * FROM grouped
+    WHERE rn = 1
+    ORDER BY published_at DESC NULLS LAST
     LIMIT ${limit}
-  `) as FeedItem[];
+  `) as CoFeedItem[];
 }
 
 /** Headline totals for the Colorado landing page. */

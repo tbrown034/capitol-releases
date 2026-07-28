@@ -157,13 +157,28 @@ export default async function ColoradoPage() {
         </details>
       )}
 
-      <h2 className="font-[family-name:var(--font-source-serif)] text-2xl text-neutral-900 mt-12 mb-4">
+      <h2 className="font-[family-name:var(--font-source-serif)] text-2xl text-neutral-900 mt-12 mb-1">
         Recent releases
       </h2>
+      <p className="text-xs text-neutral-500 mb-3 max-w-2xl">
+        Joint releases are published by both Democratic caucuses under
+        separate URLs. Both copies are archived; the feed shows one and names
+        the other publishers.
+      </p>
       <div>
-        {feed.map((item) => (
-          <ReleaseCard key={item.id} item={item} />
-        ))}
+        {feed.map((item) => {
+          const alsoBy = item.publishers.filter((p) => p !== item.senator_name);
+          return (
+            <div key={item.id}>
+              <ReleaseCard item={item} />
+              {alsoBy.length > 0 && (
+                <p className="-mt-1 mb-1.5 pl-[42px] text-[10px] text-neutral-400">
+                  Also published by {alsoBy.join(", ")}
+                </p>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

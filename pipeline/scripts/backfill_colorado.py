@@ -26,7 +26,6 @@ from collections import Counter
 import psycopg2
 from dotenv import load_dotenv
 
-from pipeline.collectors.co_caucus_collectors import normalized_title_key
 from pipeline.collectors.registry import CollectorRegistry
 from pipeline.commands.update import upsert_release
 from pipeline.lib.co_attribution import ColoradoAttributor

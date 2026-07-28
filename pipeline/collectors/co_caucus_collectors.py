@@ -50,32 +50,11 @@ _CMS_DATE_CONFIDENCE = 1.0
 _DETAIL_TEXT_DATE_CONFIDENCE = 0.8
 _SITEMAP_LASTMOD_CONFIDENCE = 0.4
 
-# "JOINT RELEASE:" and friends are a caucus convention, not part of the
-# headline. Stripped only for the dedup key, never from the stored title.
-_TITLE_PREFIX_PAT = re.compile(
-    r"^\s*(joint\s+release|joint\s+statement|press\s+release|release|statement|"
-    r"media\s+advisory|icymi)\s*:\s*",
-    re.IGNORECASE,
-)
-
 _MONTH_DAY_YEAR_PAT = re.compile(
     r"\b((?:January|February|March|April|May|June|July|August|September|"
     r"October|November|December)\s+\d{1,2},\s+\d{4})\b",
     re.IGNORECASE,
 )
-
-
-def normalized_title_key(title: str) -> str:
-    """Dedup key for cross-posted caucus releases.
-
-    The two Democratic caucus sites cross-post joint releases under
-    different URLs: 68 of 238 Senate Democrats items in 2026 share a title
-    with a House Democrats item once the "JOINT RELEASE:" prefix is
-    stripped. source_url dedup alone therefore stores both copies. Callers
-    pair this key with the publication date to collapse them.
-    """
-    stripped = _TITLE_PREFIX_PAT.sub("", title or "")
-    return re.sub(r"[^a-z0-9]+", "-", stripped.lower()).strip("-")
 
 
 def _html_to_text(html: str) -> str:
