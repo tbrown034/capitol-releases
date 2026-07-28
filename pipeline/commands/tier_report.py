@@ -10,12 +10,12 @@ head start; that says nothing about whether either tier is trustworthy. The
 dimensions below are all ratios or provenance measures, so a 7k-record tier
 and a 94k-record tier can be compared honestly.
 
-One measure has to come from the seeds rather than SQL: `expect_empty`
-lives in the seed JSON and was never synced to a database column. That
-matters more than it sounds. Counting empty sources straight from the
-database reports every deliberately-empty office as a gap -- on 2026-07-28
-that made the state tier look 8.3% broken when every one of its 13 empty
-sources was documented and verified.
+"Undocumented empty" counts sources that collect nothing AND carry no
+`expect_empty` reason. The distinction is the whole point: counting empty
+sources without it reported every deliberately-empty office as a gap and
+made the state tier look 8.3% broken when all 13 of its empty sources
+were documented and verified. That flag became a column in migration 019
+so this can be a single query.
 
 Usage:
     python -m pipeline tiers
@@ -26,8 +26,6 @@ import sys
 
 import psycopg2
 from dotenv import load_dotenv
-
-from pipeline.lib.seeds import load_members
 
 load_dotenv(".env.local")
 
@@ -68,25 +66,23 @@ def main():
 
     cur.execute(
         """
-        SELECT o.id FROM officials o
-        WHERE o.status = 'active' AND o.collection_method IS NOT NULL
+        SELECT CASE WHEN o.jurisdiction = 'us' THEN 'federal' ELSE 'state' END,
+               o.id
+        FROM officials o
+        WHERE o.status = 'active'
+          AND o.collection_method IS NOT NULL
+          AND NOT o.expect_empty
           AND NOT EXISTS (
             SELECT 1 FROM official_site_items i
             WHERE i.official_id = o.id AND i.deleted_at IS NULL
           )
         """
     )
-    empty_ids = {r[0] for r in cur.fetchall()}
+    gaps = {"federal": [], "state": []}
+    for tier, sid in cur.fetchall():
+        gaps[tier].append(sid)
     cur.close()
     conn.close()
-
-    seeds = {m["official_id"]: m for m in load_members(include_unconfigured=True)}
-    gaps = {"federal": [], "state": []}
-    for sid in empty_ids:
-        seed = seeds.get(sid, {})
-        tier = "federal" if seed.get("jurisdiction") == "us" else "state"
-        if not seed.get("expect_empty"):
-            gaps[tier].append(sid)
 
     rows = [
         ("Collecting sources", lambda s: _fmt(s[1])),

@@ -922,7 +922,13 @@ def test_state_sources_not_stale_by_cadence():
 # checks below catch the same class of failure on day 3, plus surface
 # the leading indicators that were buried in the run logs.
 
-_EXEMPT_PARITY = {"armstrong-alan"}  # known zero-volume seat
+# Zero-volume seats are exempt, and the exemption is now read from the
+# database rather than restated here. `expect_empty` moved to an officials
+# column in migration 019 precisely because a hardcoded list drifts: this
+# set named only Armstrong while the seeds had marked 19 sources, so any
+# SQL check using it silently disagreed with the collectors, which have
+# always honoured the seed flag.
+_EXEMPT_PARITY: set[str] = set()  # retained for callers; DB flag is authoritative
 
 
 def test_collector_extraction_parity():
@@ -975,6 +981,7 @@ def test_collector_extraction_parity():
           AND s.chamber = 'senate' AND s.jurisdiction = 'us'
           AND s.status = 'active'
           AND NOT (s.id = ANY(%s))
+          AND NOT s.expect_empty
           AND lh.items_found >= 3
           AND t.last_90 >= 161
           AND (t.last_touch IS NULL OR t.last_touch < NOW() - INTERVAL '36 hours')
@@ -1031,6 +1038,7 @@ def test_cutoff_filter_not_starving_senators():
           AND s.chamber = 'senate' AND s.jurisdiction = 'us'
           AND s.status = 'active'
           AND NOT (s.id = ANY(%s))
+          AND NOT s.expect_empty
           AND rh.checks >= 3
           AND rh.healthy = rh.checks  -- every check saw items
           AND (t.last_touch IS NULL OR t.last_touch < NOW() - INTERVAL '3 days')

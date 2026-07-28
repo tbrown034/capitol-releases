@@ -44,14 +44,16 @@ UPSERT_SQL = """
         id, full_name, party, state, official_url, press_release_url,
         parser_family, requires_js, confidence, last_verified,
         rss_feed_url, collection_method, chamber, district, status,
-        scrape_config, branch, jurisdiction, office_type, bioguide_id
+        scrape_config, branch, jurisdiction, office_type, bioguide_id,
+        expect_empty, expect_empty_reason
     ) VALUES (
         %(id)s, %(full_name)s, %(party)s, %(state)s, %(official_url)s,
         %(press_release_url)s, %(parser_family)s, %(requires_js)s,
         %(confidence)s, %(last_verified)s, %(rss_feed_url)s,
         %(collection_method)s, %(chamber)s, %(district)s, 'active',
         %(scrape_config)s::jsonb,
-        %(branch)s, %(jurisdiction)s, %(office_type)s, %(bioguide_id)s
+        %(branch)s, %(jurisdiction)s, %(office_type)s, %(bioguide_id)s,
+        %(expect_empty)s, %(expect_empty_reason)s
     )
     ON CONFLICT (id) DO UPDATE SET
         full_name         = EXCLUDED.full_name,
@@ -72,6 +74,10 @@ UPSERT_SQL = """
         jurisdiction      = EXCLUDED.jurisdiction,
         office_type       = EXCLUDED.office_type,
         bioguide_id       = COALESCE(EXCLUDED.bioguide_id, officials.bioguide_id),
+        -- The seeds own this flag: clearing it there must clear it here,
+        -- or a source that started publishing stays permanently exempt.
+        expect_empty        = EXCLUDED.expect_empty,
+        expect_empty_reason = EXCLUDED.expect_empty_reason,
         updated_at        = NOW()
 """
 
@@ -104,6 +110,8 @@ def member_to_params(m: dict) -> dict:
         "last_verified": m.get("last_verified"),
         "rss_feed_url": m.get("rss_feed_url"),
         "collection_method": m.get("collection_method"),
+        "expect_empty": bool(m.get("expect_empty")),
+        "expect_empty_reason": m.get("expect_empty_reason"),
         "chamber": m.get("chamber"),  # may be None for executives
         "district": (
             str(m["district"]) if m.get("district") not in (None, "") else None
