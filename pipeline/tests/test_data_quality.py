@@ -867,6 +867,55 @@ def test_no_stale_senators():
 # ---- Bulletproofing checks (added 2026-05-20) ----
 #
 # These exist because the May 2 -> May 20 silent-collector incident
+def test_state_sources_not_stale_by_cadence():
+    """State sources must not be quiet beyond what their own history predicts.
+
+    test_no_stale_senators is scoped to chamber='senate' AND
+    jurisdiction='us' and keys on a fixed 14-day window, so it covers none
+    of the state tier and its threshold would be wrong there anyway. State
+    legislatures are part-time: Colorado's House Republicans went 77 days
+    silent in 2026 with nothing broken, and Texas meets in odd years only.
+
+    This check asks a different question -- has this source ever been quiet
+    this long before? -- and then asks its peers, because an ongoing gap
+    cannot be in a source's own history until it closes. See
+    pipeline/lib/cadence.py for why peer median beats a peer share.
+
+    SOFT on purpose. The signal is statistical rather than a hard contract,
+    and a chamber returning from a long interim can produce a burst of
+    flags that are real-but-not-urgent. The digest carries them; CI does
+    not go red.
+    """
+    # `python -m pipeline test` shells out to this file as a SCRIPT, so
+    # sys.path[0] is pipeline/tests/ and the repo root is absent. Every
+    # other test here is self-contained SQL; this one reuses shared logic,
+    # so it has to put the root on the path itself.
+    repo_root = str(Path(__file__).resolve().parent.parent.parent)
+    if repo_root not in sys.path:
+        sys.path.insert(0, repo_root)
+    from pipeline.lib.cadence import stale_sources
+
+    conn = get_conn()
+    try:
+        # Read the state list from the data rather than hardcoding it, so a
+        # newly seeded jurisdiction is covered the day it lands.
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT DISTINCT jurisdiction FROM officials "
+            "WHERE jurisdiction <> 'us' AND jurisdiction IS NOT NULL"
+        )
+        states = [r[0] for r in cur.fetchall()]
+        cur.close()
+        stale = stale_sources(conn, jurisdictions=states) if states else []
+    finally:
+        conn.close()
+
+    detail = "; ".join(p.describe() for p in stale[:6])
+    assert not stale, (
+        f"{len(stale)} state sources quiet beyond their own cadence: {detail}"
+    )
+
+
 # (six senators returning 0 records on every cron for 18 days while the
 # listing pages were healthy) only tripped the existing 14-day stale
 # test, which made detection 13 days slower than it needed to be. The
@@ -1360,6 +1409,9 @@ SOFT_TESTS = {
     # (the classifier silently regressing 'op_ed' to 0) and a broken
     # collector (lujan-ben/tuberville-tommy went silent for 26 days).
     # Promoted to HARD after the digest exposed the second class.
+    # Statistical rather than a hard contract, and a chamber returning from
+    # a long interim can burst with real-but-not-urgent flags.
+    "test_state_sources_not_stale_by_cadence",
     "test_per_type_back_coverage",   # historical back-coverage drift, still SOFT
     "test_per_type_not_date_clumped", # known issues on a few state-side IDs
     "test_social_posts_not_empty",
@@ -1414,6 +1466,7 @@ def run_all():
         test_body_coverage_above_threshold,
         test_no_anomalously_low_counts,
         test_no_stale_senators,
+        test_state_sources_not_stale_by_cadence,
         test_collector_extraction_parity,
         test_cutoff_filter_not_starving_senators,
         test_no_blocklisted_seed_selectors,

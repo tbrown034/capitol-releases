@@ -15,6 +15,8 @@ from email.mime.text import MIMEText
 
 import psycopg2
 
+from pipeline.lib.cadence import stale_sources
+
 log = logging.getLogger("capitol.alerts")
 
 
@@ -29,19 +31,57 @@ class Alert:
 
 
 def store_alert(conn, alert: Alert):
-    """Store an alert in the database."""
+    """Store an alert, collapsing repeats of a still-open condition.
+
+    The updater runs 4x/day and re-derives the same anomalies every time, so a
+    plain INSERT logged one row per condition per run: 31,296 rows accumulated
+    between 2026-04-18 and 2026-07-25, of which ~2,900 per week were the same
+    "last release was X" info alerts. Every alert consumer (the /admin
+    dashboard, the API overview route, `pipeline review alerts`) reads
+    ORDER BY created_at DESC LIMIT 10-50, so that backlog buried genuine
+    error/critical alerts under stale-member noise.
+
+    An unacknowledged alert with the same (alert_type, official_id, message) is
+    the same open condition, not a new event. Touch the existing row instead of
+    inserting: created_at moves to now so it still sorts as current, and
+    details carries first_seen plus an occurrences counter so the history that
+    matters is preserved. Acknowledging a row lets the condition alert again.
+    """
     cur = conn.cursor()
     try:
         cur.execute("""
-            INSERT INTO alerts (alert_type, official_id, severity, message, details)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (
-            alert.alert_type,
-            alert.official_id or None,
-            alert.severity,
-            alert.message,
-            json.dumps(alert.details) if alert.details else None,
-        ))
+            SELECT id, details, created_at FROM alerts
+            WHERE alert_type = %s
+              AND official_id IS NOT DISTINCT FROM %s
+              AND message = %s
+              AND acknowledged = FALSE
+            ORDER BY created_at DESC
+            LIMIT 1
+        """, (alert.alert_type, alert.official_id or None, alert.message))
+        existing = cur.fetchone()
+
+        if existing:
+            alert_id, prev_details, first_created = existing
+            details = dict(alert.details or {})
+            prev = prev_details if isinstance(prev_details, dict) else {}
+            details["first_seen"] = prev.get("first_seen") or first_created.isoformat()
+            details["occurrences"] = int(prev.get("occurrences", 1)) + 1
+            cur.execute("""
+                UPDATE alerts
+                SET created_at = NOW(), severity = %s, details = %s
+                WHERE id = %s
+            """, (alert.severity, json.dumps(details), alert_id))
+        else:
+            cur.execute("""
+                INSERT INTO alerts (alert_type, official_id, severity, message, details)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                alert.alert_type,
+                alert.official_id or None,
+                alert.severity,
+                alert.message,
+                json.dumps(alert.details) if alert.details else None,
+            ))
         conn.commit()
     except Exception as e:
         conn.rollback()
@@ -123,12 +163,18 @@ def check_anomalies(conn) -> list[Alert]:
         ))
 
     # 3. Senators whose most recent release is older than expected
+    # Tombstoned rows are excluded (deleted_at IS NULL) so a member whose
+    # content was pulled from the source site reads as silent rather than
+    # current. Former members are excluded too — they are permanently past
+    # the 30-day threshold and alerting on them is noise that never clears.
     cur.execute("""
         SELECT s.id, s.full_name,
                MAX(pr.published_at) as last_release
         FROM officials s
         JOIN official_site_items pr ON s.id = pr.official_id
         WHERE s.collection_method IS NOT NULL
+          AND s.status = 'active'
+          AND pr.deleted_at IS NULL
         GROUP BY s.id, s.full_name
         HAVING MAX(pr.published_at) < NOW() - INTERVAL '30 days'
     """)
@@ -173,6 +219,32 @@ def check_anomalies(conn) -> list[Alert]:
                 "scraped_at": str(scraped_at),
             },
         ))
+
+    # 5. Sources quiet for longer than their own history predicts, with
+    # peer comparison so an adjourned chamber does not read as breakage.
+    # The fixed-threshold check above (#1) only sees sources publishing 30+
+    # times a quarter, so it is blind to every part-time legislature.
+    try:
+        for profile in stale_sources(conn):
+            alerts.append(Alert(
+                alert_type="anomaly",
+                severity="warning",
+                message=profile.describe(),
+                official_id=profile.official_id,
+                details={
+                    "days_since_last": round(profile.days_since_last, 1),
+                    "threshold_days": round(profile.threshold_days, 1),
+                    "p50_gap_days": round(profile.p50_days, 1),
+                    "p95_gap_days": round(profile.p95_days, 1),
+                    "cohort": profile.cohort,
+                    "cohort_median_silence": round(profile.cohort_median_silence, 1),
+                    "profiled": profile.profiled,
+                },
+            ))
+    except psycopg2.Error as e:
+        # A cadence failure must not take down the checks above it, which
+        # cover breakage this one is explicitly not responsible for.
+        log.warning("Cadence staleness check failed: %s", e)
 
     cur.close()
     return alerts
