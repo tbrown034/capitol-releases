@@ -90,6 +90,12 @@ def fetch_rows(conn) -> list[dict]:
         FROM officials s
         LEFT JOIN official_site_items pr ON pr.official_id = s.id
         WHERE s.status = 'active'
+          -- Identity-only rows are not collection sources and cannot have
+          -- back-coverage. Colorado seats 100 legislators who publish
+          -- through a party caucus rather than a pressroom of their own;
+          -- counting them here reported 100 false NO_DATA rows and pulled
+          -- the corpus-wide confidence mean down with them.
+          AND s.collection_method IS NOT NULL
         GROUP BY s.id, s.full_name, s.state, s.party,
                  s.collection_method, s.requires_js
         ORDER BY s.full_name
