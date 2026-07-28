@@ -9,6 +9,8 @@ import {
 } from "../../lib/queries";
 import { ReleaseCard } from "../../components/release-card";
 import { TypeBadge } from "../../components/type-badge";
+import { MentionBadges } from "../../components/mention-badges";
+import { getReleaseMentions } from "../../lib/colorado";
 import { getSenatorPhotoUrl, getInitials, getSenatorHref } from "../../lib/photos";
 import { normalizeTitle } from "../../lib/titles";
 import { STATE_NAMES } from "../../lib/states";
@@ -82,9 +84,13 @@ export default async function ReleasePage({
   const release = await getReleaseById(id);
   if (!release) notFound();
 
-  const [related, versions] = await Promise.all([
+  const [related, versions, mentions] = await Promise.all([
     getRelatedReleases(release, 6),
     release.version_count > 0 ? getReleaseVersions(release.id) : Promise.resolve([]),
+    // Only caucus-published records carry mentions. Everywhere else the
+    // byline already names the person, so this returns empty and the
+    // section does not render.
+    getReleaseMentions(release.id),
   ]);
 
   const photo = getSenatorPhotoUrl(release.senator_name, release.official_id);
@@ -264,6 +270,9 @@ export default async function ReleasePage({
           </p>
         )}
       </div>
+
+      {/* Legislators named in a caucus-published release */}
+      <MentionBadges mentions={mentions} />
 
       {/* Provenance footer */}
       <div className="mt-10 border-t border-neutral-200 pt-6 text-xs text-neutral-500 space-y-1.5">
