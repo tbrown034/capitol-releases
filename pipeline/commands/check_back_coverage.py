@@ -78,6 +78,7 @@ def fetch_rows(conn) -> list[dict]:
             s.party,
             s.collection_method,
             s.requires_js,
+            s.expect_empty,
             count(pr.id) FILTER (WHERE pr.deleted_at IS NULL
                                   AND pr.published_at >= '2025-01-01')::int AS total,
             count(DISTINCT pr.published_at::date)
@@ -97,7 +98,7 @@ def fetch_rows(conn) -> list[dict]:
           -- the corpus-wide confidence mean down with them.
           AND s.collection_method IS NOT NULL
         GROUP BY s.id, s.full_name, s.state, s.party,
-                 s.collection_method, s.requires_js
+                 s.collection_method, s.requires_js, s.expect_empty
         ORDER BY s.full_name
         """
     )
@@ -164,6 +165,10 @@ def classify_and_score(
     expected = EXPECTED_START_OVERRIDES.get(row["id"], DEFAULT_COVERAGE_START)
 
     if total == 0:
+        # A source verified to publish nothing is not a coverage failure.
+        # Reporting it as NO_DATA puts 13 deliberately-empty state sources
+        # in the same bucket as a collector that broke, which is the exact
+        # confusion migration 019 added the column to end.
         return {
             **row,
             "expected_start": expected,
@@ -171,7 +176,7 @@ def classify_and_score(
             "longest_gap_weeks": 0,
             "clump_ratio": None,
             "peer_ratio": 0.0,
-            "severity": "NO_DATA",
+            "severity": "EXPECTED_EMPTY" if row.get("expect_empty") else "NO_DATA",
             "confidence_pct": 0,
         }
 
