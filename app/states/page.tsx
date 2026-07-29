@@ -5,6 +5,7 @@ import {
   getLiveStateCoverage,
   type StateRow,
 } from "../lib/state-coverage";
+import { formatReleaseDate } from "../lib/dates";
 
 export const metadata = {
   title: "States — Capitol Releases",
@@ -21,6 +22,18 @@ export default async function StatesPage() {
   const liveCodes = new Set(enrichedCoverage.map((s) => s.code));
   const stillPlanned = PLANNED.filter((s) => !liveCodes.has(s.code));
 
+  // Headline figures are computed, not written. The previous copy claimed
+  // "all 100 U.S. senators" and a "January 1, 2025 forward" horizon while
+  // the corpus already held 435 House members and records back to 2015.
+  const liveRows = enrichedCoverage.filter((s) => s.status === "live");
+  const totalRecords = liveRows.reduce((n, s) => n + s.releases, 0);
+  const totalSources = liveRows.reduce((n, s) => n + s.members, 0);
+  const liveStates = liveRows.length;
+  const oldest = liveRows
+    .map((s) => s.since)
+    .filter((d): d is string => Boolean(d))
+    .sort()[0];
+
   const cartogramData = enrichedCoverage
     .filter((s) => s.status === "live")
     .map((s) => ({
@@ -35,17 +48,28 @@ export default async function StatesPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
       <h1 className="font-[family-name:var(--font-source-serif)] text-4xl text-neutral-900 mb-3">
-        Every senator in America
+        State coverage
       </h1>
       <p className="text-sm text-neutral-600 leading-relaxed mb-2 max-w-2xl">
-        Capitol Releases archives the official press output of all 100 U.S.
-        senators. We&apos;re extending the same treatment to state senates,
-        starting with the chambers below.
+        The same archival method behind the U.S. Senate and House corpus,
+        applied to state government:{" "}
+        <span className="font-[family-name:var(--font-dm-mono)] tabular-nums">
+          {totalRecords.toLocaleString()}
+        </span>{" "}
+        records from{" "}
+        <span className="font-[family-name:var(--font-dm-mono)] tabular-nums">
+          {totalSources}
+        </span>{" "}
+        {/* No line break before the comma: JSX renders one as a space. */}
+        sources across {liveStates} states{oldest ? `, reaching back to ${formatReleaseDate(oldest)}.` : "."}
       </p>
       <p className="text-xs text-neutral-500 leading-relaxed mb-8 max-w-2xl">
-        Free tier covers every senator at every level. Original press releases,
-        statements, op-eds and floor statements from official .gov sources, with
-        provenance and deletion detection.
+        Original press releases, statements and op-eds, with full provenance
+        and deletion detection on every record. Most sources are official .gov
+        pressrooms. Colorado is the exception and the reason this page does not
+        promise otherwise: no Colorado legislator publishes on a state site, so
+        all of its output is collected from the four party caucus
+        organizations, which run on commercial domains.
       </p>
 
       <CoverageCartogram coverage={cartogramData} />
@@ -71,8 +95,12 @@ export default async function StatesPage() {
       </div>
 
       <p className="text-xs text-neutral-500 mt-10 max-w-2xl leading-relaxed">
-        Roadmap: state senates first, then governors and cabinet, then state
-        houses. Coverage horizon: January 1, 2025 forward.
+        Every chamber above is collected as deeply as its own archive allows,
+        which is often further back than January 2025. A chamber ships only
+        once its coverage is verifiable, and sources that publish nothing are
+        labelled rather than hidden — the Texas House, for instance, is absent
+        because all 150 of its members were checked and none publishes press
+        releases at all.
       </p>
     </div>
   );

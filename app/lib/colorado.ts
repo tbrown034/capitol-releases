@@ -245,3 +245,4 @@ export async function getColoradoStats(): Promise<{
   }[];
   return rows[0];
 }
+
