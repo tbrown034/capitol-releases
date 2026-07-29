@@ -120,29 +120,58 @@ async def check_urls(
 def get_urls_to_check(conn, official_id: str = None, batch_size: int = 500) -> list[tuple]:
     """Get URLs to check, prioritizing those not recently verified."""
     cur = conn.cursor()
-    # Allowed source domains: any first-party .gov site we collect from.
-    # Keep this in sync with classifier.is_external_content() and any new
-    # chamber additions (house.gov when we expand beyond Senate).
+    # Allowed source hosts are DERIVED from the sources we actually collect,
+    # not listed here. The previous hardcoded senate.gov / whitehouse.gov /
+    # house.gov filter silently excluded every state record from deletion
+    # detection: as of 2026-07-28 that was 8,121 items across seven
+    # jurisdictions that had never once been checked for takedown, despite
+    # archival permanence being a core guarantee. Colorado made the flaw
+    # obvious -- its caucus sources are on .com and .co domains and could
+    # never have matched a .gov allowlist.
+    #
+    # Deriving from officials.press_release_url keeps the guard the list was
+    # there for (third-party URLs that leaked into the corpus are still
+    # skipped, because no configured source publishes on their host) while
+    # covering any jurisdiction the moment it is seeded.
     query = """
-        SELECT id::text, official_id, source_url
-        FROM official_site_items
-        WHERE deleted_at IS NULL
-        AND (
-          source_url LIKE '%%senate.gov%%'
-          OR source_url LIKE '%%whitehouse.gov%%'
-          OR source_url LIKE '%%house.gov%%'
+        WITH allowed_hosts AS (
+            SELECT DISTINCT lower(regexp_replace(
+                       press_release_url, '^https?://(?:www\\.)?([^/?#]+).*$', '\\1'
+                   )) AS host
+            FROM officials
+            WHERE press_release_url IS NOT NULL
+              AND collection_method IS NOT NULL
         )
+        SELECT i.id::text, i.official_id, i.source_url
+        FROM official_site_items i
+        WHERE i.deleted_at IS NULL
+          AND (
+            -- Derived hosts cover every seeded jurisdiction, including the
+            -- non-.gov caucus domains.
+            lower(regexp_replace(
+              i.source_url, '^https?://(?:www\\.)?([^/?#]+).*$', '\\1'
+            )) IN (SELECT host FROM allowed_hosts)
+            -- The original federal domains are kept as a floor. Deriving
+            -- hosts ALONE dropped 458 federal items whose URLs sit on a
+            -- different subdomain than the seeded listing page -- silo and
+            -- wp-json backfills legitimately do this -- and quietly
+            -- narrowing existing coverage while widening it elsewhere is
+            -- the kind of trade that goes unnoticed for months.
+            OR i.source_url LIKE '%%.senate.gov/%%'
+            OR i.source_url LIKE '%%.house.gov/%%'
+            OR i.source_url LIKE '%%whitehouse.gov/%%'
+          )
     """
     params = []
     if official_id:
-        query += " AND official_id = %s"
+        query += " AND i.official_id = %s"
         params.append(official_id)
 
     # Prioritize records never checked or least recently checked
     query += """
         ORDER BY
-            CASE WHEN last_seen_live IS NULL THEN 0 ELSE 1 END,
-            last_seen_live ASC NULLS FIRST
+            CASE WHEN i.last_seen_live IS NULL THEN 0 ELSE 1 END,
+            i.last_seen_live ASC NULLS FIRST
         LIMIT %s
     """
     params.append(batch_size)
