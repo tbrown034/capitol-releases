@@ -91,6 +91,8 @@ export default async function Home({
         JOIN rag_passages p
           ON p.official_id = s.id AND p.embedding IS NOT NULL
         WHERE s.status = 'active'
+          AND s.jurisdiction = 'us'
+          AND s.chamber IN ('senate', 'house')
         GROUP BY s.id, s.full_name, s.party, s.state, s.chamber
         ORDER BY s.full_name
       `) as AskableMember[])
