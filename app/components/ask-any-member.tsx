@@ -17,6 +17,7 @@ export type AskableMember = {
   party: string;
   state: string;
   chamber: string | null;
+  passages?: number;
 };
 
 function chamberLabel(m: AskableMember): string {
@@ -43,6 +44,15 @@ export function AskAnyMember({ members }: { members: AskableMember[] }) {
   const [selected, setSelected] = useState<AskableMember | null>(null);
   const [handoffQuestion, setHandoffQuestion] = useState<string>("");
   const [hint, setHint] = useState<string>("");
+
+  // Clickable starters: the deepest archives, no typing required.
+  const featured = useMemo(
+    () =>
+      [...members]
+        .sort((a, b) => (b.passages ?? 0) - (a.passages ?? 0))
+        .slice(0, 6),
+    [members],
+  );
 
   // Match members by any meaningful word in the query, so a full question
   // containing "warren" finds Warren even though the whole string doesn't.
@@ -135,6 +145,20 @@ export function AskAnyMember({ members }: { members: AskableMember[] }) {
         All of Congress — include the member&apos;s name in your question.
         Answers come only from their archived releases, with citations.
       </p>
+      {query.trim().length < 2 && featured.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {featured.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => choose(m)}
+              className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-xs text-neutral-600 hover:border-neutral-400 hover:text-neutral-900 transition-colors"
+            >
+              {chamberLabel(m)} {m.full_name.split(" ").slice(-1)[0]} ({m.party}
+              -{m.state})
+            </button>
+          ))}
+        </div>
+      )}
       {hint && <p className="mt-1 text-xs text-amber-700">{hint}</p>}
       {matches.length > 0 && (
         <ul className="absolute z-10 mt-1 w-full border border-neutral-200 bg-white shadow-sm max-h-72 overflow-y-auto">

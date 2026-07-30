@@ -85,11 +85,13 @@ export default async function Home({
   );
   const askMembers = askEnabled
     ? ((await sql`
-        SELECT s.id, s.full_name, s.party, s.state, s.chamber
+        SELECT s.id, s.full_name, s.party, s.state, s.chamber,
+               count(p.id)::int AS passages
         FROM officials s
+        JOIN rag_passages p
+          ON p.official_id = s.id AND p.embedding IS NOT NULL
         WHERE s.status = 'active'
-          AND EXISTS (SELECT 1 FROM rag_passages p
-                      WHERE p.official_id = s.id AND p.embedding IS NOT NULL)
+        GROUP BY s.id, s.full_name, s.party, s.state, s.chamber
         ORDER BY s.full_name
       `) as AskableMember[])
     : [];
