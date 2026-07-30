@@ -166,6 +166,22 @@ export function AskAnyMember({ members }: { members: AskableMember[] }) {
             </div>
           </>
         )}
+        <select
+          value=""
+          onChange={(e) => {
+            const m = members.find((x) => x.id === e.target.value);
+            if (m) choose(m);
+          }}
+          aria-label="Choose a member from an alphabetical list"
+          className="mb-2 w-full border border-neutral-200 bg-white px-2.5 py-2.5 text-sm text-neutral-700 focus:border-neutral-900 focus:outline-none transition-colors"
+        >
+          <option value="">Choose from the full list (A to Z)...</option>
+          {members.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.full_name} ({m.party}-{m.state})
+            </option>
+          ))}
+        </select>
         <input
           type="text"
           value={query}
