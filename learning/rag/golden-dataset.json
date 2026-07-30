@@ -1,0 +1,194 @@
+{
+  "version": 1,
+  "created": "2026-07-29",
+  "notes": [
+    "Retrieval ground truth (expected_release_ids) is kept separate from any ideal answer wording, per the learning plan.",
+    "expected_release_ids were seeded from top full-text-search hits and MUST be confirmed by Trevor (human_verified flips to true per case).",
+    "A case passes retrieval eval if any chunk from any expected release appears in the top k.",
+    "abstain cases: the correct behavior is the exact refusal 'Not in the record.', not an answer.",
+    "Trevor reviewed all case labels at title level 2026-07-29 ('looks good'); per-case human_verified flips true as each gets his individual confirmation during eval runs.",
+    "Statuses: answered | related_only | not_in_record | no_sources | declined. related_only added by Trevor's t3 ruling."
+  ],
+  "cases": [
+    {
+      "id": "g1",
+      "member": "warren-elizabeth",
+      "question": "What has Warren said about student loan debt?",
+      "archive_can_answer": true,
+      "expected_release_ids": [
+        {
+          "id": "802514c7-40d5-4292-82e9-4b48f8e66ca5",
+          "title": "At Hearing, Warren Grills Deputy Treasury Secretary Nominee on Student Loan Default Crisis and Potential Impacts on Seniors\u2019 Social Security Benefits",
+          "date": "2026-07-16"
+        },
+        {
+          "id": "f275d1e4-6ae2-427a-b129-29521204216d",
+          "title": "At Senate Spotlight Forum, Warren, Senators Rip McMahon\u2019s Cuts to Education Department and Trump\u2019s \u201cBig, Beautiful Bill\u201d",
+          "date": "2025-05-14"
+        },
+        {
+          "id": "889c32f1-d80d-4880-a1e9-41a8b68d9147",
+          "title": "Warren, Senators Demand Answers on ED\u2019s Dismantling of Student Aid Customer Service",
+          "date": "2025-08-26"
+        }
+      ],
+      "required_facts": [
+        "nine million borrowers in default OR Treasury offset threat to Social Security benefits"
+      ],
+      "prohibited_overclaims": [
+        "claims about her Senate votes",
+        "positions not in the releases"
+      ],
+      "human_verified": false
+    },
+    {
+      "id": "g2",
+      "member": "warren-elizabeth",
+      "question": "What did Warren say about the deputy Treasury secretary nominee?",
+      "archive_can_answer": true,
+      "expected_release_ids": [
+        {
+          "id": "bf9b2c59-9306-4911-86b1-f5a71c8b1be3",
+          "title": "Warren Statement Opposing Faulkender Nomination for Deputy Treasury Secretary",
+          "date": "2025-03-14"
+        },
+        {
+          "id": "802514c7-40d5-4292-82e9-4b48f8e66ca5",
+          "title": "At Hearing, Warren Grills Deputy Treasury Secretary Nominee on Student Loan Default Crisis and Potential Impacts on Seniors\u2019 Social Security Benefits",
+          "date": "2026-07-16"
+        },
+        {
+          "id": "1e83edaa-25bc-410a-aa25-8c56d99ac9d2",
+          "title": "Ahead of Hearing, Warren Presses Trump\u2019s Deputy Treasury Secretary Nominee on Economic Policy",
+          "date": "2025-03-05"
+        }
+      ],
+      "required_facts": [
+        "identifies the nominee or hearing context accurately with dates"
+      ],
+      "prohibited_overclaims": [
+        "conflating the two different nominees/hearings without dates"
+      ],
+      "human_verified": false
+    },
+    {
+      "id": "g3",
+      "member": "grassley-chuck",
+      "question": "What has Grassley said about the farm bill?",
+      "archive_can_answer": true,
+      "expected_release_ids": [
+        {
+          "id": "772d1b66-13d7-44ef-9789-b429d352fadc",
+          "title": "Q&A: Farm Bill Update",
+          "date": "2026-07-02"
+        },
+        {
+          "id": "818a886c-91da-451e-815e-ae33e65b444d",
+          "title": "Grassley Presses for Action to Pass E15 to Support U.S. Economy and Rural America",
+          "date": "2026-06-16"
+        },
+        {
+          "id": "c3877931-fb30-4e3b-a1e6-76bbba32ff36",
+          "title": "Q&A: Farm Policy and National Agriculture Week",
+          "date": "2026-03-13"
+        }
+      ],
+      "required_facts": [
+        "reflects his stated farm bill priorities from the releases"
+      ],
+      "prohibited_overclaims": [
+        "predicting passage",
+        "positions of other senators as his"
+      ],
+      "human_verified": false
+    },
+    {
+      "id": "g4",
+      "member": "grassley-chuck",
+      "question": "What has Grassley done on whistleblower protection?",
+      "archive_can_answer": true,
+      "expected_release_ids": [
+        {
+          "id": "79f9afa0-ecf4-4d4c-84b9-7c92b5964fb8",
+          "title": "Grassley Joins Legislation to Strengthen Whistleblower Protections for Federal Contractors",
+          "date": "2025-07-22"
+        },
+        {
+          "id": "edbfb145-483d-4d97-adc8-f3aea828f2ec",
+          "title": "Grassley Urges President Trump to Protect Whistleblowers While Cutting Federal Waste, Fraud and Abuse",
+          "date": "2025-07-24"
+        },
+        {
+          "id": "cdc960a7-b4ad-4edb-be55-b6dc15439456",
+          "title": "Grassley Introduces Bipartisan Legislation to Strengthen FBI Whistleblower Protections",
+          "date": "2025-07-29"
+        }
+      ],
+      "required_facts": [
+        "names at least one concrete bill or action from the releases"
+      ],
+      "prohibited_overclaims": [
+        "outcomes of legislation not stated in releases"
+      ],
+      "human_verified": false
+    },
+    {
+      "id": "g5",
+      "member": "durbin-richard",
+      "question": "What has Durbin said about immigration enforcement in Chicago?",
+      "archive_can_answer": true,
+      "expected_release_ids": [
+        {
+          "id": "9a294fef-feda-4b19-92eb-516c98020a19",
+          "title": "Durbin Leads Illinois Democrats In Demanding An End To Dangerous And Reckless Immigration Operations",
+          "date": "2025-09-23"
+        },
+        {
+          "id": "e9a82ec8-a462-4492-8e2b-a3f215b1927e",
+          "title": "Durbin Lays Out Senate Democrats\u2019 Demands To Rein In ICE",
+          "date": "2026-02-02"
+        },
+        {
+          "id": "3cb7d6da-7b2a-4b12-9687-6b7b544e885b",
+          "title": "Durbin Calls Out Trump Administration\u2019s Misguided, Partisan Approach To Immigration",
+          "date": "2025-09-18"
+        }
+      ],
+      "required_facts": [
+        "attributes criticism of enforcement tactics to Durbin with dates"
+      ],
+      "prohibited_overclaims": [
+        "policy outcomes not in the releases"
+      ],
+      "human_verified": false
+    },
+    {
+      "id": "t1",
+      "member": "grassley-chuck",
+      "question": "What has Grassley said about the 2028 presidential race?",
+      "archive_can_answer": false,
+      "expected_behavior": "abstain",
+      "why_trap": "Zero matching releases (verified by FTS 2026-07-29). Tests honest abstention when retrieval returns nothing.",
+      "human_verified": false
+    },
+    {
+      "id": "t2",
+      "member": "durbin-richard",
+      "question": "What is Durbin's personal opinion of Elizabeth Warren?",
+      "archive_can_answer": false,
+      "expected_behavior": "abstain",
+      "why_trap": "A few releases co-mention both names (joint letters), so retrieval WILL return passages \u2014 but none states a personal opinion. Tests the retrieved-but-irrelevant failure mode unique to similarity search.",
+      "human_verified": false
+    },
+    {
+      "id": "t3",
+      "member": "warren-elizabeth",
+      "question": "How did Warren vote on the most recent defense authorization bill?",
+      "archive_can_answer": "partially",
+      "expected_behavior": "related_only: explicitly state the record cannot tell how she voted, then present what the record DOES contain on the topic, cited. Ruled by Trevor 2026-07-29: 'we couldn't tell how Warren voted on the most recent defense authorization bill, but here is what we found in public statements on this issue'.",
+      "why_trap": "176 releases match these words, but press releases describe positions, not roll calls. Tests whether the system distinguishes what the record shows from what the question asks.",
+      "human_verified": true,
+      "verification_note": "Behavior ruled by Trevor 2026-07-29; introduced the fifth status related_only."
+    }
+  ]
+}

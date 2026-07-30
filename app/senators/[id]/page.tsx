@@ -19,6 +19,7 @@ import {
 import { sql } from "../../lib/db";
 import type { PressRelease, ContentType } from "../../lib/db";
 import { SenatorHeatmap } from "../../components/senator-heatmap";
+import { AskRecord } from "../../components/ask-record";
 import { Pagination } from "../../components/pagination";
 import { TypeBadge } from "../../components/type-badge";
 import { EmptyState } from "../../components/empty-state";
@@ -294,6 +295,14 @@ export default async function SenatorPage({
           ))}
         </div>
       )}
+
+      {/* Ask the record — RAG Q&A over this member's collected releases */}
+      <section className="mb-10">
+        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
+          Ask the record
+        </h2>
+        <AskRecord officialId={senator.id} memberName={senator.full_name} />
+      </section>
 
       {/* Publishing activity — calendar heatmap */}
       {daily.length > 0 && (

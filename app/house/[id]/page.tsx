@@ -7,6 +7,7 @@ import type { PressRelease, ContentType } from "../../lib/db";
 import { Pagination } from "../../components/pagination";
 import { TypeBadge } from "../../components/type-badge";
 import { EmptyState } from "../../components/empty-state";
+import { AskRecord } from "../../components/ask-record";
 import { STATE_NAMES } from "../../lib/states";
 import { formatLongMonthYear, formatReleaseDate } from "../../lib/dates";
 import houseSeed from "../../../pipeline/seeds/house.json";
@@ -313,6 +314,16 @@ export default async function HouseMemberPage({
               </Link>
             ))}
         </div>
+      )}
+
+      {/* Ask the record — RAG Q&A over this member's collected releases */}
+      {grandTotal > 0 && (
+        <section className="mb-8">
+          <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
+            Ask the record
+          </h2>
+          <AskRecord officialId={member.id} memberName={member.full_name} />
+        </section>
       )}
 
       {/* Release list */}
