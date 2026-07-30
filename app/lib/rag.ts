@@ -16,7 +16,11 @@ import { sql } from "./db";
 // just the cheap outer wall.
 
 export const EMBED_MODEL = "text-embedding-3-small";
-export const SCORE_FLOOR = 0.3;
+// Calibrated 2026-07-30 on live traffic: one-word queries ("housing") top
+// out near 0.30 while full questions reach 0.5+, so 0.30 wrongly refused
+// short queries. The floor only screens total absence of signal; judging
+// relevance is the generation layer's job.
+export const SCORE_FLOOR = 0.15;
 const CANDIDATES = 12;
 // Retrieved-context budget: quality degrades past ~2,500 tokens of context
 // (research 2026-07-29), so we stop adding passages at ~10k chars.

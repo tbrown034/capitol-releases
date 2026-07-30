@@ -134,8 +134,27 @@ export function AskAnyMember({ members }: { members: AskableMember[] }) {
 
   return (
     <div className="grid gap-3 md:grid-cols-[280px_1fr]">
-      {/* Member box: type to filter, click to pick, chips for one-click */}
+      {/* Member box: suggestion chips first, then type-to-filter input */}
       <div className="relative">
+        {featured.length > 0 && (
+          <>
+            <div className="mb-1.5 text-[10px] uppercase tracking-wider text-neutral-400">
+              Suggestions
+            </div>
+            <div className="mb-2 flex flex-wrap gap-1.5">
+              {featured.map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => choose(m)}
+                  className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-xs text-neutral-600 hover:border-neutral-400 hover:text-neutral-900 transition-colors"
+                >
+                  {chamberLabel(m)} {m.full_name.split(" ").slice(-1)[0]} (
+                  {m.party}-{m.state})
+                </button>
+              ))}
+            </div>
+          </>
+        )}
         <input
           type="text"
           value={query}
@@ -143,8 +162,8 @@ export function AskAnyMember({ members }: { members: AskableMember[] }) {
             setQuery(e.target.value);
             setHint("");
           }}
-          placeholder="Senator or representative..."
-          aria-label="Choose a senator or representative"
+          placeholder="Or type in your senator or rep..."
+          aria-label="Type the name of a senator or representative"
           className="w-full border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-800 placeholder:text-neutral-400 focus:border-neutral-900 focus:outline-none transition-colors"
         />
         {matches.length > 0 && (
@@ -165,20 +184,6 @@ export function AskAnyMember({ members }: { members: AskableMember[] }) {
               </li>
             ))}
           </ul>
-        )}
-        {query.trim().length < 2 && featured.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {featured.map((m) => (
-              <button
-                key={m.id}
-                onClick={() => choose(m)}
-                className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-xs text-neutral-600 hover:border-neutral-400 hover:text-neutral-900 transition-colors"
-              >
-                {chamberLabel(m)} {m.full_name.split(" ").slice(-1)[0]} (
-                {m.party}-{m.state})
-              </button>
-            ))}
-          </div>
         )}
       </div>
 
