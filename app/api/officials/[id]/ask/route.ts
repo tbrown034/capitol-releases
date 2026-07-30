@@ -26,7 +26,10 @@ export const maxDuration = 60;
 // validation layer, not the model, is the safety net. Swap via ASK_MODEL.
 const MODEL = process.env.ASK_MODEL ?? "claude-haiku-4-5";
 const MAX_QUESTION_CHARS = 300;
-const PER_IP_HOURLY_LIMIT = 10;
+// 30/hr: offices and households share IPs behind NAT (discovered when local
+// terminal tests and the browser split one budget). Global daily cap still
+// bounds worst-case spend.
+const PER_IP_HOURLY_LIMIT = 30;
 const GLOBAL_DAILY_LIMIT = 250;
 
 const REFUSAL_SENTENCE = "Not in the record.";

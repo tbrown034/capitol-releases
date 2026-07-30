@@ -9,7 +9,9 @@ import { SenatorBars } from "./components/senator-bars";
 import { SenatorActivity } from "./components/senator-activity";
 import { MailbagStrip } from "./components/mailbag-strip";
 import { HeroLetter } from "./components/hero-letter";
+import { AskAnyMember, type AskableMember } from "./components/ask-any-member";
 import { formatTimestamp } from "./lib/dates";
+import { sql } from "./lib/db";
 import type { FeedItem, ContentType } from "./lib/db";
 
 export const metadata = {
@@ -75,6 +77,22 @@ export default async function Home({
       getChamberActivity(30, "house"),
       getMailbag(7),
     ]);
+
+  // Members with embedded passages, for the front-page ask box. Refreshes
+  // with the same 10-minute ISR as the rest of the page.
+  const askEnabled = Boolean(
+    process.env.ANTHROPIC_API_KEY && process.env.OPENAI_API_KEY,
+  );
+  const askMembers = askEnabled
+    ? ((await sql`
+        SELECT s.id, s.full_name, s.party, s.state, s.chamber
+        FROM officials s
+        WHERE s.status = 'active'
+          AND EXISTS (SELECT 1 FROM rag_passages p
+                      WHERE p.official_id = s.id AND p.embedding IS NOT NULL)
+        ORDER BY s.full_name
+      `) as AskableMember[])
+    : [];
 
   const heroItems = (latestPool as FeedItem[])
     .filter((it) => (it.content_type ?? "press_release") === "press_release")
@@ -208,6 +226,17 @@ export default async function Home({
           )}
         </p>
       </div>
+
+      {/* Ask the record — front-page entry: pick any member, ask their
+          archive. Same component, statuses, and guardrails as member pages. */}
+      {askEnabled && askMembers.length > 0 && (
+        <section className="mb-10 md:mb-14">
+          <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
+            Ask the record
+          </h2>
+          <AskAnyMember members={askMembers} />
+        </section>
+      )}
 
       {/* Chamber, visual anchor of the page. Toggle between Senate (100
           seats, default) and House (437 seats). Both render as semicircle
