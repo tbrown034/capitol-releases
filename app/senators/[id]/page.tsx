@@ -296,13 +296,17 @@ export default async function SenatorPage({
         </div>
       )}
 
-      {/* Ask the record — RAG Q&A over this member's collected releases */}
-      <section className="mb-10">
-        <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
-          Ask the record
-        </h2>
-        <AskRecord officialId={senator.id} memberName={senator.full_name} />
-      </section>
+      {/* Ask the record — RAG Q&A over this member's collected releases.
+          Renders only when the answer pipeline is configured, so a deploy
+          without API keys shows a clean page, not a dead feature. */}
+      {process.env.ANTHROPIC_API_KEY && process.env.OPENAI_API_KEY && (
+        <section className="mb-10">
+          <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
+            Ask the record
+          </h2>
+          <AskRecord officialId={senator.id} memberName={senator.full_name} />
+        </section>
+      )}
 
       {/* Publishing activity — calendar heatmap */}
       {daily.length > 0 && (

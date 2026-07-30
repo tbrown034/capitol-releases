@@ -316,8 +316,9 @@ export default async function HouseMemberPage({
         </div>
       )}
 
-      {/* Ask the record — RAG Q&A over this member's collected releases */}
-      {grandTotal > 0 && (
+      {/* Ask the record — RAG Q&A over this member's collected releases.
+          Renders only when the answer pipeline is configured. */}
+      {process.env.ANTHROPIC_API_KEY && process.env.OPENAI_API_KEY && grandTotal > 0 && (
         <section className="mb-8">
           <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
             Ask the record
