@@ -70,7 +70,10 @@ type CitationOut = {
 
 type SegmentOut = { text: string; refs: number[] };
 
-const norm = (s: string) => s.replace(/\s+/g, " ").trim().toLowerCase();
+// Whitespace is stripped entirely (not collapsed): citations that span two
+// content blocks arrive concatenated without a separator, so "end.Start"
+// must match our "end. Start". Character sequence still must be exact.
+const norm = (s: string) => s.replace(/\s+/g, "").toLowerCase();
 
 function hashIp(req: NextRequest): string {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
