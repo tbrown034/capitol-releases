@@ -183,55 +183,45 @@ export default async function Home({
         </div>
       </section>
 
-      {/* Stats */}
+      {/* Stats — slim one-line strip; the numbers speak, the words stay out
+          of the way */}
       <div className="border-b border-neutral-200 pb-3 mb-5 md:mb-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-8 sm:gap-y-2 text-sm text-neutral-500">
-          <div>
-            <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
+        <p className="text-sm text-neutral-500 font-mono tabular-nums flex flex-wrap gap-x-2">
+          <span>
+            <span className="font-semibold text-neutral-900">
               {(stats.total_releases ?? 0).toLocaleString()}
-            </span>
-            press releases &amp; other records
-          </div>
-          <div>
-            <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
+            </span>{" "}
+            records
+          </span>
+          <span className="text-neutral-300">|</span>
+          <span>
+            <span className="font-semibold text-neutral-900">
               {stats.total_senators ?? 0}
-            </span>
-            members of Congress tracked
-            <span className="ml-2 text-xs text-neutral-400">
-              ({stats.senate_count ?? 0} Senate &middot; {stats.house_count ?? 0} House)
-            </span>
-          </div>
-          <div>
-            <span className="text-2xl font-semibold text-neutral-900 font-mono tabular-nums mr-1.5">
-              Jan 1, 2025
-            </span>
-            to present
-          </div>
-        </div>
-        <p className="mt-3 text-xs text-neutral-500">
-          {stats.senators_with_releases ?? 0} of {stats.total_senators ?? 0} members publishing
-          {latestRun?.finished_at && (
-            <>
-              {" · "}Last updated{" "}
-              <time dateTime={latestRun.finished_at}>
-                {formatTimestamp(latestRun.finished_at)}
-              </time>
-              {" · "}
-              {latestRun.inserted.toLocaleString()} new
-              {" · "}
-              <Link href="/status" className="underline hover:text-neutral-900">
-                run history
-              </Link>
-            </>
-          )}
+            </span>{" "}
+            members
+          </span>
+          <span className="text-neutral-300">|</span>
+          <span>since Jan 1, 2025</span>
         </p>
+        {latestRun?.finished_at && (
+          <p className="mt-2 text-xs text-neutral-400">
+            Updated{" "}
+            <time dateTime={latestRun.finished_at}>
+              {formatTimestamp(latestRun.finished_at)}
+            </time>
+            {" · "}
+            <Link href="/status" className="underline hover:text-neutral-600">
+              run history
+            </Link>
+          </p>
+        )}
       </div>
 
       {/* Ask the record — front-page entry: pick any member, ask their
           archive. Same component, statuses, and guardrails as member pages. */}
       {askEnabled && askMembers.length > 0 && (
-        <section className="mb-10 md:mb-14">
-          <h2 className="text-xs uppercase tracking-wider text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
+        <section className="mb-10 md:mb-14 border border-neutral-200 bg-neutral-50/60 p-4 md:p-6">
+          <h2 className="text-xs uppercase tracking-wider text-neutral-500 mb-3">
             Ask the record
           </h2>
           <AskAnyMember members={askMembers} />

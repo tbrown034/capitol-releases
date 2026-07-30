@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import posthog from "posthog-js";
 
 // "Ask the record" — the reader-facing surface of the RAG pipeline.
@@ -52,16 +52,32 @@ const BOUNDARY_NOTE: Record<string, string> = {
 export function AskRecord({
   officialId,
   memberName,
+  initialQuestion,
 }: {
   officialId: string;
   memberName: string;
+  // When the front-page box hands off a full question ("what did warren say
+  // about trump"), it arrives here and fires immediately — the user already
+  // pressed Enter once and should not have to press it again.
+  initialQuestion?: string;
 }) {
-  const [question, setQuestion] = useState("");
+  const [question, setQuestion] = useState(initialQuestion ?? "");
   const [state, setState] = useState<AskState>({ kind: "idle" });
 
-  async function submit(e: React.FormEvent) {
+  useEffect(() => {
+    if (initialQuestion && initialQuestion.trim().length >= 3) {
+      void runAsk(initialQuestion);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function submit(e: React.FormEvent) {
     e.preventDefault();
-    const q = question.trim();
+    void runAsk(question);
+  }
+
+  async function runAsk(raw: string) {
+    const q = raw.trim();
     if (q.length < 3 || state.kind === "loading") return;
 
     setState({ kind: "loading" });
