@@ -62,14 +62,25 @@ export function AskAnyMember({ members }: { members: AskableMember[] }) {
   const [handoffQuestion, setHandoffQuestion] = useState<string>("");
   const [hint, setHint] = useState<string>("");
 
-  // Clickable starters: the deepest archives, no typing required.
-  const featured = useMemo(
-    () =>
-      [...members]
-        .sort((a, b) => (b.passages ?? 0) - (a.passages ?? 0))
-        .slice(0, 6),
-    [members],
-  );
+  // Clickable starters: deepest senate archives, balanced 3 D + 3 R and
+  // interleaved — a nonpartisan archive doesn't lead with one party.
+  const featured = useMemo(() => {
+    const ranked = [...members].sort(
+      (a, b) => (b.passages ?? 0) - (a.passages ?? 0),
+    );
+    const dems = ranked
+      .filter((m) => m.party === "D" && m.chamber === "senate")
+      .slice(0, 3);
+    const reps = ranked
+      .filter((m) => m.party === "R" && m.chamber === "senate")
+      .slice(0, 3);
+    const out: AskableMember[] = [];
+    for (let i = 0; i < 3; i++) {
+      if (dems[i]) out.push(dems[i]);
+      if (reps[i]) out.push(reps[i]);
+    }
+    return out;
+  }, [members]);
 
   const matches = useMemo(
     () => (query.trim().length >= 2 ? detectMembers(query, members) : []),
