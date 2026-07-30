@@ -204,7 +204,12 @@ export function HeroLetter({ items, asOf }: { items: HeroItem[]; asOf?: string |
               <div className="min-w-0 flex-1 leading-tight">
                 <div className="text-[10px] uppercase tracking-wider text-neutral-400">From</div>
                 <div className="text-sm text-neutral-900 font-[family-name:var(--font-source-serif)] font-semibold truncate">
-                  {titlePrefix} {item.senator_name}
+                  <Link
+                    href={`${item.chamber === "house" ? "/house" : "/senators"}/${item.official_id}`}
+                    className="hover:underline"
+                  >
+                    {titlePrefix} {item.senator_name}
+                  </Link>
                 </div>
                 <div className="text-[11px] text-neutral-500">
                   {partyName} · {item.state}
