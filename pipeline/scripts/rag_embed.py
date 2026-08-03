@@ -72,10 +72,24 @@ def member_order(cur, members: list[str] | None) -> list[str]:
 
 
 def chunk_member(cur, official_id: str) -> int:
+    # Only items with no v1 passages yet. The previous version selected
+    # every qualifying body and leaned on ON CONFLICT DO NOTHING to discard
+    # the rework -- correct, but it streamed the full corpus (~104k bodies)
+    # out of Neon on every --all run. That read flood evicted the page
+    # cache under live traffic on 2026-08-02 and the feed facet queries
+    # went from warm-cache fast to 21s cold, stacking until the pooler hit
+    # max_client_conn and the site 500d. Incremental selection makes an
+    # --all pass read only what actually needs chunking, which is what the
+    # 4x/day cron wants anyway. chunk_version is constant 'v1' today; a
+    # future chunker bump changes this predicate along with it.
     cur.execute("""
-        SELECT id, title, body_text FROM official_site_items
+        SELECT id, title, body_text FROM official_site_items i
         WHERE official_id = %s AND deleted_at IS NULL
           AND body_text IS NOT NULL AND length(body_text) >= %s
+          AND NOT EXISTS (
+            SELECT 1 FROM rag_passages p
+            WHERE p.item_id = i.id AND p.chunk_version = 'v1'
+          )
     """, (official_id, MIN_BODY_CHARS))
     rows = cur.fetchall()
     values = []
