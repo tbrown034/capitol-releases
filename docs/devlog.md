@@ -1732,3 +1732,21 @@ The methodology page on the live site reflects all of this. Every gap has a docu
 - Citation-validation fix verified on prod (his exact failing questions now answer). Injection test and garbage test both die at retrieval. Rate limit raised to 30/hr after discovering terminal + browser share one NAT'd IP.
 - Four prod deploys before noon, all green. Site state at interview time: front-page ask live, all member pages live, 100% corpus embedded.
 ---
+## 2026-08-02/03 - Outage, root cause, and the fixes that outlast it
+
+**Session Summary:**
+- Merged colorado-caucus-tier to main (17 unique commits after rebase dropped 11 duplicate RAG patches): state-tier work, CAUCUS_PRESS_HOSTS allowlist for test_all_urls_are_government. Ended the 22-run Daily pipeline red streak — first green 13:51 UTC Aug 3, green since.
+- CAUSED AND FIXED A PROD OUTAGE (Aug 2 ~9 PM ET): ran rag_embed --all locally during a CI run. chunk_member re-read all ~104k bodies every run (ON CONFLICT discarded the rework); the read flood evicted Neon's page cache, the unindexed feed facet queries went 21s cold, requests stacked to max_client_conn (~370), site 500'd. Recovered overnight when traffic drained.
+- Two-layer fix: (1) chunk pass now selects only unchunked items (NOT EXISTS on rag_passages, chunk_version='v1'); (2) partial index idx_osi_live_official_type on (official_id, content_type) WHERE deleted_at IS NULL + VACUUM ANALYZE, applied directly to Neon — facet counts index-only-scan ~500 pages instead of seq-scanning 16.5k. Cold cache can no longer stampede the pooler.
+- RAG freshness automated: embed step on the 4x/day cron (skip-if-no-key + continue-on-error), OPENAI_API_KEY secret set, backlog embedded (760 chunks, $0.008, prod unaffected). 5 PM Aug 3 cron ran the step live: success. Active US Congress = 100% embedded; 222 remaining unchunked are former members + deferred state stubs.
+- Date repairs: hamadeh 2026-09-24 -> 2026-07-24 (repair_bad_dates --apply). balint documentid=789 carries 2027-07-27 in the source's own meta AND visible text; corpus bracketing (id 781 = 07-21) says 2026-07-27, left flagged at 0.2 confidence rather than fabricating a correction; confirmed not surfacing on the site.
+
+**Notable Changes (Aug 3 audit session, 9 commits pushed):**
+- Security: ADMIN_EMAIL no longer falls back to a hardcoded personal address; isAdmin fails closed. DEPLOY NOTE: ADMIN_EMAIL must exist in Vercel prod or /admin locks out on next login.
+- Subscriber email decommissioned (0 subscribers ever, verified twice): send workflows, subscribe/unsubscribe routes, signup component removed. Kept: newsletter_subscribers table, brief_send.py send path, ALL operator email. Re-launch bar in README roadmap: double opt-in + per-IP rate limit.
+- ci.yml: first push/PR gate (eslint, tsc --noEmit, non-DB pytest). First run green. Lint script fixed — bare "eslint" linted nothing.
+- Three SOFT tripwires for continue-on-error steps: floor-speeches silent 21d, RAG embed backlog >48h (floor of 5 for chunker-rejected stubs), health probe wrote zero rows in 24h.
+- pipeline/lib/env.py: one quote-stripping .env loader replaces 4 divergent copies (the quote bug shipped twice as real incidents).
+- package-lock.json dropped (pnpm only). README rewritten from the production DB (104,079 live records, 100+435+257 officials, 18,678 Bluesky, 5,676 floor speeches, 70 briefs, port 3003). scripts/ + pipeline/recon/ + research/ moved to archive/ with contract README (git mv, nothing deleted).
+- FLAGGED TO TREVOR: repo is PUBLIC (gh confirms) — he believed private. Push-allowed-by-default recorded in agent memory after multi-agent permission friction.
+---
