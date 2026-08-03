@@ -1,0 +1,208 @@
+{
+  "_meta": {
+    "chamber": null,
+    "level": "state",
+    "state": "CO",
+    "branch": "executive",
+    "platform": "four separate platforms, one per office",
+    "verified": "2026-07-25",
+    "status": "DRAFT — not registered in pipeline/lib/seeds.py, not on the daily cron",
+    "attribution_model": "office",
+    "notes": "Colorado statewide elected executives. Unlike the legislature, all four offices run their own pressroom and every record attributes cleanly to a single officeholder. This is the strongest tier in the Colorado pilot: 574 items published 2026-01-01 to 2026-07-25 across the four offices, all four archives reaching past 2025-01-01, and every one collectable with hardened httpx. No Playwright needed anywhere in Colorado.",
+    "stale_url_correction": "The 2026-05-01 recon listed https://governor.colorado.gov/press-releases. That host now fails the TLS handshake outright (LibreSSL SSL_ERROR_SYSCALL; DNS still resolves to 96.43.154.16). The live pressroom moved to https://www.colorado.gov/governor/news. Do not seed the old host.",
+    "press_contacts": {
+      "co-governor": "Press Secretary Eric Maruyama eric.maruyama@state.co.us; Deputy Press Secretary Ally Sullivan ally.sullivan@state.co.us; Deputy Press Secretary Maddy Remington madelyn.remington@state.co.us — published at colorado.gov/governor/media-resources",
+      "co-attorney-general": "Lawrence Pacheco, Chief Communications Officer, Lawrence.Pacheco@coag.gov, (720) 508-6553 — published at coag.gov/media-center/press-room",
+      "co-secretary-of-state": "jack.todd@coloradosos.gov and china.scroggins@coloradosos.gov — published on the newsroom and press-release index pages; role titles are not stated on those pages",
+      "co-treasurer": "lindsay.sandoval@state.co.us — published at treasury.colorado.gov/contact-us; role title not stated on that page. Office general inbox treasurer.young@state.co.us"
+    }
+  },
+  "members": [
+    {
+      "official_id": "co-governor",
+      "full_name": "Jared Polis",
+      "office": "Governor of Colorado",
+      "party": "D",
+      "state": "CO",
+      "chamber": null,
+      "office_type": "state_executive",
+      "attribution": "office",
+      "official_url": "https://www.colorado.gov/governor",
+      "press_release_url": "https://www.colorado.gov/governor/news",
+      "parser_family": "co_gov_drupal",
+      "collection_method": "co_executive_html",
+      "requires_js": false,
+      "rss_feed_url": null,
+      "pagination": {
+        "type": "page_param",
+        "pattern": "?page=N",
+        "page_size": 10,
+        "zero_indexed": true,
+        "note": "Verified full back-walk: 89 pages, 890 distinct items, terminating cleanly when a page yields no new links."
+      },
+      "selectors": {
+        "list_item": "article",
+        "detail_link": "a[href*='/governor/news/']",
+        "title": "a[href*='/governor/news/']",
+        "date": null
+      },
+      "scrape_config": {
+        "sources": [
+          { "url": "https://www.colorado.gov/governor/news", "content_type": "press_release" }
+        ],
+        "date_strategy": "listing_card_text",
+        "date_note": "No <time> element on the listing. Each card carries a 'Month D, YYYY' string; regex it and hand to parse_date_text(). 890 of 890 items dated this way in the 2026-07-25 verification run. Deduplicate on detail URL — the same article can render in more than one <article> block on a page.",
+        "rss_note": "https://www.colorado.gov/governor/rss.xml returns 200 but is a 748-byte stub, not a usable item feed. Do not seed it."
+      },
+      "archive": {
+        "distinct_items": 890,
+        "oldest": "2024-12-18",
+        "newest": "2026-07-24",
+        "by_year": { "2024": 15, "2025": 508, "2026": 367 }
+      },
+      "confidence": 0.9,
+      "expect_empty": false,
+      "notes": "Highest-volume Colorado source of any tier — roughly 1.7 items per day in 2026. Mixes press releases, appointments, disaster declarations and 'What people are saying' roundups; all are first-party office output. Executive orders live on a separate page not seeded here."
+    },
+    {
+      "official_id": "co-attorney-general",
+      "full_name": "Phil Weiser",
+      "office": "Colorado Attorney General",
+      "party": "D",
+      "state": "CO",
+      "chamber": null,
+      "office_type": "state_executive",
+      "attribution": "office",
+      "official_url": "https://coag.gov",
+      "press_release_url": "https://coag.gov/media-center/press-room/",
+      "parser_family": "co_ag_wp",
+      "collection_method": "co_executive_wp",
+      "requires_js": false,
+      "rss_feed_url": "https://coag.gov/feed/",
+      "pagination": {
+        "type": "wp_json_page",
+        "pattern": "/wp-json/wp/v2/posts?per_page=100&page=N",
+        "page_size": 100,
+        "note": "WordPress, wp-json open and unauthenticated. Verified 1,097 posts back to 2019."
+      },
+      "scrape_config": {
+        "wp_json_base": "https://coag.gov/wp-json/wp/v2",
+        "sources": [
+          { "url": "https://coag.gov/wp-json/wp/v2/posts", "content_type": "press_release" }
+        ],
+        "date_field": "date_gmt",
+        "date_note": "Authoritative; date_confidence 1.0."
+      },
+      "archive": {
+        "posts": 1097,
+        "oldest": "2019",
+        "newest": "2026-07-24",
+        "by_year": {
+          "2019": 108, "2020": 125, "2021": 135, "2022": 129,
+          "2023": 139, "2024": 131, "2025": 218, "2026": 112
+        }
+      },
+      "confidence": 0.95,
+      "expect_empty": false,
+      "notes": "Cleanest source in the whole Colorado pilot. Note /press-releases/ 301-redirects to /media-center/press-room/; seed the destination. Detail URLs still live under /press-releases/{slug}/."
+    },
+    {
+      "official_id": "co-secretary-of-state",
+      "full_name": "Jena Griswold",
+      "office": "Colorado Secretary of State",
+      "party": "D",
+      "state": "CO",
+      "chamber": null,
+      "office_type": "state_executive",
+      "attribution": "office",
+      "official_url": "https://www.coloradosos.gov",
+      "press_release_url": "https://www.coloradosos.gov/pubs/newsRoom/pressReleases/index.html",
+      "parser_family": "co_sos_static",
+      "collection_method": "co_executive_html",
+      "requires_js": false,
+      "rss_feed_url": null,
+      "pagination": {
+        "type": "none_current_year_plus_sitemap",
+        "note": "The HTML index lists the current year only — 78 items, all 2026, as of 2026-07-25. Directory listings are 403 and there are no per-year index pages. The full archive is reachable from https://www.coloradosos.gov/sitemap.xml, which carries 1,609 press-release URLs back to 2004."
+      },
+      "scrape_config": {
+        "sources": [
+          {
+            "url": "https://www.coloradosos.gov/pubs/newsRoom/pressReleases/index.html",
+            "content_type": "press_release",
+            "role": "daily"
+          },
+          {
+            "url": "https://www.coloradosos.gov/sitemap.xml",
+            "url_pattern": "pressReleases/{YYYY}/PR{YYYYMMDD}{topic}.html",
+            "content_type": "press_release",
+            "role": "backfill"
+          }
+        ],
+        "date_strategy": "url_filename",
+        "date_note": "The date is encoded in the filename as PR{YYYYMMDD}. Exact, no parsing ambiguity, date_confidence 1.0. Listing link text also opens with 'Month D - '."
+      },
+      "archive": {
+        "sitemap_press_release_urls": 1609,
+        "oldest_year": 2004,
+        "newest": "2026-07-24",
+        "by_year_recent": {
+          "2020": 161, "2021": 73, "2022": 164, "2023": 97,
+          "2024": 206, "2025": 61, "2026": 78
+        }
+      },
+      "confidence": 0.92,
+      "expect_empty": false,
+      "notes": "Static HTML, deepest archive in the pilot. Volume tracks the election cycle — even years run two to three times odd years. Heavy candidate-qualification and ballot-certification output in 2026."
+    },
+    {
+      "official_id": "co-treasurer",
+      "full_name": "Dave Young",
+      "office": "Colorado State Treasurer",
+      "party": "D",
+      "state": "CO",
+      "chamber": null,
+      "office_type": "state_executive",
+      "attribution": "office",
+      "official_url": "https://treasury.colorado.gov",
+      "press_release_url": "https://treasury.colorado.gov/category/press-release",
+      "parser_family": "co_treasury_drupal",
+      "collection_method": "co_executive_html",
+      "requires_js": false,
+      "rss_feed_url": null,
+      "pagination": {
+        "type": "page_param",
+        "pattern": "?page=N",
+        "page_size": 10,
+        "zero_indexed": true,
+        "last_page": 5,
+        "note": "Drupal pager (ul.pagination.js-pager__items). Six pages, 51 distinct releases total."
+      },
+      "selectors": {
+        "list_item": "article",
+        "detail_link": "a[href*='/press-release/']",
+        "title": "a[href*='/press-release/']",
+        "date": null
+      },
+      "scrape_config": {
+        "sources": [
+          {
+            "url": "https://treasury.colorado.gov/category/press-release",
+            "content_type": "press_release"
+          }
+        ],
+        "date_strategy": "detail_page_time_element",
+        "date_note": "The listing cards carry NO date — a listing-only parse yields 0 of 30 dated, verified 2026-07-25. The detail page has <time datetime=\"2026-06-11T09:00:00-06:00\">, which is authoritative. This source requires a detail fetch per item. Volume is low enough (51 lifetime) that the cost is trivial."
+      },
+      "archive": {
+        "distinct_items": 51,
+        "oldest": "2024-06-26",
+        "newest": "2026-07-16",
+        "by_year": { "2024": 6, "2025": 28, "2026": 17 }
+      },
+      "confidence": 0.85,
+      "expect_empty": false,
+      "notes": "Lowest volume of the four — roughly two per month. /news and /press-releases both 404; the working path is /category/press-release. The 2026-05-01 recon flagged a 403 on direct fetch; that did not reproduce on 2026-07-25 with browser-class headers."
+    }
+  ]
+}

@@ -261,6 +261,7 @@ async def run_update(
     since: datetime | None = None,
     dry_run: bool = False,
     max_concurrent: int = 6,
+    max_pages: int = 1,
 ):
     """Run the daily update for all senators."""
     started_at = datetime.now(timezone.utc)
@@ -294,7 +295,7 @@ async def run_update(
             collector = registry.get_collector(senator)
 
             try:
-                result = await collector.collect(senator, since=since, max_pages=1)
+                result = await collector.collect(senator, since=since, max_pages=max_pages)
             except Exception as e:
                 log.error("Collector crashed for %s: %s: %s", sid, type(e).__name__, e)
                 if not expect_empty:
@@ -405,6 +406,14 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Show what would be inserted")
     parser.add_argument("--since", help="Override cutoff date (ISO format)")
     parser.add_argument("--max-concurrent", type=int, default=6)
+    parser.add_argument(
+        "--max-pages", type=int, default=1,
+        help=(
+            "Pages to walk per member. The daily run wants 1 (page 1 carries "
+            "anything new). Raise it with --since to backfill a newly seeded "
+            "member's archive."
+        ),
+    )
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -433,6 +442,7 @@ def main():
         since=since,
         dry_run=args.dry_run,
         max_concurrent=args.max_concurrent,
+        max_pages=args.max_pages,
     ))
 
     print(

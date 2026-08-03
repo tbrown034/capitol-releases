@@ -8,7 +8,7 @@ existing federal/Texas behavior.
 import logging
 import time
 from datetime import datetime
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup, Tag
 
@@ -298,7 +298,14 @@ class OhioSenateCollector:
 
 
 class MissouriSenateNewsroomCollector:
-    """Collects Missouri Senate central newsroom items."""
+    """Collects Missouri Senate per-member media pages.
+
+    The chamber-wide newsroom at /media/newsroom stopped server-rendering its
+    item list (the card body ships empty), so collection is keyed to each
+    member's own Media pages instead. That also buys per-member attribution,
+    which the aggregate newsroom row never had. Page 1 is CurrentMedia
+    (recent), page 2 is MediaArchive (older) -- see _find_mo_next_page.
+    """
 
     method = "mo_senate_newsroom"
 
@@ -314,7 +321,7 @@ class MissouriSenateNewsroomCollector:
             max_pages=max_pages,
             method=self.method,
             item_extractor=_extract_mo_items,
-            next_page_finder=_find_no_next_page,
+            next_page_finder=_find_mo_next_page,
             body_selector="main, .main-container",
         )
 
@@ -371,6 +378,7 @@ async def _collect_listing_source(
     async with create_client() as client:
         current_url = pr_url
         page = 0
+        total_found = 0
         while current_url and page < max_pages:
             page += 1
             try:
@@ -384,10 +392,22 @@ async def _collect_listing_source(
 
             soup = BeautifulSoup(resp.text, "lxml")
             items = item_extractor(soup, current_url)
+            total_found += len(items)
+
+            # An empty page is not automatically the end of the walk. Missouri
+            # splits a member's output across CurrentMedia (recent) and
+            # MediaArchive (older), and a member with nothing recent still has
+            # an archive worth collecting. Fall through to the next page and
+            # only report "no items" once the whole walk comes up empty.
             if not items:
-                if page == 1 and not senator.get("expect_empty"):
-                    result.errors.append("No items found on page 1")
-                break
+                if page >= max_pages:
+                    break
+                next_url = next_page_finder(soup, current_url)
+                if not next_url or next_url == current_url:
+                    break
+                current_url = next_url
+                await politeness_delay(0.4)
+                continue
 
             result.pages_scraped = page
             page_dates = [item["published_at"] for item in items if item.get("published_at")]
@@ -446,6 +466,11 @@ async def _collect_listing_source(
             current_url = next_url
             await politeness_delay(0.4)
 
+        # Only report an empty walk when nothing else already explained it --
+        # a fetch failure or non-200 above is the more useful error to surface.
+        if total_found == 0 and not result.errors and not senator.get("expect_empty"):
+            result.errors.append("No items found")
+
     result.duration_seconds = time.monotonic() - start
     log.info("%s collected %d items for %s (%d pages, %.1fs)",
              method, len(result.releases), sid, result.pages_scraped, result.duration_seconds)
@@ -482,21 +507,71 @@ async def _health_check_listing_source(senator: dict, method: str, item_extracto
     return result
 
 
+# Third-party clippings and external media hits are out of scope, so drop any
+# listing whose URL advertises itself as one. See CLAUDE.md "Original content
+# only".
+_CA_CLIPPING_MARKERS = (
+    "in-the-news",
+    "in-the-media",
+    "in-the-press",
+    "news-clips",
+    "media-coverage",
+)
+
+
+# Detail-page path prefixes seen across the chamber. Democratic members sit on
+# sdNN.senate.ca.gov and link to /news/<slug> (older sites: /news/press-release/
+# <slug>); Republican members are hosted by the caucus on srNN.senate.ca.gov and
+# link to /content/<slug>. Same Drupal build, different path prefix.
+_CA_ARTICLE_PREFIXES = ("/news/", "/press-release/", "/content/")
+
+
+def _is_ca_article_href(href: str, base_url: str) -> bool:
+    """True when an href looks like a CA Senate article detail page.
+
+    Three things have to hold. The link must stay on the member's own host --
+    the caucus-hosted srNN listings mix external media hits (KQED, local
+    papers) into the same rows as original releases, and those are third-party
+    coverage, not the member's own output. It must sit under an article path
+    prefix. And the final path segment has to look like an article slug, since
+    the prefix alone also matches section nav links.
+    """
+    if not href:
+        return False
+    lowered = href.lower()
+    if any(marker in lowered for marker in _CA_CLIPPING_MARKERS):
+        return False
+    if urlparse(urljoin(base_url, href)).netloc != urlparse(base_url).netloc:
+        return False
+    if not any(prefix in lowered for prefix in _CA_ARTICLE_PREFIXES):
+        return False
+    slug = lowered.rstrip("/").split("/")[-1]
+    return len(slug) > 18 and "-" in slug
+
+
 def _extract_ca_items(soup: BeautifulSoup, base_url: str) -> list[dict]:
     rows = soup.select(".view-content > div")
     if not rows:
         rows = soup.select(".views-row")
     items = []
+    seen: set[str] = set()
     for row in rows:
-        link = row.select_one('a[href*="/news/press-release/"]')
+        link = next(
+            (a for a in row.select("a[href]") if _is_ca_article_href(a["href"], base_url)),
+            None,
+        )
         if not link:
             continue
+        source_url = urljoin(base_url, link["href"])
+        if source_url in seen:
+            continue
+        seen.add(source_url)
         title = link.get_text(" ", strip=True)
         text = row.get_text(" ", strip=True)
         date_result = parse_date_text(text) or extract_date_from_url(link["href"])
         items.append(_listing_item(
             title=title,
-            source_url=urljoin(base_url, link["href"]),
+            source_url=source_url,
             date_result=date_result,
             raw_html=str(row),
             body_text=text,
@@ -556,6 +631,21 @@ def _extract_mo_items(soup: BeautifulSoup, base_url: str) -> list[dict]:
             body_text=card.get_text(" ", strip=True),
         ))
     return items
+
+
+def _find_mo_next_page(soup: BeautifulSoup, base_url: str) -> str:
+    """Walk a Missouri member from CurrentMedia to MediaArchive.
+
+    Missouri paginates a member's output by recency bucket rather than by page
+    number: CurrentMedia holds the recent items and MediaArchive holds the rest.
+    Neither page renders a next-page link, so derive the archive URL from the
+    member id already in the current URL. MediaArchive itself is terminal.
+    """
+    if "MediaArchive" in base_url:
+        return ""
+    if "CurrentMedia" not in base_url:
+        return ""
+    return normalize_url(base_url.replace("CurrentMedia", "MediaArchive"))
 
 
 def _extract_wv_items(soup: BeautifulSoup, base_url: str) -> list[dict]:

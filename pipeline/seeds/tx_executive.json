@@ -1,0 +1,320 @@
+{
+  "_meta": {
+    "chamber": null,
+    "level": "state",
+    "state": "TX",
+    "jurisdiction": "tx",
+    "branch": "executive",
+    "office_type": "state_executive",
+    "verified": "2026-07-25",
+    "collectable": true,
+    "notes": "DRAFT — NOT WIRED. Texas statewide elected executives. Every press listing below was fetched live on 2026-07-25 with a hardened httpx client (browser-class headers, see pipeline/lib/http.py); none of the seven is behind a WAF at the listing level and none needs Playwright to enumerate items. The single exception is texasagriculture.gov, whose ARTICLE DETAIL pages (not the listing) serve a bot-challenge to httpx and to the Internet Archive crawler; a real browser clears it, so that one row is marked requires_js on the detail leg only. Do not register this file in pipeline/lib/seeds.py until the two open scope questions in open_questions are answered. Texas also elects its Supreme Court, Court of Criminal Appeals and State Board of Education; those are out of scope here. The Secretary of State is appointed by the Governor, not elected, and is excluded for that reason.",
+    "open_questions": [
+      "Railroad Commission attribution: three separately elected commissioners share one institutional /news feed. Some release titles name a commissioner ('Wayne Christian Backs Effort to Lower Government Cost'), most do not ('Texas Oil and Gas Production Statistics for April 2026'). Decide whether to store one agency-level official or three per-commissioner officials with a title-match attribution rule before wiring.",
+      "GLO scope: the /about-glo/press-releases feed mixes Land Commissioner output with Veterans Land Board operational notices ('Voices of Veterans', unaccompanied-veteran burial announcements). Roughly half the 2026 items are agency-programmatic rather than commissioner-attributable. Decide whether to collect all of it or filter."
+    ],
+    "verification": {
+      "method": "pipeline-style extraction exercised against every listing; see the recon session's verify_tx.py / volume_2026.py",
+      "window": "2026-01-01 .. 2026-07-25",
+      "counts_are": "measured by walking real pagination to the window boundary, not estimated"
+    }
+  },
+  "members": [
+    {
+      "official_id": "tx-exec-governor",
+      "full_name": "Greg Abbott",
+      "office": "Governor",
+      "party": "R",
+      "state": "TX",
+      "official_url": "https://gov.texas.gov",
+      "press_release_url": "https://gov.texas.gov/news",
+      "parser_family": "tx_gov_expressionengine",
+      "collection_method": null,
+      "requires_js": false,
+      "feed_rss": "https://gov.texas.gov/news/rss",
+      "feed_wp_json": null,
+      "pagination": {
+        "type": "offset_path",
+        "pattern": "/news/P{offset}",
+        "per_page": 10,
+        "note": "offset is item count, not page number: page 2 is /news/P10"
+      },
+      "selectors": {
+        "list_item": "div.media-object",
+        "title": "h3 a[href*='/news/post/']",
+        "detail_link": "h3 a[href*='/news/post/']",
+        "date_month": ".date-month",
+        "date_day": ".date-day",
+        "categories": "p.meta a",
+        "detail_date": "p.meta"
+      },
+      "date_strategy": {
+        "listing": "month + day only, NO YEAR",
+        "detail": "p.meta reads 'July 24, 2026 | Austin, Texas | Press Release'",
+        "recommended": "fetch the detail page for published_at; or derive year on the listing by detecting the month rollover when walking newest-first"
+      },
+      "items_2026": 352,
+      "archive_depth": "walked back past 2025-12-19 without hitting an end; archive is deeper than the collection window",
+      "press_contact_email": null,
+      "press_contact_note": "no published press email; gov.texas.gov/contact is a form",
+      "confidence": 0.95,
+      "expect_empty": false,
+      "last_verified": "2026-07-25",
+      "recon_status": "verified_extraction",
+      "notes": "ExpressionEngine. Highest-volume Texas executive by a wide margin — about 1.7 items/day in 2026. RSS exists but carries only 10 items and no pubDate element, so it is useful as a change trigger, not as the collection path. Category links on each card map cleanly onto content_type (press-release, appointment, proclamation, disaster-declaration)."
+    },
+    {
+      "official_id": "tx-exec-ltgov",
+      "full_name": "Dan Patrick",
+      "office": "Lieutenant Governor",
+      "party": "R",
+      "state": "TX",
+      "official_url": "https://www.ltgov.texas.gov",
+      "press_release_url": "https://www.ltgov.texas.gov/news/",
+      "parser_family": "wp_json",
+      "collection_method": null,
+      "requires_js": false,
+      "feed_rss": null,
+      "feed_wp_json": "https://www.ltgov.texas.gov/wp-json/wp/v2/posts",
+      "pagination": {
+        "type": "wp_json",
+        "pattern": "?per_page=50&page={n}",
+        "per_page": 50,
+        "supports_date_filter": true,
+        "date_filter_example": "?after=2025-12-31T23:59:59"
+      },
+      "selectors": null,
+      "date_strategy": {
+        "source": "wp_json",
+        "field": "date",
+        "confidence": "exact — ISO timestamps straight from WordPress"
+      },
+      "items_2026": 9,
+      "archive_total": 869,
+      "archive_depth": "wp-json X-WP-Total reports 869 posts; oldest sampled 2023-08-02, likely deeper",
+      "press_contact_email": null,
+      "press_contact_note": "no published press email; /contact/ is a form",
+      "confidence": 0.95,
+      "expect_empty": false,
+      "expected_low_volume": true,
+      "low_volume_reason": "Patrick publishes rarely — 9 posts in the first 7 months of 2026, most of them joint statements issued with Speaker Burrows",
+      "last_verified": "2026-07-25",
+      "recon_status": "verified_extraction",
+      "notes": "WordPress with an open wp-json endpoint — the cleanest collection target of the seven. Permalinks are date-based (/YYYY/MM/DD/slug/). The site presents /news/ and /op-eds/ as separate sections but both are the single 'post' type; wp/v2/types exposes no custom post types, so op-eds must be separated by category or by the /op-eds/ listing rather than by post type."
+    },
+    {
+      "official_id": "tx-exec-ag",
+      "full_name": "Ken Paxton",
+      "office": "Attorney General",
+      "party": "R",
+      "state": "TX",
+      "official_url": "https://www.texasattorneygeneral.gov",
+      "press_release_url": "https://www.texasattorneygeneral.gov/news/releases",
+      "parser_family": "drupal_listing",
+      "collection_method": null,
+      "requires_js": false,
+      "feed_rss": null,
+      "feed_wp_json": null,
+      "pagination": {
+        "type": "query_param",
+        "pattern": "?page={n}",
+        "zero_indexed": true,
+        "per_page": 10,
+        "note": "site intermittently returns an empty render under fast sequential paging; retry before treating a blank page as the end of the archive"
+      },
+      "selectors": {
+        "list_item": "h4.h4-sans",
+        "title": "h4.h4-sans a",
+        "detail_link": "h4.h4-sans a",
+        "date": "p.meta",
+        "summary": "p.m-b-0"
+      },
+      "date_strategy": {
+        "source": "listing",
+        "field": "p.meta",
+        "format": "'July 24, 2026  | Press Release' — date and content type in one node"
+      },
+      "text_normalization_required": "titles are peppered with U+00AD soft hyphens ('Attor­ney Gen­er­al Ken Pax­ton'); strip soft hyphens and zero-width characters at ingest or every title and full-text index entry will be corrupted",
+      "items_2026": 148,
+      "archive_depth": "walked back past 2025-12-23; archive is deeper than the collection window",
+      "press_contact_email": null,
+      "press_contact_note": "no published press email found on /news, /contact-us or /about-office",
+      "confidence": 0.9,
+      "expect_empty": false,
+      "last_verified": "2026-07-25",
+      "recon_status": "verified_extraction",
+      "notes": "Drupal. p.meta already labels each item ('Press Release', and other values appear in the archive), which feeds content_type directly instead of requiring inference."
+    },
+    {
+      "official_id": "tx-exec-comptroller",
+      "full_name": "Kelly Hancock",
+      "office": "Comptroller of Public Accounts",
+      "office_status": "acting",
+      "party": "R",
+      "state": "TX",
+      "official_url": "https://comptroller.texas.gov",
+      "press_release_url": "https://comptroller.texas.gov/about/media-center/news/",
+      "parser_family": "govdelivery_rss",
+      "collection_method": null,
+      "requires_js": false,
+      "feed_rss": "https://public.govdelivery.com/topics/TXCOMPT_1/feed.rss",
+      "feed_rss_spanish": "https://public.govdelivery.com/topics/TXCOMPT_2/feed.rss",
+      "feed_wp_json": null,
+      "pagination": {
+        "type": "none",
+        "note": "the whole archive renders on one page, oldest sampled 2023-12-06. The ?fromDate=/&toDate= links in the year nav do NOT actually narrow the result set — they return the full archive, so do not trust them as a filter."
+      },
+      "selectors": {
+        "list_item": "a[href*='/about/media-center/news/20']",
+        "title": "a[href*='/about/media-center/news/20']",
+        "detail_link": "a[href*='/about/media-center/news/20']"
+      },
+      "date_strategy": {
+        "source": "url_slug",
+        "pattern": "/news/{YYYYMMDD}-{slug}",
+        "fallback": "'July 8, 2026' rendered next to each link",
+        "rss_alternative": "govdelivery feed carries real RFC-822 pubDate"
+      },
+      "items_2026": 42,
+      "archive_depth": "single page back to 2023-12-06",
+      "press_contact_email": "communications.contacts@cpa.texas.gov",
+      "press_contact_note": "published in the site chrome on every media-center page",
+      "confidence": 0.95,
+      "expect_empty": false,
+      "last_verified": "2026-07-25",
+      "recon_status": "verified_extraction",
+      "notes": "Two independent date sources agree: the YYYYMMDD URL slug and the govdelivery RSS pubDate. Recommend RSS as the daily path and the one-page archive for backfill. Hancock is ACTING comptroller (appointed after Glenn Hegar left to become a university chancellor) — release titles read 'Acting Comptroller Kelly Hancock'. Confirm whether an acting, non-elected officeholder belongs in an elected-officials corpus before wiring; the office is elected but the current holder was not elected to it. A Spanish-language mirror of every release exists on the TXCOMPT_2 feed; decide whether to store translations as separate records."
+    },
+    {
+      "official_id": "tx-exec-land",
+      "full_name": "Dawn Buckingham",
+      "office": "Commissioner of the General Land Office",
+      "party": "R",
+      "state": "TX",
+      "official_url": "https://www.glo.texas.gov",
+      "press_release_url": "https://www.glo.texas.gov/about-glo/press-releases",
+      "parser_family": "drupal_views",
+      "collection_method": null,
+      "requires_js": false,
+      "feed_rss": null,
+      "feed_wp_json": null,
+      "pagination": {
+        "type": "query_param",
+        "pattern": "?page={n}",
+        "zero_indexed": true,
+        "per_page": 10,
+        "note": "?items_per_page= is also honored"
+      },
+      "selectors": {
+        "list_item": "a[href^='/about-glo/press-releases/']",
+        "title": "a[href^='/about-glo/press-releases/']",
+        "detail_link": "a[href^='/about-glo/press-releases/']",
+        "date": "time[datetime]"
+      },
+      "date_strategy": {
+        "source": "listing",
+        "field": "time[datetime]",
+        "confidence": "exact — machine-readable ISO date attribute"
+      },
+      "dedup_note": "each card links twice (thumbnail + headline); de-duplicate on href before ingest",
+      "items_2026": 132,
+      "archive_depth": "walked back past 2025-12-12; archive is deeper than the collection window",
+      "press_contact_email": "media@glo.texas.gov",
+      "press_contact_note": "published in the footer of every individual press release",
+      "confidence": 0.9,
+      "expect_empty": false,
+      "last_verified": "2026-07-25",
+      "recon_status": "verified_extraction",
+      "notes": "Cleanest date signal of the seven — a real <time datetime> attribute on every card. See _meta.open_questions: the feed blends commissioner-attributable releases with Veterans Land Board programmatic notices."
+    },
+    {
+      "official_id": "tx-exec-agriculture",
+      "full_name": "Sid Miller",
+      "office": "Commissioner of Agriculture",
+      "party": "R",
+      "state": "TX",
+      "official_url": "https://texasagriculture.gov",
+      "press_release_url": "https://texasagriculture.gov/News-Events",
+      "parser_family": "dotnetnuke_listing",
+      "collection_method": null,
+      "requires_js": true,
+      "requires_js_scope": "detail_pages_only",
+      "feed_rss": null,
+      "feed_wp_json": null,
+      "pagination": {
+        "type": "query_param",
+        "pattern": "?Page={n}",
+        "one_indexed": true,
+        "per_page": 10,
+        "max_page_exposed": 86
+      },
+      "selectors": {
+        "list_item": "a[href*='News-Events-Details/Article/']",
+        "title": "a[href*='News-Events-Details/Article/']",
+        "detail_link": "a[href*='News-Events-Details/Article/']",
+        "detail_date_pattern": "(M/D/YYYY) rendered immediately after the headline"
+      },
+      "date_strategy": {
+        "listing": "NONE — the listing carries no date at all",
+        "detail": "'(7/24/2026)' immediately after the headline",
+        "blocker": "detail pages serve a bot-challenge to httpx (all four URL shapes tried, with cookie warm-up and same-origin Referer) and the Internet Archive's own captures of both the listing and the article pages are the challenge page too, so Wayback is not a fallback here",
+        "resolution": "a headless Chromium page load clears the challenge and renders the full body plus the date — verified 2026-07-25"
+      },
+      "items_2026": 120,
+      "items_2026_method": "binary search over listing pages with Playwright reading real detail-page dates; boundary landed on page 13, whose top item is 2025-12-29, giving 12 full pages x 10",
+      "archive_depth": "86 pages x 10 = roughly 860 items, oldest sampled 2023-09-18 on page 43",
+      "press_contact_email": "dan.isett@texasagriculture.gov",
+      "press_contact_note": "published on the News & Events page",
+      "confidence": 0.75,
+      "expect_empty": false,
+      "last_verified": "2026-07-25",
+      "recon_status": "verified_extraction_listing_only",
+      "notes": "The only Texas executive needing a browser. Listing enumeration works fine over plain httpx — titles, URLs and sequential article IDs all extract — but published_at and body_text require rendering the detail page. Article IDs are NOT a usable date proxy: the same /Article/{id}/ space contains non-news site content (for example /Article/1061/awep, /Article/1297/brand-registration), so ID arithmetic across the news listing is meaningless. Sid Miller's output is unusually newsworthy right now (New World screwworm, data-center moratorium, public disputes with the Governor), so this row is worth the browser cost."
+    },
+    {
+      "official_id": "tx-exec-rrc",
+      "full_name": "Texas Railroad Commission",
+      "office": "Railroad Commission of Texas",
+      "party": null,
+      "state": "TX",
+      "official_url": "https://www.rrc.texas.gov",
+      "press_release_url": "https://www.rrc.texas.gov/news/",
+      "parser_family": "rrc_year_listing",
+      "collection_method": null,
+      "requires_js": false,
+      "feed_rss": null,
+      "feed_wp_json": null,
+      "attribution_unresolved": true,
+      "commissioners": [
+        { "name": "Christi Craddick", "role": "chairman", "party": "R", "bio_url": "https://www.rrc.texas.gov/about-us/commissioners/christi-craddick/" },
+        { "name": "Wayne Christian", "role": "commissioner", "party": "R", "bio_url": "https://www.rrc.texas.gov/about-us/commissioners/wayne-christian/" },
+        { "name": "Jim Wright", "role": "commissioner", "party": "R", "bio_url": "https://www.rrc.texas.gov/about-us/commissioners/jim-wright/" }
+      ],
+      "pagination": {
+        "type": "year_filter",
+        "pattern": "?p={YYYY}",
+        "note": "returns the complete year on one page; year links go back to 2014"
+      },
+      "selectors": {
+        "list_item": "a[href^='/news/']",
+        "title": "a[href^='/news/']",
+        "detail_link": "a[href^='/news/']",
+        "date": "listing card text, 'July 20, 2026'"
+      },
+      "date_strategy": {
+        "source": "listing",
+        "field": "card text",
+        "format": "Month D, YYYY"
+      },
+      "items_2026": 44,
+      "archive_depth": "year filter exposes 2014 through 2026",
+      "press_contact_email": null,
+      "press_contact_pattern": "each individual release ends with a named contact block: 'Contact: Bryce Dubee P: 512-463-4817 E: bryce.dubee@rrc.texas.gov'. Observed so far: bryce.dubee@rrc.texas.gov, marshall.webb@rrc.texas.gov, Rimanda.Whitehead@rrc.texas.gov, Scott.Sroufe@rrc.texas.gov. This is the richest press-contact signal of the seven and is extractable per release.",
+      "confidence": 0.85,
+      "expect_empty": false,
+      "last_verified": "2026-07-25",
+      "recon_status": "verified_extraction",
+      "notes": "Three separately elected statewide commissioners share one institutional press feed, so this row is modeled as the agency rather than as a person. See _meta.open_questions. The year filter makes both backfill and windowed recollection trivial. Beware the listing selector: a[href^='/news/'] also matches the year-filter links and some PDF assets under /media/, so filter on slug shape."
+    }
+  ]
+}

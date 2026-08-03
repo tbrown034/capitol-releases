@@ -1,0 +1,146 @@
+{
+  "_meta": {
+    "chamber": "executive",
+    "level": "state",
+    "state": "WY",
+    "platform": "Wyoming statewide elected executives (five constitutional offices)",
+    "verified": "2026-07-25",
+    "status": "draft - not registered in pipeline/lib/seeds.py or the daily cron",
+    "notes": "Wyoming elects five statewide executives: Governor, Secretary of State, Auditor, Treasurer, and Superintendent of Public Instruction. The Attorney General is appointed by the Governor, not elected, so it is out of scope here. Four of the five offices publish collectable press output; the State Auditor does not. Each office runs a different platform, so this seed needs four small collectors rather than one source-family collector.",
+    "officeholders_verified_from": {
+      "governor": "governor.wyo.gov <title> and release bodies",
+      "secretary_of_state": "sos.wyo.gov release PDF letterhead",
+      "auditor": "sao.wyo.gov homepage",
+      "treasurer": "statetreasurer.wyo.gov/office/ifc/ biography",
+      "superintendent": "edu.wyoming.gov/about/leadership/"
+    }
+  },
+  "members": [
+    {
+      "official_id": "wy-governor-gordon",
+      "full_name": "Mark Gordon",
+      "office": "Governor of Wyoming",
+      "party": "R",
+      "state": "WY",
+      "chamber": "executive",
+      "office_type": "governor",
+      "official_url": "https://governor.wyo.gov/",
+      "press_release_url": "https://governor.wyo.gov/news-releases",
+      "api_url": "https://governor.wyo.gov/api/cms/graphql",
+      "detail_url_pattern": "https://governor.wyo.gov/news-releases/{path}",
+      "parser_family": "wy_governor_orchard_graphql",
+      "collection_method": "wy_governor",
+      "requires_js": false,
+      "pagination": {
+        "type": "graphql_offset",
+        "query": "PressReleaseSearch",
+        "variable": "parameters",
+        "parameters_shape": {
+          "fulltext": "",
+          "year": "",
+          "size": "50",
+          "from": "0"
+        }
+      },
+      "press_email": "sara.dirienzo1@wyo.gov",
+      "press_contact": "Sara DiRienzo (appears as media contact in release bodies; no standing press-contact page published)",
+      "confidence": 0.95,
+      "expect_empty": false,
+      "notes": "Vue + Apollo SPA over an Orchard Core CMS. The GraphQL endpoint is open and unauthenticated; POST the PressReleaseSearch query with an inline `... on PressRelease` fragment (the items field is typed ContentItem). Fields: path, displayText, releaseDate, htmlContent.content.html, image.urls. Full body HTML comes back in the listing response, so no per-item detail fetch is needed. Verified 2026-07-25: 828 all-time, 88 in 2026 YTD, 154 in 2025, archive back to 2018. Two sibling silos exist and are NOT collected by this row: category=budget (/budget-news-releases) and category=ride (/ride-news-releases)."
+    },
+    {
+      "official_id": "wy-sos-gray",
+      "full_name": "Chuck Gray",
+      "office": "Wyoming Secretary of State",
+      "party": "R",
+      "state": "WY",
+      "chamber": "executive",
+      "office_type": "secretary_of_state",
+      "official_url": "https://sos.wyo.gov/",
+      "press_release_url": "https://sos.wyo.gov/Media/MediaReleases.aspx",
+      "parser_family": "wy_sos_aspnet_table",
+      "collection_method": "wy_sos_media",
+      "requires_js": false,
+      "pagination": {
+        "type": "none",
+        "notes": "Entire archive renders on one page."
+      },
+      "selectors": {
+        "list_item": "section.s-holder table tr",
+        "date": "td:nth-of-type(1)",
+        "detail_link": "a[href$='.pdf']",
+        "title": "a[href$='.pdf']"
+      },
+      "press_email": "joe.rubino1@wyo.gov",
+      "press_contact": "Joe Rubino (printed on the letterhead of every release PDF)",
+      "confidence": 0.9,
+      "expect_empty": false,
+      "notes": "Classic ASP.NET WebForms. Each release is a one-row <table> inside section.s-holder; td[0] holds MM/DD/YYYY, td[1] is a 1%-width spacer, and the last td holds the PDF anchor plus an optional .mp3 audio-statement anchor that must be skipped. Take the date from the table cell, NOT the PDF filename: some filenames are non-zero-padded (SoS_Release_2023-9-26.pdf) or carry no date at all. Body extraction needs pdfplumber; the PDF starts with a fixed letterhead block (For Immediate Release / Date / Contact / Phone / Email). Verified 2026-07-25: 246 releases on one page, 2023-01-10 through 2026-07-23, 39 in 2026 YTD and 96 in 2025. Archive begins with Gray's January 2023 swearing-in, so there is no predecessor content to exclude. Dedup caveat: 245 unique URLs across 246 rows because the 2025-10-29 row ('Secretary Gray to Speak at Laramie County Community College') carries the wrong href and points at the 2025-10-21 PDF. This is a source-side error, so a plain ON CONFLICT (source_url) dedup would silently drop one real release; key on (source_url, published_at) or flag same-url/different-date pairs for review."
+    },
+    {
+      "official_id": "wy-spi-degenfelder",
+      "full_name": "Megan Degenfelder",
+      "office": "Wyoming Superintendent of Public Instruction",
+      "party": "R",
+      "state": "WY",
+      "chamber": "executive",
+      "office_type": "superintendent_public_instruction",
+      "official_url": "https://edu.wyoming.gov/",
+      "press_release_url": "https://edu.wyoming.gov/wp-json/wp/v2/posts",
+      "parser_family": "wp_json_posts",
+      "collection_method": "wy_wp_json",
+      "requires_js": false,
+      "pagination": {
+        "type": "wp_json",
+        "pattern": "?per_page=100&page=N&orderby=date&order=desc"
+      },
+      "press_email": "askthesuperintendent@wyo.gov",
+      "press_contact": "Linda Finnerty, Chief Communications Officer (named on the leadership page; no direct address published there)",
+      "confidence": 0.9,
+      "expect_empty": false,
+      "notes": "WordPress (Avada) with wp-json open and unauthenticated. Cloudflare fronts the site but does not block browser-class headers. Attribution caveat: this is the Wyoming Department of Education feed, so it mixes Superintendent-attributed announcements with agency rule-comment notices. Roughly half of 2026 items are titled 'WDE Seeks Public Comment ...' and would classify as `other` rather than `press_release`. Verified 2026-07-25: 754 all-time posts, 15 in 2026 YTD, 46 in 2025."
+    },
+    {
+      "official_id": "wy-treasurer-meier",
+      "full_name": "Curtis E. Meier Jr.",
+      "office": "Wyoming State Treasurer",
+      "party": "R",
+      "state": "WY",
+      "chamber": "executive",
+      "office_type": "treasurer",
+      "official_url": "https://statetreasurer.wyo.gov/",
+      "press_release_url": "https://statetreasurer.wyo.gov/wp-json/wp/v2/posts",
+      "parser_family": "wp_json_posts",
+      "collection_method": "wy_wp_json",
+      "requires_js": false,
+      "pagination": {
+        "type": "wp_json",
+        "pattern": "?per_page=100&page=N&orderby=date&order=desc"
+      },
+      "press_email": "treasurer@wyo.gov",
+      "press_contact": "No named press officer published; treasurer@wyo.gov is the general office inbox.",
+      "confidence": 0.75,
+      "expect_empty": false,
+      "notes": "WordPress (Divi) with wp-json open. Very low volume and mixed content: of 5 posts in 2026 YTD, 3 are Investment Funds Committee meeting notices and only 2 are genuine press items. Slugs are non-semantic (investmentxyz, asdftiskdk, newkarl), so dedup must key on source_url, not slug meaning. Note treasurer.wyo.gov does NOT resolve; the office is at statetreasurer.wyo.gov, and treasurer.state.wy.us redirects into the unclaimed-property subsection. Verified 2026-07-25: 83 all-time posts, 5 in 2026 YTD, 9 in 2025."
+    },
+    {
+      "official_id": "wy-auditor-racines",
+      "full_name": "Kristi Racines",
+      "office": "Wyoming State Auditor",
+      "party": "R",
+      "state": "WY",
+      "chamber": "executive",
+      "office_type": "auditor",
+      "official_url": "https://sao.wyo.gov/",
+      "press_release_url": null,
+      "parser_family": null,
+      "collection_method": null,
+      "requires_js": false,
+      "press_email": "saoadmin@wyo.gov",
+      "press_contact": "No press officer published; saoadmin@wyo.gov is the general office inbox.",
+      "confidence": 0.0,
+      "expect_empty": true,
+      "notes": "NOT COLLECTABLE. The site is WordPress with wp-json open, but it holds exactly one post ever ('Forms Heading', 2020-02-24) which is a layout artifact, not a release. The homepage 'SAO Today' tab (#pills-newsroom) contains no items, only an outbound link to wyopen.gov. Verified 2026-07-25: zero press output. Configured with collection_method=null so load_members() skips it; keep the row for health-check visibility and re-probe if the office starts publishing."
+    }
+  ]
+}

@@ -34,6 +34,7 @@ from pipeline.backfill import (
     parse_date,
 )
 from pipeline.backfill_wp_json import load_env, normalize_url
+from pipeline.lib.identity import content_hash
 
 CUTOFF = date(2025, 1, 1)
 
@@ -164,17 +165,34 @@ def collect_silo(
                 print(f"    {pub_dt.date()} | {title[:80]}")
                 continue
 
+            # Fetch the detail page for the body. Without this every silo
+            # row lands with an empty body_text, which is why 100% of
+            # `silo-*` rows — newsletters, weekly columns, op-eds, blogs —
+            # had no body while press releases sat at 99.5% coverage.
+            body_text = ""
+            try:
+                detail_resp = client.get(detail, follow_redirects=True)
+                if detail_resp.status_code == 200:
+                    body_text = extract_body_text(
+                        BeautifulSoup(detail_resp.text, "lxml")
+                    )
+            except Exception as e:
+                print(f"    body fetch failed for {detail}: {type(e).__name__}: {e}")
+
             cur = conn.cursor()
             try:
                 cur.execute(
                     """
                     INSERT INTO press_releases
                       (official_id, title, published_at, source_url,
-                       scrape_run, content_type, date_source, date_confidence)
-                    VALUES (%s, %s, %s, %s, %s, %s, 'silo_backfill', 0.9)
+                       scrape_run, content_type, body_text, content_hash,
+                       date_source, date_confidence)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s,
+                            'silo_backfill', 0.9)
                     ON CONFLICT (source_url) DO NOTHING
                     """,
-                    (official_id, title, pub_dt, detail, run_id, content_type),
+                    (official_id, title, pub_dt, detail, run_id, content_type,
+                     body_text, content_hash(body_text)),
                 )
                 conn.commit()
                 if cur.rowcount > 0:

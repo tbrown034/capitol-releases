@@ -11,6 +11,9 @@ header followed by sibling <p> blocks. Each <p> carries:
 No JS, no Akamai, no pagination. One fetch per senator. PDF bodies are
 linked but not fetched here — body extraction is a separate enrichment
 step.
+
+Two Texas-specific quirks drive the collection window and the redirect
+check below; see PROJECT_WINDOW_START and _is_vacancy_redirect.
 """
 
 import logging
@@ -29,6 +32,28 @@ log = logging.getLogger("capitol.collector.tx_senate")
 
 DATE_RE = re.compile(r"(\d{2})/(\d{2})/(\d{4})")
 BASE_URL = "https://senate.texas.gov/"
+
+# Texas Senate offices upload press PDFs in backdated batches: the listing
+# date is the release date, not the upload date, and the two can be months
+# apart. Verified 2026-07-25 against Last-Modified on the PDFs themselves —
+# d13's 01/08/2026 and 02/17/2026 items were both uploaded 2026-05-13, and
+# d24's 03/18/2026 item landed 2026-07-01.
+#
+# The daily updater passes `since` = "when the last run finished" (hours
+# ago), so every backdated batch fell outside the window and was dropped
+# permanently. That is why 12 districts sat at zero records while their
+# pressrooms carried live 2026 content.
+#
+# Fix: ignore a narrow incremental `since` and re-sweep the whole project
+# window on every run, letting update.py dedup on source_url. One fetch per
+# member and roughly 350 in-window items chamber-wide, so the re-sweep is
+# cheap. An explicitly earlier `since` (deep backfill) is still honored.
+PROJECT_WINDOW_START = datetime(2025, 1, 1, tzinfo=timezone.utc)
+
+# senate.texas.gov 302s pressroom.php?d=N to the chamber roster when N has no
+# sitting member. Following that redirect yields HTTP 200 with zero items,
+# which is indistinguishable from a quiet pressroom unless we check the URL.
+VACANCY_REDIRECT_PATH = "members.php"
 
 
 class TxSenateCollector:
@@ -65,6 +90,13 @@ class TxSenateCollector:
                 result.errors.append(f"HTTP {resp.status_code}")
                 return result
 
+            if _is_vacancy_redirect(pr_url, resp):
+                result.errors.append(
+                    "Pressroom redirected to the chamber roster; the district "
+                    "has no sitting member"
+                )
+                return result
+
             result.pages_scraped = 1
             soup = BeautifulSoup(resp.text, "lxml")
             items = _extract_items(soup, pr_url)
@@ -73,12 +105,18 @@ class TxSenateCollector:
                 result.errors.append("No items found")
                 return result
 
+            cutoff = _effective_since(since)
             for item in items:
                 # Texas listings expose dates, not times. Compare on day
                 # boundaries so a release posted later today is not skipped
                 # just because its parsed timestamp is midnight UTC.
-                if since and item["published_at"] and item["published_at"].date() < since.date():
+                if item["published_at"] and item["published_at"].date() < cutoff.date():
                     continue
+                # Bump last_seen_live for everything in the window, including
+                # rows the updater will dedup away. Without this the freshness
+                # signal freezes at the day a member's last new item landed
+                # and a healthy-but-quiet pressroom reads as a dead collector.
+                result.seen_urls.add(item["source_url"])
                 rec = ReleaseRecord(
                     official_id=sid,
                     title=item["title"],
@@ -87,8 +125,8 @@ class TxSenateCollector:
                     body_text="",
                     raw_html=item["raw_html"],
                     content_type=item["content_type"],
-                    date_source="listing_text",
-                    date_confidence=1.0 if item["published_at"] else 0.0,
+                    date_source=item["date_source"],
+                    date_confidence=item["date_confidence"],
                     # Body extraction is a later enrichment step. Leave this
                     # empty so the updater does not compare a listing hash
                     # against a body hash and blank an extracted body.
@@ -125,6 +163,13 @@ class TxSenateCollector:
         if resp.status_code != 200:
             return result
 
+        if _is_vacancy_redirect(pr_url, resp):
+            result.error_message = (
+                "Pressroom redirected to the chamber roster; the district has "
+                "no sitting member"
+            )
+            return result
+
         soup = BeautifulSoup(resp.text, "lxml")
         items = _extract_items(soup, pr_url)
         result.items_found = len(items)
@@ -132,6 +177,24 @@ class TxSenateCollector:
         result.selector_ok = bool(items) or result.allow_empty
         result.date_parseable = any(it["published_at"] for it in items)
         return result
+
+
+def _effective_since(since: datetime | None) -> datetime:
+    """Widen a narrow incremental cutoff to the full project window.
+
+    Honors a caller that explicitly asks for something earlier (deep
+    backfill) but never lets the daily "since last run" value shrink the
+    sweep, because Texas backdates its uploads. See PROJECT_WINDOW_START.
+    """
+    if since and since < PROJECT_WINDOW_START:
+        return since
+    return PROJECT_WINDOW_START
+
+
+def _is_vacancy_redirect(requested_url: str, resp) -> bool:
+    """True when a pressroom request landed on the chamber roster instead."""
+    final = str(resp.url)
+    return VACANCY_REDIRECT_PATH in final and VACANCY_REDIRECT_PATH not in requested_url
 
 
 def _extract_items(soup: BeautifulSoup, base_url: str) -> list[dict]:
@@ -173,6 +236,10 @@ def _extract_items(soup: BeautifulSoup, base_url: str) -> list[dict]:
 
         # restrict to actual press content paths
         url_lower = full_url.lower()
+        # Site-wide assets (floor charts, forms) live under /_assets/ and are
+        # PDFs too. They are chrome, not member output.
+        if "/_assets/" in url_lower:
+            continue
         is_pdf = url_lower.endswith(".pdf") or "/press/" in url_lower
         is_video = "videoplayer.php" in url_lower
         is_press_html = "press.php" in url_lower
@@ -182,17 +249,25 @@ def _extract_items(soup: BeautifulSoup, base_url: str) -> list[dict]:
         text = el.get_text(" ", strip=True)
         date_m = DATE_RE.search(text)
         published_at = None
+        date_source = ""
+        date_confidence = 0.0
         if date_m:
             mm, dd, yyyy = date_m.groups()
             try:
                 published_at = datetime(int(yyyy), int(mm), int(dd), tzinfo=timezone.utc)
+                date_source = "listing_text"
+                date_confidence = 1.0
             except ValueError:
                 published_at = None
 
         if published_at is None and current_year:
-            # fall back to year header as Jan 1 of that year, low confidence
+            # Fall back to the year header as Jan 1. The year is real but the
+            # day is a guess, so label it as such rather than inheriting the
+            # full confidence an explicit MM/DD/YYYY row earns.
             try:
                 published_at = datetime(current_year, 1, 1, tzinfo=timezone.utc)
+                date_source = "listing_year_header"
+                date_confidence = 0.4
             except ValueError:
                 pass
 
@@ -211,6 +286,8 @@ def _extract_items(soup: BeautifulSoup, base_url: str) -> list[dict]:
             "source_url": full_url,
             "published_at": published_at,
             "content_type": content_type,
+            "date_source": date_source,
+            "date_confidence": date_confidence,
             "raw_html": str(el),
         })
 
