@@ -4,7 +4,9 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { dbDrizzle } from "./db-drizzle";
 import * as schema from "./auth-schema";
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "trevorbrown.web@gmail.com";
+// No fallback: a deployment without ADMIN_EMAIL gets no admin, not a
+// default identity baked into source. isAdmin fails closed on undefined.
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 
 export const auth = betterAuth({
   trustedOrigins: [
@@ -39,5 +41,5 @@ export const auth = betterAuth({
 });
 
 export function isAdmin(email: string | undefined | null): boolean {
-  return email === ADMIN_EMAIL;
+  return Boolean(ADMIN_EMAIL) && email === ADMIN_EMAIL;
 }
