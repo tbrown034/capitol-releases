@@ -17,7 +17,12 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
 from pipeline.collectors.base import Collector, CollectorResult, ReleaseRecord, HealthCheckResult
-from pipeline.lib.classifier import classify_content_type, is_external_content, is_listing_url
+from pipeline.lib.classifier import (
+    classify_content_type,
+    is_external_content,
+    is_listing_url,
+    looks_like_article_url,
+)
 from pipeline.lib.dates import parse_date_text, extract_date_from_url, extract_date, demote_if_future
 from pipeline.lib.http import create_client, fetch_with_retry, politeness_delay
 from pipeline.lib.identity import normalize_url, content_hash
@@ -206,6 +211,20 @@ class HttpxCollector:
                             )
                             date_source = f"{date_source}_future_typo" if date_source else "future_typo"
                             date_confidence = min(date_confidence, 0.2)
+
+                    # Nav-menu rows. Permissive listing selectors on
+                    # several senate.gov and house.gov sites scrape the
+                    # site's own navigation — issue pages, flag requests,
+                    # office locations, committee assignments — and file
+                    # them as press releases. They never carry a date,
+                    # while real releases essentially always do, so a
+                    # missing date plus a non-article URL is a reliable
+                    # junk signature. Checked against all 198 dateless
+                    # live rows on 2026-07-25: it rejects the 190
+                    # navigation pages and keeps all 8 real articles.
+                    if not pub_date and not looks_like_article_url(detail_url):
+                        log.debug("Skipping dateless non-article URL: %s", detail_url)
+                        continue
 
                     record = ReleaseRecord(
                         official_id=sid,

@@ -125,31 +125,52 @@ def _first_date_text(text: str) -> str:
     return ""
 
 
+def _spans_multiple_items(container, item) -> bool:
+    """True if `container` holds more than one row shaped like `item`.
+
+    Used to stop the parent walk before it reaches the wrapper that holds
+    every card on the listing page.
+    """
+    classes = [c for c in (item.get("class") or []) if c]
+    selector = item.name + "".join(f".{c}" for c in classes)
+    try:
+        return len(container.select(selector)) > 1
+    except Exception:
+        # Unescapable class token — fall back to counting by tag name.
+        return len(container.find_all(item.name, recursive=True)) > 1
+
+
 def _nearby_date_text(item) -> str:
     """Find dates outside a heading-only listing row.
 
     Several House listings expose each release as only an h2.title link while
     the date lives on a parent wrapper or adjacent sibling. Keep the search
     local so page chrome and archive filters do not become release dates.
+
+    Siblings are checked before parents, and the parent walk stops as soon
+    as a container holds more than one listing row. The previous ordering
+    (parents first, unbounded) climbed straight into the wrapper holding
+    every card on the page, so `_first_date_text` returned the newest
+    item's date and all 20 rows on that page inherited it — the cause of
+    the date-clumping seen on frost, takano and 15 other House members.
     """
-    candidates = []
+    for sibling in (item.find_previous_sibling(), item.find_next_sibling()):
+        if sibling is None:
+            continue
+        date_text = _first_date_text(sibling.get_text(" ", strip=True))
+        if date_text:
+            return date_text
 
     parent = item.parent
     for _ in range(3):
-        if not parent or getattr(parent, "name", None) in ("body", "html"):
+        if parent is None or getattr(parent, "name", None) in ("body", "html"):
             break
-        candidates.append(parent)
-        parent = parent.parent
-
-    for sibling in (item.find_previous_sibling(), item.find_next_sibling()):
-        if sibling:
-            candidates.append(sibling)
-
-    for candidate in candidates:
-        text = candidate.get_text(" ", strip=True)
-        date_text = _first_date_text(text)
+        if _spans_multiple_items(parent, item):
+            break
+        date_text = _first_date_text(parent.get_text(" ", strip=True))
         if date_text:
             return date_text
+        parent = parent.parent
     return ""
 
 
@@ -846,13 +867,21 @@ async def scrape_senator(client, semaphore, senator, run_id, max_pages, repair_n
                     if detail_resp.status_code == 200:
                         detail_soup = BeautifulSoup(detail_resp.text, "lxml")
                         body_text = extract_body_text(detail_soup)
-                        if not pub_date:
-                            from pipeline.lib.dates import extract_date_from_html
-                            html_date = extract_date_from_html(detail_soup)
-                            if html_date:
-                                pub_date = html_date.value
-                                date_source = html_date.source
-                                date_confidence = html_date.confidence
+                        # Always probe the detail page, not just when the
+                        # listing gave us nothing. Detail-page metadata
+                        # (meta_tag, 0.95) is strictly better evidence than
+                        # a listing-row date (listing_page, 0.6), and the
+                        # daily httpx collector has always worked this way.
+                        # Backfill's old "only if missing" check is why
+                        # 1,253 backfilled rows kept a wrong listing date
+                        # that later runs could never correct — the update
+                        # upsert preserves first-touch provenance forever.
+                        from pipeline.lib.dates import extract_date_from_html
+                        html_date = extract_date_from_html(detail_soup)
+                        if html_date and html_date.confidence > (date_confidence or 0.0):
+                            pub_date = html_date.value
+                            date_source = html_date.source
+                            date_confidence = html_date.confidence
                 except Exception as e:
                     log.warning("Detail page fetch failed for %s: %s: %s", detail_url, type(e).__name__, e)
 
