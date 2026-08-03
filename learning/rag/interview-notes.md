@@ -37,3 +37,12 @@ One entry per phase. Every claim is tagged: planned / locally verified / product
 **30-second version:** "I run Capitol Releases, an archive of ~103,000 official statements from members of Congress that I scrape daily. Readers arrive with questions, but search returns documents. So I built Ask the Record: every member page has a question box that answers only from that member's archived releases, cites every claim to the source with the citation validated server-side, and — when the record can't answer — says so instead of guessing. I evaluated retrieval before trusting it: on my golden set, semantic search hit 5 for 5; the hybrid setup everyone recommends actually scored worse, so I shipped what measured best. It's the same pattern as your Kamala Harris News Assistant, on a corpus I built myself."
 
 **Status tags:** build + evals = locally verified. Production deploy = NOT yet (pending commit/push/env approval). Never claim "in production" until Phase E completes.
+## Production verification — July 30, 2026, 11:10 AM ET — PRODUCTION VERIFIED
+
+Live on capitolreleases.com (deploy aliased ~11:07 AM):
+- answered: Warren student loans -> 3 validated sources, 4.5s, verbatim quote (curl, prod)
+- not_in_record: Durbin-re-Warren vibes trap refused correctly (curl, prod)
+- no_sources: Jordan (sparse personal archive; his output goes to the committee site) declined honestly (curl, prod)
+- Deploy-day fix worth telling: first prod deploy failed with 401s because the OpenAI key was stored WITH surrounding quotes (piped from a quoted .env.local line). The ask_log audit trail surfaced the exact error in one query — the observability layer debugged its own launch.
+
+Claims now safe to make: "in production", "live on the site". Answer-quality evals at scale remain future work.

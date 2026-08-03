@@ -1670,3 +1670,65 @@ The methodology page on the live site reflects all of this. Every gap has a docu
 - Commits: 2279eb1, 9330864, 96ced72
 
 ---
+## 2026-07-28 - RAG "Ask the record" feature + AI.md documentation
+
+**Session Summary:**
+- Built first user-facing RAG feature: "Ask the record" Q&A box on senator and House member pages, grounded in that member's collected releases. Motivated by Houston Chronicle AI newsroom dev application — Trevor wanted (1) AI usage documented, (2) a best-practices assessment, (3) a production RAG example to cite.
+- Wrote `AI.md` (tracked, repo root — /docs is gitignored): documents all three AI surfaces (brief, ask, ai_validator), the newsroom-terms rationale (grounding, validation, provenance, disclosure), and an honest gaps list (no eval suite, quote-level verification missing, retrieval recall unmeasured).
+- End-to-end tested live: Warren student-loan question answered in 9.4s with 3 valid citations and a verbatim quote; absurd question correctly returned not_in_record; both logged to ask_log.
+
+**Notable Changes:**
+- `app/api/officials/[id]/ask/route.ts` — POST endpoint: Postgres FTS retrieval (websearch_to_tsquery, relaxed OR fallback, top 8, member-scoped, tombstones excluded) → claude-opus-5 (effort low, JSON schema output, server-side fallback to opus-4-8) → server-side citation validation (every inline [n] + citations entry must resolve to retrieval set; else discard, never repair) → ask_log insert. Rate limits: 10/hr per IP-hash, 250/day global (~$12/day worst case at ~5c/answer). maxDuration 60.
+- `app/components/ask-record.tsx` — client component; renders [n] markers as superscript links + Sources list; PostHog events (ask_submitted/answered/empty/failed).
+- Wired into `app/senators/[id]/page.tsx` (above heatmap) and `app/house/[id]/page.tsx` (above release list, gated on grandTotal > 0).
+- `pipeline/scripts/create_ask_log.py` — idempotent DDL, run against Neon (table live).
+- Design decision: FTS not embeddings — explainable retrieval, no new infra; ask_log retrieval sets give data to justify embeddings later. Model can only cite source numbers 1-8, never DB IDs — structurally can't cite outside retrieval set.
+- Deploy prerequisite: ANTHROPIC_API_KEY must be added to .env.local and Vercel prod env (route 503s gracefully without it). NOT yet committed or pushed.
+- Archive at 97,705 live records (was ~58k in May) — AI.md states 97,000+.
+
+---
+## 2026-07-28 (later) - Phase 0 of guided RAG rebuild: prototype removed
+
+**Session Summary:**
+- Trevor pivoted from the autonomous RAG prototype to a gated learning rebuild (11 phases, tutor mode, approval gates). Phase 0 = remove the prototype cleanly.
+- Removed: ask route, ask-record component, create_ask_log.py, @anthropic-ai/sdk dep, 4 hunks in senators/[id] + house/[id] pages, Ask row in CLAUDE.md, Ask sections of AI.md. Verified: shared-file diffs empty, pnpm build clean, 43 unrelated working-tree changes preserved.
+- Snapshot of removed code: .fallow/rag-prototype-snapshot-2026-07-28/ (gitignored, local).
+- Neon ask_log table (2 test rows) deliberately NOT dropped — parked pending explicit approval.
+- New tracked learning area: learning/rag/ (roadmap, lab-notebook, glossary, decisions/ADR-0001, interview-notes).
+- Locked stack for rebuild: Neon + pgvector, OpenAI text-embedding-3-small, PG FTS lexical, hybrid only if evals justify, Langfuse observability, direct SDKs (no frameworks). Generation model chosen in Phase 6 by evaluation.
+
+---
+## 2026-07-29 (night) - Guided RAG rebuild: Phases 1-7 compressed, locally verified
+
+**Session Summary:**
+- Full RAG build on the locked stack (Neon pgvector + OpenAI text-embedding-3-small + direct SDKs), compressed for the Hearst interview under ADR-0001's revisit clause. Everything locally verified; NOT deployed (Phase E gated on Trevor).
+- PREPARE: sentence-aware chunker (60% of corpus has no newlines; strips nav junk + share-widget tails). 147k passages / 103k releases. Corpus bug found+fixed: WH tariff schedules = 78k chars with no sentence boundaries -> one 19.5k-token chunk -> OpenAI 400; hard-splitter added, 739 items re-chunked. Full backfill ~$1.75 running (~85 chunks/s).
+- FIND: vector-only retrieval ADOPTED BY EVAL — vector 5/5 hit@5 (MRR 0.74) vs FTS 4/5 (0.45) vs hybrid RRF 3/5 (0.63). Hybrid rejected: RRF consensus amplified noisy lexical leg (ADR-0004). Exact member-scoped scan, no HNSW (post-filter recall collapse + Neon HTTP driver session-state trap, ADR-0002). halfvec(1536). FTS fallback for unembedded members.
+- ANSWER: Claude search_result blocks with API-native citations (replaces prototype's [n]+regex). 5-status protocol incl. Trevor's related_only ruling. Model: haiku-4-5 by 2-model eval — status parity incl. both traps, 5.7s, 1/3 price (ADR-0005). ASK_MODEL env swaps.
+- CHECK: deterministic validation (status line, citation indexes, cited_text containment vs our own blocks); t2 vibes-trap passed both models; t1 GROUND-TRUTH REVERSAL — model's related_only was right, FTS-drafted label was blind to "Grassley 2028 Senate Run" chunks. Moderation bouncer fail-open; ask_log v2 (retrieval jsonb, fire-and-forget); disclosure footer + correction mailto.
+- Artifacts: learning/rag/{roadmap, lab-notebook, glossary, eval-results, golden-dataset, decisions/0001-0005, interview-notes} all current.
+- Morning gate: t1 relabel + golden verify (Trevor), commit+push approval, Vercel env (ANTHROPIC_API_KEY, OPENAI_API_KEY, ASK_MODEL), prod smoke test, screenshots, incremental-embed cron hook TODO, Langfuse deferred.
+
+---
+## 2026-07-29 (late night) - Shipped: RAG live on main, gated behind API keys
+
+**Session Summary:**
+- Two commits cherry-picked onto main via temp worktree (repo was on parallel session's colorado-caucus-tier branch; its unpushed /states commit deliberately NOT shipped; duplicate RAG commits remain on that branch and will merge cleanly). Pushed 0c9d3ce..74f8ee7; Vercel deploy Ready; prod 200.
+- Ask the record section renders ONLY when ANTHROPIC_API_KEY + OPENAI_API_KEY exist in env — prod shows a clean page until Trevor adds both keys to Vercel (his morning task; piping values via CLI was permission-denied, correctly his to do).
+- Browser-verified locally: answered case with superscript citations + sources + disclosure footer; per-IP rate limiter fired on camera after test volume. Screenshots in docs/interview-screenshots/.
+- Backfill: fixed rag_embed BadRequest handling; run continuing in background (~127k/146.5k chunks at last check).
+- Morning checklist for Trevor: (1) add both keys to Vercel prod (`npx vercel env add ANTHROPIC_API_KEY production`, same for OPENAI_API_KEY), (2) tell Claude "done" -> redeploy -> prod smoke test + prod screenshots, (3) rule on t1 relabel, (4) rehearse 30-sec answer from learning/rag/interview-notes.md. TODOs parked: incremental embed hook on daily cron, Langfuse, quote-check hardening, /status RAG aggregates.
+---
+## 2026-07-30 (morning) - RAG live in production on capitolreleases.com
+
+- Trevor added both API keys via docs/add-keys.sh (first attempt stored the OpenAI key with quotes from .env.local -> 401s; ask_log surfaced the exact error; keys replaced with quote-stripping, redeployed).
+- Prod verified via curl: answered (Warren, 3 sources, 4.5s), not_in_record (Durbin vibes trap), no_sources (Jordan, committee-site case). Interview-notes updated to production-verified.
+- Browser screenshots of prod flaky (hydration eating synthetic keystrokes; local screenshots from last night remain the demo insurance in docs/interview-screenshots/).
+---
+## 2026-07-30 (11:30-11:50 AM) - Launch-morning sprint before the interview
+
+- Trevor's organic testing found the real UX bug: users type full questions into the first box they see. Front page rebuilt twice in 20 minutes, straight to prod: (1) question-first parsing with member-name detection, (2) final form = two boxes (member picker w/ dropdown + 6 featured chips by archive depth, question box beside) with the name-detection fallback kept.
+- Hero Latest Releases card: member name now links to member page. Selected-member name above answers links too. Stats block compressed to one line.
+- Citation-validation fix verified on prod (his exact failing questions now answer). Injection test and garbage test both die at retrieval. Rate limit raised to 30/hr after discovering terminal + browser share one NAT'd IP.
+- Four prod deploys before noon, all green. Site state at interview time: front-page ask live, all member pages live, 100% corpus embedded.
+---
