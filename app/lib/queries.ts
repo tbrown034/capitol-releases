@@ -835,6 +835,7 @@ export async function getBriefCitations(
     FROM official_site_items pr
     JOIN officials s ON s.id = pr.official_id
     WHERE pr.id = ANY(${ids}::uuid[])
+      AND pr.deleted_at IS NULL
   `) as BriefCitation[];
   const map = new Map<string, BriefCitation>();
   for (const r of rows) map.set(r.id, r);

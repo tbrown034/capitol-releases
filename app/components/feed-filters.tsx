@@ -43,6 +43,7 @@ function FeedFiltersInner({ basePath }: { basePath: string }) {
       <select
         value={type}
         onChange={(e) => update("type", e.target.value)}
+        aria-label="Filter by content type"
         className="border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-700 hover:border-neutral-400 transition-colors focus:border-neutral-900 focus:outline-none"
       >
         <option value="">All types</option>
@@ -55,6 +56,7 @@ function FeedFiltersInner({ basePath }: { basePath: string }) {
       <select
         value={party}
         onChange={(e) => update("party", e.target.value)}
+        aria-label="Filter by party"
         className="border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-700 hover:border-neutral-400 transition-colors focus:border-neutral-900 focus:outline-none"
       >
         <option value="">All parties</option>
@@ -66,6 +68,7 @@ function FeedFiltersInner({ basePath }: { basePath: string }) {
       <select
         value={state}
         onChange={(e) => update("state", e.target.value)}
+        aria-label="Filter by state"
         className="border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-700 hover:border-neutral-400 transition-colors focus:border-neutral-900 focus:outline-none"
       >
         <option value="">All states</option>

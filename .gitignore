@@ -95,3 +95,4 @@ notebooks/
 
 # Agent-generated scratch reports
 posthog-setup-report.md
+.env*.local
