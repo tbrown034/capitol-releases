@@ -7,7 +7,6 @@ import {
   getThemeSparkline,
 } from "../../lib/queries";
 import { BriefBody, type ThemeSeries } from "../../components/brief-body";
-import { BriefSignup } from "../../components/brief-signup";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -107,10 +106,6 @@ export default async function BriefDatePage({
       </h1>
 
       <BriefBody brief={brief} citations={citations} sparklines={sparklines} />
-
-      <div className="mt-12">
-        <BriefSignup />
-      </div>
 
       {recent.length > 1 && (
         <section className="mt-12 border-t border-neutral-200 pt-6">

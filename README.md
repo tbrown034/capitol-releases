@@ -75,6 +75,10 @@ Daily and weekly runs are scheduled via GitHub Actions in `.github/workflows/`.
 
 Around 30,000 records across 100 senators, with daily updates running. Coverage is near-complete for 2025–present, with documented gaps on a small number of CMS-truncated archives. See `docs/devlog.md` (gitignored) for session-level history.
 
+## Roadmap
+
+- Re-launch subscriber email with double opt-in and per-IP rate limiting on subscribe. The first iteration shipped without either and was retired 2026-08-03 before any subscriber signed up; the weekly recap continues to publish on-site. The send path is preserved in `pipeline/commands/brief_send.py`.
+
 ## License
 
 All rights reserved. Source code is public for transparency; reuse requires permission.

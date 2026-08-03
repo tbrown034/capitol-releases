@@ -6,7 +6,6 @@ import {
   getThemeSparkline,
 } from "../lib/queries";
 import { BriefBody, type ThemeSeries } from "../components/brief-body";
-import { BriefSignup } from "../components/brief-signup";
 
 export const metadata = {
   title: "Daily Brief, Capitol Releases",
@@ -41,7 +40,6 @@ export default async function BriefIndexPage() {
           generates one each evening (Tuesday through Saturday), summarizing
           that day&apos;s senate.gov releases.
         </p>
-        <BriefSignup source="brief-empty" />
       </div>
     );
   }
@@ -107,10 +105,6 @@ export default async function BriefIndexPage() {
       </h1>
 
       <BriefBody brief={brief} citations={citations} sparklines={sparklines} />
-
-      <div className="mt-12">
-        <BriefSignup />
-      </div>
 
       {recent.length > 1 && (
         <section className="mt-12 border-t border-neutral-200 pt-6">
