@@ -41,13 +41,9 @@ from pipeline.lib.rag_chunk import chunk_release, embed_input  # noqa: E402
 
 # pipeline/.env first (wins on conflicts), then root .env.local — the
 # OPENAI_API_KEY lives in .env.local because the Next.js app needs it too.
-_repo_root = Path(__file__).resolve().parent.parent.parent
-for _env_path in (_repo_root / "pipeline" / ".env", _repo_root / ".env.local"):
-    if _env_path.exists():
-        for line in _env_path.read_text().splitlines():
-            if line.strip() and not line.startswith("#") and "=" in line:
-                k, v = line.split("=", 1)
-                os.environ.setdefault(k.strip(), v.strip().strip('"'))
+from pipeline.lib.env import PIPELINE_ENV, ROOT_ENV_LOCAL, load_env  # noqa: E402
+
+load_env(PIPELINE_ENV, ROOT_ENV_LOCAL)
 
 MODEL = "text-embedding-3-small"
 PRICE_PER_M_TOKENS = 0.02  # USD, verified 2026-07-29

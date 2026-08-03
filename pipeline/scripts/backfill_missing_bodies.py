@@ -38,16 +38,10 @@ import httpx
 import psycopg2
 from bs4 import BeautifulSoup
 
-for _name in (".env.local", ".env"):
-    _path = Path(__file__).resolve().parents[2] / _name
-    if _path.exists():
-        for _line in _path.read_text().splitlines():
-            if _line.strip() and not _line.startswith("#") and "=" in _line:
-                _k, _v = _line.split("=", 1)
-                # Strip quotes -- see the note in repair_bad_dates.py. A
-                # quoted value in .env.local is carried into the value and
-                # psycopg2 rejects the resulting DSN.
-                os.environ.setdefault(_k.strip(), _v.strip().strip('"').strip("'"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from pipeline.lib.env import ROOT_ENV, ROOT_ENV_LOCAL, load_env  # noqa: E402
+
+load_env(ROOT_ENV_LOCAL, ROOT_ENV)
 
 from pipeline.backfill import extract_body_text  # noqa: E402
 from pipeline.lib.identity import content_hash  # noqa: E402

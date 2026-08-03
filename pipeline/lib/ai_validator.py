@@ -18,17 +18,14 @@ import json
 import logging
 import os
 from dataclasses import dataclass
-from pathlib import Path
+
+from pipeline.lib.env import PIPELINE_ENV, ROOT_ENV_LOCAL, load_env
 
 log = logging.getLogger("capitol.ai")
 
-# Load .env for API key
-_env_path = Path(__file__).resolve().parent.parent / ".env"
-if _env_path.exists():
-    for line in _env_path.read_text().splitlines():
-        if line.strip() and not line.startswith("#") and "=" in line:
-            k, v = line.split("=", 1)
-            os.environ.setdefault(k.strip(), v.strip())
+# ANTHROPIC_API_KEY: pipeline/.env first, root .env.local as fallback --
+# the same precedence rag_embed uses.
+load_env(PIPELINE_ENV, ROOT_ENV_LOCAL)
 
 
 @dataclass
