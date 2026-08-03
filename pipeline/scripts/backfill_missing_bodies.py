@@ -44,7 +44,10 @@ for _name in (".env.local", ".env"):
         for _line in _path.read_text().splitlines():
             if _line.strip() and not _line.startswith("#") and "=" in _line:
                 _k, _v = _line.split("=", 1)
-                os.environ.setdefault(_k.strip(), _v.strip())
+                # Strip quotes -- see the note in repair_bad_dates.py. A
+                # quoted value in .env.local is carried into the value and
+                # psycopg2 rejects the resulting DSN.
+                os.environ.setdefault(_k.strip(), _v.strip().strip('"').strip("'"))
 
 from pipeline.backfill import extract_body_text  # noqa: E402
 from pipeline.lib.identity import content_hash  # noqa: E402
