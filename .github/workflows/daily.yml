@@ -19,6 +19,7 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
       SMTP_HOST: ${{ secrets.SMTP_HOST }}
       SMTP_PORT: ${{ secrets.SMTP_PORT }}
@@ -83,6 +84,27 @@ jobs:
         # continue-on-error so a govinfo outage doesn't fail the run.
         continue-on-error: true
         run: python -m pipeline floor-speeches update
+
+      - name: Embed new releases for retrieval
+        # "Ask the record" can only answer from rag_passages. Every run adds
+        # releases; nothing chunked or embedded them, so the archive grew
+        # while retrieval stayed frozen at the last hand-run backfill. That
+        # gap reached 623 releases across 188 officials between Jul 30 and
+        # Aug 2, 2026 -- the model answers "not in the record" about content
+        # that is demonstrably in the record, with nothing to signal it.
+        #
+        # rag_embed is idempotent and incremental by construction: chunking
+        # skips existing (item_id, seq) pairs, embedding only touches rows
+        # where embedding IS NULL. Re-running when nothing is new costs
+        # nothing. A day of collection is a few hundred chunks, well under a
+        # cent at text-embedding-3-small's $0.02/M tokens.
+        #
+        # Skipped when OPENAI_API_KEY is unset so the workflow still runs
+        # before the secret exists. continue-on-error so an OpenAI outage
+        # costs retrieval freshness, not the whole pipeline.
+        if: env.OPENAI_API_KEY != ''
+        continue-on-error: true
+        run: python -m pipeline.scripts.rag_embed --all
 
       - name: Run data-quality tests
         run: python -m pipeline test
