@@ -1384,6 +1384,85 @@ def test_social_posts_per_senator_floor():
     )
 
 
+def test_floor_speeches_collector_alive():
+    """SOFT. The floor-speeches step is continue-on-error in daily.yml, so
+    a broken govinfo collector fails invisibly -- nothing else in the
+    suite reads floor_speeches. scraped_at only advances when a run
+    inserts speeches; 21 days with none is beyond any routine recess gap
+    (pro-forma sessions still produce a Record) and means the collector
+    deserves a look.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT max(scraped_at) FROM floor_speeches")
+    newest = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    assert newest is not None, "floor_speeches is empty"
+    age_days = (datetime.now(timezone.utc) - newest).days
+    if age_days > 21:
+        print(f"WARNING: no floor speeches collected in {age_days} days "
+              f"(newest scraped_at {newest:%Y-%m-%d})")
+    assert age_days <= 21, f"floor-speech collector silent for {age_days} days"
+
+
+def test_rag_embed_backlog():
+    """SOFT. The embed step is continue-on-error in daily.yml, and a
+    failed embed degrades invisibly: Ask the record answers "not in the
+    record" for content that is in the record, with nothing to signal
+    staleness. Any active-official release older than 48h with a body
+    and no v1 passages means the 4x/day embed step has been failing.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT count(*) FROM official_site_items i
+        JOIN officials o ON o.id = i.official_id
+        WHERE o.status = 'active'
+          AND i.deleted_at IS NULL
+          AND i.body_text IS NOT NULL AND length(i.body_text) >= 200
+          AND i.scraped_at < now() - interval '48 hours'
+          AND NOT EXISTS (
+            SELECT 1 FROM rag_passages p
+            WHERE p.item_id = i.id AND p.chunk_version = 'v1'
+          )
+    """)
+    backlog = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    if backlog:
+        print(f"WARNING: {backlog} releases older than 48h have no RAG "
+              f"passages -- the embed cron step is failing or skipped")
+    # A handful of stub items (~200-400 chars of boilerplate) pass the
+    # length floor but the chunker rightly yields nothing for them, so
+    # they sit in this query forever -- 2 such at introduction
+    # (2026-08-03), both state-senate stubs. A failing embed step
+    # backlogs by hundreds within a day, so a small floor keeps the
+    # signal while sparing a permanent 2-row warning.
+    assert backlog <= 5, f"{backlog} releases unembedded past the 48h grace window"
+
+
+def test_health_probe_ran():
+    """SOFT. test_pre_scrape_failure_surface mirrors per-member health
+    failures, but only from rows the probe wrote -- a probe that crashes
+    before writing anything leaves that test green with nothing to
+    mirror. Zero health_checks rows in 24h is the probe itself dying.
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT count(*) FROM health_checks
+        WHERE checked_at > now() - interval '24 hours'
+    """)
+    rows = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    if rows == 0:
+        print("WARNING: zero health_checks rows in 24h -- the pre-scrape "
+              "probe never ran or crashed before writing")
+    assert rows > 0, "pre-scrape health probe wrote no rows in 24h"
+
+
 # ---- Run all tests ----
 
 # HARD checks fail the run. They mean the data layer itself is broken — a
@@ -1433,6 +1512,12 @@ SOFT_TESTS = {
     "test_no_blocklisted_seed_selectors",
     "test_date_confidence_floor",
     "test_pre_scrape_failure_surface",
+    # Visibility tripwires for daily.yml's continue-on-error steps, added
+    # 2026-08-03: those steps can fail without reddening the run, so the
+    # suite is where their failures become operator-visible.
+    "test_floor_speeches_collector_alive",
+    "test_rag_embed_backlog",
+    "test_health_probe_ran",
 }
 
 
@@ -1486,6 +1571,9 @@ def run_all():
         test_social_posts_not_empty,
         test_social_posts_within_window,
         test_social_posts_per_senator_floor,
+        test_floor_speeches_collector_alive,
+        test_rag_embed_backlog,
+        test_health_probe_ran,
     ]
 
     passed: list[str] = []
