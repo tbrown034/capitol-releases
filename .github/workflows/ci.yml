@@ -1,0 +1,67 @@
+name: CI
+
+# The only gate that runs on code changes -- every other workflow here is
+# a cron pipeline. Keeps a broken push from shipping silently: Vercel
+# deploys main on push, so type errors and lint failures otherwise reach
+# production before anything notices.
+#
+# Deliberately excluded: pipeline/tests/test_data_quality.py. That suite
+# asserts against the production database and belongs to the daily cron,
+# not to a push gate. Only the pure-function tests run here.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm exec eslint .
+
+      - name: Type-check
+        run: pnpm exec tsc --noEmit
+
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # test_dates.py imports pipeline.backfill, which reads DATABASE_URL
+      # at module level. The tests are pure functions and never connect;
+      # any syntactically valid DSN satisfies the import.
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install test dependencies
+        # Just what the pure-function tests import -- not the full
+        # pipeline/requirements.txt, which pulls Playwright and friends.
+        run: pip install httpx psycopg2-binary beautifulsoup4 lxml pytest
+
+      - name: Run non-DB tests
+        run: python -m pytest pipeline/tests/test_dates.py -q
