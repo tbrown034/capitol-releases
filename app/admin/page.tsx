@@ -81,9 +81,13 @@ async function getAdminOverview(): Promise<Overview> {
       ORDER BY started_at DESC
       LIMIT 10
     `,
+    // Open conditions only. Alert storage now touches created_at when a
+    // condition recurs, so acknowledged rows are resolved history, not news
+    // -- without this filter an acknowledged backlog crowds out live alerts.
     sql`
       SELECT id, created_at, alert_type, official_id, severity, message, acknowledged
       FROM alerts
+      WHERE NOT acknowledged
       ORDER BY created_at DESC
       LIMIT 10
     `,
@@ -109,7 +113,18 @@ async function getAdminOverview(): Promise<Overview> {
 }
 
 export default async function AdminPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  // Never let an auth-subsystem failure render a raw 500 on a public URL.
+  // A misconfigured environment (missing BETTER_AUTH_SECRET, unreachable
+  // auth tables) makes getSession throw, and an unhandled throw here served
+  // the Next.js error shell to every visitor who clicked the footer link.
+  // Fail closed instead: no verified session means the signed-out view.
+  let session: Awaited<ReturnType<typeof auth.api.getSession>> = null;
+  try {
+    session = await auth.api.getSession({ headers: await headers() });
+  } catch (err) {
+    console.error("[admin] getSession failed; rendering signed-out view", err);
+    session = null;
+  }
 
   if (!session) {
     return (

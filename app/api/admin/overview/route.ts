@@ -26,7 +26,18 @@ type AlertRow = {
 type CountRow = { count: string | number };
 
 export async function GET() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  // Mirror the /admin page: an auth-subsystem failure must not surface as a
+  // 500, and must never fall through to the data queries below. 503 rather
+  // than 401 so monitoring can tell "auth is down" from "caller is signed
+  // out" — both fail closed and return no data either way.
+  let session: Awaited<ReturnType<typeof auth.api.getSession>>;
+  try {
+    session = await auth.api.getSession({ headers: await headers() });
+  } catch (err) {
+    console.error("[admin/overview] getSession failed", err);
+    return NextResponse.json({ error: "Auth unavailable" }, { status: 503 });
+  }
+
   if (!session?.user?.email || !isAdmin(session.user.email)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -59,9 +70,11 @@ export async function GET() {
     LIMIT 10
   `) as RunRow[];
 
+  // Open conditions only -- see the matching query in app/admin/page.tsx.
   const recentAlerts = (await sql`
     SELECT id, created_at, alert_type, official_id, severity, message, acknowledged
     FROM alerts
+    WHERE NOT acknowledged
     ORDER BY created_at DESC
     LIMIT 10
   `) as AlertRow[];
