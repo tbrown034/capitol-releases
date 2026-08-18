@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "./lib/site";
 
+// Crawlers we want reading content pages: they drive AI-search citations.
 const AI_CRAWLERS = [
   "GPTBot",
   "OAI-SearchBot",
@@ -11,15 +12,20 @@ const AI_CRAWLERS = [
   "PerplexityBot",
   "Perplexity-User",
   "Google-Extended",
-  "CCBot",
   "Applebot-Extended",
   "Meta-ExternalAgent",
   "Amazonbot",
-  "Bytespider",
   "DuckAssistBot",
   "MistralAI-User",
   "cohere-ai",
 ];
+
+// High-volume scrapers with no citation upside (TikTok, Common Crawl).
+const BLOCKED_CRAWLERS = ["Bytespider", "CCBot"];
+
+// Search-results pages are uncacheable DB hits with unbounded query
+// permutations; content stays discoverable through the sitemap.
+const DISALLOWED_PATHS = ["/api/", "/search", "/texas/search"];
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -27,12 +33,16 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/"],
+        disallow: DISALLOWED_PATHS,
       },
       {
         userAgent: AI_CRAWLERS,
         allow: "/",
-        disallow: ["/api/"],
+        disallow: DISALLOWED_PATHS,
+      },
+      {
+        userAgent: BLOCKED_CRAWLERS,
+        disallow: "/",
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
