@@ -377,8 +377,10 @@ async def run_update(
 
         # Run anomaly detection after update
         try:
-            from pipeline.lib.alerts import check_anomalies, store_alert, send_email_alerts
-            anomalies = check_anomalies(conn)
+            from pipeline.lib.alerts import (
+                check_anomalies, check_ask_anomalies, store_alert, send_email_alerts,
+            )
+            anomalies = check_anomalies(conn) + check_ask_anomalies(conn)
             if anomalies:
                 log.info("Anomaly detection found %d issue(s)", len(anomalies))
                 for alert in anomalies:

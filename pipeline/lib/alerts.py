@@ -250,6 +250,80 @@ def check_anomalies(conn) -> list[Alert]:
     return alerts
 
 
+def check_ask_anomalies(conn) -> list[Alert]:
+    """Watch the Ask-the-record notebook (ask_log) for trouble.
+
+    The route logs every request but nothing read the table -- a broken
+    guardrail (spiking validation failures, a probing IP, the daily cap
+    burning out) was invisible until someone ran SQL by hand. Runs with
+    the post-update anomaly checks; all thresholds are per rolling 24h.
+    """
+    alerts: list[Alert] = []
+    failure_statuses = (
+        "validation_failed", "protocol_error", "api_error",
+        "retrieval_error", "refused",
+    )
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT status, count(*) FROM ask_log
+            WHERE created_at > NOW() - INTERVAL '24 hours'
+            GROUP BY status
+        """)
+        counts = dict(cur.fetchall())
+    except psycopg2.Error as e:
+        # ask_log only exists where the Ask feature is deployed; its absence
+        # must not take down the collector anomaly checks.
+        conn.rollback()
+        log.warning("Ask anomaly check skipped: %s", e)
+        cur.close()
+        return alerts
+
+    total = sum(counts.values())
+    failures = sum(counts.get(s, 0) for s in failure_statuses)
+
+    # 1. Failure-rate spike: the answer path is broken or under attack.
+    if failures >= 5 and failures > total * 0.3:
+        alerts.append(Alert(
+            alert_type="ask_failures",
+            severity="error",
+            message=(
+                f"Ask: {failures}/{total} requests in 24h ended in a failure "
+                f"status ({', '.join(s for s in failure_statuses if counts.get(s))})."
+            ),
+            details={"counts": counts},
+        ))
+
+    # 2. Daily cap reached: real demand or abuse, either way worth knowing.
+    if total >= 250:
+        alerts.append(Alert(
+            alert_type="ask_cap_reached",
+            severity="warning",
+            message=f"Ask: global daily cap reached ({total} requests in 24h).",
+            details={"counts": counts},
+        ))
+
+    # 3. One IP probing: many moderation declines or failures from a single
+    # ip_hash reads as someone testing the guardrails.
+    cur.execute("""
+        SELECT ip_hash, count(*) FROM ask_log
+        WHERE created_at > NOW() - INTERVAL '24 hours'
+          AND status IN ('declined', 'validation_failed', 'protocol_error')
+        GROUP BY ip_hash
+        HAVING count(*) >= 10
+    """)
+    for ip_hash, n in cur.fetchall():
+        alerts.append(Alert(
+            alert_type="ask_probe",
+            severity="warning",
+            message=f"Ask: ip_hash {ip_hash[:12]}... hit {n} declined/failed requests in 24h.",
+            details={"ip_hash": ip_hash, "count": n},
+        ))
+
+    cur.close()
+    return alerts
+
+
 def send_email_alerts(alerts: list[Alert]):
     """Send email notifications for error/critical alerts.
 
