@@ -27,6 +27,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 import sys
 from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
@@ -440,8 +441,91 @@ def call_claude(system: str, user: str) -> tuple[dict, dict]:
     return parsed, usage
 
 
-def validate_brief(brief: dict, source_ids: set[str]) -> tuple[bool, list[str]]:
-    """Reject any cited UUID not in the source set. Returns (ok, errors)."""
+# The prompts demand verbatim senator quotes, but until 2026-08-22 only
+# citation UUIDs were validated -- a paraphrased or invented quote could
+# ship. Comparison runs on lowercase alphanumerics only, so punctuation
+# variants (curly vs straight quotes, dashes) never cause a false reject.
+# An elided quote ("start ... end") passes if every fragment appears.
+# A miss rejects the whole brief: discard, never repair.
+# 30 alnum chars: below that, quoted text is almost always a term of art
+# ("Other Transaction Agreements") or a scare quote, not reported speech.
+_MIN_QUOTE_ALNUM = 30
+
+_CURLY_SPAN_RE = re.compile(r"“([^”“]{10,600})”")
+_OPENER_BEFORE = set(" ([—–-:;\n\t")
+_CLOSER_AFTER = set(" .,;:!?)]—–-\n\t")
+
+
+def _alnum(s: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", (s or "").lower())
+
+
+def _straight_spans(t: str) -> list[str]:
+    """Extract "..." spans from straight-quoted text.
+
+    Straight quotes don't encode open vs close, so naive pairing flips
+    parity at any stray quote and starts capturing narration between
+    quotes (bit the 2026-08-07 backtest). Classify each quote char by its
+    neighbors instead: an opener follows space/open punctuation and hugs
+    text; a closer hugs text and precedes space/closing punctuation."""
+    out: list[str] = []
+    open_i: int | None = None
+    for m in re.finditer('"', t):
+        i = m.start()
+        prev = t[i - 1] if i > 0 else " "
+        nxt = t[i + 1] if i + 1 < len(t) else " "
+        opens = prev in _OPENER_BEFORE and not nxt.isspace()
+        closes = not prev.isspace() and nxt in _CLOSER_AFTER
+        if open_i is None:
+            if opens:
+                open_i = i
+        elif closes:
+            span = t[open_i + 1 : i]
+            if 10 <= len(span) <= 600:
+                out.append(span)
+            open_i = None
+        elif opens:
+            open_i = i  # stray unpaired quote; restart from here
+    return out
+
+
+def quoted_spans(text: str) -> list[str]:
+    text = text or ""
+    spans = _CURLY_SPAN_RE.findall(text)
+    without_curly = _CURLY_SPAN_RE.sub(" ", text)
+    return spans + _straight_spans(without_curly)
+
+
+def verify_quotes(spans: list[str], haystacks: list[str], label: str) -> list[str]:
+    """Return an error per quoted span not found verbatim in any haystack."""
+    norm_hay = [_alnum(h) for h in haystacks if h]
+    errors: list[str] = []
+    for span in spans:
+        # Sentence granularity, not whole-span: the model sometimes merges
+        # two adjacent quote spans by dropping an interior attribution break
+        # (',” said Rounds. “') -- every word verbatim, just stitched. Seen
+        # in the 2026-08-20 brief. Whole-span matching would reject those;
+        # per-sentence matching still catches paraphrase and fabrication.
+        # [Bracketed] editorial insertions replace source words, so split
+        # there too and verify the surrounding fragments independently.
+        frags = [
+            f for f in re.split(r"\.\.\.|…|\[[^\]]{0,120}\]|(?<=[.!?])\s+", span)
+            if len(_alnum(f)) >= _MIN_QUOTE_ALNUM
+        ]
+        for frag in frags:
+            if not any(_alnum(frag) in h for h in norm_hay):
+                errors.append(
+                    f'{label}: quote not found verbatim in any source: "{frag.strip()[:90]}"'
+                )
+                break
+    return errors
+
+
+def validate_brief(
+    brief: dict, source_ids: set[str], source_texts: list[str] | None = None
+) -> tuple[bool, list[str]]:
+    """Reject any cited UUID not in the source set, and (when source_texts
+    is given) any quoted span that is not verbatim source text."""
     errors: list[str] = []
     for key in ("headline", "lede", "sections"):
         if key not in brief:
@@ -455,6 +539,12 @@ def validate_brief(brief: dict, source_ids: set[str]) -> tuple[bool, list[str]]:
         for rid in ids:
             if rid not in source_ids:
                 errors.append(f"section[{i}] cites unknown release_id: {rid}")
+    if source_texts is not None:
+        errors.extend(verify_quotes(quoted_spans(brief.get("lede") or ""), source_texts, "lede"))
+        for i, sec in enumerate(sections):
+            errors.extend(
+                verify_quotes(quoted_spans(sec.get("body") or ""), source_texts, f"section[{i}]")
+            )
     return (len(errors) == 0, errors)
 
 
@@ -500,6 +590,77 @@ def validate_weekly(
         check_release_ids(f"drowned_out[{i}]", d.get("release_ids"))
 
     return (len(errors) == 0, errors)
+
+
+def _merge_usage(a: dict, b: dict) -> dict:
+    return {k: a.get(k, 0) + b.get(k, 0) for k in set(a) | set(b)}
+
+
+def _retry_prompt(user_prompt: str, errors: list[str]) -> str:
+    """Corrective reprompt: the 2026-08 backtest put base-rate quote
+    violations (stitched spans, expanded contractions, dropped
+    parentheticals) near 20% of days, so a hard fail on first miss would
+    regularly kill the cron. One retry with the validator's findings fixes
+    the usual case; a second miss still fails the run."""
+    return (
+        user_prompt
+        + "\n\n# Validator feedback — regenerate with corrections\n"
+        + "Your previous brief failed validation:\n"
+        + "\n".join(f"- {e}" for e in errors)
+        + "\nEvery quoted sentence must appear character-for-character in a source "
+        + "release. Fix the flagged quotes (or drop them) and regenerate the full "
+        + "brief in the same JSON shape."
+    )
+
+
+def verify_weekly_quotes(conn, brief: dict, daily_briefs: list[dict]) -> list[str]:
+    """Verbatim check for the weekly edition.
+
+    The weekly model never sees release bodies -- it may only re-quote what a
+    daily brief already quoted. Each structured quotes[] entry is checked
+    against its cited release's stored body; lede and section spans are
+    checked against the daily-brief text plus those bodies.
+    """
+    def brief_texts(b: dict) -> list[str]:
+        sections = b.get("sections") or []
+        if isinstance(sections, str):
+            sections = json.loads(sections)
+        return [
+            b.get("headline") or "", b.get("dek") or "", b.get("lede") or "",
+            *[(s.get("body") or "") for s in sections],
+        ]
+
+    daily_hay = [t for b in daily_briefs for t in brief_texts(b)]
+
+    quotes = brief.get("quotes") or []
+    quoted_release_ids = [q["release_id"] for q in quotes if q.get("release_id")]
+    bodies_by_id: dict[str, str] = {}
+    if quoted_release_ids:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT id::text, COALESCE(title, '') || ' ' || COALESCE(body_text, '')
+            FROM official_site_items WHERE id = ANY(%s::uuid[])
+            """,
+            (quoted_release_ids,),
+        )
+        bodies_by_id = dict(cur.fetchall())
+        cur.close()
+
+    errors: list[str] = []
+    for i, q in enumerate(quotes):
+        text = q.get("text") or ""
+        rid = q.get("release_id")
+        hay = [bodies_by_id[rid]] if rid and rid in bodies_by_id else daily_hay
+        errors.extend(verify_quotes([text], hay, f"quotes[{i}]"))
+
+    span_hay = daily_hay + list(bodies_by_id.values())
+    errors.extend(verify_quotes(quoted_spans(brief.get("lede") or ""), span_hay, "lede"))
+    for i, sec in enumerate(brief.get("sections") or []):
+        errors.extend(
+            verify_quotes(quoted_spans(sec.get("body") or ""), span_hay, f"section[{i}]")
+        )
+    return errors
 
 
 def cited_ids_from_brief(brief: dict) -> list[str]:
@@ -689,9 +850,17 @@ def main():
         brief, usage = call_claude(SYSTEM_PROMPT, user_prompt)
 
         source_ids = [r["id"] for r in releases]
-        ok, errors = validate_brief(brief, set(source_ids))
+        source_texts = [f"{r['title']} {r['body_text']}" for r in releases]
+        ok, errors = validate_brief(brief, set(source_ids), source_texts=source_texts)
         if not ok:
-            log.error("Validation failed:")
+            log.warning("Validation failed (%d errors); retrying once with feedback", len(errors))
+            for e in errors:
+                log.warning("  - %s", e)
+            brief, usage2 = call_claude(SYSTEM_PROMPT, _retry_prompt(user_prompt, errors))
+            usage = _merge_usage(usage, usage2)
+            ok, errors = validate_brief(brief, set(source_ids), source_texts=source_texts)
+        if not ok:
+            log.error("Validation failed after retry:")
             for e in errors:
                 log.error("  - %s", e)
             sys.exit(3)
@@ -776,9 +945,22 @@ def run_weekly(args):
 
         source_release_ids = [r["id"] for r in release_index]
         source_brief_ids = [b["id"] for b in daily_briefs]
-        ok, errors = validate_weekly(brief, set(source_release_ids), set(source_brief_ids))
-        if not ok:
-            log.error("Validation failed:")
+        def weekly_errors(b: dict) -> list[str]:
+            ok, errs = validate_weekly(b, set(source_release_ids), set(source_brief_ids))
+            if ok:
+                errs = verify_weekly_quotes(conn, b, daily_briefs)
+            return errs
+
+        errors = weekly_errors(brief)
+        if errors:
+            log.warning("Validation failed (%d errors); retrying once with feedback", len(errors))
+            for e in errors:
+                log.warning("  - %s", e)
+            brief, usage2 = call_claude(WEEKLY_SYSTEM_PROMPT, _retry_prompt(user_prompt, errors))
+            usage = _merge_usage(usage, usage2)
+            errors = weekly_errors(brief)
+        if errors:
+            log.error("Validation failed after retry:")
             for e in errors:
                 log.error("  - %s", e)
             sys.exit(3)

@@ -88,7 +88,7 @@ You do NOT receive: release bodies for this week. If you need to quote something
 
 3. **No prediction.** No "what to watch next week." No forecasts. Retrospective only.
 
-4. **Five quotes max.** Pick the ones that capture the week's stakes. Verbatim. Attributed AP style. If you can't find five worth keeping, return fewer.
+4. **Five quotes max.** Pick the ones that capture the week's stakes. Verbatim. Attributed AP style. If you can't find five worth keeping, return fewer. Verbatim means character-for-character: copy the quote exactly as the daily brief has it, keep contractions as written, never merge two quote spans into one, and mark any omission with an ellipsis ("..."). The post-validator checks every quoted sentence against the source releases and rejects the whole brief on a mismatch.
 
 5. **Drowned out is rare and must be substantive.** A dam-safety bill, an oversight letter, a funding deadline — items the news cycle skipped but that beat reporters care about. Don't fill this section with filler. Two or three is plenty; sometimes zero is honest.
 

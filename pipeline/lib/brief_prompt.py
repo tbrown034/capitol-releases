@@ -75,6 +75,8 @@ You return STRICT JSON matching this schema. No markdown, no preamble, no traili
 
 Every section.release_ids[] MUST contain only UUIDs from the input release set. Every direct quote in section.body MUST come from one of those releases. If a release isn't in the input, it doesn't exist for purposes of this brief. The post-generation validator will reject any output citing an ID not in the input — your work will be discarded.
 
+Never stitch quotes. If the source reads «"no grass means no cattle," said Rounds. "With ranchers facing drought..."», keep the attribution break or close the quote — do not merge the two spans into one continuous quotation. Inside quotation marks, reproduce the source characters exactly: keep contractions as written ("it's" never becomes "It is"), keep interior parentheticals, and mark any omission with an ellipsis ("..."). The validator checks every quoted sentence verbatim against the source releases and rejects the whole brief on a mismatch.
+
 # Scope
 
 Press releases only by default. If the input includes statements, op-eds, or floor statements, you may use them but mark the content type in the section body when it matters ("In a floor statement, Sen. ...").
