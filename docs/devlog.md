@@ -1750,3 +1750,19 @@ The methodology page on the live site reflects all of this. Every gap has a docu
 - package-lock.json dropped (pnpm only). README rewritten from the production DB (104,079 live records, 100+435+257 officials, 18,678 Bluesky, 5,676 floor speeches, 70 briefs, port 3003). scripts/ + pipeline/recon/ + research/ moved to archive/ with contract README (git mv, nothing deleted).
 - FLAGGED TO TREVOR: repo is PUBLIC (gh confirms) — he believed private. Push-allowed-by-default recorded in agent memory after multi-agent permission friction.
 ---
+## 2026-08-22 - AI guardrail audit + hardening (recs 1-5)
+
+**Session Summary:**
+- Audited both AI surfaces (Ask the record, daily/weekly brief) against the OWASP/defense-in-depth nine-layer guardrail stack Trevor was studying. Verdict: output gate + no-tools architecture already strong; brief quotes and observability were the gaps.
+- Shipped verbatim-quote enforcement for briefs (dfd87b2): sentence-level alnum-normalized matching of every quoted span against source release bodies, daily and weekly. Backtest over 30 published dailies: ~20% contained a real quote-integrity violation — none fabricated, all mild edits (stitched spans dropping ", said Rounds.", "it's" expanded to "It is", dropped interior parentheticals). One corrective retry feeds validator errors back to Sonnet before exit 3.
+- CI eval gate (c23c5d3): rag_eval_retrieval.py --check fails under vector hit@5 4/5; new rag-eval.yml runs on RAG-touching paths. Verified 5/5 live.
+- ask_log alerts (cd78d24): check_ask_anomalies() in alerts.py — failure-rate spike (error, emails), daily cap reached, probing ip_hash (10+ declined/failed). Runs with post-update anomaly pass.
+- /admin Ask panel + scope copy (900f4e6): 7-day counts, est. Haiku spend, status chips, recent questions; ask UI now states single-member scope.
+
+**Notable Changes:**
+- Straight-quote extraction needs a boundary-aware scanner: naive "..." pairing flips parity on stray quotes and captures narration as quoted text (bit the first backtest, 7/14 false rejects → 6/30 all-real after fix).
+- Decision: stay on Haiku 4.5 for Ask (July 29 eval: matches Sonnet on status decisions; the validation layer is the safety net, not the model).
+- Deliberately skipped: attack-signature regex, output PII scan (closed-book design covers them). Deferred: ingestion-time injection screening until state-legislature sources join. Cross-corpus ask flagged as premium candidate.
+- Both brief prompts now spell out character-for-character quoting (no stitching, keep contractions, ellipsis for elisions).
+
+---
