@@ -1,0 +1,56 @@
+name: RAG eval
+
+# Golden-set retrieval eval as a merge gate for RAG-touching changes.
+# Runs only when retrieval code, the ask route, or the golden dataset
+# change -- it hits the production database and the OpenAI embeddings
+# API, so it should not run on every push like ci.yml does.
+#
+# Gate: vector hit@5 >= 4/5 on the answerable golden cases (--check in
+# pipeline/scripts/rag_eval_retrieval.py). Generation-side changes (the
+# system prompt in the ask route) ride the same trigger so any edit to
+# the Ask stack at least re-proves retrieval still stands.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/lib/rag.ts"
+      - "app/api/officials/**"
+      - "pipeline/lib/rag_chunk.py"
+      - "pipeline/scripts/rag_embed.py"
+      - "pipeline/scripts/rag_eval_retrieval.py"
+      - "learning/rag/golden-dataset.json"
+      - ".github/workflows/rag-eval.yml"
+  pull_request:
+    paths:
+      - "app/lib/rag.ts"
+      - "app/api/officials/**"
+      - "pipeline/lib/rag_chunk.py"
+      - "pipeline/scripts/rag_embed.py"
+      - "pipeline/scripts/rag_eval_retrieval.py"
+      - "learning/rag/golden-dataset.json"
+      - ".github/workflows/rag-eval.yml"
+
+concurrency:
+  group: rag-eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  retrieval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        run: pip install psycopg2-binary openai
+
+      - name: Run retrieval eval against golden set
+        run: python -m pipeline.scripts.rag_eval_retrieval --check

@@ -19,7 +19,12 @@ benchmark): hit@5, hit@10, and rank of first relevant chunk (for MRR).
 Traps t1/t2 are also run to show what retrieval returns when the honest
 answer is "nothing" — that calibrates the floor score.
 
-Usage: python -m pipeline.scripts.rag_eval_retrieval
+Usage: python -m pipeline.scripts.rag_eval_retrieval [--check]
+
+--check turns the report into a CI gate: exit 1 unless vector hit@5 is at
+least MIN_VECTOR_HIT5. The threshold is 4/5, not 5/5, so one flaky case
+(corpus drift, re-chunking) doesn't block unrelated changes; a real
+retrieval regression takes out multiple cases at once.
 """
 
 from __future__ import annotations
@@ -44,6 +49,7 @@ for _env_path in (_repo_root / "pipeline" / ".env", _repo_root / ".env.local"):
 EMBED_MODEL = "text-embedding-3-small"
 K = 10
 RRF_K = 60
+MIN_VECTOR_HIT5 = 4
 
 
 def embed_query(client, text: str) -> str:
@@ -160,6 +166,13 @@ def main() -> None:
         tops = ", ".join(f"{s:.3f}" for _, _, s in rows)
         print(f"{case['id']}: top vector similarities = {tops}")
     conn.close()
+
+    if "--check" in sys.argv:
+        hit5 = tallies["vector"]["hit5"]
+        if hit5 < MIN_VECTOR_HIT5:
+            print(f"\nCHECK FAILED: vector hit@5 = {hit5}/{n}, need >= {MIN_VECTOR_HIT5}")
+            sys.exit(1)
+        print(f"\nCHECK PASSED: vector hit@5 = {hit5}/{n} (threshold {MIN_VECTOR_HIT5})")
 
 
 if __name__ == "__main__":
