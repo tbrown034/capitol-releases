@@ -231,8 +231,9 @@ export function AskAnyMember({ members }: { members: AskableMember[] }) {
           />
         </form>
         <p className="mt-2 text-xs text-neutral-400">
-          Answers come only from the member&apos;s archived releases, with
-          citations. When the record can&apos;t answer, it says so.
+          Answers come only from the selected member&apos;s archived releases,
+          one member at a time, with citations. When the record can&apos;t
+          answer, it says so.
         </p>
         {hint && <p className="mt-1 text-xs text-amber-700">{hint}</p>}
       </div>

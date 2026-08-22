@@ -26,6 +26,18 @@ type Overview = {
     message: string;
     acknowledged: boolean;
   }>;
+  ask: {
+    status_counts: Array<{ status: string; count: number }>;
+    total_7d: number;
+    cost_7d_usd: number;
+    recent: Array<{
+      created_at: string;
+      official_id: string;
+      question: string;
+      status: string;
+      latency_ms: number | null;
+    }>;
+  };
 };
 
 type CountRow = { count: string | number };
@@ -46,6 +58,21 @@ function formatTime(iso: string | null): string {
 function severityColor(s: string): string {
   if (s === "critical" || s === "error") return "text-red-700 bg-red-50";
   if (s === "warning") return "text-amber-700 bg-amber-50";
+  return "text-neutral-600 bg-neutral-50";
+}
+
+const ASK_FAILURE_STATUSES = new Set([
+  "validation_failed",
+  "protocol_error",
+  "api_error",
+  "retrieval_error",
+  "refused",
+]);
+
+function askStatusColor(s: string): string {
+  if (ASK_FAILURE_STATUSES.has(s)) return "text-red-700 bg-red-50";
+  if (s === "declined") return "text-amber-700 bg-amber-50";
+  if (s === "answered" || s === "related_only") return "text-emerald-700 bg-emerald-50";
   return "text-neutral-600 bg-neutral-50";
 }
 
@@ -100,6 +127,51 @@ async function getAdminOverview(): Promise<Overview> {
     Overview["recent_alerts"],
   ];
 
+  // Ask-the-record notebook. Own try/catch: a missing ask_log table on a
+  // fresh environment must not blank the whole dashboard.
+  let ask: Overview["ask"] = {
+    status_counts: [],
+    total_7d: 0,
+    cost_7d_usd: 0,
+    recent: [],
+  };
+  try {
+    const [statusRows, costRows, recentAsks] = (await Promise.all([
+      sql`
+        SELECT status, COUNT(*)::int AS count
+        FROM ask_log
+        WHERE created_at > NOW() - INTERVAL '7 days'
+        GROUP BY status
+        ORDER BY count DESC
+      `,
+      // Haiku 4.5: $1/M input, $5/M output. Estimate, for spend awareness.
+      sql`
+        SELECT COALESCE(SUM(input_tokens), 0)::float / 1e6 * 1.0
+             + COALESCE(SUM(output_tokens), 0)::float / 1e6 * 5.0 AS usd
+        FROM ask_log
+        WHERE created_at > NOW() - INTERVAL '7 days'
+      `,
+      sql`
+        SELECT created_at, official_id, question, status, latency_ms
+        FROM ask_log
+        ORDER BY created_at DESC
+        LIMIT 10
+      `,
+    ])) as [
+      Overview["ask"]["status_counts"],
+      Array<{ usd: number }>,
+      Overview["ask"]["recent"],
+    ];
+    ask = {
+      status_counts: statusRows,
+      total_7d: statusRows.reduce((s, r) => s + Number(r.count), 0),
+      cost_7d_usd: Number(costRows[0]?.usd ?? 0),
+      recent: recentAsks,
+    };
+  } catch (err) {
+    console.error("[admin] ask_log queries failed", err);
+  }
+
   return {
     totals: {
       releases: Number(totalRows[0]?.count ?? 0),
@@ -109,6 +181,7 @@ async function getAdminOverview(): Promise<Overview> {
     },
     recent_runs: recentRuns,
     recent_alerts: recentAlerts,
+    ask,
   };
 }
 
@@ -245,6 +318,74 @@ export default async function AdminPage() {
                   <tr>
                     <td colSpan={5} className="px-3 py-6 text-center text-neutral-400 text-sm">
                       No alerts.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-xs uppercase tracking-wide text-neutral-500 mb-3">
+            Ask the record (7 days)
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+            <Stat label="Questions" value={overview.ask.total_7d} />
+            <div className="border border-neutral-200 rounded-md p-3">
+              <div className="text-xs text-neutral-500">Est. cost</div>
+              <div className="text-2xl font-medium text-neutral-900 mt-1 tabular-nums">
+                ${overview.ask.cost_7d_usd.toFixed(2)}
+              </div>
+            </div>
+          </div>
+          {overview.ask.status_counts.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {overview.ask.status_counts.map((s) => (
+                <span
+                  key={s.status}
+                  className={`inline-block px-2 py-0.5 rounded text-xs ${askStatusColor(s.status)}`}
+                >
+                  {s.status}: {s.count}
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="border border-neutral-200 rounded-md overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-neutral-50 text-xs text-neutral-500">
+                <tr>
+                  <th className="text-left px-3 py-2 font-medium">When</th>
+                  <th className="text-left px-3 py-2 font-medium">Member</th>
+                  <th className="text-left px-3 py-2 font-medium">Question</th>
+                  <th className="text-left px-3 py-2 font-medium">Status</th>
+                  <th className="text-right px-3 py-2 font-medium">Latency</th>
+                </tr>
+              </thead>
+              <tbody>
+                {overview.ask.recent.map((q, i) => (
+                  <tr key={i} className="border-t border-neutral-100">
+                    <td className="px-3 py-2 text-neutral-600 whitespace-nowrap">
+                      {formatTime(q.created_at)}
+                    </td>
+                    <td className="px-3 py-2 text-neutral-600">{q.official_id}</td>
+                    <td className="px-3 py-2 text-neutral-700 max-w-xs truncate">
+                      {q.question}
+                    </td>
+                    <td className="px-3 py-2">
+                      <span className={`inline-block px-1.5 py-0.5 rounded text-xs ${askStatusColor(q.status)}`}>
+                        {q.status}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 text-right text-neutral-600 tabular-nums">
+                      {q.latency_ms != null ? `${(q.latency_ms / 1000).toFixed(1)}s` : "-"}
+                    </td>
+                  </tr>
+                ))}
+                {overview.ask.recent.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-3 py-6 text-center text-neutral-400 text-sm">
+                      No questions logged.
                     </td>
                   </tr>
                 )}

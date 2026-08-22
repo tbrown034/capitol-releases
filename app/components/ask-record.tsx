@@ -131,8 +131,8 @@ export function AskRecord({
       </form>
 
       <p className="mt-2 text-xs text-neutral-400">
-        Answers draw only on releases archived here, with citations. When the
-        record can&apos;t answer, it says so.
+        Answers draw only on {memberName}&apos;s collected releases, one member
+        at a time, with citations. When the record can&apos;t answer, it says so.
       </p>
 
       {state.kind === "loading" && (
