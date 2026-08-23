@@ -96,3 +96,9 @@ notebooks/
 # Agent-generated scratch reports
 posthog-setup-report.md
 .env*.local
+
+# Recon output data (untracked by design: probe results, scraped contact
+# lists -- repo is public). Tracked recon reports from before this rule
+# stay tracked; gitignore only hides new/untracked files.
+archive/recon/*.json
+archive/recon/*.md
