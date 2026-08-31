@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { sql } from "./db";
 import type { FeedItem, ContentType } from "./db";
 
@@ -308,3 +309,16 @@ export async function getTxSearchFacets(filters: {
   }
   return { party, type };
 }
+
+// Cached wrappers for the dynamic Texas surfaces (/texas/feed, /texas/search)
+// — same rationale as getFeedCached in queries.ts: shared public data, and
+// bot traffic on searchParams pages otherwise hits Postgres on every request.
+export const getTxRosterCached = unstable_cache(getTxRoster, ["tx-roster-v1"], {
+  revalidate: 3600,
+});
+
+export const getTxSearchFacetsCached = unstable_cache(
+  getTxSearchFacets,
+  ["tx-search-facets-v1"],
+  { revalidate: 600 }
+);

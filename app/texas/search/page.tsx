@@ -1,7 +1,7 @@
 import { Suspense, type ReactNode } from "react";
 import Link from "next/link";
-import { getFeed } from "../../lib/queries";
-import { getTxRoster, getTxSearchFacets } from "../../lib/texas";
+import { getFeed, getFeedCached } from "../../lib/queries";
+import { getTxRosterCached, getTxSearchFacetsCached } from "../../lib/texas";
 import { ReleaseCard } from "../../components/release-card";
 import { SearchBox } from "../../components/search-box";
 import { TxFeedFilters } from "../../components/tx-feed-filters";
@@ -99,7 +99,7 @@ export default async function TexasSearchPage({
 
   const [{ items, total }, facets, roster] = hasQuery
     ? await Promise.all([
-        getFeed({
+        getFeedCached({
           roster: "tx-senate",
           page,
           perPage,
@@ -109,8 +109,8 @@ export default async function TexasSearchPage({
           type,
           sort,
         }),
-        getTxSearchFacets({ search: query, party, type }),
-        getTxRoster(),
+        getTxSearchFacetsCached({ search: query, party, type }),
+        getTxRosterCached(),
       ])
     : await Promise.all([
         Promise.resolve({
@@ -118,7 +118,7 @@ export default async function TexasSearchPage({
           total: 0,
         }),
         Promise.resolve(null),
-        getTxRoster(),
+        getTxRosterCached(),
       ]);
 
   const buildHref = (overrides: Record<string, string | null | undefined>) => {

@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { sql } from "./db";
 import type {
   FeedItem,
@@ -1093,3 +1094,23 @@ export async function getSocialActiveSenators(): Promise<
       ORDER BY post_count DESC
   `) as { official_id: string; full_name: string; party: "D" | "R" | "I"; state: string; post_count: number; latest: string }[];
 }
+
+// ---------------------------------------------------------------------------
+// Cached wrappers for the dynamic surfaces (/feed, /search, /texas/*).
+//
+// Those pages read searchParams, so they render on every request — and bots
+// hit them ~24k times a day, keeping Neon awake around the clock. The data
+// is public and identical for every viewer, so a shared data-cache entry per
+// filter combination (arguments are part of the unstable_cache key) turns
+// repeat hits into cache reads instead of Postgres queries.
+// ---------------------------------------------------------------------------
+
+export const getFeedCached = unstable_cache(getFeed, ["feed-v1"], {
+  revalidate: 600,
+});
+
+export const getSearchFacetsCached = unstable_cache(
+  getSearchFacets,
+  ["search-facets-v1"],
+  { revalidate: 600 }
+);

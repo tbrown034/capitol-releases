@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { getFeed, getSearchFacets } from "../lib/queries";
+import { getFeed, getFeedCached, getSearchFacetsCached } from "../lib/queries";
 import { ReleaseCard } from "../components/release-card";
 import { SearchBox } from "../components/search-box";
 import { Pagination } from "../components/pagination";
@@ -109,7 +109,7 @@ export default async function SearchPage({
   };
 
   const [{ items, total }, facets] = hasQuery
-    ? await Promise.all([getFeed(filters), getSearchFacets(filters)])
+    ? await Promise.all([getFeedCached(filters), getSearchFacetsCached(filters)])
     : [{ items: [] as Awaited<ReturnType<typeof getFeed>>["items"], total: 0 }, null];
 
   const buildHref = (overrides: Record<string, string | null | undefined>) => {

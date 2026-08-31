@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { getFeed, CONTENT_TYPE_LABEL, CONTENT_TYPE_PLURAL } from "../lib/queries";
+import { getFeedCached, CONTENT_TYPE_LABEL, CONTENT_TYPE_PLURAL } from "../lib/queries";
 import { ReleaseCard } from "../components/release-card";
 import { FeedFilters } from "../components/feed-filters";
 import { Pagination } from "../components/pagination";
@@ -51,7 +51,7 @@ export default async function FeedPage({
   const roster = CHAMBER_TO_ROSTER[chamber];
   const perPage = 25;
 
-  const { items, total } = await getFeed({ page, perPage, party, state, type, roster });
+  const { items, total } = await getFeedCached({ page, perPage, party, state, type, roster });
 
   const filterSummary: string[] = [];
   if (type) filterSummary.push(CONTENT_TYPE_LABEL[type].toLowerCase());

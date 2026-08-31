@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { getFeed, CONTENT_TYPE_LABEL, CONTENT_TYPE_PLURAL } from "../../lib/queries";
-import { getTxRoster } from "../../lib/texas";
+import { getFeedCached, CONTENT_TYPE_LABEL, CONTENT_TYPE_PLURAL } from "../../lib/queries";
+import { getTxRosterCached } from "../../lib/texas";
 import { ReleaseCard } from "../../components/release-card";
 import { TxFeedFilters } from "../../components/tx-feed-filters";
 import { Pagination } from "../../components/pagination";
@@ -41,7 +41,7 @@ export default async function TexasFeedPage({
   const perPage = 25;
 
   const [{ items, total }, roster] = await Promise.all([
-    getFeed({
+    getFeedCached({
       page,
       perPage,
       roster: "tx-senate",
@@ -49,7 +49,7 @@ export default async function TexasFeedPage({
       senator,
       type,
     }),
-    getTxRoster(),
+    getTxRosterCached(),
   ]);
 
   const filterSummary: string[] = [];
