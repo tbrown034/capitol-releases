@@ -58,15 +58,22 @@ jobs:
         # a new seed file and registering it in pipeline/lib/seeds.py.
         run: python -m pipeline update
 
+      # The three silo refreshes are network-bound against member sites and
+      # continue-on-error so one flaky WordPress endpoint can't abort the
+      # run. On 2026-08-28 a single transient 403 from one senator's wp-json
+      # killed the workflow and skipped RAG embedding and the quality tests.
       - name: Refresh op-ed silos (WP custom post type)
         run: python -m pipeline.scripts.backfill_op_eds
+        continue-on-error: true
 
       - name: Refresh WP extras (newsletters, speeches, blogs, remarks)
         run: python -m pipeline.scripts.backfill_wp_extras
+        continue-on-error: true
 
       - name: Refresh HTML silos (commentary, columns, op-eds, blogs on
           dedicated listing URLs not covered by /press-releases/)
         run: python -m pipeline.scripts.backfill_silos --max-pages 3
+        continue-on-error: true
 
       - name: Update Bluesky social posts
         # Walks the verified-handle directory and pulls anything posted

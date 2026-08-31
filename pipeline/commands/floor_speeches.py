@@ -15,6 +15,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import os
 import re
@@ -460,6 +461,31 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     return args
 
 
+def record_heartbeat(scrape_run: str, started_at: datetime, stats: dict) -> None:
+    """Write a completion row to scrape_runs regardless of insert count.
+
+    scraped_at on floor_speeches only advances when a run inserts rows, so
+    a Senate recess is indistinguishable from a dead collector (the Aug 2026
+    false alarm: 22 quiet days of pro-forma sessions tripped the 21-day
+    freshness test). The heartbeat says "the collector ran and finished";
+    test_floor_speeches_collector_alive reads it instead of scraped_at.
+    """
+    import psycopg2
+    conn = psycopg2.connect(os.environ["DATABASE_URL"])
+    cur = conn.cursor()
+    cur.execute(
+        """
+        INSERT INTO scrape_runs (id, run_type, started_at, finished_at, stats)
+        VALUES (%s, 'floor_speeches', %s, NOW(), %s)
+        ON CONFLICT (id) DO UPDATE SET finished_at = NOW(), stats = EXCLUDED.stats
+        """,
+        (scrape_run, started_at, json.dumps(stats)),
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
 def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     _load_env()
@@ -487,13 +513,16 @@ def main() -> int:
 
     log.info("range: %s -> %s", start, end)
 
-    scrape_run = f"floor-speeches-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+    run_started = datetime.now(timezone.utc)
+    scrape_run = f"floor-speeches-{run_started.strftime('%Y%m%d-%H%M%S')}"
     total_inserted = 0
     total_skipped = 0
     total_speeches = 0
+    days_scanned = 0
 
     with httpx.Client(headers={"User-Agent": "capitol-releases/1.0 (floor_speeches)"}) as client:
         for d in iter_dates(start, end):
+            days_scanned += 1
             rows = collect_day(d, client)
             total_speeches += len(rows)
             if not rows:
@@ -506,6 +535,15 @@ def main() -> int:
             conn.close()
             total_inserted += ins
             total_skipped += skp
+
+    if not args.dry_run:
+        record_heartbeat(scrape_run, run_started, {
+            "days_scanned": days_scanned,
+            "speeches_found": total_speeches,
+            "inserted": total_inserted,
+            "skipped_dup": total_skipped,
+            "range": [start.isoformat(), end.isoformat()],
+        })
 
     log.info("DONE: %d speeches found, %d inserted, %d skipped (dup) %s",
              total_speeches, total_inserted, total_skipped,

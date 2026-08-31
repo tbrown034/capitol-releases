@@ -1387,23 +1387,46 @@ def test_social_posts_per_senator_floor():
 def test_floor_speeches_collector_alive():
     """SOFT. The floor-speeches step is continue-on-error in daily.yml, so
     a broken govinfo collector fails invisibly -- nothing else in the
-    suite reads floor_speeches. scraped_at only advances when a run
-    inserts speeches; 21 days with none is beyond any routine recess gap
-    (pro-forma sessions still produce a Record) and means the collector
-    deserves a look.
+    suite reads floor_speeches.
+
+    Freshness is measured by the heartbeat row the collector writes to
+    scrape_runs on every completion, NOT by max(scraped_at) on
+    floor_speeches: scraped_at only advances when a run inserts rows, so
+    a long recess of pro-forma sessions (zero speeches to collect) looks
+    identical to a dead collector. The old 21-day scraped_at check fired
+    a false alarm during the Aug 2026 recess for exactly that reason.
+    A dead collector now surfaces in 2 days instead of 21.
     """
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT max(scraped_at) FROM floor_speeches")
-    newest = cur.fetchone()[0]
+    cur.execute("""
+        SELECT finished_at, stats FROM scrape_runs
+        WHERE run_type = 'floor_speeches' AND finished_at IS NOT NULL
+        ORDER BY finished_at DESC LIMIT 1
+    """)
+    row = cur.fetchone()
     cur.close()
     conn.close()
-    assert newest is not None, "floor_speeches is empty"
-    age_days = (datetime.now(timezone.utc) - newest).days
-    if age_days > 21:
-        print(f"WARNING: no floor speeches collected in {age_days} days "
-              f"(newest scraped_at {newest:%Y-%m-%d})")
-    assert age_days <= 21, f"floor-speech collector silent for {age_days} days"
+    if row is None:
+        # Transition state: heartbeat writing shipped 2026-08-31; until the
+        # first post-deploy collector run there are no rows to assert on.
+        print("WARNING: no floor-speeches heartbeat rows yet; "
+              "collector has not run since heartbeat shipped")
+        return
+    finished_at, stats = row
+    age_hours = (datetime.now(timezone.utc) - finished_at).total_seconds() / 3600
+    assert age_hours <= 48, (
+        f"floor-speech collector heartbeat is {age_hours:.0f}h old "
+        f"(last completed {finished_at:%Y-%m-%d %H:%M} UTC); the 4x/day "
+        "cron step is not finishing"
+    )
+    stats = stats or {}
+    found = stats.get("speeches_found", 0)
+    written = stats.get("inserted", 0) + stats.get("skipped_dup", 0)
+    assert found == 0 or written > 0, (
+        f"floor-speech parse failure: last run found {found} speeches "
+        "but wrote none (inserted + dup-skipped == 0)"
+    )
 
 
 def test_rag_embed_backlog():
