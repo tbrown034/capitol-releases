@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -15,8 +16,16 @@ import { getSenatorPhotoUrl, getInitials, getSenatorHref } from "../../lib/photo
 import { normalizeTitle } from "../../lib/titles";
 import { STATE_NAMES } from "../../lib/states";
 import { formatReleaseDate, formatTimestamp, isFutureDated } from "../../lib/dates";
+import { SITE_URL } from "../../lib/site";
 
-export const revalidate = 600;
+// Archived releases rarely change after capture; a day-long ISR window keeps
+// the crawler flood off Postgres. Edits and tombstones surface on the next
+// daily revalidation.
+export const revalidate = 86400;
+
+// generateMetadata and the page body need the same row; cache() collapses
+// them into one query per request.
+const getRelease = cache(getReleaseById);
 
 function sourceHost(url: string): string {
   try {
@@ -32,7 +41,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const release = await getReleaseById(id);
+  const release = await getRelease(id);
   if (!release) return { title: "Not Found" };
   const title = normalizeTitle(release.title);
   return {
@@ -43,8 +52,10 @@ export async function generateMetadata({
       description: `${release.senator_name} (${release.party}-${release.state}) · ${formatReleaseDate(release.published_at)}`,
       type: "article",
     },
+    // The archive page is the canonical URL. Pointing this at source_url
+    // told search engines to index house.gov/senate.gov instead of us.
     alternates: {
-      canonical: release.source_url,
+      canonical: `${SITE_URL}/releases/${release.id}`,
     },
   };
 }
@@ -81,16 +92,18 @@ export default async function ReleasePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const release = await getReleaseById(id);
+  const release = await getRelease(id);
   if (!release) notFound();
 
   const [related, versions, mentions] = await Promise.all([
     getRelatedReleases(release, 6),
     release.version_count > 0 ? getReleaseVersions(release.id) : Promise.resolve([]),
-    // Only caucus-published records carry mentions. Everywhere else the
-    // byline already names the person, so this returns empty and the
-    // section does not render.
-    getReleaseMentions(release.id),
+    // Only Colorado caucus-published records carry mentions; every row in
+    // item_mentions belongs to a co-* official. Everywhere else the byline
+    // already names the person, so skip the query entirely.
+    release.official_id.startsWith("co-")
+      ? getReleaseMentions(release.id)
+      : Promise.resolve([]),
   ]);
 
   const photo = getSenatorPhotoUrl(release.senator_name, release.official_id);
