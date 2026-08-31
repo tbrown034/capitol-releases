@@ -74,7 +74,12 @@ export default function RootLayout({
         <main id="main">{children}</main>
         <Footer />
         <Analytics />
-        <script type="application/ld+json">{JSON.stringify(websiteJsonLd)}</script>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
       </body>
     </html>
   );

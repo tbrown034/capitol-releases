@@ -404,6 +404,9 @@ export async function getReleaseIdsForSitemap(
   offset: number,
   limit: number
 ): Promise<{ id: string; updated_at: string | null; published_at: string | null }[]> {
+  // Covers every roster with public release pages: US Congress plus the
+  // Texas State Senate (whose releases the old 'us'-only filter silently
+  // excluded from the sitemap).
   const rows = await sql`
     SELECT pr.id, pr.updated_at, pr.published_at
     FROM official_site_items pr
@@ -411,26 +414,12 @@ export async function getReleaseIdsForSitemap(
     WHERE pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
       AND s.status = 'active'
-      AND s.chamber IN ('senate','house')
-      AND s.jurisdiction = 'us'
+      AND ((s.jurisdiction = 'us' AND s.chamber IN ('senate','house'))
+        OR (s.jurisdiction = 'tx' AND s.chamber = 'senate'))
     ORDER BY pr.published_at DESC NULLS LAST
     LIMIT ${limit} OFFSET ${offset}
   `;
   return rows as { id: string; updated_at: string | null; published_at: string | null }[];
-}
-
-export async function getReleaseCountForSitemap(): Promise<number> {
-  const rows = await sql`
-    SELECT count(*)::int as total
-    FROM official_site_items pr
-    JOIN officials s ON s.id = pr.official_id
-    WHERE pr.deleted_at IS NULL
-      AND pr.content_type != 'photo_release'
-      AND s.status = 'active'
-      AND s.chamber IN ('senate','house')
-      AND s.jurisdiction = 'us'
-  `;
-  return Number((rows[0] as { total: number }).total);
 }
 
 export async function getActiveSenatorIds(

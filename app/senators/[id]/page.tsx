@@ -46,9 +46,23 @@ export async function generateMetadata({
   const { id } = await params;
   const senator = (await getSenator(id)) ?? (await getHouseMember(id));
   if (!senator) return { title: "Not Found" };
+  const description = `Press releases from ${senator.full_name} (${senator.party}-${senator.state}), archived since January 2025.`;
   return {
     title: `${senator.full_name} — Capitol Releases`,
-    description: `Press releases from ${senator.full_name} (${senator.party}-${senator.state}).`,
+    description,
+    alternates: { canonical: `/senators/${id}` },
+    openGraph: {
+      title: `${senator.full_name} — Capitol Releases`,
+      description,
+      url: `/senators/${id}`,
+      siteName: "Capitol Releases",
+      type: "profile",
+    },
+    twitter: {
+      card: "summary",
+      title: `${senator.full_name} — Capitol Releases`,
+      description,
+    },
   };
 }
 

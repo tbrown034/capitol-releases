@@ -40,9 +40,14 @@ export async function generateMetadata({
     SELECT full_name, party FROM officials WHERE id = ${id} AND chamber = 'senate' AND jurisdiction = 'tx'
   `) as { full_name: string; party: string }[];
   if (!rows[0]) return { title: "Not found — Capitol Releases" };
+  const title = `${rows[0].full_name} — Texas Senate — Capitol Releases`;
+  const description = `Press releases from Texas State Senator ${rows[0].full_name} (${rows[0].party}-TX) on senate.texas.gov, archived since January 2025.`;
   return {
-    title: `${rows[0].full_name} — Texas Senate — Capitol Releases`,
-    description: `Press releases from Texas State Senator ${rows[0].full_name} (${rows[0].party}-TX) on senate.texas.gov, archived since January 2025.`,
+    title,
+    description,
+    alternates: { canonical: `/texas/${id}` },
+    openGraph: { title, description, url: `/texas/${id}`, siteName: "Capitol Releases", type: "profile" },
+    twitter: { card: "summary", title, description },
   };
 }
 

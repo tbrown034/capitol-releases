@@ -45,7 +45,9 @@ export default function robots(): MetadataRoute.Robots {
         disallow: "/",
       },
     ],
-    sitemap: `${SITE_URL}/sitemap.xml`,
+    // Sharded via generateSitemaps() in app/sitemap.ts — /sitemap.xml no
+    // longer exists. Keep this list in sync with RELEASE_SHARDS there.
+    sitemap: [0, 1, 2, 3, 4].map((id) => `${SITE_URL}/sitemap/${id}.xml`),
     host: SITE_URL,
   };
 }

@@ -134,8 +134,37 @@ export default async function ReleasePage({
   const backHref = isTexas ? "/texas/feed" : "/feed";
   const backLabel = isTexas ? "← Back to Texas feed" : "← Back to feed";
 
+  // NewsArticle structured data. isBasedOn carries the source attribution
+  // that the canonical tag used to (wrongly) express; the archive page
+  // itself is the canonical URL.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: title,
+    datePublished: release.published_at ?? undefined,
+    dateModified: release.scraped_at,
+    author: {
+      "@type": "Person",
+      name: release.senator_name,
+      url: `${SITE_URL}${getSenatorHref(release.official_id)}`,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Capitol Releases",
+      url: SITE_URL,
+    },
+    mainEntityOfPage: `${SITE_URL}/releases/${release.id}`,
+    isBasedOn: release.source_url,
+  };
+
   return (
     <article className="mx-auto max-w-3xl px-4 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <Link
         href={backHref}
         className="text-sm text-neutral-500 hover:text-neutral-900 transition-colors"

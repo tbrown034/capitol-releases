@@ -82,9 +82,23 @@ export async function generateMetadata({
   const member = await getHouseMember(id);
   if (!member) return { title: "Not Found, Capitol Releases" };
   const district = formatDistrict(member.district);
+  const description = `Press releases, statements, and op-eds from Rep. ${member.full_name} (${member.party}-${member.state}${district ? `-${district}` : ""}), archived since January 2025.`;
   return {
     title: `${member.full_name}, US House, Capitol Releases`,
-    description: `Press releases, statements, and op-eds from Rep. ${member.full_name} (${member.party}-${member.state}${district ? `-${district}` : ""}), archived since January 2025.`,
+    description,
+    alternates: { canonical: `/house/${id}` },
+    openGraph: {
+      title: `${member.full_name}, US House, Capitol Releases`,
+      description,
+      url: `/house/${id}`,
+      siteName: "Capitol Releases",
+      type: "profile",
+    },
+    twitter: {
+      card: "summary",
+      title: `${member.full_name}, US House, Capitol Releases`,
+      description,
+    },
   };
 }
 

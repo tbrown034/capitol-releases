@@ -18,6 +18,21 @@ export const metadata = {
   title: "Capitol Releases",
   description:
     "Search and analyze official press releases from members of Congress, updated daily from source websites.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Capitol Releases",
+    description:
+      "The searchable archive of official press releases from every member of Congress — updated daily, with full provenance.",
+    url: "/",
+    siteName: "Capitol Releases",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Capitol Releases",
+    description:
+      "The searchable archive of official press releases from every member of Congress.",
+  },
 };
 
 // Daily-cron data; 10-min ISR is plenty and keeps the homepage off the
