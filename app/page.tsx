@@ -190,7 +190,7 @@ export default async function Home({
             </p>
             <p className="text-sm md:text-base text-neutral-500 max-w-2xl leading-relaxed">
               Every record each member&rsquo;s office publishes on their own
-              .gov site, all 100 senators and 437 House representatives.
+              .gov site, all 100 senators and 435 House representatives.
               Normalized, searchable, updated multiple times daily.
             </p>
           </div>
@@ -277,7 +277,7 @@ export default async function Home({
               href="/?chamber=house"
               className={`px-3 py-1 text-xs border ${chamberView === "house" ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
             >
-              House (437)
+              House (435)
             </Link>
           </div>
         </div>
@@ -398,7 +398,7 @@ export default async function Home({
         </p>
         <SenatorBars data={swimLaneData} />
         <div className="mt-4 pt-4 border-t border-neutral-200 flex items-center justify-between text-xs text-neutral-500">
-          <span>Showing top {swimLaneData.length} of 537 members of Congress</span>
+          <span>Showing top {swimLaneData.length} of 535 members of Congress</span>
           <Link
             href="/senators"
             className="text-neutral-900 hover:underline font-medium"
