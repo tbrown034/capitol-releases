@@ -35,16 +35,29 @@ export default async function sitemap(props: {
       { path: "/", changeFrequency: "daily" as const, priority: 1.0 },
       { path: "/feed", changeFrequency: "hourly" as const, priority: 0.9 },
       { path: "/trending", changeFrequency: "hourly" as const, priority: 0.8 },
-      { path: "/senators", changeFrequency: "daily" as const, priority: 0.8 },
-      { path: "/house", changeFrequency: "daily" as const, priority: 0.8 },
+      // /senators and /house are redirect shims (see app/senators/page.tsx,
+      // app/house/page.tsx) — the real content, and its own metadata, lives
+      // at /members/senate and /members/house. Listing the shims put a
+      // redirect in the sitemap instead of the canonical page.
+      { path: "/members", changeFrequency: "daily" as const, priority: 0.6 },
+      { path: "/members/senate", changeFrequency: "daily" as const, priority: 0.8 },
+      { path: "/members/house", changeFrequency: "daily" as const, priority: 0.8 },
       { path: "/search", changeFrequency: "weekly" as const, priority: 0.6 },
       { path: "/about", changeFrequency: "monthly" as const, priority: 0.4 },
+      { path: "/speeches", changeFrequency: "daily" as const, priority: 0.6 },
+      { path: "/social", changeFrequency: "daily" as const, priority: 0.5 },
       { path: "/status", changeFrequency: "daily" as const, priority: 0.3 },
       // Texas Senate section
       { path: "/texas", changeFrequency: "daily" as const, priority: 0.8 },
       { path: "/texas/feed", changeFrequency: "daily" as const, priority: 0.7 },
       { path: "/texas/search", changeFrequency: "weekly" as const, priority: 0.5 },
       { path: "/texas/trending", changeFrequency: "weekly" as const, priority: 0.5 },
+      // Colorado General Assembly section
+      { path: "/colorado", changeFrequency: "daily" as const, priority: 0.7 },
+      // State-jurisdiction index
+      { path: "/states", changeFrequency: "weekly" as const, priority: 0.4 },
+      // AI daily brief
+      { path: "/brief", changeFrequency: "daily" as const, priority: 0.6 },
     ];
 
     const [officialIds, txSenatorIds, houseMemberIds] = await Promise.all([
