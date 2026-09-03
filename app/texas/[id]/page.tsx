@@ -369,6 +369,7 @@ export default async function TxSenatorPage({
             {sinceLabel && <> since {sinceLabel}</>}. Re-checked daily on{" "}
             <span translate="no">senate.texas.gov</span>.
           </p>
+          <div className="overflow-x-auto -mx-4 px-4">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-neutral-800 text-xs uppercase tracking-wider text-neutral-500">
@@ -417,6 +418,7 @@ export default async function TxSenatorPage({
               ))}
             </tbody>
           </table>
+          </div>
           <Suspense>
             <Pagination
               total={total}

@@ -465,6 +465,7 @@ export default async function SenatorPage({
           <EmptyState message="No releases on this page." />
         )
       ) : (
+        <div className="overflow-x-auto -mx-4 px-4">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-neutral-800 text-xs uppercase tracking-wider text-neutral-500">
@@ -507,6 +508,7 @@ export default async function SenatorPage({
             ))}
           </tbody>
         </table>
+        </div>
       )}
 
       <Suspense>

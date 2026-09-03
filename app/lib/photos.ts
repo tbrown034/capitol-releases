@@ -143,7 +143,17 @@ export function getMemberPhotoUrl(
 // Chamber-aware archive URL: House -> /house/[id], Senate -> /senators/[id],
 // TX -> /texas/[id]. Use this when a hero card or feed item could be from
 // either chamber.
+//
+// Colorado caucus-pressroom "officials" (ids like co-senate-gop-caucus,
+// co-house-dem-caucus) were falling through to /house/ or /senators/ based
+// on their chamber field, 404ing every ReleaseCard byline link for a
+// Colorado release (feed, trending, home, /colorado itself). There is no
+// per-caucus detail page — getColoradoLegislator() deliberately excludes
+// office_type = caucus_pressroom, and /colorado/[id] 404s for these same
+// ids — so route by id prefix to the section index instead, the same way
+// getSenatorHref already prefix-routes tx- ids to /texas/[id].
 export function getMemberHref(officialId: string, chamber: string | null | undefined): string {
+  if (officialId.startsWith("co-")) return "/colorado";
   if (chamber === "house") return `/house/${officialId}`;
   return getSenatorHref(officialId);
 }
