@@ -51,7 +51,7 @@
       "collection_method": "httpx",
       "rss_feed_url": "https://www.armstrong.senate.gov/press-releases/feed/",
       "expected_zero": true,
-      "low_volume_reason": "Sworn in 2026-03-24 to fill ND seat vacated by Hoeven retirement; office is still in setup phase, no press releases published yet (verified 2026-05-03)."
+      "low_volume_reason": "Oklahoma seat, sworn in 2026; office was still in setup phase with no press releases published as of the 2026-05-03 verification. 2026-09-05: the earlier note said he filled a North Dakota seat vacated by Hoeven; that is wrong, senate.gov lists Armstrong as the Class II Republican from Oklahoma alongside Lankford, and Hoeven and Cramer still hold the North Dakota seats. The reason this seat turned over is not documented here."
     },
     {
       "official_id": "baldwin-tammy",
