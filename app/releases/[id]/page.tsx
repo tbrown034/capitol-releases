@@ -12,7 +12,7 @@ import { ReleaseCard } from "../../components/release-card";
 import { TypeBadge } from "../../components/type-badge";
 import { MentionBadges } from "../../components/mention-badges";
 import { getReleaseMentions } from "../../lib/colorado";
-import { getSenatorPhotoUrl, getInitials, getSenatorHref } from "../../lib/photos";
+import { getMemberPhotoUrl, getInitials, getMemberHref } from "../../lib/photos";
 import { normalizeTitle } from "../../lib/titles";
 import { STATE_NAMES } from "../../lib/states";
 import { formatReleaseDate, formatTimestamp, isFutureDated } from "../../lib/dates";
@@ -113,7 +113,12 @@ export default async function ReleasePage({
       : Promise.resolve([]),
   ]);
 
-  const photo = getSenatorPhotoUrl(release.senator_name, release.official_id);
+  const photo = getMemberPhotoUrl(
+    release.senator_name,
+    release.official_id,
+    release.chamber,
+    release.bioguide_id
+  );
   const partyLabel =
     release.party === "D"
       ? "Democrat"
@@ -159,7 +164,7 @@ export default async function ReleasePage({
     author: {
       "@type": "Person",
       name: release.senator_name,
-      url: `${SITE_URL}${getSenatorHref(release.official_id)}`,
+      url: `${SITE_URL}${getMemberHref(release.official_id, release.chamber)}`,
     },
     publisher: {
       "@type": "Organization",
@@ -243,7 +248,7 @@ export default async function ReleasePage({
         )}
         <div className="text-sm">
           <Link
-            href={getSenatorHref(release.official_id)}
+            href={getMemberHref(release.official_id, release.chamber)}
             className="font-[family-name:var(--font-source-serif)] text-base text-neutral-900 hover:underline"
           >
             {release.senator_name}

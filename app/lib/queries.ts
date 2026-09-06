@@ -333,7 +333,7 @@ export async function getReleaseById(
     SELECT pr.id, pr.official_id, pr.title, pr.published_at, pr.body_text,
            pr.source_url, pr.scraped_at, pr.content_type,
            pr.deleted_at, pr.last_seen_live, pr.updated_at,
-           s.full_name as senator_name, s.party, s.state,
+           s.full_name as senator_name, s.party, s.state, s.chamber, s.bioguide_id,
            (SELECT count(*)::int FROM content_versions cv WHERE cv.official_site_item_id = pr.id) as version_count
     FROM official_site_items pr
     JOIN officials s ON s.id = pr.official_id
@@ -481,7 +481,7 @@ export async function getDeletedReleases(
       SELECT pr.id, pr.official_id, pr.title, pr.published_at, pr.body_text,
              pr.source_url, pr.scraped_at, pr.content_type,
              pr.deleted_at, pr.last_seen_live, pr.updated_at,
-             s.full_name as senator_name, s.party, s.state,
+             s.full_name as senator_name, s.party, s.state, s.chamber, s.bioguide_id,
              0 as version_count
       FROM official_site_items pr
       JOIN officials s ON s.id = pr.official_id

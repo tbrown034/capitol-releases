@@ -11,7 +11,7 @@ import {
 } from "../lib/trending";
 import { TermChart } from "../components/term-chart";
 import { TopicTimeline } from "../components/topic-timeline";
-import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
+import { getSenatorPhotoUrl, getInitials, getMemberHref } from "../lib/photos";
 import { familyName } from "../lib/names";
 
 export const metadata = {
@@ -34,6 +34,7 @@ type OwnerRow = {
   full_name: string;
   party: "D" | "R" | "I";
   state: string;
+  chamber: string | null;
   count: number;
 };
 type SkewRow = {
@@ -327,7 +328,7 @@ export default async function TrendingPage({
                             </span>
                           )}
                           <Link
-                            href={`/senators/${o.official_id}`}
+                            href={getMemberHref(o.official_id, o.chamber)}
                             className="text-sm text-neutral-800 hover:underline truncate flex-1 min-w-0"
                           >
                             {familyName(o.full_name)}{" "}

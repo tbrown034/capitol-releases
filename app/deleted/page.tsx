@@ -7,6 +7,7 @@ import { EmptyState } from "../components/empty-state";
 import { formatReleaseDate, formatTimestamp } from "../lib/dates";
 import { STATE_NAMES } from "../lib/states";
 import { normalizeTitle } from "../lib/titles";
+import { getMemberHref } from "../lib/photos";
 
 export const metadata = {
   title: "Source URLs no longer resolving — Capitol Releases",
@@ -82,7 +83,7 @@ export default async function DeletedPage({
                 </td>
                 <td className="py-2.5 pr-4 whitespace-nowrap">
                   <Link
-                    href={`/senators/${pr.official_id}`}
+                    href={getMemberHref(pr.official_id, pr.chamber)}
                     className="text-neutral-700 hover:underline"
                   >
                     {pr.senator_name}

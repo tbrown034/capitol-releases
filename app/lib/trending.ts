@@ -252,6 +252,7 @@ export async function getTopicOwnership(
                s.full_name,
                s.party,
                s.state,
+               s.chamber,
                count(pr.id)::int as count
         FROM officials s
         JOIN official_site_items pr ON pr.official_id = s.id
@@ -264,7 +265,7 @@ export async function getTopicOwnership(
           AND pr.published_at >= '2025-01-01'
           AND pr.published_at <= NOW()
           AND pr.fts @@ websearch_to_tsquery('english', ${term})
-        GROUP BY s.id, s.full_name, s.party, s.state
+        GROUP BY s.id, s.full_name, s.party, s.state, s.chamber
         ORDER BY count DESC
         LIMIT 3
       `
@@ -280,6 +281,7 @@ export type TopicOwnerRow = {
   full_name: string;
   party: "D" | "R" | "I";
   state: string;
+  chamber: string | null;
   count: number;
 };
 
@@ -429,6 +431,7 @@ export async function getTermTimeline(term: string) {
                  s.full_name as senator_name,
                  s.party,
                  s.state,
+                 s.chamber,
                  s.id as official_id
           FROM official_site_items pr
           JOIN officials s ON s.id = pr.official_id
@@ -454,5 +457,6 @@ export type TermSpikeHeadline = {
   senator_name: string;
   party: "D" | "R" | "I";
   state: string;
+  chamber: string | null;
   official_id: string;
 };
