@@ -2,6 +2,7 @@ import Link from "next/link";
 import { sql } from "../lib/db";
 import senateSeed from "../../pipeline/seeds/senate.json";
 import houseSeed from "../../pipeline/seeds/house.json";
+import { buildCoverageRows, type CoverageRow } from "../lib/coverage";
 
 export const metadata = {
   title: "About — Capitol Releases",
@@ -94,20 +95,32 @@ const CONTENT_TYPES = [
   },
 ];
 
-async function getCoverageRows(): Promise<[string, string, string][]> {
-  const [senateClean] = (await sql`
-    SELECT count(*)::int as ct
-    FROM officials s
-    LEFT JOIN official_site_items pr
-      ON pr.official_id = s.id AND pr.deleted_at IS NULL
-     AND pr.content_type != 'photo_release'
-    WHERE s.status = 'active'
-      AND s.chamber = 'senate' AND s.jurisdiction = 'us'
-    GROUP BY s.id
-    HAVING count(pr.id) >= 10 AND min(pr.published_at) < '2025-02-01'
-  `) as { ct: number }[];
+async function getCoverageRows(): Promise<CoverageRow[]> {
+  // One row per active senator, then count the qualifying rows. The previous
+  // version selected count(*) with GROUP BY s.id and read the first row, which
+  // published a single senator's release count as "clean senators".
+  const [senateStats] = (await sql`
+    WITH counts AS (
+      SELECT s.id,
+             count(pr.id) FILTER (WHERE pr.deleted_at IS NULL
+                                  AND pr.content_type != 'photo_release') as rec,
+             min(pr.published_at) FILTER (WHERE pr.deleted_at IS NULL
+                                          AND pr.content_type != 'photo_release') as first_dt
+      FROM officials s
+      LEFT JOIN official_site_items pr ON pr.official_id = s.id
+      WHERE s.status = 'active'
+        AND s.chamber = 'senate' AND s.jurisdiction = 'us'
+      GROUP BY s.id
+    )
+    SELECT count(*)::int as total,
+           count(*) FILTER (WHERE rec >= 10 AND first_dt < '2025-02-01')::int as clean
+    FROM counts
+  `) as { total: number; clean: number }[];
 
-  const [houseStats] = (await sql`
+  // Per-member rows, not pre-aggregated totals: "accounted for" has to be a
+  // union of clean members and documented-gap members, and adding two counts
+  // double-counts everyone who is both.
+  const houseRows = (await sql`
     WITH counts AS (
       SELECT s.id,
              count(pr.id) FILTER (WHERE pr.deleted_at IS NULL
@@ -120,13 +133,10 @@ async function getCoverageRows(): Promise<[string, string, string][]> {
         AND s.chamber = 'house' AND s.jurisdiction = 'us'
       GROUP BY s.id
     )
-    SELECT
-      count(*)::int as total,
-      count(*) FILTER (WHERE first_dt < '2025-02-01' AND rec >= 10)::int as reaches,
-      count(*) FILTER (WHERE rec = 0)::int as zero,
-      count(*) FILTER (WHERE rec BETWEEN 1 AND 9)::int as shallow
+    SELECT id,
+           COALESCE(rec >= 10 AND first_dt < '2025-02-01', false) as reaches
     FROM counts
-  `) as { total: number; reaches: number; zero: number; shallow: number }[];
+  `) as { id: string; reaches: boolean }[];
 
   const senateMembers = senateSeed.members as SeedMember[];
   const senateDocumented = senateMembers.filter(
@@ -134,42 +144,22 @@ async function getCoverageRows(): Promise<[string, string, string][]> {
   ).length;
 
   const houseMembers = houseSeed.members as SeedMember[];
-  const houseDocumented = houseMembers.filter(
-    (m) => m.expected_zero || m.expected_low_volume || (m as { coverage_status?: string }).coverage_status
-  ).length;
+  const houseDocumentedIds = new Set(
+    houseMembers.flatMap((m) =>
+      (m.expected_zero || m.expected_low_volume || (m as { coverage_status?: string }).coverage_status) && m.member_id
+        ? [m.member_id]
+        : []
+    )
+  );
 
-  const houseAccountedFor = houseStats.reaches + houseDocumented;
-  const housePct = ((houseStats.reaches / houseStats.total) * 100).toFixed(1);
-  const houseBulletproofPct = ((houseAccountedFor / houseStats.total) * 100).toFixed(1);
-  const houseTroubleList = houseStats.total - houseAccountedFor;
-
-  return [
-    [
-      "U.S. senators (clean)",
-      `${senateClean?.ct ?? 0} / 100`,
-      `${senateDocumented} documented gaps; rest publishing on schedule.`,
-    ],
-    [
-      "U.S. House (configured)",
-      `${houseStats.total} / 435`,
-      "Every member has a source row. Two non-voting delegate seats exclude (DC, PR, etc., counted in the 437 active rows).",
-    ],
-    [
-      "House — reaches Jan. 2025",
-      `${houseStats.reaches} / ${houseStats.total}`,
-      `${housePct}% have ≥10 records reaching back to early 2025.`,
-    ],
-    [
-      "House — bulletproof accounted for",
-      `${houseAccountedFor} / ${houseStats.total}`,
-      `${houseBulletproofPct}% — clean rows plus ${houseDocumented} members tagged as documented gaps (Phase 2 scrapers, scraper bugs, low-volume offices).`,
-    ],
-    [
-      "House — open trouble list",
-      `${houseTroubleList}`,
-      "Members with shallow archives where the cause is still under investigation.",
-    ],
-  ];
+  return buildCoverageRows({
+    senateClean: senateStats?.clean ?? 0,
+    senateTotal: senateStats?.total ?? 0,
+    senateDocumented,
+    houseRows,
+    houseDocumentedIds,
+    houseSeedRows: houseMembers.length,
+  });
 }
 
 function normalizeRows(): LowVolumeRow[] {
@@ -401,12 +391,8 @@ export default async function AboutPage({
 
       <Section title="Coverage status">
         <p>
-          The live coverage diagnostic is expected at{" "}
-          <code className="font-[family-name:var(--font-dm-mono)] text-[13px] text-neutral-900">
-            docs/coverage-diagnostic-2026-05-03.json
-          </code>
-          . Until that lands, this page points to the current House trouble
-          list.
+          The table below is computed at request time from the database and the
+          seed files. The per-site writeup behind it:
         </p>
         <p>
           <a
@@ -444,16 +430,16 @@ export default async function AboutPage({
 
       <Section title="Known low-volume offices">
         <p>
-          Some offices publish rarely or not at all. Those rows will be marked
-          in the seed files once the{" "}
+          Some offices publish rarely or not at all. The rows below are the
+          members carrying an{" "}
           <code className="font-[family-name:var(--font-dm-mono)] text-[13px] text-neutral-900">
             expected_low_volume
           </code>{" "}
-          and{" "}
+          or{" "}
           <code className="font-[family-name:var(--font-dm-mono)] text-[13px] text-neutral-900">
             expected_zero
           </code>{" "}
-          fields land.
+          flag in the seed files.
         </p>
         <div className="overflow-x-auto">
           <table className="mt-4 w-full text-left text-sm">
@@ -509,8 +495,7 @@ export default async function AboutPage({
                     colSpan={6}
                     className="py-4 text-sm text-neutral-500"
                   >
-                    No seed rows are marked yet. Track B1 will populate this
-                    from the seed files.
+                    No seed rows are flagged low-volume or expected-zero.
                   </td>
                 </tr>
               )}
