@@ -2,7 +2,11 @@ import Link from "next/link";
 import { sql } from "../lib/db";
 import senateSeed from "../../pipeline/seeds/senate.json";
 import houseSeed from "../../pipeline/seeds/house.json";
-import { buildCoverageRows, type CoverageRow } from "../lib/coverage";
+import {
+  buildCoverageRows,
+  isVotingHouseMember,
+  type CoverageRow,
+} from "../lib/coverage";
 
 export const metadata = {
   title: "About — Capitol Releases",
@@ -95,7 +99,13 @@ const CONTENT_TYPES = [
   },
 ];
 
-async function getCoverageRows(): Promise<CoverageRow[]> {
+type CoverageSummary = {
+  rows: CoverageRow[];
+  senateTotal: number;
+  houseVotingTotal: number;
+};
+
+async function getCoverageRows(): Promise<CoverageSummary> {
   // One row per active senator, then count the qualifying rows. The previous
   // version selected count(*) with GROUP BY s.id and read the first row, which
   // published a single senator's release count as "clean senators".
@@ -133,10 +143,12 @@ async function getCoverageRows(): Promise<CoverageRow[]> {
         AND s.chamber = 'house' AND s.jurisdiction = 'us'
       GROUP BY s.id
     )
-    SELECT id,
-           COALESCE(rec >= 10 AND first_dt < '2025-02-01', false) as reaches
-    FROM counts
-  `) as { id: string; reaches: boolean }[];
+    SELECT c.id,
+           s.state,
+           COALESCE(c.rec >= 10 AND c.first_dt < '2025-02-01', false) as reaches
+    FROM counts c
+    JOIN officials s ON s.id = c.id
+  `) as { id: string; state: string; reaches: boolean }[];
 
   const senateMembers = senateSeed.members as SeedMember[];
   const senateDocumented = senateMembers.filter(
@@ -152,14 +164,18 @@ async function getCoverageRows(): Promise<CoverageRow[]> {
     )
   );
 
-  return buildCoverageRows({
-    senateClean: senateStats?.clean ?? 0,
+  return {
+    rows: buildCoverageRows({
+      senateClean: senateStats?.clean ?? 0,
+      senateTotal: senateStats?.total ?? 0,
+      senateDocumented,
+      houseRows,
+      houseDocumentedIds,
+      houseSeedRows: houseMembers.length,
+    }),
     senateTotal: senateStats?.total ?? 0,
-    senateDocumented,
-    houseRows,
-    houseDocumentedIds,
-    houseSeedRows: houseMembers.length,
-  });
+    houseVotingTotal: houseRows.filter(isVotingHouseMember).length,
+  };
 }
 
 function normalizeRows(): LowVolumeRow[] {
@@ -253,7 +269,7 @@ export default async function AboutPage({
     params.sort === "verified"
       ? params.sort
       : "name";
-  const [lowVolumeRows, coverageRows] = await Promise.all([
+  const [lowVolumeRows, coverage] = await Promise.all([
     Promise.resolve(sortRows(normalizeRows(), sort)),
     getCoverageRows(),
   ]);
@@ -267,10 +283,11 @@ export default async function AboutPage({
         How Capitol Releases works
       </h1>
       <p className="mb-8 max-w-2xl text-sm leading-relaxed text-neutral-600">
-        Capitol Releases archives official press output from all 100 U.S.
-        senators and 435 U.S. representatives. The goal is a searchable public
-        record with enough provenance that a reporter can cite it and a
-        developer can audit it.
+        Capitol Releases archives official press output from all{" "}
+        {coverage.senateTotal} U.S. senators and {coverage.houseVotingTotal}{" "}
+        voting U.S. representatives. The goal is a searchable public record with
+        enough provenance that a reporter can cite it and a developer can audit
+        it.
       </p>
 
       <Section title="What we collect">
@@ -414,7 +431,7 @@ export default async function AboutPage({
               </tr>
             </thead>
             <tbody>
-              {coverageRows.map(([metric, status, note]) => (
+              {coverage.rows.map(([metric, status, note]) => (
                 <tr key={metric} className="border-b border-neutral-100">
                   <td className="py-2.5 pr-4 text-neutral-900">{metric}</td>
                   <td className="py-2.5 pr-4 font-[family-name:var(--font-dm-mono)] text-neutral-900">

@@ -6,6 +6,23 @@
 export const SENATE_SEATS = 100;
 export const HOUSE_SEATS = 435;
 
+// The House roster carries six non-voting delegates (437 seed rows, 435
+// voting seats). Every House figure on the methodology page counts voting
+// members only, on both sides of the fraction, so the denominator and the
+// numerators describe the same population.
+export const NON_VOTING_HOUSE_STATES = new Set([
+  "AS",
+  "DC",
+  "GU",
+  "MP",
+  "PR",
+  "VI",
+]);
+
+export function isVotingHouseMember(row: { state: string }): boolean {
+  return !NON_VOTING_HOUSE_STATES.has(row.state.toUpperCase());
+}
+
 // Pure coverage arithmetic for the /about methodology table.
 //
 // Two bugs lived here before: the "clean senators" figure came from a
@@ -17,6 +34,7 @@ export const HOUSE_SEATS = 435;
 
 export type HouseCoverageRow = {
   id: string;
+  state: string;
   reaches: boolean;
 };
 
@@ -54,20 +72,22 @@ export function buildCoverageRows(input: CoverageInput): CoverageRow[] {
     "clean senators"
   );
 
+  // Delegates are dropped before anything is counted. Clamping a 437-row
+  // total down to 435 instead would have silently absorbed two real gaps.
+  const votingRows = input.houseRows.filter(isVotingHouseMember);
   const houseTotal = clamp(
-    input.houseRows.length,
+    votingRows.length,
     HOUSE_SEATS,
-    "active House members"
+    "voting House members"
   );
   const reaches = clamp(
-    input.houseRows.filter((r) => r.reaches).length,
+    votingRows.filter((r) => r.reaches).length,
     houseTotal,
     "House members reaching Jan. 2025"
   );
   const accountedFor = clamp(
-    input.houseRows.filter(
-      (r) => r.reaches || input.houseDocumentedIds.has(r.id)
-    ).length,
+    votingRows.filter((r) => r.reaches || input.houseDocumentedIds.has(r.id))
+      .length,
     houseTotal,
     "House members accounted for"
   );
@@ -86,7 +106,7 @@ export function buildCoverageRows(input: CoverageInput): CoverageRow[] {
     [
       "U.S. House (configured)",
       `${houseTotal} / ${HOUSE_SEATS}`,
-      `Every voting seat has a source row. The seed file carries ${input.houseSeedRows} rows, including non-voting delegates, which this table excludes.`,
+      `Every voting seat has a source row. The seed file carries ${input.houseSeedRows} rows; the ${input.houseSeedRows - houseTotal} non-voting delegate seats are excluded from every figure in this table.`,
     ],
     [
       "House — reaches Jan. 2025",

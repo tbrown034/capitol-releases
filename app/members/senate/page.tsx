@@ -24,7 +24,7 @@ function formatBreakdown(
 export const metadata = {
   title: "Senate, Capitol Releases",
   description:
-    "All 100 U.S. senators with publishing volume, latest release, and term info.",
+    "Every U.S. senator in the archive with publishing volume, latest release, and term info.",
 };
 
 export const revalidate = 600;
@@ -78,8 +78,8 @@ export default async function SenateDirectoryPage({
         they&apos;re talking about right now.
       </p>
       <p className="text-xs text-neutral-500 leading-relaxed mb-6 max-w-2xl">
-        Tracking all 100 senators. {withReleases.length}{" "}publish press
-        releases; Sen. Armstrong&apos;s office hasn&apos;t yet.{" "}
+        Tracking {senators.length} senators. {withReleases.length} of them
+        publish press releases.{" "}
         <Link href="/members" className="underline hover:text-neutral-900">
           Browse by state →
         </Link>

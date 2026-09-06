@@ -46,3 +46,28 @@ test("mixed-case titles are left alone apart from entity decoding", () => {
     "Sen. Smith's statement on the FBI report"
   );
 });
+
+test("acronyms survive possessives and hyphenated compounds", () => {
+  assert.equal(
+    normalizeTitle("FBI'S ROLE IN THE NATO-LED MISSION"),
+    "FBI's Role in the NATO-Led Mission"
+  );
+  assert.equal(
+    normalizeTitle("SENATOR DEFENDS DACA AND THE ACA"),
+    "Senator Defends DACA and the ACA"
+  );
+});
+
+test("curly apostrophes keep the possessive suffix lowercase", () => {
+  assert.equal(
+    normalizeTitle("CONGRESS’S BUDGET AND THE FBI’S BRIEFING"),
+    "Congress’s Budget and the FBI’s Briefing"
+  );
+});
+
+test("a small word after an opening quote inside the token keeps its capital", () => {
+  assert.equal(
+    normalizeTitle("SENATOR SAYS “IN THIS BILL, THE WORK IS DONE”"),
+    "Senator Says “In This Bill, the Work is Done”"
+  );
+});

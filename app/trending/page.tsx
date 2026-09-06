@@ -265,8 +265,10 @@ export default async function TrendingPage({
           Frequency over time
         </h2>
         <p className="text-xs text-neutral-500 mb-4">
-          Weekly mentions of selected terms across all 100 senators&rsquo;
-          releases. Add or remove terms to compare.
+          Weekly mentions of selected terms across every record in the
+          archive. This chart queries the whole corpus, including the state and
+          executive collections, and ignores the chamber filter above. Add or
+          remove terms to compare.
         </p>
         <TermChart
           initialTerms={top5Terms.length > 0 ? top5Terms : ["Trump"]}

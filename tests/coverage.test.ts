@@ -5,8 +5,20 @@ import { buildCoverageRows } from "../app/lib/coverage.ts";
 function houseRows(total: number, reaching: number) {
   return Array.from({ length: total }, (_, i) => ({
     id: `member-${i}`,
+    state: "OH",
     reaches: i < reaching,
   }));
+}
+
+// 435 voting rows plus the six non-voting delegates the seed file carries.
+function houseRowsWithDelegates(reaching: number) {
+  const voting = houseRows(435, reaching);
+  const delegates = ["AS", "DC", "GU", "MP", "PR", "VI"].map((state) => ({
+    id: `delegate-${state}`,
+    state,
+    reaches: false,
+  }));
+  return [...voting, ...delegates];
 }
 
 test("clean senators is a count of senators, never a release count", () => {
@@ -82,4 +94,40 @@ test("percentages stay at or below 100", () => {
   assert.equal(rows[2][1], "400 / 435");
   assert.equal(rows[3][1], "402 / 435");
   assert.equal(rows[4][1], "33");
+});
+
+test("delegates are excluded instead of clamped away", () => {
+  // 441 rows in, 435 voting seats, two voting members unresolved. Clamping the
+  // total to 435 used to absorb both and report an empty trouble list.
+  const rows = buildCoverageRows({
+    senateClean: 92,
+    senateTotal: 100,
+    senateDocumented: 3,
+    houseRows: houseRowsWithDelegates(433),
+    houseDocumentedIds: new Set<string>(),
+    houseSeedRows: 441,
+  });
+  assert.equal(rows[1][1], "435 / 435");
+  assert.equal(rows[2][1], "433 / 435");
+  assert.equal(rows[3][1], "433 / 435");
+  assert.equal(rows[4][1], "2");
+});
+
+test("a 437-row roster with two unresolved members reports two", () => {
+  const voting = houseRows(435, 433);
+  const delegates = ["DC", "PR"].map((state) => ({
+    id: `delegate-${state}`,
+    state,
+    reaches: false,
+  }));
+  const rows = buildCoverageRows({
+    senateClean: 92,
+    senateTotal: 100,
+    senateDocumented: 3,
+    houseRows: [...voting, ...delegates],
+    houseDocumentedIds: new Set<string>(),
+    houseSeedRows: 437,
+  });
+  assert.equal(rows[4][1], "2");
+  assert.match(rows[1][2], /2 non-voting delegate seats are excluded/);
 });
