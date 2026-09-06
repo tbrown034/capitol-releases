@@ -9,6 +9,7 @@ import { sql } from "../../lib/db";
 import type { SenatorWithCount, ContentType } from "../../lib/db";
 import { formatShortDate, formatMonthYear } from "../../lib/dates";
 import { STATE_NAMES } from "../../lib/states";
+import { HOUSE_SEATS } from "../../lib/coverage";
 
 function formatBreakdown(
   breakdown: Partial<Record<ContentType, number>>
@@ -29,8 +30,7 @@ function formatDistrict(d: string | null | undefined): string {
 
 export const metadata = {
   title: "House, Capitol Releases",
-  description:
-    "All 437 U.S. House members with publishing volume, latest release, and district info.",
+  description: `All ${HOUSE_SEATS} U.S. House members with publishing volume, latest release, and district info.`,
 };
 
 export const revalidate = 600;

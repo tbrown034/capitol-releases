@@ -11,11 +11,11 @@ import { StateCartogram } from "../components/state-cartogram";
 import { STATE_NAMES } from "../lib/states";
 import { formatShortDate, formatMonthYear } from "../lib/dates";
 import type { SenatorWithCount, ContentType } from "../lib/db";
+import { SENATE_SEATS, HOUSE_SEATS } from "../lib/coverage";
 
 export const metadata = {
   title: "Members, Capitol Releases",
-  description:
-    "All 100 U.S. senators and 437 U.S. House members, browsable by state, chamber, or party.",
+  description: `All ${SENATE_SEATS} U.S. senators and ${HOUSE_SEATS} U.S. House members, browsable by state, chamber, or party.`,
 };
 
 export const revalidate = 600;

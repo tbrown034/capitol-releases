@@ -5,6 +5,7 @@ import { Nav } from "./components/nav";
 import { Footer } from "./components/footer";
 import { SITE_URL } from "./lib/site";
 import "./globals.css";
+import { SENATE_SEATS, HOUSE_SEATS } from "./lib/coverage";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -25,8 +26,7 @@ const sourceSerif = Source_Serif_4({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Capitol Releases",
-  description:
-    "A searchable archive of official press releases from all 100 U.S. senators, all 437 U.S. House members, and the Texas State Senate. Normalized, indexed, updated four times daily.",
+  description: `A searchable archive of official press releases from all ${SENATE_SEATS} U.S. senators, all ${HOUSE_SEATS} U.S. House members, and the Texas State Senate. Normalized, indexed, updated four times daily.`,
 };
 
 const websiteJsonLd = {

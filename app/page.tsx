@@ -93,6 +93,14 @@ export default async function Home({
       getMailbag(7),
     ]);
 
+  // Every member count on this page comes from getStats(), which counts
+  // officials WHERE status = 'active' AND jurisdiction = 'us'. Hardcoded
+  // 435 / 437 / 535 strings drifted from each other and from the stat strip
+  // directly below them.
+  const senateCount = Number(stats.senate_count ?? 0);
+  const houseCount = Number(stats.house_count ?? 0);
+  const congressCount = senateCount + houseCount;
+
   // Members with embedded passages, for the front-page ask box. Refreshes
   // with the same 10-minute ISR as the rest of the page.
   const askEnabled = Boolean(
@@ -190,8 +198,9 @@ export default async function Home({
             </p>
             <p className="text-sm md:text-base text-neutral-500 max-w-2xl leading-relaxed">
               Every record each member&rsquo;s office publishes on their own
-              .gov site, all 100 senators and 435 House representatives.
-              Normalized, searchable, updated multiple times daily.
+              .gov site, all {senateCount} senators and {houseCount} House
+              representatives. Normalized, searchable, updated multiple times
+              daily.
             </p>
           </div>
           {heroItems.length > 0 && (
@@ -247,12 +256,12 @@ export default async function Home({
         </section>
       )}
 
-      {/* Chamber, visual anchor of the page. Toggle between Senate (100
-          seats, default) and House (437 seats). Both render as semicircle
+      {/* Chamber, visual anchor of the page. Toggle between Senate and
+          House; seat counts come from getStats(). Both render as semicircle
           heatmaps colored by party with opacity = activity. */}
       {/* House view gets a modest breakout on xl+ screens (just enough to
-          give 437 dots a bit of breathing room without breaking smaller
-          layouts). Senate stays at column width. */}
+          give the House dots a bit of breathing room without breaking
+          smaller layouts). Senate stays at column width. */}
       <section
         className={`mb-10 md:mb-14 ${chamberView === "house" ? "xl:-mx-12" : ""}`}
       >
@@ -271,13 +280,13 @@ export default async function Home({
               href="/"
               className={`px-3 py-1 text-xs border ${chamberView === "senate" ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
             >
-              Senate (100)
+              Senate ({senateCount})
             </Link>
             <Link
               href="/?chamber=house"
               className={`px-3 py-1 text-xs border ${chamberView === "house" ? "border-neutral-900 bg-neutral-900 text-white" : "border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
             >
-              House (435)
+              House ({houseCount})
             </Link>
           </div>
         </div>
@@ -398,7 +407,10 @@ export default async function Home({
         </p>
         <SenatorBars data={swimLaneData} />
         <div className="mt-4 pt-4 border-t border-neutral-200 flex items-center justify-between text-xs text-neutral-500">
-          <span>Showing top {swimLaneData.length} of 535 members of Congress</span>
+          <span>
+            Showing top {swimLaneData.length} of {congressCount} members of
+            Congress
+          </span>
           <Link
             href="/senators"
             className="text-neutral-900 hover:underline font-medium"
