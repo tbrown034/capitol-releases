@@ -90,14 +90,14 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": "div.e-loop-item",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.6,
-      "notes": "Found 4 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Found 4 items on listing page. 2026-09-03: list_item 'span.elementor-grid-item' was blocklisted (nav junk); replaced with 'div.e-loop-item', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "httpx",
       "rss_feed_url": null
@@ -167,14 +167,14 @@
         "starts_at": 1
       },
       "selectors": {
-        "list_item": "li.page-item",
+        "list_item": "div.element",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.65,
-      "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Found 13 items on listing page. 2026-09-03: list_item 'li.page-item' was blocklisted (nav junk); replaced with 'div.element', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },
@@ -215,14 +215,14 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".ArticleBlock",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.6,
-      "notes": "Found 4 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Found 4 items on listing page. 2026-09-03: list_item 'span.elementor-grid-item' was blocklisted (nav junk); replaced with '.ArticleBlock', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "httpx",
       "rss_feed_url": null
@@ -290,14 +290,14 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".ArticleBlock",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.55,
-      "notes": "Found 8 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
-      "last_verified": "2026-04-15",
+      "notes": "Found 8 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill. 2026-09-03: list_item 'span.elementor-grid-item' was blocklisted (nav junk); replaced with '.ArticleBlock', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "playwright",
       "rss_feed_url": null
@@ -388,14 +388,14 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".ArticleBlock",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.55,
-      "notes": "Found 8 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
-      "last_verified": "2026-04-15",
+      "notes": "Found 8 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill. 2026-09-03: list_item 'span.elementor-grid-item' was blocklisted (nav junk); replaced with '.ArticleBlock', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "playwright"
     },
@@ -437,14 +437,14 @@
         "next_selector": "a.next"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".ArticleBlock",
         "title": "a",
         "date": null,
         "detail_link": "a[href]"
       },
       "confidence": 0.95,
-      "notes": "Found 5 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Found 5 items on listing page. 2026-09-03: list_item 'span.elementor-grid-item' was blocklisted (nav junk); replaced with '.ArticleBlock', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },
@@ -486,14 +486,14 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".ArticleBlock",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.55,
-      "notes": "Found 5 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
-      "last_verified": "2026-04-15",
+      "notes": "Found 5 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill. 2026-09-03: list_item 'span.elementor-grid-item' was blocklisted (nav junk); replaced with '.ArticleBlock', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "playwright"
     },
@@ -842,10 +842,14 @@
         "detail_link": "a"
       },
       "confidence": 0.55,
-      "notes": "ColdFusion table rows; date in preceding <td>. Junk anchor links filtered by td.recordListTitle selector.",
+      "notes": "ColdFusion table rows; date in preceding <td>. Junk anchor links filtered by td.recordListTitle selector. 2026-09-03: upstream outage flagged (see upstream_outage).",
       "last_verified": "2026-04-19",
       "recon_status": "discovered",
-      "collection_method": "httpx"
+      "collection_method": "httpx",
+      "upstream_outage": {
+        "since": "2026-07-20",
+        "note": "lgraham.senate.gov returns Akamai 'Access Denied' (edgesuite reference) to every client: curl, headless Chromium, a real Chrome session, and the Wayback crawler (last 200 capture 2026-07-20). Not a collector bug. Remove this flag when the collector starts returning items again; update.py warns when that happens."
+      }
     },
     {
       "official_id": "grassley-chuck",
@@ -1059,14 +1063,14 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".ArticleBlock",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.55,
-      "notes": "Found 8 items on listing page. ",
-      "last_verified": "2026-05-03",
+      "notes": "Found 8 items on listing page. 2026-09-03: list_item 'span.elementor-grid-item' was blocklisted (nav junk); replaced with '.ArticleBlock', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "httpx",
       "expected_low_volume": true,
@@ -1308,14 +1312,14 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".ArticleBlock",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.55,
-      "notes": "Found 6 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
-      "last_verified": "2026-04-15",
+      "notes": "Found 6 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill. 2026-09-03: list_item 'span.elementor-grid-item' was blocklisted (nav junk); replaced with '.ArticleBlock', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "playwright"
     },
@@ -1334,14 +1338,14 @@
         "starts_at": 1
       },
       "selectors": {
-        "list_item": "li.page-item",
+        "list_item": "div.element",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.65,
-      "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Found 13 items on listing page. 2026-09-03: list_item 'li.page-item' was blocklisted (nav junk); replaced with 'div.element', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },
@@ -1484,14 +1488,14 @@
         "next_selector": "a.next"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".ArticleBlock",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.7,
-      "notes": "Found 4 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Found 4 items on listing page. 2026-09-03: list_item 'span.elementor-grid-item' was blocklisted (nav junk); replaced with '.ArticleBlock', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "httpx",
       "rss_feed_url": null
@@ -1812,14 +1816,14 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".ArticleBlock",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.55,
-      "notes": "Found 8 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill.",
-      "last_verified": "2026-04-15",
+      "notes": "Found 8 items on listing page.  JetEngine/Elementor AJAX pagination. Needs Playwright for deep backfill. 2026-09-03: list_item 'span.elementor-grid-item' was blocklisted (nav junk); replaced with '.ArticleBlock', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "playwright",
       "rss_feed_url": null
@@ -1838,14 +1842,14 @@
         "next_selector": "a.next"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": "div.e-loop-item",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.7,
-      "notes": "Found 8 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Found 8 items on listing page. 2026-09-03: list_item 'span.elementor-grid-item' was blocklisted (nav junk); replaced with 'div.e-loop-item', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },
@@ -1987,14 +1991,14 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".ArticleBlock",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.6,
-      "notes": "Found 4 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Found 4 items on listing page. 2026-09-03: list_item 'span.elementor-grid-item' was blocklisted (nav junk); replaced with '.ArticleBlock', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "playwright"
     },
@@ -2037,14 +2041,14 @@
         "starts_at": 1
       },
       "selectors": {
-        "list_item": "li.page-item",
+        "list_item": "div.element",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.65,
-      "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Found 13 items on listing page. 2026-09-03: list_item 'li.page-item' was blocklisted (nav junk); replaced with 'div.element', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },
@@ -2109,14 +2113,14 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".ArticleBlock",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.6,
-      "notes": "Found 8 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Found 8 items on listing page. 2026-09-03: list_item 'span.elementor-grid-item' was blocklisted (nav junk); replaced with '.ArticleBlock', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "httpx"
     },
@@ -2375,24 +2379,24 @@
       "party": "D",
       "state": "VT",
       "official_url": "https://www.welch.senate.gov",
-      "press_release_url": "https://www.welch.senate.gov/category/press-release/",
-      "parser_family": "senate-generic",
+      "press_release_url": "https://www.welch.senate.gov/category/press-releases/",
+      "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
         "type": "unknown"
       },
       "selectors": {
-        "date": ".postDate span",
+        "list_item": null,
         "title": null,
-        "list_item": "article.postItem",
-        "detail_link": "a[href]"
+        "date": null,
+        "detail_link": null
       },
       "confidence": 0.9,
-      "notes": "Fixed 2026-04-18: Switched from RSS (10-item limit) to httpx. article.postItem pattern already in backfill.py.",
-      "last_verified": "2026-04-15",
-      "recon_status": "discovered",
-      "collection_method": "httpx",
-      "rss_feed_url": "https://www.welch.senate.gov/category/press-release/feed/"
+      "notes": "Fixed 2026-09-03: site redesigned; old /category/press-release/ (singular) 404s since ~2026-08-26. Switched to WP category RSS (category/press-releases/feed/), dated through current. Archive via wp-json/wp/v2/posts?categories=15 (1,538 posts).",
+      "last_verified": "2026-09-03",
+      "recon_status": "verified",
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.welch.senate.gov/category/press-releases/feed/"
     },
     {
       "official_id": "whitehouse-sheldon",
@@ -2425,25 +2429,24 @@
       "party": "R",
       "state": "MS",
       "official_url": "https://www.wicker.senate.gov",
-      "press_release_url": "https://www.wicker.senate.gov/press-releases",
-      "parser_family": "senate-generic",
+      "press_release_url": "https://www.wicker.senate.gov/category/press-releases/",
+      "parser_family": "senate-wordpress",
       "requires_js": false,
       "pagination": {
-        "type": "query_param",
-        "param": "page",
-        "starts_at": 1
+        "type": "unknown"
       },
       "selectors": {
-        "list_item": "li.page-item",
+        "list_item": null,
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.65,
-      "notes": "Found 13 items on listing page. ",
-      "last_verified": "2026-04-15",
-      "recon_status": "discovered",
-      "collection_method": "httpx"
+      "notes": "Fixed 2026-09-03: site migrated to WordPress (Divi); old /press-releases path 404s since ~2026-07-23 and the collector went silent. Switched to WP category RSS (category/press-releases/feed/), dated through current. Full archive via wp-json/wp/v2/posts?categories=24 (3,231 posts) for backfill. Body lives in .et_pb_post_content.",
+      "last_verified": "2026-09-03",
+      "recon_status": "verified",
+      "collection_method": "rss",
+      "rss_feed_url": "https://www.wicker.senate.gov/category/press-releases/feed/"
     },
     {
       "official_id": "wyden-ron",
@@ -2483,14 +2486,14 @@
         "type": "unknown"
       },
       "selectors": {
-        "list_item": "span.elementor-grid-item",
+        "list_item": ".ArticleBlock",
         "title": null,
         "date": null,
         "detail_link": null
       },
       "confidence": 0.6,
-      "notes": "Found 5 items on listing page. ",
-      "last_verified": "2026-04-15",
+      "notes": "Found 5 items on listing page. 2026-09-03: list_item 'span.elementor-grid-item' was blocklisted (nav junk); replaced with '.ArticleBlock', the selector the extract_listing_items waterfall actually resolves on the live page. Runtime behavior unchanged.",
+      "last_verified": "2026-09-03",
       "recon_status": "discovered",
       "collection_method": "httpx",
       "rss_feed_url": null

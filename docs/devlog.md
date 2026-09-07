@@ -1766,3 +1766,23 @@ The methodology page on the live site reflects all of this. Every gap has a docu
 - Both brief prompts now spell out character-for-character quoting (no stitching, keep contractions, ellipsis for elisions).
 
 ---
+## 2026-08-31 - Full-site health check (8 agent teams) + Neon cost / canonical fixes
+
+**Session Summary:**
+- Ran a parallel 8-team audit: DB/pipeline, cron, Vercel, Gmail alerts, data spot-check, SEO/AI-crawlers, security, plus a floor-speech diagnostic.
+- CRITICAL (open, Trevor's action): Neon DB password publicly readable in git history (82eab56..200579b, Apr 2026); rotation unconfirmed. Rotate + update GH secret and Vercel envs.
+- Shipped 4417f8f: canonical fixes. Release pages canonicalized to source_url and the root layout canonical inherited everywhere — the whole site was self-deindexing (site: search returned zero). Now self-canonical; root canonical removed; description mentions House.
+- Shipped c76268a: Neon cost work per the cost brief (549 compute-hrs / ~$58 in Aug). unstable_cache wrappers (getFeedCached, getSearchFacetsCached, getTxRosterCached, getTxSearchFacetsCached) back /feed, /search, /texas/feed, /texas/search; release pages revalidate 600→86400, React cache() dedupes getReleaseById, mentions query skipped outside co-* officials (all item_mentions rows are Colorado).
+- Verified: tsc, eslint, pnpm build clean; deploy READY; live canonical confirmed self-referencing.
+
+**Notable Changes / open punch list:**
+- Missing prod env vars: ADMIN_EMAIL (admin panel unreachable), ASK_IP_SALT (IP hashes use public fallback salt).
+- Vercel Web Analytics never enabled; recommendation: PostHog (already partly wired via /ingest rewrites) + Google Search Console; skip GA4/GTM.
+- Floor-speech "22 days silent" alarm = August recess false alarm; fix is a scrape_runs heartbeat + 48h test, not a threshold pad.
+- DB: 100 CO legislators seeded with no collector (silent, alert-invisible); CA/OH/NE/MO state collector families dark since Jul 28-29; last_seen_live null on 66% of corpus; 689 tombstones seen live again.
+- Data: Heinrich/Mullin title contamination (417 records), 290 /in-the-news/ scope violations, Monday briefs never publish (Tue-Sat cron), ~1.9k thin bodies in newsletter silos.
+- Security also: better-auth 1.6.9 → ≥1.6.22 (account-takeover advisory matches config), next 16.2.3 → ≥16.2.11, no security headers beyond HSTS.
+- Cron: daily.yml silo steps need continue-on-error (Aug 28 failure blast radius); CONGRESS_API_KEY and BRIEF_FROM_ADDR secrets referenced but absent; checkout/setup-python bumps due.
+- Doc drift: CLAUDE.md says 26 tests / 90 of 100 senators / 13:00 UTC daily — reality is 38 tests, 793 active officials, 4x/day cron; GOALS.md still claims brief email cron (retired).
+
+---

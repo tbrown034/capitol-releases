@@ -4340,20 +4340,27 @@
       "party": "R",
       "state": "IN",
       "official_url": "https://yakym.house.gov",
-      "press_release_url": "https://yakym.house.gov/press",
-      "parser_family": "senate-generic",
-      "requires_js": true,
+      "press_release_url": "https://yakym.house.gov/media-center/press-releases",
+      "parser_family": "senate-drupal",
+      "requires_js": false,
       "pagination": {
-        "type": "unknown"
+        "type": "query_param",
+        "param": "page",
+        "starts_at": 0
       },
-      "selectors": {},
-      "confidence": 0.6,
-      "notes": "No press-release section discovered via URL probing. ",
-      "last_verified": "2026-05-03",
-      "recon_status": "needs_attention",
+      "selectors": {
+        "list_item": ".views-row",
+        "title": "a",
+        "date": null,
+        "detail_link": "a[href]"
+      },
+      "confidence": 1.0,
+      "notes": "Fixed 2026-09-03: /feed now 404s and /rss.xml only carries static pages. Site is EvoGov Drupal; listing at /media-center/press-releases (.views-row, ?page=N from 0). 10 items/page, meta_tag dates at 0.95.",
+      "last_verified": "2026-09-03",
+      "recon_status": "verified",
       "district": 2,
-      "collection_method": "rss",
-      "rss_feed_url": "https://yakym.house.gov/feed",
+      "collection_method": "httpx",
+      "rss_feed_url": null,
       "bioguide_id": "Y000067"
     },
     {
@@ -5950,23 +5957,23 @@
       "party": "D",
       "state": "MN",
       "official_url": "https://morrison.house.gov",
-      "press_release_url": "https://morrison.house.gov/media/press-releases",
-      "parser_family": "senate-drupal",
+      "press_release_url": "https://morrison.house.gov/news",
+      "parser_family": "senate-generic",
       "requires_js": false,
       "pagination": {
         "type": "query_param",
-        "param": "page",
-        "starts_at": 0
+        "param": "PageNum_rs",
+        "starts_at": 1
       },
       "selectors": {
-        "list_item": ".views-row",
+        "list_item": "h3.title",
         "title": "a",
         "date": null,
         "detail_link": "a[href]"
       },
       "confidence": 1.0,
-      "notes": "Found 12 items on listing page. ",
-      "last_verified": "2026-05-02",
+      "notes": "Fixed 2026-09-03: site migrated off Drupal; /media/press-releases returns 410. New listing at /news is the Hoeven-style flat layout (span.date + h3.title inside div#press, ?PageNum_rs=N pagination). Detail URLs still under /media/press-releases/<slug>. 20 items/page, meta_tag dates at 0.95.",
+      "last_verified": "2026-09-03",
       "recon_status": "verified",
       "district": 3,
       "collection_method": "httpx",
