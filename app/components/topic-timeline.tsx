@@ -5,6 +5,7 @@ import * as d3 from "d3";
 import Link from "next/link";
 import { normalizeTitle } from "../lib/titles";
 import { formatReleaseDate } from "../lib/dates";
+import { getMemberHref } from "../lib/photos";
 import { drawYGrid, drawTimeAxis } from "./chart-axes";
 
 type Headline = {
@@ -15,6 +16,7 @@ type Headline = {
   senator_name: string;
   party: "D" | "R" | "I";
   state: string;
+  chamber: string | null;
   official_id: string;
 };
 
@@ -294,7 +296,7 @@ export function TopicTimeline({
                     Week of {formatReleaseDate(h.week)}
                     {" · "}
                     <Link
-                      href={`/senators/${h.official_id}`}
+                      href={getMemberHref(h.official_id, h.chamber)}
                       className="text-neutral-700 hover:underline"
                     >
                       {h.senator_name}

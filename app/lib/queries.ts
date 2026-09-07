@@ -333,7 +333,7 @@ export async function getReleaseById(
     SELECT pr.id, pr.official_id, pr.title, pr.published_at, pr.body_text,
            pr.source_url, pr.scraped_at, pr.content_type,
            pr.deleted_at, pr.last_seen_live, pr.updated_at,
-           s.full_name as senator_name, s.party, s.state,
+           s.full_name as senator_name, s.party, s.state, s.chamber, s.bioguide_id,
            (SELECT count(*)::int FROM content_versions cv WHERE cv.official_site_item_id = pr.id) as version_count
     FROM official_site_items pr
     JOIN officials s ON s.id = pr.official_id
@@ -404,18 +404,26 @@ export async function getReleaseIdsForSitemap(
   offset: number,
   limit: number
 ): Promise<{ id: string; updated_at: string | null; published_at: string | null }[]> {
-  // Covers every roster with public release pages: US Congress plus the
+  // Covers every roster with public release pages: US Congress, the
   // Texas State Senate (whose releases the old 'us'-only filter silently
-  // excluded from the sitemap).
+  // excluded from the sitemap), and the Colorado General Assembly caucus
+  // pressrooms (jurisdiction 'co' was never added here, so every live
+  // /releases/[id] page sourced from Colorado was silently absent from
+  // every sitemap shard). Colorado's caucus-pressroom "officials" are not
+  // gated on status='active' — see app/lib/colorado.ts, which never checks
+  // it for these rows either — so that check stays scoped to the us/tx
+  // branches instead of ANDed across the whole clause.
   const rows = await sql`
     SELECT pr.id, pr.updated_at, pr.published_at
     FROM official_site_items pr
     JOIN officials s ON s.id = pr.official_id
     WHERE pr.deleted_at IS NULL
       AND pr.content_type != 'photo_release'
-      AND s.status = 'active'
-      AND ((s.jurisdiction = 'us' AND s.chamber IN ('senate','house'))
-        OR (s.jurisdiction = 'tx' AND s.chamber = 'senate'))
+      AND (
+        (s.status = 'active' AND s.jurisdiction = 'us' AND s.chamber IN ('senate','house'))
+        OR (s.status = 'active' AND s.jurisdiction = 'tx' AND s.chamber = 'senate')
+        OR s.jurisdiction = 'co'
+      )
     ORDER BY pr.published_at DESC NULLS LAST
     LIMIT ${limit} OFFSET ${offset}
   `;
@@ -473,7 +481,7 @@ export async function getDeletedReleases(
       SELECT pr.id, pr.official_id, pr.title, pr.published_at, pr.body_text,
              pr.source_url, pr.scraped_at, pr.content_type,
              pr.deleted_at, pr.last_seen_live, pr.updated_at,
-             s.full_name as senator_name, s.party, s.state,
+             s.full_name as senator_name, s.party, s.state, s.chamber, s.bioguide_id,
              0 as version_count
       FROM official_site_items pr
       JOIN officials s ON s.id = pr.official_id

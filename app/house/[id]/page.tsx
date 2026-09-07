@@ -341,10 +341,17 @@ export default async function HouseMemberPage({
         </section>
       )}
 
-      {/* Release list */}
+      {/* Release list. When the seed already explains the empty archive, the
+          coverage note above is the explanation — the not-yet-wired copy
+          would contradict it (a committee-publishing chair is wired, not
+          missing). */}
       {releases.length === 0 ? (
         <EmptyState
-          message="No records yet. This House member's press-release listing has not been wired into the daily collector. Once the recon promotes them, releases will appear here automatically."
+          message={
+            coverage
+              ? "No records in this archive. See the coverage note above."
+              : "No records yet. This House member's press-release listing has not been wired into the daily collector. Once the recon promotes them, releases will appear here automatically."
+          }
         />
       ) : (
         <ul className="space-y-4">

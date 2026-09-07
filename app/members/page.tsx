@@ -15,7 +15,7 @@ import type { SenatorWithCount, ContentType } from "../lib/db";
 export const metadata = {
   title: "Members, Capitol Releases",
   description:
-    "All 100 U.S. senators and 437 U.S. House members, browsable by state, chamber, or party.",
+    "Every U.S. senator and House member in the archive, browsable by state, chamber, or party.",
 };
 
 export const revalidate = 600;
@@ -158,8 +158,8 @@ export default async function MembersIndexPage({
             Senate
           </h2>
           <p className="text-sm text-neutral-600 leading-snug mb-3">
-            All 100 senators. Two per state, six-year terms, the most-covered
-            chamber on this site.
+            {senators.length} senators. Two per state, six-year terms, the
+            most-covered chamber on this site.
           </p>
           <p className="text-xs text-neutral-500 font-[family-name:var(--font-dm-mono)] tabular-nums">
             {senateReleases.toLocaleString()} releases

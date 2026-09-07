@@ -409,8 +409,8 @@ function SenateChamberInner({
           chamber alone reads as a complete claim. */}
       {isTerm ? (
         <p className="text-base text-neutral-700 mb-1">
-          <span className="font-semibold text-neutral-900">{active}</span> of 100
-          senators mentioned{" "}
+          <span className="font-semibold text-neutral-900">{active}</span> of{" "}
+          {senators.length} senators mentioned{" "}
           <span className="font-semibold text-neutral-900">
             &ldquo;{mode.term}&rdquo;
           </span>{" "}
@@ -431,8 +431,9 @@ function SenateChamberInner({
         </p>
       ) : (
         <p className="text-base text-neutral-700 mb-1">
-          <span className="font-semibold text-neutral-900">{active}</span> of 100
-          senators issued at least one press release {WindowDropdown}
+          <span className="font-semibold text-neutral-900">{active}</span> of{" "}
+          {senators.length} senators issued at least one press release{" "}
+          {WindowDropdown}
           {top && top.count > 0 && (
             <>
               {" "}
@@ -523,7 +524,7 @@ function SenateChamberInner({
           })}
 
           {/* Right-side metric caption removed, the headline above the chart
-              ("X of 100 senators mentioned …") already states it; repeating
+              ("X of N senators mentioned …") already states it; repeating
               it as "n=…" only confuses (n is max-per-member, not the total). */}
           <text
             x={8}

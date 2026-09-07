@@ -12,7 +12,7 @@ import { ReleaseCard } from "../../components/release-card";
 import { TypeBadge } from "../../components/type-badge";
 import { MentionBadges } from "../../components/mention-badges";
 import { getReleaseMentions } from "../../lib/colorado";
-import { getSenatorPhotoUrl, getInitials, getSenatorHref } from "../../lib/photos";
+import { getMemberPhotoUrl, getInitials, getMemberHref } from "../../lib/photos";
 import { normalizeTitle } from "../../lib/titles";
 import { STATE_NAMES } from "../../lib/states";
 import { formatReleaseDate, formatTimestamp, isFutureDated } from "../../lib/dates";
@@ -44,12 +44,19 @@ export async function generateMetadata({
   const release = await getRelease(id);
   if (!release) return { title: "Not Found" };
   const title = normalizeTitle(release.title);
+  // Fall back to the capture date when the office published with a
+  // future-dated typo (see isFutureDated below and the in-page "Date
+  // discrepancy" banner) — otherwise the meta description and OG card show
+  // a year-ahead date straight from the source's mistake.
+  const displayDate = isFutureDated(release.published_at, release.scraped_at)
+    ? release.scraped_at
+    : release.published_at;
   return {
     title: `${title} — ${release.senator_name}`,
-    description: `${CONTENT_TYPE_LABEL[release.content_type]} from ${release.senator_name} (${release.party}-${release.state}), ${formatReleaseDate(release.published_at)}.`,
+    description: `${CONTENT_TYPE_LABEL[release.content_type]} from ${release.senator_name} (${release.party}-${release.state}), ${formatReleaseDate(displayDate)}.`,
     openGraph: {
       title,
-      description: `${release.senator_name} (${release.party}-${release.state}) · ${formatReleaseDate(release.published_at)}`,
+      description: `${release.senator_name} (${release.party}-${release.state}) · ${formatReleaseDate(displayDate)}`,
       type: "article",
     },
     // The archive page is the canonical URL. Pointing this at source_url
@@ -106,7 +113,12 @@ export default async function ReleasePage({
       : Promise.resolve([]),
   ]);
 
-  const photo = getSenatorPhotoUrl(release.senator_name, release.official_id);
+  const photo = getMemberPhotoUrl(
+    release.senator_name,
+    release.official_id,
+    release.chamber,
+    release.bioguide_id
+  );
   const partyLabel =
     release.party === "D"
       ? "Democrat"
@@ -137,16 +149,22 @@ export default async function ReleasePage({
   // NewsArticle structured data. isBasedOn carries the source attribution
   // that the canonical tag used to (wrongly) express; the archive page
   // itself is the canonical URL.
+  //
+  // datePublished falls back to scraped_at when the office's own published
+  // date is a future-dated typo (isFuture, above) — the page already warns
+  // readers about this with the "Date discrepancy" banner, but the JSON-LD
+  // was still emitting the raw typo'd date (e.g. 2027 instead of 2026),
+  // which risks Google flagging or misdating the article.
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
     headline: title,
-    datePublished: release.published_at ?? undefined,
+    datePublished: (isFuture ? release.scraped_at : release.published_at) ?? undefined,
     dateModified: release.scraped_at,
     author: {
       "@type": "Person",
       name: release.senator_name,
-      url: `${SITE_URL}${getSenatorHref(release.official_id)}`,
+      url: `${SITE_URL}${getMemberHref(release.official_id, release.chamber)}`,
     },
     publisher: {
       "@type": "Organization",
@@ -230,7 +248,7 @@ export default async function ReleasePage({
         )}
         <div className="text-sm">
           <Link
-            href={getSenatorHref(release.official_id)}
+            href={getMemberHref(release.official_id, release.chamber)}
             className="font-[family-name:var(--font-source-serif)] text-base text-neutral-900 hover:underline"
           >
             {release.senator_name}

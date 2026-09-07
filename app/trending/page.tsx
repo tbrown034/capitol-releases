@@ -11,7 +11,7 @@ import {
 } from "../lib/trending";
 import { TermChart } from "../components/term-chart";
 import { TopicTimeline } from "../components/topic-timeline";
-import { getSenatorPhotoUrl, getInitials } from "../lib/photos";
+import { getSenatorPhotoUrl, getInitials, getMemberHref } from "../lib/photos";
 import { familyName } from "../lib/names";
 
 export const metadata = {
@@ -34,6 +34,7 @@ type OwnerRow = {
   full_name: string;
   party: "D" | "R" | "I";
   state: string;
+  chamber: string | null;
   count: number;
 };
 type SkewRow = {
@@ -264,8 +265,10 @@ export default async function TrendingPage({
           Frequency over time
         </h2>
         <p className="text-xs text-neutral-500 mb-4">
-          Weekly mentions of selected terms across all 100 senators&rsquo;
-          releases. Add or remove terms to compare.
+          Weekly mentions of selected terms across every record in the
+          archive. This chart queries the whole corpus, including the state and
+          executive collections, and ignores the chamber filter above. Add or
+          remove terms to compare.
         </p>
         <TermChart
           initialTerms={top5Terms.length > 0 ? top5Terms : ["Trump"]}
@@ -327,7 +330,7 @@ export default async function TrendingPage({
                             </span>
                           )}
                           <Link
-                            href={`/senators/${o.official_id}`}
+                            href={getMemberHref(o.official_id, o.chamber)}
                             className="text-sm text-neutral-800 hover:underline truncate flex-1 min-w-0"
                           >
                             {familyName(o.full_name)}{" "}

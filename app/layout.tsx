@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Capitol Releases",
   description:
-    "A searchable archive of official press releases from all 100 U.S. senators, all 437 U.S. House members, and the Texas State Senate. Normalized, indexed, updated four times daily.",
+    "A searchable archive of official press releases from the U.S. Senate, the U.S. House and the Texas State Senate. Normalized, indexed, updated four times daily.",
 };
 
 const websiteJsonLd = {
