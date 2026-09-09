@@ -4,6 +4,16 @@ A chronological record of development sessions and significant changes.
 
 ---
 
+## 2026-09-08 - Production deployment verified
+
+**Session Summary:**
+
+- Capitol Releases deployed to https://capitolreleases.com. App code: `4a68134 plus c64327f homepage copy`. Deployment: `dpl_CPv5HdMT5BgSuuWgbUPyr1SUfvmB`.
+- 18 tests, focused lint and TypeScript passed. Existing local Neon credentials blocked local prerender, but the production-config staged Vercel build passed. Authenticated stage checks passed before explicit-team promotion. Public About desktop/mobile and homepage/YTD/Texas HTTP checks confirmed corrected copy and coverage counts. No paid Ask regression was run.
+- Full findings and residual limits: Second Brain `docs/site-verification-2026-09-08-codex.md` and linked appendices. No email, paid generation, database write or Git push.
+
+---
+
 ## 2026-05-14 — House chamber parity + touch tap-twice fix
 
 **Session Summary:**
