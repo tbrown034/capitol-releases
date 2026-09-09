@@ -4,6 +4,7 @@ import OpenAI from "openai";
 import { createHash } from "node:crypto";
 import { sql } from "../../../../lib/db";
 import { retrieve, EMBED_MODEL } from "../../../../lib/rag";
+import { createSourceCitations } from "../../../../lib/source-citations";
 
 // "Ask the record" — RAG over one member's archived official releases.
 //
@@ -59,13 +60,6 @@ type Passage = {
   published_at: string | null;
   blocks: string[];
   score: number;
-};
-
-type CitationOut = {
-  n: number;
-  title: string;
-  source_url: string;
-  published_at: string | null;
 };
 
 type SegmentOut = { text: string; refs: number[] };
@@ -326,8 +320,7 @@ export async function POST(
   }
 
   // answered / related_only: build segments, validating every citation.
-  const passageRef = new Map<number, number>(); // search_result_index -> n
-  const citationsOut: CitationOut[] = [];
+  const { sources: citationsOut, numberFor } = createSourceCitations();
   const segments: SegmentOut[] = [];
   const citedIds = new Set<string>();
   let invalid: string | null = null;
@@ -349,16 +342,7 @@ export async function POST(
         invalid = `cited_text not found in passage ${idx}`;
         break;
       }
-      if (!passageRef.has(idx)) {
-        passageRef.set(idx, passageRef.size + 1);
-        citationsOut.push({
-          n: passageRef.get(idx)!,
-          title: p.title,
-          source_url: p.source_url,
-          published_at: p.published_at,
-        });
-      }
-      const n = passageRef.get(idx)!;
+      const n = numberFor(p);
       if (!refs.includes(n)) refs.push(n);
       citedIds.add(p.id);
     }

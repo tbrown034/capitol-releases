@@ -150,7 +150,7 @@ export default async function TrendingPage({
             [
               { key: "week", label: "Last 7 days" },
               { key: "month", label: "Last 30 days" },
-              { key: "ytd", label: "2026 YTD" },
+              { key: "ytd", label: "Year to date" },
               { key: "all", label: "Since Jan 2025" },
             ] as { key: TrendingScope; label: string }[]
           ).map((opt) => {
@@ -181,7 +181,7 @@ export default async function TrendingPage({
           {scope === "month" &&
             "Top stems in release titles over the last 30 days, with the change versus the 30 days before."}
           {scope === "ytd" &&
-            "Top stems in release titles since January 1, 2026, with the change versus the same calendar window in 2025."}
+            "Top stems in release titles from January 1 through now, compared with January 1 through the same timestamp one calendar year earlier."}
           {scope === "all" &&
             "Top stems in release titles since January 1, 2025. No prior window — counts only."}
         </p>

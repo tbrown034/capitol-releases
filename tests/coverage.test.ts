@@ -129,5 +129,5 @@ test("a 437-row roster with two unresolved members reports two", () => {
     houseSeedRows: 437,
   });
   assert.equal(rows[4][1], "2");
-  assert.match(rows[1][2], /2 non-voting delegate seats are excluded/);
+  assert.match(rows[1][2], /delegates are excluded from every figure/);
 });

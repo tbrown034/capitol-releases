@@ -101,12 +101,12 @@ export function buildCoverageRows(input: CoverageInput): CoverageRow[] {
     [
       "U.S. senators (clean)",
       `${senateClean} / ${senateTotal}`,
-      `${input.senateDocumented} documented gaps; rest publishing on schedule.`,
+      `${input.senateDocumented} source configurations carry diagnostic flags. This count does not establish current publishing activity or complete coverage.`,
     ],
     [
       "U.S. House (configured)",
       `${houseTotal} / ${HOUSE_SEATS}`,
-      `Every voting seat has a source row. The seed file carries ${input.houseSeedRows} rows; the ${input.houseSeedRows - houseTotal} non-voting delegate seats are excluded from every figure in this table.`,
+      `Active voting members recorded in the database, against 435 voting seats. The seed file has ${input.houseSeedRows} rows, including delegates; delegates are excluded from every figure in this table.`,
     ],
     [
       "House — reaches Jan. 2025",
@@ -114,9 +114,9 @@ export function buildCoverageRows(input: CoverageInput): CoverageRow[] {
       `${pct(reaches)}% have 10 or more records reaching back to early 2025.`,
     ],
     [
-      "House — bulletproof accounted for",
+      "House — dated coverage or diagnostic flag",
       `${accountedFor} / ${houseTotal}`,
-      `${pct(accountedFor)}% — clean rows plus ${documentedGaps} members tagged as documented gaps (Phase 2 scrapers, scraper bugs, low-volume offices).`,
+      `${pct(accountedFor)}% meet the date threshold or carry a diagnostic flag; ${documentedGaps} are included only through a flag. A flag does not establish complete coverage.`,
     ],
     [
       "House — open trouble list",

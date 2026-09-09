@@ -36,7 +36,6 @@ type LowVolumeRow = {
   chamber: "Senate" | "House";
   districtState: string;
   status: string;
-  reason: string;
   lastVerified: string;
 };
 
@@ -187,7 +186,6 @@ function normalizeRows(): LowVolumeRow[] {
       chamber: "Senate" as const,
       districtState: m.state,
       status: m.expected_zero ? "Expected zero" : "Expected low volume",
-      reason: m.low_volume_reason ?? m.notes ?? "Seed reason pending",
       lastVerified: m.last_verified ?? "Pending",
     }]
       : []
@@ -202,7 +200,6 @@ function normalizeRows(): LowVolumeRow[] {
       districtState:
         m.district == null ? m.state : `${m.state}-${String(m.district)}`,
       status: m.expected_zero ? "Expected zero" : "Expected low volume",
-      reason: m.low_volume_reason ?? m.notes ?? "Seed reason pending",
       lastVerified: m.last_verified ?? "Pending",
     }]
       : []
@@ -283,7 +280,7 @@ export default async function AboutPage({
         How Capitol Releases works
       </h1>
       <p className="mb-8 max-w-2xl text-sm leading-relaxed text-neutral-600">
-        Capitol Releases archives official press output from all{" "}
+        Capitol Releases tracks official press output from{" "}
         {coverage.senateTotal} U.S. senators and {coverage.houseVotingTotal}{" "}
         voting U.S. representatives. The goal is a searchable public record with
         enough provenance that a reporter can cite it and a developer can audit
@@ -297,9 +294,10 @@ export default async function AboutPage({
           letters and photo releases.
         </p>
         <p>
-          The collection window starts Jan. 1, 2025. For seat changes, the
-          archive follows the current officeholder only from the day that
-          person took office.
+          The main collection target is Jan. 1, 2025 onward. Some backfills
+          retain older records. Collection follows the configured office
+          websites; the archive does not independently verify the officeholder
+          attribution or term dates of every item.
         </p>
         <div className="overflow-x-auto">
           <table className="mt-4 w-full text-left text-sm">
@@ -332,9 +330,10 @@ export default async function AboutPage({
 
       <Section title="What we don't">
         <p>
-          We do not collect third-party clippings, &quot;In the News&quot;
-          mentions, campaign content, campaign websites, interviews or outside
-          media hits.
+          The collection targets original official output and filters external
+          media links and navigation pages. Third-party clippings, campaign
+          material and outside media hits are outside the intended scope.
+          Automated filters can miss material republished on an official site.
         </p>
         <p>
           We do not backfill predecessor coverage when a seat changes hands.
@@ -358,16 +357,16 @@ export default async function AboutPage({
           it.
         </p>
         <p>
-          Most dates come from metadata, listing text or page-level date
-          elements. About 1% of records have null dates, mostly ColdFusion
-          sites where the date is embedded in body text rather than exposed as
-          metadata.
+          Dates are extracted from feeds, metadata, listing text, URL paths or
+          page-level date elements. Some records have no parsed date. A
+          parser confidence score describes extraction certainty; it is not
+          an independent verification of the office&apos;s publication date.
         </p>
       </Section>
 
       <Section title="Provenance">
         <p>
-          Every record stores{" "}
+          Records have fields for{" "}
           <code className="font-[family-name:var(--font-dm-mono)] text-[13px] text-neutral-900">
             source_url
           </code>
@@ -379,37 +378,46 @@ export default async function AboutPage({
           <code className="font-[family-name:var(--font-dm-mono)] text-[13px] text-neutral-900">
             scraped_at
           </code>
-          . The source URL is the office&apos;s page. The scrape run ties the row
-          back to a collector pass. The scrape timestamp says when Capitol
-          Releases saw it.
+          . The source URL identifies the original page. Where populated, the
+          scrape run ties the row to a collector pass and the scrape timestamp
+          records when Capitol Releases captured it. Older imports may have
+          incomplete provenance.
         </p>
         <p>
-          Records are never hard-deleted. If a source URL stops resolving on
-          repeated checks, the row stays in the archive and gets a{" "}
+          The deletion monitor preserves archived records. If a source URL
+          repeatedly returns HTTP 404 or 410, the row stays in the archive
+          and gets a{" "}
           <code className="font-[family-name:var(--font-dm-mono)] text-[13px] text-neutral-900">
             deleted_at
           </code>{" "}
-          tombstone.
+          tombstone. This records source unavailability, not why the office
+          removed or moved a page. Network errors and access blocks do not
+          confirm deletion.
         </p>
       </Section>
 
       <Section title="Update cadence">
         <p>
-          GitHub Actions runs collection four times a day: 13:00, 17:00, 21:00
-          and 01:00 UTC. The same schedule refreshes WordPress JSON silos used
-          for op-eds, newsletters, blogs and related official sections.
+          GitHub Actions schedules collection four times a day: 13:00, 17:00,
+          21:00 and 01:00 UTC. These are scheduled times, and runs can start
+          later or fail. The same workflow refreshes WordPress JSON silos
+          used for op-eds, newsletters, blogs and related official sections.
         </p>
         <p>
-          A health check runs before every collection pass. It verifies that
-          configured source pages respond, selectors still find items and dates
-          remain parseable.
+          The scheduled workflow attempts a health check before collection.
+          It probes configured source pages, listing extraction and sample
+          date parsing. Collection can continue after a failed health check;
+          a passing probe does not establish complete archive coverage.
         </p>
       </Section>
 
       <Section title="Coverage status">
         <p>
-          The table below is computed at request time from the database and the
-          seed files. The per-site writeup behind it:
+          The table below uses database counts and stored source configuration.
+          Reaching January 2025 means at least 10 collected records and an
+          earliest date before February 2025. It does not measure every missing
+          item or whether an office is publishing on schedule. A historical
+          per-site writeup:
         </p>
         <p>
           <a
@@ -445,10 +453,9 @@ export default async function AboutPage({
         </div>
       </Section>
 
-      <Section title="Known low-volume offices">
+      <Section title="Stored low-volume flags">
         <p>
-          Some offices publish rarely or not at all. The rows below are the
-          members carrying an{" "}
+          The rows below are source configurations carrying an{" "}
           <code className="font-[family-name:var(--font-dm-mono)] text-[13px] text-neutral-900">
             expected_low_volume
           </code>{" "}
@@ -456,7 +463,10 @@ export default async function AboutPage({
           <code className="font-[family-name:var(--font-dm-mono)] text-[13px] text-neutral-900">
             expected_zero
           </code>{" "}
-          flag in the seed files.
+          flag in the seed files. These are diagnostic labels from earlier
+          checks, not current publication counts or a finding about why an
+          office has few records. The stored verification date may predate
+          the flag or its latest update.
         </p>
         <div className="overflow-x-auto">
           <table className="mt-4 w-full text-left text-sm">
@@ -482,10 +492,9 @@ export default async function AboutPage({
                     Status
                   </SortLink>
                 </th>
-                <th className="py-2 pr-4 font-medium">Reason</th>
                 <th className="py-2 font-medium">
                   <SortLink sort="verified" active={sort}>
-                    Last verified
+                    Stored verification date
                   </SortLink>
                 </th>
               </tr>
@@ -502,14 +511,13 @@ export default async function AboutPage({
                       {row.districtState}
                     </td>
                     <td className="py-2.5 pr-4">{row.status}</td>
-                    <td className="py-2.5 pr-4">{row.reason}</td>
                     <td className="py-2.5">{row.lastVerified}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={5}
                     className="py-4 text-sm text-neutral-500"
                   >
                     No seed rows are flagged low-volume or expected-zero.
@@ -519,6 +527,35 @@ export default async function AboutPage({
             </tbody>
           </table>
         </div>
+      </Section>
+
+      <Section title="AI features and their limits">
+        <p>
+          Ask the Record sends your question to OpenAI for moderation and
+          a search embedding, retrieves passages from one member&apos;s
+          collected releases, and sends the question and passages to Anthropic
+          Claude to draft an answer. Scheduled collection also uses OpenAI
+          embeddings to make new releases searchable by this feature.
+        </p>
+        <p>
+          The server checks citation references and checks any returned quote
+          text against the retrieved passages. Those checks do not verify
+          every factual sentence or prove that a source supports the answer.
+          Read the linked releases before relying on an answer. Missing
+          collection or embeddings can also limit what Ask finds.
+        </p>
+        <p>
+          Questions, answers, retrieved and cited passage IDs, model metadata,
+          timing and a hashed IP identifier are logged for review and rate
+          limits. The moderation screen can fail open if its provider is
+          unavailable; retrieval and answer validation failures return an error.
+        </p>
+        <p>
+          The daily and weekly Brief uses Claude Sonnet 4.6 to summarize
+          collected releases, with automated citation and quotation checks and
+          a correction retry. Scheduled briefs can publish automatically;
+          publication does not mean a person has reviewed every claim.
+        </p>
       </Section>
 
       <Section title="Schema history">

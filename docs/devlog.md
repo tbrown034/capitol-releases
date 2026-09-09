@@ -1786,3 +1786,24 @@ The methodology page on the live site reflects all of this. Every gap has a docu
 - Doc drift: CLAUDE.md says 26 tests / 90 of 100 senators / 13:00 UTC daily — reality is 38 tests, 793 active officials, 4x/day cron; GOALS.md still claims brief email cron (retired).
 
 ---
+
+
+## 2026-09-08 - Methodology verification and citation repair (local)
+
+**Session Summary:**
+
+- Confirmed live About still publishes 344/100 clean senators, 438/435 coverage and a negative trouble count. Local b9ec001 already fixes the arithmetic; live and upstream main remain at 84b92c0.
+
+- Qualified unsupported scope, date, provenance, health and completeness claims. Added actual AI processing, logging and automatic-brief publication disclosure. Removed historical biography/reason prose from public About diagnostics while preserving all seed data.
+
+- Number Ask sources by release identity after unchanged passage checks, so multiple cited chunks from one release share a source number. Corrected YTD prior-year comparison endpoint and future-date exclusion. Removed frozen Texas vacancy/zero-publication and 30/30 audit claims.
+
+**Verification:**
+
+- 18 local tests pass, including two meaningful synthetic citation cases; focused ESLint and TypeScript pass. Existing Node module-type warnings remain. All 21 changed source/selector configurations in the pre-existing merge return HTTP200 and nonzero candidates in read-only probes; these do not prove complete ingestion.
+
+- Production build compiles and type-checks, then fails at sitemap prerender because local Neon credentials reject authentication. No credentials, DB rows, pipeline configuration, paid calls, commits or deployment were changed by this review. A production-environment Vercel build/render check remains required.
+
+- Full findings: second-brain-v2/docs/site-verification-2026-09-08-capitol-releases-evidence.md. Separate code review from corpus verification; source-data biography errors remain in seeds for a later authorized correction.
+
+---

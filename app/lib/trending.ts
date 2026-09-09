@@ -106,7 +106,8 @@ export async function getTrendingWithDelta(
   }
 
   if (scope === "ytd") {
-    // 2026 YTD vs the same calendar window in 2025.
+    // January 1 through now, versus January 1 through the same timestamp
+    // one calendar year earlier. The prior window must grow with this year.
     return sql`
       WITH recent AS (
         SELECT DISTINCT pr.id,
@@ -115,6 +116,7 @@ export async function getTrendingWithDelta(
         FROM official_site_items pr
         JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= date_trunc('year', NOW())
+          AND pr.published_at <= NOW()
           AND s.status = 'active'
           AND s.jurisdiction = 'us'
           AND s.chamber = ANY(${chambers}::text[])
@@ -127,9 +129,7 @@ export async function getTrendingWithDelta(
         FROM official_site_items pr
         JOIN officials s ON s.id = pr.official_id
         WHERE pr.published_at >= date_trunc('year', NOW()) - interval '1 year'
-          AND pr.published_at < date_trunc('year', NOW())
-              - (NOW() - date_trunc('year', NOW()))
-              + interval '1 day'
+          AND pr.published_at <= NOW() - interval '1 year'
           AND s.status = 'active'
           AND s.jurisdiction = 'us'
           AND s.chamber = ANY(${chambers}::text[])

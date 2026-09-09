@@ -235,14 +235,13 @@ export default async function TexasMethodology() {
           <span className="text-neutral-900 font-medium">
             Current holders only.
           </span>{" "}
-          District 4 is currently vacant pending a May 2026 special election;
-          we don&apos;t collect for it. District 9&apos;s Taylor Rehmet was
-          sworn in February 2026 and has not begun publishing; her seed entry
-          has{" "}
+          The collector follows the configured office pressrooms. Some
+          configurations carry an{" "}
           <code className="font-[family-name:var(--font-dm-mono)] text-[13px] text-neutral-700">
             expect_empty: true
           </code>{" "}
-          so the data-quality tests don&apos;t false-flag her.
+          flag to account for a previously observed empty pressroom. That
+          flag is not a live statement about a vacancy or current publishing.
         </p>
         <p>
           <span className="text-neutral-900 font-medium">
