@@ -197,10 +197,9 @@ export default async function Home({
               press machine moves day to day.
             </p>
             <p className="text-sm md:text-base text-neutral-500 max-w-2xl leading-relaxed">
-              Every record each member&rsquo;s office publishes on their own
-              .gov site, all {senateCount} senators and {houseCount} House
-              representatives. Normalized, searchable, updated multiple times
-              daily.
+              Official press output collected from {senateCount} senators and{" "}
+              {houseCount} House members in the archive. Normalized, searchable,
+              with collection scheduled four times daily.
             </p>
           </div>
           {heroItems.length > 0 && (
