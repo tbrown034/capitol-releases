@@ -935,13 +935,16 @@ def test_collector_extraction_parity():
     """HARD. Pre-scrape health check found items; collector inserted nothing.
 
     If the most recent health_checks row for a senator shows >=3 listing
-    items in the last 24 hours, the listing page is alive and parseable.
+    items in the last 8 days, the listing page is alive and parseable.
+    The probe is weekly-only (weekly.yml, Monday) since the daily
+    pre-scrape step was removed 2026-10-25, so the window has to cover a
+    full week, not a single day, to have a row to join against at all.
     If MAX(last_seen_live) -- bumped whenever the daily collector sees a
     known URL on the listing/feed, even when the item is older than the
     incremental detail-fetch cutoff -- is more than 36 hours old, the
-    collector ran four times against a healthy listing and matched
-    nothing. That is the failure mode that hid for 18 days in May 2026
-    behind selector + RSS-fallback breakage.
+    collector ran against a healthy listing and matched nothing. That is
+    the failure mode that hid for 18 days in May 2026 behind selector +
+    RSS-fallback breakage.
 
     last_seen_live is the right signal, not scraped_at: scraped_at only
     moves on NEW inserts, so a senator whose listing carries only old
@@ -962,7 +965,7 @@ def test_collector_extraction_parity():
             SELECT DISTINCT ON (official_id)
                 official_id, items_found, checked_at
             FROM health_checks
-            WHERE checked_at > NOW() - INTERVAL '24 hours'
+            WHERE checked_at > NOW() - INTERVAL '8 days'
             ORDER BY official_id, checked_at DESC
         ),
         touch AS (
@@ -1012,6 +1015,11 @@ def test_cutoff_filter_not_starving_senators():
     is the cluster shape: multiple senators tripping at once almost
     always means a systemic filter regression (the May 2026 cutoff bug
     affected six senators simultaneously).
+
+    The health_checks window is 8 days, not the 5 it used to be: the
+    probe is weekly-only (weekly.yml, Monday) since the daily pre-scrape
+    step was removed 2026-10-25, and 8 days guarantees a Monday row is
+    always in range even if one week's probe run is skipped or delayed.
     """
     conn = get_conn()
     cur = conn.cursor()
@@ -1021,7 +1029,7 @@ def test_cutoff_filter_not_starving_senators():
                    COUNT(*) AS checks,
                    COUNT(*) FILTER (WHERE items_found >= 3) AS healthy
             FROM health_checks
-            WHERE checked_at > NOW() - INTERVAL '5 days'
+            WHERE checked_at > NOW() - INTERVAL '8 days'
             GROUP BY official_id
         ),
         touch AS (
@@ -1136,10 +1144,16 @@ def test_date_confidence_floor():
 def test_pre_scrape_failure_surface():
     """SOFT. Hoist pre-scrape health-check failures into the test gate.
 
-    The 'Pre-scrape health check' workflow step prints '--- FAILED (N) ---'
-    inline and exits 0 regardless. That meant today's run logged 7
-    failed health checks and the visible signal was 'data-quality tests
-    failed' four steps later. Mirror them here so the digest sees them.
+    The weekly 'health' job (weekly.yml, Monday) runs the pre-scrape
+    canary and prints '--- FAILED (N) ---' inline, exiting 0 regardless.
+    That meant a run could log 7 failed health checks and the only
+    visible signal was 'data-quality tests failed' elsewhere. Mirror
+    them here so the digest sees them.
+
+    The probe was a daily step until 2026-10-25; it's weekly-only now,
+    so the window below is 8 days, not 24 hours, to stay joined to that
+    week's Monday rows all week instead of going vacuous Tuesday
+    through Friday.
 
     A health-check failure is the listing page returning non-200, or
     timing out, or producing zero items. Sub-counted by reason for the
@@ -1153,7 +1167,7 @@ def test_pre_scrape_failure_surface():
                 official_id, passed, url_status, items_found,
                 error_message, checked_at
             FROM health_checks
-            WHERE checked_at > NOW() - INTERVAL '24 hours'
+            WHERE checked_at > NOW() - INTERVAL '8 days'
             ORDER BY official_id, checked_at DESC
         )
         SELECT s.full_name, s.id, l.passed, l.url_status, l.items_found, l.error_message
@@ -1170,7 +1184,7 @@ def test_pre_scrape_failure_surface():
     cur.close()
     conn.close()
     if failed:
-        print(f"WARNING: {len(failed)} senators failed pre-scrape health check in last 24h:")
+        print(f"WARNING: {len(failed)} senators failed pre-scrape health check in last 8 days:")
         for name, sid, passed, status, items, err in failed:
             tag = f"http={status}" if status else "no_response"
             extra = f" items={items}" if items is not None else ""
@@ -1417,7 +1431,7 @@ def test_floor_speeches_collector_alive():
     age_hours = (datetime.now(timezone.utc) - finished_at).total_seconds() / 3600
     assert age_hours <= 48, (
         f"floor-speech collector heartbeat is {age_hours:.0f}h old "
-        f"(last completed {finished_at:%Y-%m-%d %H:%M} UTC); the 4x/day "
+        f"(last completed {finished_at:%Y-%m-%d %H:%M} UTC); the daily "
         "cron step is not finishing"
     )
     stats = stats or {}
@@ -1434,7 +1448,7 @@ def test_rag_embed_backlog():
     failed embed degrades invisibly: Ask the record answers "not in the
     record" for content that is in the record, with nothing to signal
     staleness. Any active-official release older than 48h with a body
-    and no v1 passages means the 4x/day embed step has been failing.
+    and no v1 passages means the daily embed step has been failing.
     """
     conn = get_conn()
     cur = conn.cursor()
@@ -1469,21 +1483,28 @@ def test_health_probe_ran():
     """SOFT. test_pre_scrape_failure_surface mirrors per-member health
     failures, but only from rows the probe wrote -- a probe that crashes
     before writing anything leaves that test green with nothing to
-    mirror. Zero health_checks rows in 24h is the probe itself dying.
+    mirror. Zero health_checks rows is the probe itself dying.
+
+    The probe moved from a daily step to weekly-only (weekly.yml,
+    Monday) on 2026-10-25, so a 24-hour window would warn on this test
+    Tuesday through Friday every week even when the probe is healthy --
+    crying wolf in the one email meant to be trusted. 8 days covers one
+    full week, so this only fires when the Monday probe itself has
+    actually missed a cycle.
     """
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
         SELECT count(*) FROM health_checks
-        WHERE checked_at > now() - interval '24 hours'
+        WHERE checked_at > now() - interval '8 days'
     """)
     rows = cur.fetchone()[0]
     cur.close()
     conn.close()
     if rows == 0:
-        print("WARNING: zero health_checks rows in 24h -- the pre-scrape "
-              "probe never ran or crashed before writing")
-    assert rows > 0, "pre-scrape health probe wrote no rows in 24h"
+        print("WARNING: zero health_checks rows in 8 days -- the weekly "
+              "pre-scrape probe never ran or crashed before writing")
+    assert rows > 0, "weekly pre-scrape health probe wrote no rows in 8 days"
 
 
 # ---- Run all tests ----
