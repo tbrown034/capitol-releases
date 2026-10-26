@@ -260,8 +260,8 @@ export default async function TexasMethodology() {
           <code className="font-[family-name:var(--font-dm-mono)] text-[13px] text-neutral-700">
             python -m pipeline update
           </code>{" "}
-          command runs the TX collector for every TX senator, four times a
-          day: 9 AM, 1 PM, 5 PM, and 9 PM Eastern Time (via GitHub Actions).
+          command runs the TX collector for every TX senator, once each
+          weekday at 5 PM Eastern Time (via GitHub Actions).
           Per-senator: one HTTP GET, parse, dedup against existing records by{" "}
           <code className="font-[family-name:var(--font-dm-mono)] text-[13px] text-neutral-700">
             source_url
@@ -412,7 +412,7 @@ export default async function TexasMethodology() {
             <span className="text-neutral-900 font-medium">
               Not &ldquo;real-time.&rdquo;
             </span>{" "}
-            Four times a day via cron, not push.
+            Once each weekday via cron, not push.
           </li>
         </ul>
       </Section>

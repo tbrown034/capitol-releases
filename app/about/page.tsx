@@ -398,16 +398,16 @@ export default async function AboutPage({
 
       <Section title="Update cadence">
         <p>
-          GitHub Actions schedules collection four times a day: 13:00, 17:00,
-          21:00 and 01:00 UTC. These are scheduled times, and runs can start
-          later or fail. The same workflow refreshes WordPress JSON silos
-          used for op-eds, newsletters, blogs and related official sections.
+          GitHub Actions schedules collection each weekday at 21:00 UTC.
+          This is a scheduled time, and runs can start later or fail. The
+          same workflow refreshes WordPress JSON silos used for op-eds,
+          newsletters, blogs and related official sections.
         </p>
         <p>
-          The scheduled workflow attempts a health check before collection.
-          It probes configured source pages, listing extraction and sample
-          date parsing. Collection can continue after a failed health check;
-          a passing probe does not establish complete archive coverage.
+          A separate weekly workflow runs a health check across every
+          configured source. It probes source pages, listing extraction
+          and sample date parsing. A passing probe does not establish
+          complete archive coverage.
         </p>
       </Section>
 

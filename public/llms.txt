@@ -1,6 +1,6 @@
 # Capitol Releases
 
-> Capitol Releases is a searchable archive of official press releases from elected officials in the United States. It scrapes, normalizes, and indexes more than 100,000 releases from all 100 U.S. senators, all 437 U.S. House members, and the 31-member Texas State Senate. Releases are refreshed four times daily.
+> Capitol Releases is a searchable archive of official press releases from elected officials in the United States. It scrapes, normalizes, and indexes more than 100,000 releases from all 100 U.S. senators, all 437 U.S. House members, and the 31-member Texas State Senate. Releases are refreshed each weekday.
 
 Built and maintained by Trevor Brown, a journalist and developer (https://trevorthewebdeveloper.com). The project gives reporters, researchers, and constituents a single source for what elected officials are saying in their own words.
 

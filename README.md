@@ -62,8 +62,8 @@ Open [http://localhost:3003](http://localhost:3003). Set `DATABASE_URL` in `.env
 ## Pipeline CLI
 
 ```bash
-python -m pipeline update          # collect new releases (cron runs this 4x daily)
-python -m pipeline health          # per-member pre-scrape canary
+python -m pipeline update          # collect new releases (cron runs this once each weekday)
+python -m pipeline health          # per-member canary (cron runs this weekly)
 python -m pipeline test            # data-quality suite against the live corpus
 python -m pipeline back-coverage   # flag members with truncated archives
 python -m pipeline deletions       # detect source-deleted releases
@@ -80,8 +80,8 @@ Additional commands: `repair`, `review`, `verify-visual`, `tiers`, `source-profi
 | Workflow | Schedule | Job |
 |----------|----------|-----|
 | `ci.yml` | push / PR | eslint, tsc, non-DB pytest |
-| `daily.yml` | 4x daily | collect, embed, data-quality gate |
-| `daily-digest.yml` | nightly | operator digest to `ALERT_EMAIL` |
+| `daily.yml` | weekdays | collect, embed, data-quality gate |
+| `daily-digest.yml` | weekday evenings | operator digest to `ALERT_EMAIL` |
 | `brief.yml` | Tue–Sat | daily brief |
 | `brief-weekly.yml` | Fri | weekly recap |
 | `weekly.yml` | weekly | deep checks |

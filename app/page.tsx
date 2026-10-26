@@ -199,7 +199,7 @@ export default async function Home({
             <p className="text-sm md:text-base text-neutral-500 max-w-2xl leading-relaxed">
               Official press output collected from {senateCount} senators and{" "}
               {houseCount} House members in the archive. Normalized, searchable,
-              with collection scheduled four times daily.
+              with collection scheduled each weekday.
             </p>
           </div>
           {heroItems.length > 0 && (

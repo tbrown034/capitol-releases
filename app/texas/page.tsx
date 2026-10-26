@@ -19,7 +19,7 @@ import type { FeedItem, ContentType } from "../lib/db";
 export const metadata = {
   title: "Texas Senate — Capitol Releases",
   description:
-    "Press releases from the 31-member Texas State Senate, scraped four times daily from senate.texas.gov. Coverage, publishing patterns, and the silent caucus of senators who don't post online.",
+    "Press releases from the 31-member Texas State Senate, scraped each weekday from senate.texas.gov. Coverage, publishing patterns, and the silent caucus of senators who don't post online.",
 };
 
 export const revalidate = 600;
@@ -180,7 +180,7 @@ export default async function TexasHubPage({
             </h1>
             <p className="text-base md:text-lg text-neutral-700 max-w-2xl leading-snug mb-3">
               Every press release from every Texas state senator&rsquo;s
-              pressroom on senate.texas.gov, scraped four times daily, since
+              pressroom on senate.texas.gov, scraped each weekday, since
               January 2025.
             </p>
             <p className="text-sm md:text-base text-neutral-500 max-w-2xl leading-relaxed">
