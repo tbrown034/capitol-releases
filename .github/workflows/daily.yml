@@ -2,10 +2,12 @@ name: Daily pipeline
 
 on:
   schedule:
-    # 4x/day at 9 AM, 1 PM, 5 PM, 9 PM ET (UTC: 13, 17, 21, 01). Same-day
-    # business-hour content gets captured within ~4h instead of waiting
-    # until the next morning. Source-URL dedup makes re-runs safe.
-    - cron: "0 1,13,17,21 * * *"
+    # Once a day, weekdays, 21:00 UTC (5pm ET / 4pm EST after Nov 1). Scaled
+    # down 2026-10-25 from 4x/day: measured capture rates showed the extra
+    # runs added almost nothing (0-5 new records per run across 693
+    # officials), and 21:00 UTC is the slot the daily brief's 6-hour
+    # freshness guard depends on. Source-URL dedup makes re-runs safe.
+    - cron: "0 21 * * 1-5"
   workflow_dispatch:
 
 concurrency:
@@ -18,13 +20,13 @@ jobs:
     timeout-minutes: 60
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
       SMTP_HOST: ${{ secrets.SMTP_HOST }}
       SMTP_PORT: ${{ secrets.SMTP_PORT }}
       SMTP_USER: ${{ secrets.SMTP_USER }}
       SMTP_PASS: ${{ secrets.SMTP_PASS }}
+      BRIEF_FROM_ADDR: ${{ secrets.BRIEF_FROM_ADDR }}
     steps:
       - uses: actions/checkout@v4
 
@@ -37,18 +39,6 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r pipeline/requirements.txt
-
-      - name: Pre-scrape health check
-        # Per-member canary: GET each official's listing URL, verify selectors
-        # find items, verify dates parse. Writes to the health_checks table
-        # so the data-health report and /admin dashboard reflect today's
-        # state. Added 2026-05-02 wave-3 after surfacing that 0/437 House
-        # members had ever been checked since the chamber was added.
-        # continue-on-error so a flaky probe doesn't fail the whole run —
-        # the daily update below is the canonical collector and surfaces
-        # any actual breakage.
-        continue-on-error: true
-        run: python -m pipeline health
 
       - name: Run daily update
         # Loads every chamber from pipeline/seeds/*.json via load_members().
@@ -125,3 +115,11 @@ jobs:
         # commit-target if we decide to surface it on the site.
         if: always()
         run: python -m pipeline health-report
+
+      - name: Email on hard failure
+        # The nightly digest (daily-digest.yml) is the normal health signal.
+        # This step only fires if this run itself failed outright, so a hard
+        # failure reaches the inbox the same night instead of waiting for
+        # the digest's own schedule.
+        if: failure()
+        run: python -m pipeline daily-report
