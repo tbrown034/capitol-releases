@@ -9,9 +9,11 @@ name: Daily brief
 on:
   schedule:
     # 22:30 UTC = 6:30pm ET (5:30pm during DST shoulder), ~90 min after the
-    # 21:00 UTC collector. Tuesday-Saturday so we don't burn API spend on
-    # quiet weekend days; Monday's brief covers Sat-Sun rollup later.
-    - cron: "30 22 * * 2-6"
+    # 21:00 UTC collector. Tuesday-Friday, matching the collector's own
+    # Monday-Friday schedule (changed 2026-10-25) -- a Saturday run would
+    # find no collector finish in the last six hours and fail the guard.
+    # Monday's brief covers Sat-Sun rollup later.
+    - cron: "30 22 * * 2-5"
   workflow_dispatch:
     inputs:
       date:
