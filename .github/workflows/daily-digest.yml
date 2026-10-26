@@ -12,12 +12,11 @@ name: Daily pipeline digest
 
 on:
   schedule:
-    # 02:00 UTC = 10pm ET (EDT) / 9pm ET (EST), 60 min after the
-    # 01:00 UTC daily collector — the actual end of the East Coast
-    # business day. The previous 22:30 UTC slot was 6:30pm ET, which
-    # ran BEFORE the 21:00 UTC and 01:00 UTC collectors, so the
-    # "today's captures" line was missing the evening's work.
-    - cron: "0 2 * * *"
+    # 22:00 UTC = 6pm ET (EDT) / 5pm ET (EST), weekdays, 60 min after the
+    # single 21:00 UTC daily collector run. Moved here 2026-10-25 when the
+    # collector dropped from 4x/day to one weekday run, so "today's
+    # captures" stays accurate. Lands 30 min before the 22:30 UTC brief.
+    - cron: "0 22 * * 1-5"
   workflow_dispatch:
     inputs:
       date:
