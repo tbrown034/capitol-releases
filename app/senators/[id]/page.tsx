@@ -27,6 +27,10 @@ import { STATE_NAMES } from "../../lib/states";
 import { excludeNameTokens } from "../../lib/names";
 import { formatLongMonthYear, formatReleaseDate } from "../../lib/dates";
 
+// 100 URLs, listed in the sitemap with changeFrequency: daily. Was
+// rendering per request with no cache window.
+export const revalidate = 3600;
+
 const VALID_TYPES = new Set<ContentType>([
   "press_release",
   "statement",

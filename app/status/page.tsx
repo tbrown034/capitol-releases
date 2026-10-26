@@ -8,7 +8,10 @@ export const metadata = {
     "Daily pipeline runs, inserts, and errors for the Capitol Releases scraper.",
 };
 
-export const dynamic = "force-dynamic";
+// Was force-dynamic; the page reads no dynamic APIs (no searchParams,
+// cookies or headers), just a plain query. /status is in the sitemap with
+// changeFrequency: daily, so force-dynamic woke Postgres on every crawl.
+export const revalidate = 300;
 
 function fmtDate(iso: string): string {
   return formatTimestamp(iso);
