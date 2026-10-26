@@ -57,7 +57,7 @@ def _et_day_bounds(target: date) -> tuple[datetime, datetime]:
 def _aggregate_runs(cur, target: date) -> dict:
     """Sum capture stats across every daily scrape_runs row for the ET date.
 
-    The cron fires four times a day; each run records its own stats blob.
+    The cron fires once a day on weekdays; each run records its own stats blob.
     Summing gives the day's total, which is what an end-of-day reader
     actually wants to see.
     """
