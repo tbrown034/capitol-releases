@@ -69,6 +69,42 @@ def store_health_check(conn, result: HealthCheckResult):
         cur.close()
 
 
+def prune_health_checks(conn, retention_days: int = 30) -> int:
+    """Delete health_checks rows older than retention_days, except each
+    official's single newest row.
+
+    Mirrors the alerts collapse in pipeline/lib/alerts.py: nothing reads more
+    than the latest row per official (the data-health report and /admin
+    dashboard both do), so every run's INSERT is pure write amplification.
+    At the old 4x/day cadence this was ~84,000 rows a month. `pipeline
+    health` is a weekly-only command since 2026-10-25 (weekly.yml, Monday),
+    so this keeps roughly 693 rows a week plus a 30-day tail instead of
+    growing forever.
+    """
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            DELETE FROM health_checks
+            WHERE checked_at < NOW() - make_interval(days => %s)
+              AND id NOT IN (
+                  SELECT DISTINCT ON (official_id) id
+                  FROM health_checks
+                  ORDER BY official_id, checked_at DESC
+              )
+        """, (retention_days,))
+        deleted = cur.rowcount
+        conn.commit()
+        if deleted:
+            log.info("Pruned %d health_checks rows older than %d days", deleted, retention_days)
+        return deleted
+    except Exception as e:
+        conn.rollback()
+        log.error("Failed to prune health_checks: %s", e)
+        return 0
+    finally:
+        cur.close()
+
+
 async def run_health_checks(
     senators: list[dict],
     store_results: bool = True,
@@ -123,6 +159,7 @@ async def run_health_checks(
     await asyncio.gather(*tasks)
 
     if conn:
+        prune_health_checks(conn)
         conn.close()
 
     elapsed = (datetime.now(timezone.utc) - started_at).total_seconds()
