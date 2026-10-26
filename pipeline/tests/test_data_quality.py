@@ -1006,7 +1006,7 @@ def test_collector_extraction_parity():
 
 def test_cutoff_filter_not_starving_senators():
     """SOFT. Senators whose listings consistently had items found by the
-    health check but where MAX(last_seen_live) is more than 3 days old.
+    health check but where MAX(last_seen_live) is more than 4 days old.
 
     A senator with no new content but a working collector will still
     have fresh last_seen_live values from dedupe matches. A stale
@@ -1020,6 +1020,13 @@ def test_cutoff_filter_not_starving_senators():
     probe is weekly-only (weekly.yml, Monday) since the daily pre-scrape
     step was removed 2026-10-25, and 8 days guarantees a Monday row is
     always in range even if one week's probe run is skipped or delayed.
+
+    checks >= 1 rather than >= 3: with one probe run a week, an official
+    gets at most 1-2 rows in any 8-day window, so a >= 3 floor could
+    never be met and the test passed trivially, examining nothing. One
+    healthy row is still a real signal that the listing was alive that
+    week. The staleness threshold moved from 3 to 4 days to give a
+    single weekly probe slightly more slack than the old daily one had.
     """
     conn = get_conn()
     cur = conn.cursor()
@@ -1047,16 +1054,16 @@ def test_cutoff_filter_not_starving_senators():
           AND s.status = 'active'
           AND NOT (s.id = ANY(%s))
           AND NOT s.expect_empty
-          AND rh.checks >= 3
-          AND rh.healthy = rh.checks  -- every check saw items
-          AND (t.last_touch IS NULL OR t.last_touch < NOW() - INTERVAL '3 days')
+          AND rh.checks >= 1
+          AND rh.healthy = rh.checks  -- the week's probe saw items
+          AND (t.last_touch IS NULL OR t.last_touch < NOW() - INTERVAL '4 days')
         ORDER BY t.last_touch NULLS FIRST
     """, (list(_EXEMPT_PARITY),))
     starved = cur.fetchall()
     cur.close()
     conn.close()
     if starved:
-        print(f"WARNING: {len(starved)} senators with healthy listings but no collector touches in 3 days:")
+        print(f"WARNING: {len(starved)} senators with healthy listings but no collector touches in 4 days:")
         for sid, name, healthy, checks, last_touch in starved:
             lt = last_touch.strftime('%Y-%m-%d %H:%M') if last_touch else 'never'
             print(f"  {name} ({sid}): listing_healthy={healthy}/{checks}, last_touch={lt}")
