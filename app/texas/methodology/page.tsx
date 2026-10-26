@@ -261,7 +261,7 @@ export default async function TexasMethodology() {
             python -m pipeline update
           </code>{" "}
           command runs the TX collector for every TX senator, once each
-          weekday at 5 PM Eastern Time (via GitHub Actions).
+          weekday at 21:00 UTC (via GitHub Actions).
           Per-senator: one HTTP GET, parse, dedup against existing records by{" "}
           <code className="font-[family-name:var(--font-dm-mono)] text-[13px] text-neutral-700">
             source_url
