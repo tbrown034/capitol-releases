@@ -2,7 +2,7 @@
 
 *Last updated: July 28, 2026.*
 
-Capitol Releases is an archive of official communications from elected officials: 100,000+ press releases, statements, and op-eds collected daily from official .gov sites, across the US Senate, US House, and a first wave of state officials. AI is used in three places. Everywhere else, the system is deterministic on purpose. The newest surface — a retrieval-augmented Q&A box on member pages — was built through a gated, evaluated process whose full decision log, golden dataset, and eval results are public in `learning/rag/`.
+Capitol Releases is an archive of official communications from elected officials: 100,000+ press releases, statements, and op-eds collected daily from official .gov sites, across the US Senate, US House, and a first wave of state officials. AI is used in two places. Everywhere else, the system is deterministic on purpose. The newest surface — a retrieval-augmented Q&A box on member pages — was built through a gated, evaluated process whose full decision log, golden dataset, and eval results are public in `learning/rag/`.
 
 **The governing rule: AI assists, it does not drive.** Every database write is deterministic and traceable to a collector run. AI-generated text never enters the archive itself. It only summarizes or answers questions about records that already exist, and every AI output is validated against those records before anyone sees it.
 
@@ -14,7 +14,6 @@ Capitol Releases is an archive of official communications from elected officials
 |---|---|---|---|
 | Daily and weekly brief | Claude Sonnet 4.6 | Axios-style editorial synthesis of the day's releases | Citation validator rejects the whole brief if any cited ID is not in the input set |
 | Ask the record | Claude Haiku 4.5 + OpenAI text-embedding-3-small | Member-page Q&A grounded in that member's archived releases (RAG) | Server-validated citations; five-status honesty protocol; abstains rather than guesses |
-| Post-collection validation | Claude Haiku 4.5 | Sanity-checks scraped records for classification and extraction errors | Advisory only — it can flag, it cannot write |
 
 ---
 
@@ -41,10 +40,6 @@ Every senator and House member page has an "Ask the record" box. Questions are a
 **How answering works.** Retrieved passages go to Claude as typed search-result blocks with the API's citation feature enabled, under a closed-book prompt. Answers return with machine-readable citations that the server validates against the exact passages it sent — invalid citations discard the whole answer. The model must declare one of five statuses: `answered`, `related_only` ("the record can't say how she voted, but here is what it shows"), `not_in_record`, `no_sources`, or `declined`. Saying "not in the record" is a designed outcome, not a failure.
 
 **Accountability.** Every question is logged with its retrieval set, scores, citations, model versions, tokens, and outcome status — so hallucination-guard rejections are a queryable rate, not an anecdote. Questions pass a moderation screen (fail-open; the fail-closed walls are inside). Every answer carries a disclosure footer: AI-generated, not human-reviewed, verify before citing, with a correction link. Rate limits cap spend.
-
-## 3. Post-collection validation: cheap AI as a smoke detector
-
-After collection, `pipeline/lib/ai_validator.py` runs Claude Haiku 4.5 over samples of scraped records, checking for misclassified content types, extraction junk, and date anomalies. Its findings surface in internal quality reports. It has no write access — a deliberate ceiling, because a validator that can "fix" records is a validator that can corrupt them.
 
 ---
 

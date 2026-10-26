@@ -39,7 +39,6 @@ pipeline/
     identity.py     # URL normalization + content hashing
     rss.py          # RSS feed discovery and parsing
     alerts.py       # Anomaly detection + email alerts
-    ai_validator.py # Claude Haiku validation (advisory)
 
   collectors/       # Collection strategies
     base.py                 # Collector protocol
