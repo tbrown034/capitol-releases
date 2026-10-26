@@ -31,7 +31,7 @@ const MAX_QUESTION_CHARS = 300;
 // terminal tests and the browser split one budget). Global daily cap still
 // bounds worst-case spend.
 const PER_IP_HOURLY_LIMIT = 30;
-const GLOBAL_DAILY_LIMIT = 250;
+const GLOBAL_DAILY_LIMIT = 50;
 
 const REFUSAL_SENTENCE = "Not in the record.";
 
