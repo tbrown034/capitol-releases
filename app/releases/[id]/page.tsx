@@ -18,10 +18,11 @@ import { STATE_NAMES } from "../../lib/states";
 import { formatReleaseDate, formatTimestamp, isFutureDated } from "../../lib/dates";
 import { SITE_URL } from "../../lib/site";
 
-// Archived releases rarely change after capture; a day-long ISR window keeps
+// Archived releases rarely change after capture; a week-long ISR window keeps
 // the crawler flood off Postgres. Edits and tombstones surface on the next
-// daily revalidation.
-export const revalidate = 86400;
+// revalidation. Raised from 86400 (one day) 2026-10-25 -- this page and its
+// OG image were 99.7 percent of the site's ISR write volume.
+export const revalidate = 604800;
 
 // generateMetadata and the page body need the same row; cache() collapses
 // them into one query per request.
@@ -58,6 +59,11 @@ export async function generateMetadata({
       title,
       description: `${release.senator_name} (${release.party}-${release.state}) · ${formatReleaseDate(displayDate)}`,
       type: "article",
+      // Replaced the per-release dynamic ImageResponse card 2026-10-25 with
+      // one static image shared across all ~105,000 release pages. The card
+      // doubled the ISR entry count for this route; the homepage and member
+      // cards keep their own dynamic images.
+      images: [{ url: `${SITE_URL}/og-release.png`, width: 1200, height: 630 }],
     },
     // The archive page is the canonical URL. Pointing this at source_url
     // told search engines to index house.gov/senate.gov instead of us.
