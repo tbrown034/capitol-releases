@@ -27,10 +27,11 @@ import { STATE_NAMES } from "../../lib/states";
 import { excludeNameTokens } from "../../lib/names";
 import { formatLongMonthYear, formatReleaseDate } from "../../lib/dates";
 
-// 100 URLs, listed in the sitemap with changeFrequency: daily. Was
-// rendering per request with no cache window.
-export const revalidate = 3600;
-
+// 100 URLs, listed in the sitemap with changeFrequency: daily. No
+// revalidate export here: the page awaits searchParams below (sp.page,
+// sp.type feed getSenatorReleases), which forces dynamic rendering, so a
+// revalidate value would be inert without moving the filtered list into a
+// cached child component. Left rendering per request until that's done.
 const VALID_TYPES = new Set<ContentType>([
   "press_release",
   "statement",
